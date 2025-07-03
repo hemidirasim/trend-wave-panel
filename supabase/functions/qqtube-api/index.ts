@@ -33,7 +33,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Prepare URL-encoded form data for QQTube API
     const formParams = new URLSearchParams();
-    formParams.append('key', API_KEY); // Changed from 'api_key' to 'key'
+    formParams.append('api_key', API_KEY); // Changed back to 'api_key' based on documentation
     
     // Add all request parameters to form data
     Object.entries(requestBody).forEach(([key, value]) => {
