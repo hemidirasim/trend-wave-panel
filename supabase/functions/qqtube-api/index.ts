@@ -33,7 +33,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Prepare URL-encoded form data for QQTube API
     const formParams = new URLSearchParams();
-    formParams.append('api_key', API_KEY);
+    formParams.append('key', API_KEY); // Changed from 'api_key' to 'key'
     
     // Add all request parameters to form data
     Object.entries(requestBody).forEach(([key, value]) => {
@@ -50,7 +50,8 @@ const handler = async (req: Request): Promise<Response> => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'Mozilla/5.0 (compatible; Supabase Edge Function)',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept': 'application/json',
       },
       body: formParams.toString(),
     });
@@ -58,14 +59,30 @@ const handler = async (req: Request): Promise<Response> => {
     console.log('QQTube API response status:', response.status);
     console.log('QQTube API response headers:', Object.fromEntries(response.headers.entries()));
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('QQTube API error response:', errorText);
-      throw new Error(`QQTube API error: ${response.status} - ${errorText}`);
-    }
-
     const responseText = await response.text();
     console.log('QQTube API raw response:', responseText);
+
+    if (!response.ok) {
+      console.error('QQTube API error response:', responseText);
+      return new Response(
+        JSON.stringify({ 
+          error: `QQTube API error: ${response.status}`,
+          details: responseText,
+          debug: {
+            url: API_BASE_URL,
+            method: 'POST',
+            params: Object.fromEntries(formParams.entries())
+          }
+        }),
+        {
+          status: response.status,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          },
+        }
+      );
+    }
 
     // Try to parse as JSON
     let data;
@@ -73,8 +90,11 @@ const handler = async (req: Request): Promise<Response> => {
       data = JSON.parse(responseText);
     } catch (parseError) {
       console.error('Failed to parse response as JSON:', parseError);
-      // If it's not JSON, return the raw text
-      data = { message: responseText };
+      // If it's not JSON, return the raw text wrapped in an object
+      data = { 
+        raw_response: responseText,
+        parse_error: parseError.message 
+      };
     }
 
     console.log('QQTube API parsed response data:', data);
@@ -92,7 +112,8 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(
       JSON.stringify({ 
         error: error.message,
-        details: 'Edge Function execution failed'
+        details: 'Edge Function execution failed',
+        stack: error.stack
       }),
       {
         status: 500,
