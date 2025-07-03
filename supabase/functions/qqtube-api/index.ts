@@ -31,26 +31,32 @@ const handler = async (req: Request): Promise<Response> => {
     const requestBody: ApiRequest = await req.json();
     console.log('Request body:', requestBody);
 
-    // Prepare form data for QQTube API
-    const formData = new FormData();
-    formData.append('api_key', API_KEY);
+    // Prepare URL-encoded form data for QQTube API
+    const formParams = new URLSearchParams();
+    formParams.append('api_key', API_KEY);
     
     // Add all request parameters to form data
     Object.entries(requestBody).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
-        formData.append(key, value.toString());
+        formParams.append(key, value.toString());
       }
     });
 
-    console.log('Making request to QQTube API with form data...');
+    console.log('Making request to QQTube API with URL-encoded data...');
+    console.log('Form params:', formParams.toString());
 
-    // Make request to QQTube API
+    // Make request to QQTube API with proper headers
     const response = await fetch(API_BASE_URL, {
       method: 'POST',
-      body: formData,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'User-Agent': 'Mozilla/5.0 (compatible; Supabase Edge Function)',
+      },
+      body: formParams.toString(),
     });
 
     console.log('QQTube API response status:', response.status);
+    console.log('QQTube API response headers:', Object.fromEntries(response.headers.entries()));
 
     if (!response.ok) {
       const errorText = await response.text();
