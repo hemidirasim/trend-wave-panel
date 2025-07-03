@@ -42,7 +42,7 @@ const handler = async (req: Request): Promise<Response> => {
       }
     });
 
-    console.log('Making request to QQTube API...');
+    console.log('Making request to QQTube API with form data...');
 
     // Make request to QQTube API
     const response = await fetch(API_BASE_URL, {
@@ -54,12 +54,24 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('QQTube API error:', errorText);
+      console.error('QQTube API error response:', errorText);
       throw new Error(`QQTube API error: ${response.status} - ${errorText}`);
     }
 
-    const data = await response.json();
-    console.log('QQTube API response data:', data);
+    const responseText = await response.text();
+    console.log('QQTube API raw response:', responseText);
+
+    // Try to parse as JSON
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error('Failed to parse response as JSON:', parseError);
+      // If it's not JSON, return the raw text
+      data = { message: responseText };
+    }
+
+    console.log('QQTube API parsed response data:', data);
 
     return new Response(JSON.stringify(data), {
       status: 200,
