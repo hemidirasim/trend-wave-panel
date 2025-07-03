@@ -1,5 +1,4 @@
 
-const PROXY_URL = 'https://cors-anywhere.herokuapp.com/';
 const API_BASE_URL = 'https://www.qqtube.com/v1-api';
 const API_KEY = '2246aa33bc7050be3469cc0dd4a0065831e3148f';
 
@@ -84,19 +83,27 @@ export interface Submission {
 class ProxyApiService {
   private async makeRequest(url: string, options: RequestInit = {}): Promise<any> {
     try {
-      const response = await fetch(PROXY_URL + url, {
+      console.log('Making request to:', url);
+      console.log('Request options:', options);
+      
+      const response = await fetch(url, {
         ...options,
+        mode: 'cors',
         headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
           ...options.headers,
-          'X-Requested-With': 'XMLHttpRequest',
         },
       });
+
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log('Response data:', data);
       return data;
     } catch (error) {
       console.error('API Request Error:', error);
