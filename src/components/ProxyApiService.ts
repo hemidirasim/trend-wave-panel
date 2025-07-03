@@ -1,3 +1,4 @@
+import { supabase } from "@/integrations/supabase/client";
 
 const API_BASE_URL = 'https://www.qqtube.com/v1-api';
 const API_KEY = '2246aa33bc7050be3469cc0dd4a0065831e3148f';
@@ -81,29 +82,20 @@ export interface Submission {
 }
 
 class ProxyApiService {
-  private async makeRequest(url: string, options: RequestInit = {}): Promise<any> {
+  private async makeRequest(requestData: any): Promise<any> {
     try {
-      console.log('Making request to:', url);
-      console.log('Request options:', options);
+      console.log('Making request via Edge Function:', requestData);
       
-      const response = await fetch(url, {
-        ...options,
-        mode: 'cors',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          ...options.headers,
-        },
+      const { data, error } = await supabase.functions.invoke('qqtube-api', {
+        body: requestData,
       });
 
-      console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (error) {
+        console.error('Edge Function Error:', error);
+        throw new Error(`Edge Function error: ${error.message}`);
       }
 
-      const data = await response.json();
-      console.log('Response data:', data);
+      console.log('Edge Function Response:', data);
       return data;
     } catch (error) {
       console.error('API Request Error:', error);
@@ -112,16 +104,8 @@ class ProxyApiService {
   }
 
   async getServices(): Promise<Service[]> {
-    const formData = new FormData();
-    formData.append('api_key', API_KEY);
-    formData.append('action', 'services');
-
     try {
-      const data = await this.makeRequest(API_BASE_URL, {
-        method: 'POST',
-        body: formData,
-      });
-
+      const data = await this.makeRequest({ action: 'services' });
       return Array.isArray(data) ? data : [];
     } catch (error) {
       console.error('Error fetching services:', error);
@@ -135,25 +119,16 @@ class ProxyApiService {
     quantity: number,
     additionalParams: Record<string, any> = {}
   ): Promise<OrderResponse> {
-    const formData = new FormData();
-    formData.append('api_key', API_KEY);
-    formData.append('action', 'add');
-    formData.append('id_service', serviceId);
-    formData.append('url', url);
-    formData.append('quantity', quantity.toString());
-
-    Object.entries(additionalParams).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        formData.append(key, value.toString());
-      }
-    });
-
     try {
-      const data = await this.makeRequest(API_BASE_URL, {
-        method: 'POST',
-        body: formData,
-      });
+      const requestData = {
+        action: 'add',
+        id_service: serviceId,
+        url: url,
+        quantity: quantity,
+        ...additionalParams
+      };
 
+      const data = await this.makeRequest(requestData);
       return data;
     } catch (error) {
       console.error('Error placing order:', error);
@@ -162,15 +137,10 @@ class ProxyApiService {
   }
 
   async getOrderStatus(orderId: string): Promise<OrderStatus> {
-    const params = new URLSearchParams({
-      api_key: API_KEY,
-      action: 'stats',
-      id_service_submission: orderId,
-    });
-
     try {
-      const data = await this.makeRequest(`${API_BASE_URL}?${params}`, {
-        method: 'GET',
+      const data = await this.makeRequest({
+        action: 'stats',
+        id_service_submission: orderId
       });
 
       return data;
@@ -181,15 +151,10 @@ class ProxyApiService {
   }
 
   async getAllSubmissions(limit = 100): Promise<Submission[]> {
-    const params = new URLSearchParams({
-      api_key: API_KEY,
-      action: 'submissions',
-      limit: limit.toString(),
-    });
-
     try {
-      const data = await this.makeRequest(`${API_BASE_URL}?${params}`, {
-        method: 'GET',
+      const data = await this.makeRequest({
+        action: 'submissions',
+        limit: limit
       });
 
       return Array.isArray(data) ? data : [];
@@ -200,16 +165,8 @@ class ProxyApiService {
   }
 
   async getFunds(): Promise<number> {
-    const params = new URLSearchParams({
-      api_key: API_KEY,
-      action: 'funds',
-    });
-
     try {
-      const data = await this.makeRequest(`${API_BASE_URL}?${params}`, {
-        method: 'GET',
-      });
-
+      const data = await this.makeRequest({ action: 'funds' });
       return parseFloat(data.funds || '0');
     } catch (error) {
       console.error('Error fetching funds:', error);
