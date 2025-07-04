@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { Loader2, Plus, User, Package, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import OrderTracker from '@/components/OrderTracker';
 
 interface Order {
   id: string;
@@ -40,7 +41,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (!authLoading && !user) {
-      navigate('/auth');
+      navigate('/');
     }
   }, [user, authLoading, navigate]);
 
@@ -196,6 +197,11 @@ const Dashboard = () => {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Order Tracker */}
+        <div className="mb-8">
+          <OrderTracker />
         </div>
 
         {/* Orders Table */}

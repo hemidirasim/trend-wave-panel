@@ -9,8 +9,6 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Index from "./pages/Index";
 import Services from "./pages/Services";
 import Order from "./pages/Order";
-import Track from "./pages/Track";
-import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 
@@ -26,7 +24,6 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/services" element={<Services />} />
-            <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={
               <ProtectedRoute>
                 <Dashboard />
@@ -37,7 +34,6 @@ const App = () => (
                 <Order />
               </ProtectedRoute>
             } />
-            <Route path="/track" element={<Track />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
