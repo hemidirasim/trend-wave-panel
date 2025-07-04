@@ -1,40 +1,47 @@
+
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { apiService, Service } from '@/components/ApiService';
-import { Loader2, Search, Filter, ArrowRight, Star, CheckCircle } from 'lucide-react';
+import { Loader2, ArrowRight, Star, CheckCircle, Heart, Eye, Users, UserPlus } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Services = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [services, setServices] = useState<Service[]>([]);
-  const [filteredServices, setFilteredServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedPlatform, setSelectedPlatform] = useState(searchParams.get('platform') || 'all');
-  const [selectedType, setSelectedType] = useState('all');
+  const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
+  const [selectedServiceType, setSelectedServiceType] = useState<string | null>(null);
 
   // Define allowed platforms and service types
   const ALLOWED_PLATFORMS = ['instagram', 'tiktok', 'youtube', 'telegram'];
-  const ALLOWED_SERVICE_TYPES = ['like', 'view', 'follow', 'likes', 'views', 'followers'];
+  const ALLOWED_SERVICE_TYPES = ['like', 'view', 'follow', 'likes', 'views', 'followers', 'subscriber', 'subscribers'];
+
+  const PLATFORM_ICONS = {
+    instagram: '📷',
+    tiktok: '🎵',
+    youtube: '▶️',
+    telegram: '✈️'
+  };
+
+  const SERVICE_TYPE_ICONS = {
+    like: Heart,
+    view: Eye,
+    follow: Users,
+    subscriber: UserPlus
+  };
 
   useEffect(() => {
     fetchServices();
   }, []);
 
   useEffect(() => {
-    filterServices();
-  }, [services, searchTerm, selectedPlatform, selectedType]);
-
-  useEffect(() => {
     if (searchParams.get('platform')) {
-      setSelectedPlatform(searchParams.get('platform') || 'all');
+      setSelectedPlatform(searchParams.get('platform'));
     }
   }, [searchParams]);
 
@@ -62,52 +69,52 @@ const Services = () => {
     }
   };
 
-  const filterServices = () => {
-    let filtered = [...services];
-
-    if (searchTerm) {
-      filtered = filtered.filter(service =>
-        service.public_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        service.platform.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        service.type_name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    if (selectedPlatform !== 'all') {
-      filtered = filtered.filter(service =>
-        service.platform.toLowerCase() === selectedPlatform.toLowerCase()
-      );
-    }
-
-    if (selectedType !== 'all') {
-      filtered = filtered.filter(service =>
-        service.type_name.toLowerCase().includes(selectedType.toLowerCase()) ||
-        service.public_name.toLowerCase().includes(selectedType.toLowerCase())
-      );
-    }
-
-    setFilteredServices(filtered);
+  const getServicesByPlatform = (platform: string) => {
+    return services.filter(service => 
+      service.platform.toLowerCase() === platform.toLowerCase()
+    );
   };
 
-  const getPlatforms = () => {
-    const platforms = [...new Set(services.map(service => service.platform))]
-      .filter(platform => ALLOWED_PLATFORMS.includes(platform.toLowerCase()));
-    return platforms.sort();
-  };
-
-  const getServiceTypes = () => {
-    // Extract service types and filter to only allowed ones
-    const types = [...new Set(services.map(service => {
+  const getServiceTypeForPlatform = (platform: string) => {
+    const platformServices = getServicesByPlatform(platform);
+    const serviceTypes = [...new Set(platformServices.map(service => {
       const typeName = service.type_name.toLowerCase();
       const publicName = service.public_name.toLowerCase();
       
-      if (typeName.includes('like') || publicName.includes('like')) return 'Like';
-      if (typeName.includes('view') || publicName.includes('view')) return 'View';
-      if (typeName.includes('follow') || publicName.includes('follow')) return 'Follow';
+      if (typeName.includes('like') || publicName.includes('like')) return 'like';
+      if (typeName.includes('view') || publicName.includes('view')) return 'view';
+      if (typeName.includes('follow') || publicName.includes('follow')) {
+        // For YouTube, show 'subscriber' instead of 'follow'
+        return platform.toLowerCase() === 'youtube' ? 'subscriber' : 'follow';
+      }
+      if (typeName.includes('subscriber') || publicName.includes('subscriber')) return 'subscriber';
       return null;
     }).filter(Boolean))];
     
-    return types.sort();
+    return serviceTypes;
+  };
+
+  const getServicesByTypeAndPlatform = (platform: string, serviceType: string) => {
+    const platformServices = getServicesByPlatform(platform);
+    return platformServices.filter(service => {
+      const typeName = service.type_name.toLowerCase();
+      const publicName = service.public_name.toLowerCase();
+      
+      if (serviceType === 'like') {
+        return typeName.includes('like') || publicName.includes('like');
+      }
+      if (serviceType === 'view') {
+        return typeName.includes('view') || publicName.includes('view');
+      }
+      if (serviceType === 'follow') {
+        return typeName.includes('follow') || publicName.includes('follow');
+      }
+      if (serviceType === 'subscriber') {
+        return typeName.includes('subscriber') || publicName.includes('subscriber') || 
+               typeName.includes('follow') || publicName.includes('follow');
+      }
+      return false;
+    });
   };
 
   const formatPrice = (service: Service) => {
@@ -132,6 +139,13 @@ const Services = () => {
       telegram: 'bg-blue-400',
     };
     return colors[platform.toLowerCase()] || 'bg-gray-500';
+  };
+
+  const getServiceTypeLabel = (serviceType: string, platform: string) => {
+    if (serviceType === 'subscriber' && platform.toLowerCase() === 'youtube') {
+      return 'Subscriber';
+    }
+    return serviceType.charAt(0).toUpperCase() + serviceType.slice(1);
   };
 
   const renderServiceCard = (service: Service) => (
@@ -230,71 +244,92 @@ const Services = () => {
         </div>
       </section>
 
-      {/* Filters Section */}
-      <section className="py-8 border-b">
+      {/* Platform Selection */}
+      <section className="py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row gap-4 items-center">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search services..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            
-            <Select value={selectedPlatform} onValueChange={setSelectedPlatform}>
-              <SelectTrigger className="w-full md:w-48">
-                <SelectValue placeholder="Platform" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Platforms</SelectItem>
-                {getPlatforms().map(platform => (
-                  <SelectItem key={platform} value={platform.toLowerCase()}>
-                    {platform.charAt(0).toUpperCase() + platform.slice(1)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={selectedType} onValueChange={setSelectedType}>
-              <SelectTrigger className="w-full md:w-48">
-                <SelectValue placeholder="Service Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                {getServiceTypes().map(type => (
-                  <SelectItem key={type} value={type.toLowerCase()}>
-                    {type}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <div className="text-sm text-muted-foreground">
-              {filteredServices.length} services found
-            </div>
+          <h2 className="text-2xl font-bold text-center mb-8">Choose Platform</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+            {ALLOWED_PLATFORMS.map(platform => (
+              <Card 
+                key={platform}
+                className={`cursor-pointer transition-all hover:shadow-lg ${
+                  selectedPlatform === platform ? 'ring-2 ring-primary' : ''
+                }`}
+                onClick={() => {
+                  setSelectedPlatform(platform);
+                  setSelectedServiceType(null);
+                }}
+              >
+                <CardContent className="p-6 text-center">
+                  <div className="text-4xl mb-3">{PLATFORM_ICONS[platform as keyof typeof PLATFORM_ICONS]}</div>
+                  <h3 className="font-semibold capitalize">{platform}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {getServicesByPlatform(platform).length} services
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
 
+      {/* Service Type Selection */}
+      {selectedPlatform && (
+        <section className="py-8 bg-muted/30">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-xl font-bold text-center mb-6">
+              Choose Service Type for {selectedPlatform.charAt(0).toUpperCase() + selectedPlatform.slice(1)}
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
+              {getServiceTypeForPlatform(selectedPlatform).map(serviceType => {
+                const IconComponent = SERVICE_TYPE_ICONS[serviceType as keyof typeof SERVICE_TYPE_ICONS];
+                return (
+                  <Card 
+                    key={serviceType}
+                    className={`cursor-pointer transition-all hover:shadow-lg ${
+                      selectedServiceType === serviceType ? 'ring-2 ring-primary' : ''
+                    }`}
+                    onClick={() => setSelectedServiceType(serviceType)}
+                  >
+                    <CardContent className="p-4 text-center">
+                      <IconComponent className="h-6 w-6 mx-auto mb-2" />
+                      <h3 className="font-semibold">
+                        {getServiceTypeLabel(serviceType, selectedPlatform)}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {getServicesByTypeAndPlatform(selectedPlatform, serviceType).length} options
+                      </p>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Services Grid */}
-      <section className="py-12">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          {filteredServices.length === 0 ? (
-            <div className="text-center py-12">
-              <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">No services found</h3>
-              <p className="text-muted-foreground">Try adjusting your search criteria</p>
-            </div>
-          ) : (
+      {selectedPlatform && selectedServiceType && (
+        <section className="py-12">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-2xl font-bold text-center mb-8">
+              {getServiceTypeLabel(selectedServiceType, selectedPlatform)} Services for {selectedPlatform.charAt(0).toUpperCase() + selectedPlatform.slice(1)}
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredServices.map(renderServiceCard)}
+              {getServicesByTypeAndPlatform(selectedPlatform, selectedServiceType).map(renderServiceCard)}
             </div>
-          )}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
+
+      {/* Initial state message */}
+      {!selectedPlatform && (
+        <section className="py-12">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p className="text-muted-foreground">Select a social media platform above to view available services</p>
+          </div>
+        </section>
+      )}
 
       <Footer />
     </div>
