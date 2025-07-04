@@ -31,29 +31,27 @@ const handler = async (req: Request): Promise<Response> => {
     const requestBody: ApiRequest = await req.json();
     console.log('Request body:', requestBody);
 
-    // Prepare URL-encoded form data for QQTube API
-    const formParams = new URLSearchParams();
-    formParams.append('api_key', API_KEY); // Changed back to 'api_key' based on documentation
+    // Prepare URL with query parameters for GET request
+    const urlParams = new URLSearchParams();
+    urlParams.append('api_key', API_KEY);
     
-    // Add all request parameters to form data
+    // Add all request parameters to URL params
     Object.entries(requestBody).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
-        formParams.append(key, value.toString());
+        urlParams.append(key, value.toString());
       }
     });
 
-    console.log('Making request to QQTube API with URL-encoded data...');
-    console.log('Form params:', formParams.toString());
+    const fullUrl = `${API_BASE_URL}?${urlParams.toString()}`;
+    console.log('Making GET request to QQTube API:', fullUrl);
 
-    // Make request to QQTube API with proper headers
-    const response = await fetch(API_BASE_URL, {
-      method: 'POST',
+    // Make GET request to QQTube API
+    const response = await fetch(fullUrl, {
+      method: 'GET',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         'Accept': 'application/json',
       },
-      body: formParams.toString(),
     });
 
     console.log('QQTube API response status:', response.status);
@@ -69,9 +67,8 @@ const handler = async (req: Request): Promise<Response> => {
           error: `QQTube API error: ${response.status}`,
           details: responseText,
           debug: {
-            url: API_BASE_URL,
-            method: 'POST',
-            params: Object.fromEntries(formParams.entries())
+            url: fullUrl,
+            method: 'GET',
           }
         }),
         {
