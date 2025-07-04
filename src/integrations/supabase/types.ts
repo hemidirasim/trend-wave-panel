@@ -56,6 +56,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          balance: number | null
           created_at: string | null
           email: string | null
           full_name: string | null
@@ -63,6 +64,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          balance?: number | null
           created_at?: string | null
           email?: string | null
           full_name?: string | null
@@ -70,11 +72,80 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          balance?: number | null
           created_at?: string | null
           email?: string | null
           full_name?: string | null
           id?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      support_ticket_messages: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_admin: boolean | null
+          message: string
+          ticket_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_admin?: boolean | null
+          message: string
+          ticket_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_admin?: boolean | null
+          message?: string
+          ticket_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_ticket_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_tickets: {
+        Row: {
+          created_at: string | null
+          description: string
+          id: string
+          priority: string | null
+          status: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          id?: string
+          priority?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          id?: string
+          priority?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
