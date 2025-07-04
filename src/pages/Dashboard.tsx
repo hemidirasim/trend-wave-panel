@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Loader2, Plus, User, Package, Clock, CheckCircle, XCircle, AlertCircle, Wallet, LifeBuoy, Settings } from 'lucide-react';
+import { Loader2, Plus, User, Package, Clock, CheckCircle, XCircle, AlertCircle, Wallet, LifeBuoy, Settings, CreditCard } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import OrderTracker from '@/components/OrderTracker';
@@ -147,7 +147,7 @@ const Dashboard = () => {
       <Header />
       
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
+        {/* Header with Balance prominently displayed */}
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold">Dashboard</h1>
@@ -156,6 +156,27 @@ const Dashboard = () => {
             </p>
           </div>
           <div className="flex items-center space-x-4">
+            {/* Prominent Balance Display */}
+            <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-green-100 rounded-full">
+                    <Wallet className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-green-600 font-medium">Balans</p>
+                    <p className="text-2xl font-bold text-green-700">
+                      ${profile?.balance?.toFixed(2) || '0.00'}
+                    </p>
+                  </div>
+                  <Button size="sm" variant="outline" className="border-green-200 text-green-700 hover:bg-green-50">
+                    <CreditCard className="h-4 w-4 mr-1" />
+                    Artır
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+            
             <Button onClick={() => navigate('/services')} className="flex items-center">
               <Plus className="h-4 w-4 mr-2" />
               Yeni Sifariş
@@ -167,20 +188,7 @@ const Dashboard = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Balans</CardTitle>
-              <Wallet className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">${profile?.balance?.toFixed(2) || '0.00'}</div>
-              <p className="text-xs text-muted-foreground">
-                Mövcud balans
-              </p>
-            </CardContent>
-          </Card>
-
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Ümumi Sifarişlər</CardTitle>

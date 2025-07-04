@@ -1,4 +1,5 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,172 +9,86 @@ import { Footer } from '@/components/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import AuthDialog from '@/components/AuthDialog';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { 
-  Instagram, 
-  Facebook, 
-  Youtube, 
-  MessageCircle,
-  Star,
-  Users,
-  Heart,
-  Eye,
-  Share2,
-  ThumbsUp,
-  Zap
-} from 'lucide-react';
+import { apiService, Service } from '@/components/ApiService';
+import { Loader2, Zap, Star } from 'lucide-react';
+import { toast } from 'sonner';
 
 const Services = () => {
   const { user } = useAuth();
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const defaultPlatform = searchParams.get('platform') || 'instagram';
+  const defaultPlatform = searchParams.get('platform') || 'all';
+  
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedPlatform, setSelectedPlatform] = useState(defaultPlatform);
 
-  const handleOrderClick = () => {
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const fetchServices = async () => {
+    try {
+      setLoading(true);
+      const data = await apiService.getServices();
+      setServices(data);
+    } catch (error) {
+      toast.error('Xidmətlər yüklənərkən xəta baş verdi');
+      console.error('Error fetching services:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOrderClick = (serviceId: string) => {
     if (user) {
-      navigate('/order');
+      navigate(`/order?service=${serviceId}`);
     } else {
       setIsAuthDialogOpen(true);
     }
   };
 
-  const platforms = [
-    { id: 'instagram', name: 'Instagram', icon: Instagram, color: 'bg-gradient-to-r from-purple-500 to-pink-500' },
-    { id: 'facebook', name: 'Facebook', icon: Facebook, color: 'bg-blue-600' },
-    { id: 'tiktok', name: 'TikTok', icon: MessageCircle, color: 'bg-black' },
-    { id: 'youtube', name: 'YouTube', icon: Youtube, color: 'bg-red-600' },
-  ];
-
-  const services = {
-    instagram: [
-      {
-        id: 'ig_followers',
-        name: 'Instagram Followers',
-        description: 'Keyfiyyətli və real izləyicilər',
-        icon: Users,
-        price: 0.50,
-        minOrder: 100,
-        maxOrder: 100000,
-        features: ['Real izləyicilər', 'Sürətli çatdırılma', 'Düşmə garantiyası']
-      },
-      {
-        id: 'ig_likes',
-        name: 'Instagram Likes',
-        description: 'Postlarınıza keyfiyyətli bəyənmələr',
-        icon: Heart,
-        price: 0.25,
-        minOrder: 50,
-        maxOrder: 50000,
-        features: ['Sürətli başlama', 'Təbii görünüş', 'Yüksək keyfiyyət']
-      },
-      {
-        id: 'ig_views',
-        name: 'Instagram Views',
-        description: 'Video və reels üçün baxış sayı',
-        icon: Eye,
-        price: 0.15,
-        minOrder: 1000,
-        maxOrder: 1000000,
-        features: ['Dərhal başlama', 'Yüksək sürət', 'Təhlükəsiz']
-      }
-    ],
-    facebook: [
-      {
-        id: 'fb_likes',
-        name: 'Facebook Likes',
-        description: 'Səhifə və post bəyənmələri',
-        icon: ThumbsUp,
-        price: 0.35,
-        minOrder: 100,
-        maxOrder: 50000,
-        features: ['Real istifadəçilər', 'Sürətli çatdırılma', 'Keyfiyyət garantiyası']
-      },
-      {
-        id: 'fb_followers',
-        name: 'Facebook Followers',
-        description: 'Səhifəniz üçün izləyicilər',
-        icon: Users,
-        price: 0.60,
-        minOrder: 50,
-        maxOrder: 25000,
-        features: ['Aktiv hesablar', 'Düşmə garantiyası', 'Təbii artım']
-      },
-      {
-        id: 'fb_shares',
-        name: 'Facebook Shares',
-        description: 'Post paylaşımları',
-        icon: Share2,
-        price: 0.80,
-        minOrder: 25,
-        maxOrder: 10000,
-        features: ['Real paylaşımlar', 'Sürətli başlama', 'Yüksək keyfiyyət']
-      }
-    ],
-    tiktok: [
-      {
-        id: 'tt_followers',
-        name: 'TikTok Followers',
-        description: 'TikTok hesabınız üçün izləyicilər',
-        icon: Users,
-        price: 0.75,
-        minOrder: 100,
-        maxOrder: 100000,
-        features: ['Real izləyicilər', 'Sürətli artım', 'Düşmə garantiyası']
-      },
-      {
-        id: 'tt_likes',
-        name: 'TikTok Likes',
-        description: 'Video bəyənmələri',
-        icon: Heart,
-        price: 0.30,
-        minOrder: 100,
-        maxOrder: 100000,
-        features: ['Sürətli çatdırılma', 'Yüksək keyfiyyət', 'Təbii görünüş']
-      },
-      {
-        id: 'tt_views',
-        name: 'TikTok Views',
-        description: 'Video baxış sayı',
-        icon: Eye,
-        price: 0.10,
-        minOrder: 1000,
-        maxOrder: 1000000,
-        features: ['Dərhal başlama', 'Çox sürətli', 'Ən ucuz qiymət']
-      }
-    ],
-    youtube: [
-      {
-        id: 'yt_subscribers',
-        name: 'YouTube Subscribers',
-        description: 'Kanalınız üçün abunəçilər',
-        icon: Users,
-        price: 1.20,
-        minOrder: 50,
-        maxOrder: 50000,
-        features: ['Real abunəçilər', 'Yavaş artım', 'Düşmə garantiyası']
-      },
-      {
-        id: 'yt_likes',
-        name: 'YouTube Likes',
-        description: 'Video bəyənmələri',
-        icon: ThumbsUp,
-        price: 0.45,
-        minOrder: 50,
-        maxOrder: 25000,
-        features: ['Sürətli başlama', 'Keyfiyyətli hesablar', 'Təhlükəsiz']
-      },
-      {
-        id: 'yt_views',
-        name: 'YouTube Views',
-        description: 'Video baxış sayı',
-        icon: Eye,
-        price: 0.20,
-        minOrder: 1000,
-        maxOrder: 1000000,
-        features: ['Sürətli çatdırılma', 'Yüksək keyfiyyət', 'Ən yaxşı qiymət']
-      }
-    ]
+  const getPlatformColor = (platform: string) => {
+    const colors: Record<string, string> = {
+      youtube: 'bg-red-500',
+      instagram: 'bg-pink-500',
+      tiktok: 'bg-purple-500',
+      facebook: 'bg-blue-500',
+      twitter: 'bg-sky-500',
+      telegram: 'bg-blue-400',
+    };
+    return colors[platform.toLowerCase()] || 'bg-gray-500';
   };
+
+  const getUniquePlatforms = () => {
+    const platforms = services.map(service => service.platform.toLowerCase());
+    return [...new Set(platforms)];
+  };
+
+  const getFilteredServices = () => {
+    if (selectedPlatform === 'all') {
+      return services;
+    }
+    return services.filter(service => 
+      service.platform.toLowerCase() === selectedPlatform.toLowerCase()
+    );
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-20">
+          <div className="flex items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin" />
+            <span className="ml-2">Xidmətlər yüklənir...</span>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -190,64 +105,66 @@ const Services = () => {
             </p>
           </div>
 
-          <Tabs defaultValue={defaultPlatform} className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-8">
-              {platforms.map((platform) => {
-                const IconComponent = platform.icon;
-                return (
-                  <TabsTrigger key={platform.id} value={platform.id} className="flex items-center gap-2">
-                    <IconComponent className="h-4 w-4" />
-                    {platform.name}
-                  </TabsTrigger>
-                );
-              })}
+          <Tabs value={selectedPlatform} onValueChange={setSelectedPlatform} className="w-full">
+            <TabsList className="grid w-full grid-cols-5 mb-8">
+              <TabsTrigger value="all">Hamısı</TabsTrigger>
+              {getUniquePlatforms().map((platform) => (
+                <TabsTrigger key={platform} value={platform} className="capitalize">
+                  {platform}
+                </TabsTrigger>
+              ))}
             </TabsList>
 
-            {platforms.map((platform) => (
-              <TabsContent key={platform.id} value={platform.id}>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {services[platform.id as keyof typeof services]?.map((service) => {
-                    const ServiceIcon = service.icon;
-                    return (
-                      <Card key={service.id} className="relative overflow-hidden hover:shadow-lg transition-shadow">
-                        <CardHeader>
-                          <div className="flex items-center justify-between">
-                            <ServiceIcon className="h-8 w-8 text-primary" />
-                            <Badge variant="secondary">${service.price}/1K</Badge>
-                          </div>
-                          <CardTitle className="text-xl">{service.name}</CardTitle>
-                          <CardDescription>{service.description}</CardDescription>
-                        </CardHeader>
-                        
-                        <CardContent className="space-y-4">
-                          <div className="flex justify-between text-sm text-muted-foreground">
-                            <span>Min: {service.minOrder.toLocaleString()}</span>
-                            <span>Maks: {service.maxOrder.toLocaleString()}</span>
-                          </div>
-                          
-                          <div className="space-y-2">
-                            {service.features.map((feature, index) => (
-                              <div key={index} className="flex items-center gap-2 text-sm">
-                                <Star className="h-3 w-3 text-yellow-500" />
-                                {feature}
-                              </div>
-                            ))}
-                          </div>
-                          
-                          <Button 
-                            className="w-full" 
-                            onClick={handleOrderClick}
-                          >
-                            <Zap className="h-4 w-4 mr-2" />
-                            Sifariş ver
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
-              </TabsContent>
-            ))}
+            <TabsContent value={selectedPlatform}>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {getFilteredServices().map((service) => (
+                  <Card key={service.id_service} className="relative overflow-hidden hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <Badge className={`${getPlatformColor(service.platform)} text-white`}>
+                          {service.platform}
+                        </Badge>
+                        <Badge variant="secondary">
+                          ${service.prices[0]?.price || '0'}/{service.prices[0]?.pricing_per || '1K'}
+                        </Badge>
+                      </div>
+                      <CardTitle className="text-xl">{service.public_name}</CardTitle>
+                      <CardDescription>{service.type_name}</CardDescription>
+                    </CardHeader>
+                    
+                    <CardContent className="space-y-4">
+                      <div className="flex justify-between text-sm text-muted-foreground">
+                        <span>Min: {parseInt(service.amount_minimum).toLocaleString()}</span>
+                        <span>Max: {parseInt(service.prices[0]?.maximum || '0').toLocaleString()}</span>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-sm">
+                          <Star className="h-3 w-3 text-yellow-500" />
+                          Keyfiyyətli xidmət
+                        </div>
+                        <div className="flex items-center gap-2 text-sm">
+                          <Star className="h-3 w-3 text-yellow-500" />
+                          Sürətli çatdırılma
+                        </div>
+                        <div className="flex items-center gap-2 text-sm">
+                          <Star className="h-3 w-3 text-yellow-500" />
+                          24/7 Dəstək
+                        </div>
+                      </div>
+                      
+                      <Button 
+                        className="w-full" 
+                        onClick={() => handleOrderClick(service.id_service)}
+                      >
+                        <Zap className="h-4 w-4 mr-2" />
+                        Sifariş ver
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
           </Tabs>
         </div>
 
