@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -5,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { apiService, Service } from '@/components/ApiService';
@@ -19,6 +21,7 @@ const Services = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPlatform, setSelectedPlatform] = useState(searchParams.get('platform') || 'all');
   const [selectedType, setSelectedType] = useState('all');
+  const [activeTab, setActiveTab] = useState('all');
 
   useEffect(() => {
     fetchServices();
@@ -26,7 +29,7 @@ const Services = () => {
 
   useEffect(() => {
     filterServices();
-  }, [services, searchTerm, selectedPlatform, selectedType]);
+  }, [services, searchTerm, selectedPlatform, selectedType, activeTab]);
 
   useEffect(() => {
     if (searchParams.get('platform')) {
@@ -70,6 +73,12 @@ const Services = () => {
       );
     }
 
+    if (activeTab !== 'all') {
+      filtered = filtered.filter(service =>
+        service.platform.toLowerCase() === activeTab.toLowerCase()
+      );
+    }
+
     setFilteredServices(filtered);
   };
 
@@ -81,6 +90,12 @@ const Services = () => {
   const getServiceTypes = () => {
     const types = [...new Set(services.map(service => service.type_name))];
     return types.sort();
+  };
+
+  const getServicesByPlatform = (platform: string) => {
+    return filteredServices.filter(service => 
+      service.platform.toLowerCase() === platform.toLowerCase()
+    );
   };
 
   const formatPrice = (service: Service) => {
@@ -109,6 +124,69 @@ const Services = () => {
     return colors[platform.toLowerCase()] || 'bg-gray-500';
   };
 
+  const renderServiceCard = (service: Service) => (
+    <Card key={service.id_service} className="hover:shadow-lg transition-shadow">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <Badge 
+            className={`${getPlatformColor(service.platform)} text-white`}
+          >
+            {service.platform.charAt(0).toUpperCase() + service.platform.slice(1)}
+          </Badge>
+          <div className="flex items-center space-x-1">
+            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+            <span className="text-sm">4.9</span>
+          </div>
+        </div>
+        <CardTitle className="text-lg">{service.public_name}</CardTitle>
+        <CardDescription className="text-sm">
+          {service.type_name.charAt(0).toUpperCase() + service.type_name.slice(1)}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Starting Price:</span>
+            <span className="font-semibold">{formatPrice(service)}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Min. Quantity:</span>
+            <span className="font-semibold">{getMinQuantity(service)}</span>
+          </div>
+          {service.example && (
+            <div className="text-sm">
+              <span className="text-muted-foreground">Example: </span>
+              <code className="text-xs bg-muted px-1 py-0.5 rounded">
+                {service.example}
+              </code>
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center space-x-2">
+          {service.is_geo === '1' && (
+            <Badge variant="outline" className="text-xs">
+              <CheckCircle className="h-3 w-3 mr-1" />
+              Geo-targeted
+            </Badge>
+          )}
+          {service.is_drip === '1' && (
+            <Badge variant="outline" className="text-xs">
+              <CheckCircle className="h-3 w-3 mr-1" />
+              Drip-feed
+            </Badge>
+          )}
+        </div>
+
+        <Button asChild className="w-full">
+          <Link to={`/order?service=${service.id_service}`}>
+            Order Now <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
+        </Button>
+      </CardContent>
+    </Card>
+  );
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -123,6 +201,9 @@ const Services = () => {
       </div>
     );
   }
+
+  const platforms = getPlatforms();
+  const uniquePlatforms = [...new Set(services.map(service => service.platform))];
 
   return (
     <div className="min-h-screen bg-background">
@@ -156,27 +237,13 @@ const Services = () => {
               />
             </div>
             
-            <Select value={selectedPlatform} onValueChange={setSelectedPlatform}>
-              <SelectTrigger className="w-full md:w-48">
-                <SelectValue placeholder="Select Platform" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Platforms</SelectItem>
-                {getPlatforms().map(platform => (
-                  <SelectItem key={platform} value={platform}>
-                    {platform.charAt(0).toUpperCase() + platform.slice(1)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
             <Select value={selectedType} onValueChange={setSelectedType}>
               <SelectTrigger className="w-full md:w-48">
                 <SelectValue placeholder="Service Type" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
-                {getServiceTypes().map(type => (
+                {getServiceTypes().filter(type => type && type.trim() !== '').map(type => (
                   <SelectItem key={type} value={type}>
                     {type.charAt(0).toUpperCase() + type.slice(1)}
                   </SelectItem>
@@ -191,81 +258,59 @@ const Services = () => {
         </div>
       </section>
 
-      {/* Services Grid */}
+      {/* Services by Platform Tabs */}
       <section className="py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          {filteredServices.length === 0 ? (
-            <div className="text-center py-12">
-              <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">No services found</h3>
-              <p className="text-muted-foreground">Try adjusting your search criteria</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredServices.map((service) => (
-                <Card key={service.id_service} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <Badge 
-                        className={`${getPlatformColor(service.platform)} text-white`}
-                      >
-                        {service.platform.charAt(0).toUpperCase() + service.platform.slice(1)}
-                      </Badge>
-                      <div className="flex items-center space-x-1">
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span className="text-sm">4.9</span>
-                      </div>
-                    </div>
-                    <CardTitle className="text-lg">{service.public_name}</CardTitle>
-                    <CardDescription className="text-sm">
-                      {service.type_name.charAt(0).toUpperCase() + service.type_name.slice(1)}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Starting Price:</span>
-                        <span className="font-semibold">{formatPrice(service)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Min. Quantity:</span>
-                        <span className="font-semibold">{getMinQuantity(service)}</span>
-                      </div>
-                      {service.example && (
-                        <div className="text-sm">
-                          <span className="text-muted-foreground">Example: </span>
-                          <code className="text-xs bg-muted px-1 py-0.5 rounded">
-                            {service.example}
-                          </code>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                      {service.is_geo === '1' && (
-                        <Badge variant="outline" className="text-xs">
-                          <CheckCircle className="h-3 w-3 mr-1" />
-                          Geo-targeted
-                        </Badge>
-                      )}
-                      {service.is_drip === '1' && (
-                        <Badge variant="outline" className="text-xs">
-                          <CheckCircle className="h-3 w-3 mr-1" />
-                          Drip-feed
-                        </Badge>
-                      )}
-                    </div>
-
-                    <Button asChild className="w-full">
-                      <Link to={`/order?service=${service.id_service}`}>
-                        Order Now <ArrowRight className="ml-2 h-4 w-4" />
-                      </Link>
-                    </Button>
-                  </CardContent>
-                </Card>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-3 md:grid-cols-7 mb-8">
+              <TabsTrigger value="all">All</TabsTrigger>
+              {uniquePlatforms.map(platform => (
+                <TabsTrigger key={platform} value={platform.toLowerCase()}>
+                  {platform.charAt(0).toUpperCase() + platform.slice(1)}
+                </TabsTrigger>
               ))}
-            </div>
-          )}
+            </TabsList>
+
+            <TabsContent value="all">
+              {filteredServices.length === 0 ? (
+                <div className="text-center py-12">
+                  <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold mb-2">No services found</h3>
+                  <p className="text-muted-foreground">Try adjusting your search criteria</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredServices.map(renderServiceCard)}
+                </div>
+              )}
+            </TabsContent>
+
+            {uniquePlatforms.map(platform => (
+              <TabsContent key={platform} value={platform.toLowerCase()}>
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold mb-2">
+                    {platform.charAt(0).toUpperCase() + platform.slice(1)} Services
+                  </h2>
+                  <p className="text-muted-foreground">
+                    {getServicesByPlatform(platform).length} services available
+                  </p>
+                </div>
+                {getServicesByPlatform(platform).length === 0 ? (
+                  <div className="text-center py-12">
+                    <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold mb-2">No services found</h3>
+                    <p className="text-muted-foreground">
+                      No {platform} services match your criteria
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {getServicesByPlatform(platform).map(renderServiceCard)}
+                  </div>
+                )}
+              </TabsContent>
+            ))}
+          </Tabs>
         </div>
       </section>
 
