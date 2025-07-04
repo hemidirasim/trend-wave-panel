@@ -1,12 +1,12 @@
-
 import { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { apiService, Service } from '@/components/ApiService';
+import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, ArrowRight, Star, CheckCircle, Heart, Eye, Users, UserPlus } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -16,6 +16,7 @@ const Services = () => {
   const [loading, setLoading] = useState(true);
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
   const [selectedServiceType, setSelectedServiceType] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   // Define allowed platforms and service types
   const ALLOWED_PLATFORMS = ['instagram', 'tiktok', 'youtube', 'facebook'];
@@ -148,68 +149,79 @@ const Services = () => {
     return serviceType.charAt(0).toUpperCase() + serviceType.slice(1);
   };
 
-  const renderServiceCard = (service: Service) => (
-    <Card key={service.id_service} className="hover:shadow-lg transition-shadow">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <Badge 
-            className={`${getPlatformColor(service.platform)} text-white`}
-          >
-            {service.platform.charAt(0).toUpperCase() + service.platform.slice(1)}
-          </Badge>
-          <div className="flex items-center space-x-1">
-            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-            <span className="text-sm">4.9</span>
-          </div>
-        </div>
-        <CardTitle className="text-lg">{service.public_name}</CardTitle>
-        <CardDescription className="text-sm">
-          {service.type_name.charAt(0).toUpperCase() + service.type_name.slice(1)}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Starting Price:</span>
-            <span className="font-semibold">{formatPrice(service)}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Min. Quantity:</span>
-            <span className="font-semibold">{getMinQuantity(service)}</span>
-          </div>
-          {service.example && (
-            <div className="text-sm">
-              <span className="text-muted-foreground">Example: </span>
-              <code className="text-xs bg-muted px-1 py-0.5 rounded">
-                {service.example}
-              </code>
+  const renderServiceCard = (service: Service) => {
+    const { user } = useAuth();
+
+    const handleOrderClick = () => {
+      if (!user) {
+        toast.error('Sifariş vermək üçün hesabınıza daxil olun');
+        navigate('/auth');
+        return;
+      }
+      navigate(`/order?service=${service.id_service}`);
+    };
+
+    return (
+      <Card key={service.id_service} className="hover:shadow-lg transition-shadow">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <Badge 
+              className={`${getPlatformColor(service.platform)} text-white`}
+            >
+              {service.platform.charAt(0).toUpperCase() + service.platform.slice(1)}
+            </Badge>
+            <div className="flex items-center space-x-1">
+              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+              <span className="text-sm">4.9</span>
             </div>
-          )}
-        </div>
+          </div>
+          <CardTitle className="text-lg">{service.public_name}</CardTitle>
+          <CardDescription className="text-sm">
+            {service.type_name.charAt(0).toUpperCase() + service.type_name.slice(1)}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Starting Price:</span>
+              <span className="font-semibold">{formatPrice(service)}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Min. Quantity:</span>
+              <span className="font-semibold">{getMinQuantity(service)}</span>
+            </div>
+            {service.example && (
+              <div className="text-sm">
+                <span className="text-muted-foreground">Example: </span>
+                <code className="text-xs bg-muted px-1 py-0.5 rounded">
+                  {service.example}
+                </code>
+              </div>
+            )}
+          </div>
 
-        <div className="flex items-center space-x-2">
-          {service.is_geo === '1' && (
-            <Badge variant="outline" className="text-xs">
-              <CheckCircle className="h-3 w-3 mr-1" />
-              Geo-targeted
-            </Badge>
-          )}
-          {service.is_drip === '1' && (
-            <Badge variant="outline" className="text-xs">
-              <CheckCircle className="h-3 w-3 mr-1" />
-              Drip-feed
-            </Badge>
-          )}
-        </div>
+          <div className="flex items-center space-x-2">
+            {service.is_geo === '1' && (
+              <Badge variant="outline" className="text-xs">
+                <CheckCircle className="h-3 w-3 mr-1" />
+                Geo-targeted
+              </Badge>
+            )}
+            {service.is_drip === '1' && (
+              <Badge variant="outline" className="text-xs">
+                <CheckCircle className="h-3 w-3 mr-1" />
+                Drip-feed
+              </Badge>
+            )}
+          </div>
 
-        <Button asChild className="w-full">
-          <Link to={`/order?service=${service.id_service}`}>
+          <Button onClick={handleOrderClick} className="w-full">
             Order Now <ArrowRight className="ml-2 h-4 w-4" />
-          </Link>
-        </Button>
-      </CardContent>
-    </Card>
-  );
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  };
 
   if (loading) {
     return (

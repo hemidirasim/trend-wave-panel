@@ -1,11 +1,24 @@
+
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Menu, X, Star, Shield, Zap, Users } from 'lucide-react';
+import { Menu, X, Star, Shield, Zap, Users, User, LogOut } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate('/');
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
+  };
 
   return (
     <header className="bg-background border-b border-border sticky top-0 z-50">
@@ -23,19 +36,23 @@ export const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             <Link to="/" className="text-foreground hover:text-primary transition-colors">
-              Home
+              Ana səhifə
             </Link>
             <Link to="/services" className="text-foreground hover:text-primary transition-colors">
-              Services
+              Xidmətlər
             </Link>
-            <Link to="/order" className="text-foreground hover:text-primary transition-colors">
-              Order Now
-            </Link>
+            {user ? (
+              <>
+                <Link to="/dashboard" className="text-foreground hover:text-primary transition-colors">
+                  Dashboard
+                </Link>
+                <Link to="/order" className="text-foreground hover:text-primary transition-colors">
+                  Sifariş ver
+                </Link>
+              </>
+            ) : null}
             <Link to="/track" className="text-foreground hover:text-primary transition-colors">
-              Track Order
-            </Link>
-            <Link to="/admin" className="text-foreground hover:text-primary transition-colors">
-              Admin
+              Sifariş izlə
             </Link>
           </nav>
 
@@ -45,9 +62,22 @@ export const Header = () => {
               <Star className="h-4 w-4 text-yellow-500" />
               <span>4.9/5 Rating</span>
             </div>
-            <Button asChild>
-              <Link to="/order">Get Started</Link>
-            </Button>
+            {user ? (
+              <div className="flex items-center space-x-2">
+                <Button variant="outline" size="sm" onClick={() => navigate('/dashboard')}>
+                  <User className="h-4 w-4 mr-2" />
+                  Dashboard
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleSignOut}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Çıxış
+                </Button>
+              </div>
+            ) : (
+              <Button asChild>
+                <Link to="/auth">Giriş</Link>
+              </Button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -69,46 +99,72 @@ export const Header = () => {
                 className="text-foreground hover:text-primary transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Home
+                Ana səhifə
               </Link>
               <Link 
                 to="/services" 
                 className="text-foreground hover:text-primary transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Services
+                Xidmətlər
               </Link>
-              <Link 
-                to="/order" 
-                className="text-foreground hover:text-primary transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Order Now
-              </Link>
+              {user ? (
+                <>
+                  <Link 
+                    to="/dashboard" 
+                    className="text-foreground hover:text-primary transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Dashboard
+                  </Link>
+                  <Link 
+                    to="/order" 
+                    className="text-foreground hover:text-primary transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Sifariş ver
+                  </Link>
+                </>
+              ) : null}
               <Link 
                 to="/track" 
                 className="text-foreground hover:text-primary transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Track Order
-              </Link>
-              <Link 
-                to="/admin" 
-                className="text-foreground hover:text-primary transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Admin
+                Sifariş izlə
               </Link>
               <div className="pt-4 border-t border-border">
                 <div className="flex items-center space-x-2 text-sm text-muted-foreground mb-4">
                   <Star className="h-4 w-4 text-yellow-500" />
                   <span>4.9/5 Rating</span>
                 </div>
-                <Button asChild className="w-full">
-                  <Link to="/order" onClick={() => setIsMenuOpen(false)}>
-                    Get Started
-                  </Link>
-                </Button>
+                {user ? (
+                  <div className="space-y-2">
+                    <Button asChild className="w-full" variant="outline">
+                      <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
+                        <User className="h-4 w-4 mr-2" />
+                        Dashboard
+                      </Link>
+                    </Button>
+                    <Button 
+                      className="w-full" 
+                      variant="outline" 
+                      onClick={() => {
+                        handleSignOut();
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Çıxış
+                    </Button>
+                  </div>
+                ) : (
+                  <Button asChild className="w-full">
+                    <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
+                      Giriş
+                    </Link>
+                  </Button>
+                )}
               </div>
             </nav>
           </div>
