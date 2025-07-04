@@ -36,14 +36,14 @@ const Index = () => {
   const [loading, setLoading] = useState(true);
 
   // Define allowed platforms and service types
-  const ALLOWED_PLATFORMS = ['instagram', 'tiktok', 'youtube', 'telegram'];
+  const ALLOWED_PLATFORMS = ['instagram', 'tiktok', 'youtube', 'facebook'];
   const ALLOWED_SERVICE_TYPES = ['like', 'view', 'follow', 'likes', 'views', 'followers', 'subscriber', 'subscribers'];
 
   const PLATFORM_ICONS = {
     instagram: '📷',
     tiktok: '🎵',
     youtube: '▶️',
-    telegram: '✈️'
+    facebook: '👤'
   };
 
   const SERVICE_TYPE_ICONS = {

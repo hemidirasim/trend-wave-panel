@@ -18,14 +18,14 @@ const Services = () => {
   const [selectedServiceType, setSelectedServiceType] = useState<string | null>(null);
 
   // Define allowed platforms and service types
-  const ALLOWED_PLATFORMS = ['instagram', 'tiktok', 'youtube', 'telegram'];
+  const ALLOWED_PLATFORMS = ['instagram', 'tiktok', 'youtube', 'facebook'];
   const ALLOWED_SERVICE_TYPES = ['like', 'view', 'follow', 'likes', 'views', 'followers', 'subscriber', 'subscribers'];
 
   const PLATFORM_ICONS = {
     instagram: '📷',
     tiktok: '🎵',
     youtube: '▶️',
-    telegram: '✈️'
+    facebook: '👤'
   };
 
   const SERVICE_TYPE_ICONS = {
@@ -238,7 +238,7 @@ const Services = () => {
               Social Media Marketing Services
             </h1>
             <p className="text-xl text-muted-foreground mb-8">
-              Instagram, TikTok, YouTube və Telegram üçün Like, View və Follow xidmətləri
+              Instagram, TikTok, YouTube və Facebook üçün Like, View və Follow xidmətləri
             </p>
           </div>
         </div>
