@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -21,6 +20,10 @@ const Services = () => {
   const [selectedPlatform, setSelectedPlatform] = useState(searchParams.get('platform') || 'all');
   const [selectedType, setSelectedType] = useState('all');
 
+  // Define allowed platforms and service types
+  const ALLOWED_PLATFORMS = ['instagram', 'tiktok', 'youtube', 'telegram'];
+  const ALLOWED_SERVICE_TYPES = ['like', 'view', 'follow', 'likes', 'views', 'followers'];
+
   useEffect(() => {
     fetchServices();
   }, []);
@@ -39,7 +42,18 @@ const Services = () => {
     try {
       setLoading(true);
       const data = await apiService.getServices();
-      setServices(data);
+      
+      // Filter services to only include allowed platforms and service types
+      const filteredData = data.filter(service => {
+        const platformMatch = ALLOWED_PLATFORMS.includes(service.platform.toLowerCase());
+        const serviceTypeMatch = ALLOWED_SERVICE_TYPES.some(type => 
+          service.type_name.toLowerCase().includes(type) || 
+          service.public_name.toLowerCase().includes(type)
+        );
+        return platformMatch && serviceTypeMatch;
+      });
+      
+      setServices(filteredData);
     } catch (error) {
       toast.error('Failed to load services. Please try again.');
       console.error('Error fetching services:', error);
@@ -67,7 +81,8 @@ const Services = () => {
 
     if (selectedType !== 'all') {
       filtered = filtered.filter(service =>
-        service.type_name.toLowerCase().includes(selectedType.toLowerCase())
+        service.type_name.toLowerCase().includes(selectedType.toLowerCase()) ||
+        service.public_name.toLowerCase().includes(selectedType.toLowerCase())
       );
     }
 
@@ -75,12 +90,23 @@ const Services = () => {
   };
 
   const getPlatforms = () => {
-    const platforms = [...new Set(services.map(service => service.platform))];
+    const platforms = [...new Set(services.map(service => service.platform))]
+      .filter(platform => ALLOWED_PLATFORMS.includes(platform.toLowerCase()));
     return platforms.sort();
   };
 
   const getServiceTypes = () => {
-    const types = [...new Set(services.map(service => service.type_name))];
+    // Extract service types and filter to only allowed ones
+    const types = [...new Set(services.map(service => {
+      const typeName = service.type_name.toLowerCase();
+      const publicName = service.public_name.toLowerCase();
+      
+      if (typeName.includes('like') || publicName.includes('like')) return 'Like';
+      if (typeName.includes('view') || publicName.includes('view')) return 'View';
+      if (typeName.includes('follow') || publicName.includes('follow')) return 'Follow';
+      return null;
+    }).filter(Boolean))];
+    
     return types.sort();
   };
 
@@ -103,8 +129,6 @@ const Services = () => {
       youtube: 'bg-red-500',
       instagram: 'bg-pink-500',
       tiktok: 'bg-purple-500',
-      facebook: 'bg-blue-500',
-      twitter: 'bg-sky-500',
       telegram: 'bg-blue-400',
     };
     return colors[platform.toLowerCase()] || 'bg-gray-500';
@@ -200,7 +224,7 @@ const Services = () => {
               Social Media Marketing Services
             </h1>
             <p className="text-xl text-muted-foreground mb-8">
-              Choose from our comprehensive range of SMM services across all major platforms
+              Instagram, TikTok, YouTube və Telegram üçün Like, View və Follow xidmətləri
             </p>
           </div>
         </div>
@@ -240,9 +264,9 @@ const Services = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
-                {getServiceTypes().filter(type => type && type.trim() !== '').map(type => (
-                  <SelectItem key={type} value={type}>
-                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                {getServiceTypes().map(type => (
+                  <SelectItem key={type} value={type.toLowerCase()}>
+                    {type}
                   </SelectItem>
                 ))}
               </SelectContent>
