@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -5,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { apiService, Service } from '@/components/ApiService';
 import { 
   Play, 
   Heart, 
@@ -18,25 +20,97 @@ import {
   Clock,
   TrendingUp,
   CheckCircle,
-  ArrowRight
+  ArrowRight,
+  UserPlus
 } from 'lucide-react';
 
 const Index = () => {
   const [stats, setStats] = useState({
     totalOrders: 125000,
-    activePlatforms: 7,
+    activePlatforms: 4,
     averageRating: 4.9,
     deliveryTime: '1-6'
   });
 
-  const platforms = [
-    { name: 'YouTube', icon: Play, color: 'text-red-500', services: ['Views', 'Likes', 'Subscribers', 'Comments'] },
-    { name: 'Instagram', icon: Heart, color: 'text-pink-500', services: ['Followers', 'Likes', 'Story Views', 'Comments'] },
-    { name: 'TikTok', icon: Users, color: 'text-purple-500', services: ['Followers', 'Views', 'Hearts', 'Shares'] },
-    { name: 'Facebook', icon: Share2, color: 'text-blue-500', services: ['Likes', 'Shares', 'Page Followers', 'Comments'] },
-    { name: 'Twitter/X', icon: MessageCircle, color: 'text-sky-500', services: ['Followers', 'Likes', 'Retweets', 'Views'] },
-    { name: 'Telegram', icon: Eye, color: 'text-blue-400', services: ['Members', 'Post Views', 'Reactions'] }
-  ];
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Define allowed platforms and service types
+  const ALLOWED_PLATFORMS = ['instagram', 'tiktok', 'youtube', 'telegram'];
+  const ALLOWED_SERVICE_TYPES = ['like', 'view', 'follow', 'likes', 'views', 'followers', 'subscriber', 'subscribers'];
+
+  const PLATFORM_ICONS = {
+    instagram: '📷',
+    tiktok: '🎵',
+    youtube: '▶️',
+    telegram: '✈️'
+  };
+
+  const SERVICE_TYPE_ICONS = {
+    like: Heart,
+    view: Eye,
+    follow: Users,
+    subscriber: UserPlus
+  };
+
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const fetchServices = async () => {
+    try {
+      setLoading(true);
+      const data = await apiService.getServices();
+      
+      // Filter services to only include allowed platforms and service types
+      const filteredData = data.filter(service => {
+        const platformMatch = ALLOWED_PLATFORMS.includes(service.platform.toLowerCase());
+        const serviceTypeMatch = ALLOWED_SERVICE_TYPES.some(type => 
+          service.type_name.toLowerCase().includes(type) || 
+          service.public_name.toLowerCase().includes(type)
+        );
+        return platformMatch && serviceTypeMatch;
+      });
+      
+      setServices(filteredData);
+    } catch (error) {
+      console.error('Error fetching services:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getServicesByPlatform = (platform: string) => {
+    return services.filter(service => 
+      service.platform.toLowerCase() === platform.toLowerCase()
+    );
+  };
+
+  const getServiceTypeForPlatform = (platform: string) => {
+    const platformServices = getServicesByPlatform(platform);
+    const serviceTypes = [...new Set(platformServices.map(service => {
+      const typeName = service.type_name.toLowerCase();
+      const publicName = service.public_name.toLowerCase();
+      
+      if (typeName.includes('like') || publicName.includes('like')) return 'like';
+      if (typeName.includes('view') || publicName.includes('view')) return 'view';
+      if (typeName.includes('follow') || publicName.includes('follow')) {
+        // For YouTube, show 'subscriber' instead of 'follow'
+        return platform.toLowerCase() === 'youtube' ? 'subscriber' : 'follow';
+      }
+      if (typeName.includes('subscriber') || publicName.includes('subscriber')) return 'subscriber';
+      return null;
+    }).filter(Boolean))];
+    
+    return serviceTypes;
+  };
+
+  const getServiceTypeLabel = (serviceType: string, platform: string) => {
+    if (serviceType === 'subscriber' && platform.toLowerCase() === 'youtube') {
+      return 'Subscriber';
+    }
+    return serviceType.charAt(0).toUpperCase() + serviceType.slice(1);
+  };
 
   const features = [
     {
@@ -153,35 +227,35 @@ const Index = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {platforms.map((platform, index) => {
-              const Icon = platform.icon;
-              return (
-                <Card key={index} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-center space-x-3">
-                      <Icon className={`h-8 w-8 ${platform.color}`} />
-                      <CardTitle className="text-xl">{platform.name}</CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      {platform.services.map((service, serviceIndex) => (
-                        <div key={serviceIndex} className="flex items-center space-x-2">
-                          <CheckCircle className="h-4 w-4 text-green-500" />
-                          <span className="text-sm">{service}</span>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {ALLOWED_PLATFORMS.map((platform) => (
+              <Card key={platform} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex items-center justify-center">
+                    <div className="text-4xl mb-3">{PLATFORM_ICONS[platform as keyof typeof PLATFORM_ICONS]}</div>
+                  </div>
+                  <CardTitle className="text-xl text-center capitalize">{platform}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {getServiceTypeForPlatform(platform).map((serviceType) => {
+                      const IconComponent = SERVICE_TYPE_ICONS[serviceType as keyof typeof SERVICE_TYPE_ICONS];
+                      return (
+                        <div key={serviceType} className="flex items-center space-x-2">
+                          <IconComponent className="h-4 w-4 text-green-500" />
+                          <span className="text-sm">{getServiceTypeLabel(serviceType, platform)}</span>
                         </div>
-                      ))}
-                    </div>
-                    <Button asChild className="w-full mt-4" variant="outline">
-                      <Link to={`/services?platform=${platform.name.toLowerCase().replace('/', '-')}`}>
-                        View Services
-                      </Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-              );
-            })}
+                      );
+                    })}
+                  </div>
+                  <Button asChild className="w-full mt-4" variant="outline">
+                    <Link to={`/services?platform=${platform}`}>
+                      View Services
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
