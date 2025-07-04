@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { apiService, Service } from '@/components/ApiService';
@@ -21,7 +20,6 @@ const Services = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPlatform, setSelectedPlatform] = useState(searchParams.get('platform') || 'all');
   const [selectedType, setSelectedType] = useState('all');
-  const [activeTab, setActiveTab] = useState('all');
 
   useEffect(() => {
     fetchServices();
@@ -29,7 +27,7 @@ const Services = () => {
 
   useEffect(() => {
     filterServices();
-  }, [services, searchTerm, selectedPlatform, selectedType, activeTab]);
+  }, [services, searchTerm, selectedPlatform, selectedType]);
 
   useEffect(() => {
     if (searchParams.get('platform')) {
@@ -73,12 +71,6 @@ const Services = () => {
       );
     }
 
-    if (activeTab !== 'all') {
-      filtered = filtered.filter(service =>
-        service.platform.toLowerCase() === activeTab.toLowerCase()
-      );
-    }
-
     setFilteredServices(filtered);
   };
 
@@ -90,12 +82,6 @@ const Services = () => {
   const getServiceTypes = () => {
     const types = [...new Set(services.map(service => service.type_name))];
     return types.sort();
-  };
-
-  const getServicesByPlatform = (platform: string) => {
-    return filteredServices.filter(service => 
-      service.platform.toLowerCase() === platform.toLowerCase()
-    );
   };
 
   const formatPrice = (service: Service) => {
@@ -202,9 +188,6 @@ const Services = () => {
     );
   }
 
-  const platforms = getPlatforms();
-  const uniquePlatforms = [...new Set(services.map(service => service.platform))];
-
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -237,6 +220,20 @@ const Services = () => {
               />
             </div>
             
+            <Select value={selectedPlatform} onValueChange={setSelectedPlatform}>
+              <SelectTrigger className="w-full md:w-48">
+                <SelectValue placeholder="Platform" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Platforms</SelectItem>
+                {getPlatforms().map(platform => (
+                  <SelectItem key={platform} value={platform.toLowerCase()}>
+                    {platform.charAt(0).toUpperCase() + platform.slice(1)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
             <Select value={selectedType} onValueChange={setSelectedType}>
               <SelectTrigger className="w-full md:w-48">
                 <SelectValue placeholder="Service Type" />
@@ -258,59 +255,20 @@ const Services = () => {
         </div>
       </section>
 
-      {/* Services by Platform Tabs */}
+      {/* Services Grid */}
       <section className="py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 md:grid-cols-7 mb-8">
-              <TabsTrigger value="all">All</TabsTrigger>
-              {uniquePlatforms.map(platform => (
-                <TabsTrigger key={platform} value={platform.toLowerCase()}>
-                  {platform.charAt(0).toUpperCase() + platform.slice(1)}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-
-            <TabsContent value="all">
-              {filteredServices.length === 0 ? (
-                <div className="text-center py-12">
-                  <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold mb-2">No services found</h3>
-                  <p className="text-muted-foreground">Try adjusting your search criteria</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredServices.map(renderServiceCard)}
-                </div>
-              )}
-            </TabsContent>
-
-            {uniquePlatforms.map(platform => (
-              <TabsContent key={platform} value={platform.toLowerCase()}>
-                <div className="mb-6">
-                  <h2 className="text-2xl font-bold mb-2">
-                    {platform.charAt(0).toUpperCase() + platform.slice(1)} Services
-                  </h2>
-                  <p className="text-muted-foreground">
-                    {getServicesByPlatform(platform).length} services available
-                  </p>
-                </div>
-                {getServicesByPlatform(platform).length === 0 ? (
-                  <div className="text-center py-12">
-                    <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold mb-2">No services found</h3>
-                    <p className="text-muted-foreground">
-                      No {platform} services match your criteria
-                    </p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {getServicesByPlatform(platform).map(renderServiceCard)}
-                  </div>
-                )}
-              </TabsContent>
-            ))}
-          </Tabs>
+          {filteredServices.length === 0 ? (
+            <div className="text-center py-12">
+              <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-xl font-semibold mb-2">No services found</h3>
+              <p className="text-muted-foreground">Try adjusting your search criteria</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredServices.map(renderServiceCard)}
+            </div>
+          )}
         </div>
       </section>
 
