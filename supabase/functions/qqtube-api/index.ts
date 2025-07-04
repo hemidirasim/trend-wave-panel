@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 const API_BASE_URL = 'https://www.qqtube.com/v1-api';
-const API_KEY = '2246aa33bc7050be3469cc0dd4a0065831e3148f';
+const API_KEY = '9d9a63f4407126586252fe2a33a424dce7e0a6a4';
 
 interface ApiRequest {
   action: string;
