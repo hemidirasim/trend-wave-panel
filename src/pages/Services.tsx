@@ -19,12 +19,12 @@ const Services = () => {
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const defaultPlatform = searchParams.get('platform') || 'all';
+  const defaultPlatform = searchParams.get('platform') || '';
   
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPlatform, setSelectedPlatform] = useState(defaultPlatform);
-  const [selectedServiceType, setSelectedServiceType] = useState<string>('all');
+  const [selectedServiceType, setSelectedServiceType] = useState<string>('');
 
   // Yalnız bu 4 platformu göstәr
   const allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook'];
@@ -114,10 +114,9 @@ const Services = () => {
   };
 
   const getUniqueServiceTypes = (platform: string) => {
-    const platformServices = services.filter(service => {
-      if (platform === 'all') return true;
-      return service.platform.toLowerCase() === platform.toLowerCase();
-    });
+    const platformServices = services.filter(service => 
+      service.platform.toLowerCase() === platform.toLowerCase()
+    );
     
     // type_name-dәn service növlәrini çıxar
     const types = platformServices
@@ -143,17 +142,16 @@ const Services = () => {
   };
 
   const getFilteredServices = () => {
-    let filtered = services;
-
-    // Platform filteri
-    if (selectedPlatform !== 'all') {
-      filtered = filtered.filter(service => 
-        service.platform.toLowerCase() === selectedPlatform.toLowerCase()
-      );
+    if (!selectedPlatform) {
+      return [];
     }
 
+    let filtered = services.filter(service => 
+      service.platform.toLowerCase() === selectedPlatform.toLowerCase()
+    );
+
     // Xidmәt növü filteri
-    if (selectedServiceType !== 'all') {
+    if (selectedServiceType) {
       filtered = filtered.filter(service => {
         const serviceType = service.type_name && service.type_name.trim() !== '' 
           ? service.type_name 
@@ -175,6 +173,11 @@ const Services = () => {
     if (name.includes('comment')) return 'Comments';
     if (name.includes('repost')) return 'Reposts';
     return 'Other';
+  };
+
+  const handlePlatformChange = (platform: string) => {
+    setSelectedPlatform(platform);
+    setSelectedServiceType(''); // Reset service type when platform changes
   };
 
   if (loading) {
@@ -207,9 +210,8 @@ const Services = () => {
             </p>
           </div>
 
-          <Tabs value={selectedPlatform} onValueChange={setSelectedPlatform} className="w-full">
-            <TabsList className="grid w-full grid-cols-5 mb-8">
-              <TabsTrigger value="all">Hamısı</TabsTrigger>
+          <Tabs value={selectedPlatform} onValueChange={handlePlatformChange} className="w-full">
+            <TabsList className="grid w-full grid-cols-4 mb-8">
               {getUniquePlatforms().map((platform) => {
                 const IconComponent = getPlatformIcon(platform);
                 return (
@@ -221,93 +223,108 @@ const Services = () => {
               })}
             </TabsList>
 
-            <TabsContent value={selectedPlatform}>
-              {/* Xidmәt növü filteri */}
-              <div className="mb-6">
-                <Select value={selectedServiceType} onValueChange={setSelectedServiceType}>
-                  <SelectTrigger className="w-[300px]">
-                    <SelectValue placeholder="Xidmәt növünü seçin" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Bütün xidmәt növlәri</SelectItem>
-                    {getUniqueServiceTypes(selectedPlatform).map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            {getUniquePlatforms().map((platform) => (
+              <TabsContent key={platform} value={platform}>
+                {/* Xidmәt növü filteri - yalnız platform seçildikdә göstәr */}
+                {selectedPlatform && (
+                  <div className="mb-6">
+                    <Select value={selectedServiceType} onValueChange={setSelectedServiceType}>
+                      <SelectTrigger className="w-[300px]">
+                        <SelectValue placeholder="Xidmәt növünü seçin" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {getUniqueServiceTypes(selectedPlatform).map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {getFilteredServices().map((service) => {
-                  const IconComponent = getPlatformIcon(service.platform);
-                  const price = service.prices?.[0]?.price || '0';
-                  const pricingPer = service.prices?.[0]?.pricing_per || '1K';
-                  const maximum = service.prices?.[0]?.maximum || '0';
-                  const serviceType = service.type_name && service.type_name.trim() !== '' 
-                    ? service.type_name 
-                    : getServiceTypeFromName(service.public_name);
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {getFilteredServices().map((service) => {
+                    const IconComponent = getPlatformIcon(service.platform);
+                    const price = service.prices?.[0]?.price || '0';
+                    const pricingPer = service.prices?.[0]?.pricing_per || '1K';
+                    const maximum = service.prices?.[0]?.maximum || '0';
+                    const serviceType = service.type_name && service.type_name.trim() !== '' 
+                      ? service.type_name 
+                      : getServiceTypeFromName(service.public_name);
 
-                  return (
-                    <Card key={service.id_service} className="relative overflow-hidden hover:shadow-lg transition-shadow">
-                      <CardHeader>
-                        <div className="flex items-center justify-between">
-                          <Badge className={`${getPlatformColor(service.platform)} text-white flex items-center gap-1`}>
-                            {IconComponent && <IconComponent className="w-3 h-3" />}
-                            {service.platform}
-                          </Badge>
-                          <Badge variant="secondary">
-                            ${price}/{pricingPer}
-                          </Badge>
-                        </div>
-                        <CardTitle className="text-xl">{service.public_name || 'Xidmәt'}</CardTitle>
-                        <CardDescription>{serviceType}</CardDescription>
-                      </CardHeader>
-                      
-                      <CardContent className="space-y-4">
-                        <div className="flex justify-between text-sm text-muted-foreground">
-                          <span>Min: {parseInt(service.amount_minimum || '0').toLocaleString()}</span>
-                          <span>Max: {parseInt(maximum).toLocaleString()}</span>
-                        </div>
+                    return (
+                      <Card key={service.id_service} className="relative overflow-hidden hover:shadow-lg transition-shadow">
+                        <CardHeader>
+                          <div className="flex items-center justify-between">
+                            <Badge className={`${getPlatformColor(service.platform)} text-white flex items-center gap-1`}>
+                              {IconComponent && <IconComponent className="w-3 h-3" />}
+                              {service.platform}
+                            </Badge>
+                            <Badge variant="secondary">
+                              ${price}/{pricingPer}
+                            </Badge>
+                          </div>
+                          <CardTitle className="text-xl">{service.public_name || 'Xidmәt'}</CardTitle>
+                          <CardDescription>{serviceType}</CardDescription>
+                        </CardHeader>
                         
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2 text-sm">
-                            <Star className="h-3 w-3 text-yellow-500" />
-                            Keyfiyyәtli xidmәt
+                        <CardContent className="space-y-4">
+                          <div className="flex justify-between text-sm text-muted-foreground">
+                            <span>Min: {parseInt(service.amount_minimum || '0').toLocaleString()}</span>
+                            <span>Max: {parseInt(maximum).toLocaleString()}</span>
                           </div>
-                          <div className="flex items-center gap-2 text-sm">
-                            <Star className="h-3 w-3 text-yellow-500" />
-                            Sürәtli çatdırılma
+                          
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2 text-sm">
+                              <Star className="h-3 w-3 text-yellow-500" />
+                              Keyfiyyәtli xidmәt
+                            </div>
+                            <div className="flex items-center gap-2 text-sm">
+                              <Star className="h-3 w-3 text-yellow-500" />
+                              Sürәtli çatdırılma
+                            </div>
+                            <div className="flex items-center gap-2 text-sm">
+                              <Star className="h-3 w-3 text-yellow-500" />
+                              24/7 Dәstәk
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2 text-sm">
-                            <Star className="h-3 w-3 text-yellow-500" />
-                            24/7 Dәstәk
-                          </div>
-                        </div>
-                        
-                        <Button 
-                          className="w-full" 
-                          onClick={() => handleOrderClick(service.id_service.toString())}
-                        >
-                          <Zap className="h-4 w-4 mr-2" />
-                          Sifariş ver
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-
-              {getFilteredServices().length === 0 && (
-                <div className="text-center py-12">
-                  <p className="text-muted-foreground text-lg">
-                    Seçilәn filterlәrә uyğun xidmәt tapılmadı
-                  </p>
+                          
+                          <Button 
+                            className="w-full" 
+                            onClick={() => handleOrderClick(service.id_service.toString())}
+                          >
+                            <Zap className="h-4 w-4 mr-2" />
+                            Sifariş ver
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
                 </div>
-              )}
-            </TabsContent>
+
+                {selectedPlatform && getFilteredServices().length === 0 && (
+                  <div className="text-center py-12">
+                    <p className="text-muted-foreground text-lg">
+                      {selectedServiceType 
+                        ? 'Seçilәn növә uyğun xidmәt tapılmadı' 
+                        : 'Bu platform üçün xidmәt tapılmadı'
+                      }
+                    </p>
+                  </div>
+                )}
+              </TabsContent>
+            ))}
           </Tabs>
+
+          {/* Heç bir platform seçilmәyibsә mesaj göstәr */}
+          {!selectedPlatform && (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground text-lg">
+                Xidmәtlәri görmәk üçün yuxarıdan sosial şәbәkә seçin
+              </p>
+            </div>
+          )}
         </div>
 
         <Footer />
