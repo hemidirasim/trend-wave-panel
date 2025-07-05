@@ -196,40 +196,45 @@ const Services = () => {
                 }
 
                 return (
-                  <div className="space-y-8">
+                  <div className="space-y-12">
                     {Object.entries(groupedServices).map(([type, typeServices]) => (
-                      <div key={type}>
-                        <h3 className="text-xl font-semibold mb-4 text-primary">{type}</h3>
+                      <div key={type} className="bg-card rounded-lg border p-6">
+                        <div className="mb-6">
+                          <h3 className="text-2xl font-bold text-primary mb-2">{type}</h3>
+                          <div className="h-1 w-20 bg-primary rounded-full"></div>
+                        </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                           {typeServices.map((service) => (
                             <Card key={service.id_service} className="hover:shadow-lg transition-shadow">
                               <CardHeader>
                                 <div className="flex items-center justify-between">
-                                  <Badge variant="secondary">
+                                  <Badge variant="secondary" className="bg-primary/10 text-primary">
                                     ${service.prices[0]?.price || '0'}/{service.prices[0]?.pricing_per || '1K'}
                                   </Badge>
                                 </div>
                                 <CardTitle className="text-lg">{service.public_name}</CardTitle>
-                                <CardDescription>{service.type_name}</CardDescription>
+                                <CardDescription className="text-muted-foreground">
+                                  {service.type_name}
+                                </CardDescription>
                               </CardHeader>
                               
                               <CardContent className="space-y-4">
-                                <div className="flex justify-between text-sm text-muted-foreground">
+                                <div className="flex justify-between text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
                                   <span>Min: {parseInt(service.amount_minimum).toLocaleString()}</span>
                                   <span>Max: {parseInt(service.prices[0]?.maximum || '0').toLocaleString()}</span>
                                 </div>
                                 
                                 <div className="space-y-2">
-                                  <div className="flex items-center gap-2 text-sm">
-                                    <Star className="h-3 w-3 text-yellow-500" />
+                                  <div className="flex items-center gap-2 text-sm text-green-600">
+                                    <Star className="h-3 w-3 fill-current" />
                                     Keyfiyyətli xidmət
                                   </div>
-                                  <div className="flex items-center gap-2 text-sm">
-                                    <Star className="h-3 w-3 text-yellow-500" />
+                                  <div className="flex items-center gap-2 text-sm text-blue-600">
+                                    <Star className="h-3 w-3 fill-current" />
                                     Sürətli çatdırılma
                                   </div>
-                                  <div className="flex items-center gap-2 text-sm">
-                                    <Star className="h-3 w-3 text-yellow-500" />
+                                  <div className="flex items-center gap-2 text-sm text-purple-600">
+                                    <Star className="h-3 w-3 fill-current" />
                                     24/7 Dəstək
                                   </div>
                                 </div>
