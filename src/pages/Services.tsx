@@ -37,11 +37,16 @@ const Services = () => {
     try {
       setLoading(true);
       const data = await apiService.getServices();
-      // Yalnız icazə verilən platformlardakı xidmətləri göstər
+      // Yalnız icazə verilən platformlardakı xidmətləri göstər və boş data-ları filter et
       const filteredData = data.filter(service => 
-        allowedPlatforms.includes(service.platform.toLowerCase())
+        service && 
+        service.platform && 
+        allowedPlatforms.includes(service.platform.toLowerCase()) &&
+        service.type_name &&
+        service.type_name.trim() !== ''
       );
       setServices(filteredData);
+      console.log('Filtered services:', filteredData);
     } catch (error) {
       toast.error('Xidmətlər yüklənərkən xəta baş verdi');
       console.error('Error fetching services:', error);
@@ -73,23 +78,29 @@ const Services = () => {
       instagram: Instagram,
       youtube: Youtube,
       facebook: Facebook,
-      tiktok: () => <div className="w-4 h-4 bg-current rounded-sm" />, // TikTok üçün sadə ikon
+      tiktok: () => <div className="w-4 h-4 bg-current rounded-sm" />,
     };
     return icons[platform.toLowerCase()] || null;
   };
 
   const getUniquePlatforms = () => {
-    const platforms = services.map(service => service.platform.toLowerCase());
-    return [...new Set(platforms)].filter(platform => 
-      allowedPlatforms.includes(platform)
-    );
+    const platforms = services
+      .map(service => service.platform)
+      .filter(platform => platform && allowedPlatforms.includes(platform.toLowerCase()))
+      .map(platform => platform.toLowerCase());
+    return [...new Set(platforms)];
   };
 
   const getUniqueServiceTypes = (platform: string) => {
-    const platformServices = services.filter(service => 
-      platform === 'all' || service.platform.toLowerCase() === platform.toLowerCase()
-    );
-    const types = platformServices.map(service => service.type_name);
+    const platformServices = services.filter(service => {
+      if (platform === 'all') return true;
+      return service.platform && service.platform.toLowerCase() === platform.toLowerCase();
+    });
+    
+    const types = platformServices
+      .map(service => service.type_name)
+      .filter(type => type && type.trim() !== ''); // Boş və null type_name-ləri filter et
+    
     return [...new Set(types)];
   };
 
@@ -99,7 +110,7 @@ const Services = () => {
     // Platform filteri
     if (selectedPlatform !== 'all') {
       filtered = filtered.filter(service => 
-        service.platform.toLowerCase() === selectedPlatform.toLowerCase()
+        service.platform && service.platform.toLowerCase() === selectedPlatform.toLowerCase()
       );
     }
 
@@ -166,18 +177,29 @@ const Services = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Bütün xidmət növləri</SelectItem>
-                    {getUniqueServiceTypes(selectedPlatform).map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
+                    {getUniqueServiceTypes(selectedPlatform)
+                      .filter(type => type && type.trim() !== '') // Əlavə təhlükəsizlik
+                      .map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {getFilteredServices().map((service) => {
+                  // Service data-nın mövcudluğunu yoxla
+                  if (!service || !service.id_service || !service.platform) {
+                    return null;
+                  }
+
                   const IconComponent = getPlatformIcon(service.platform);
+                  const price = service.prices && service.prices[0] ? service.prices[0].price : '0';
+                  const pricingPer = service.prices && service.prices[0] ? service.prices[0].pricing_per : '1K';
+                  const maximum = service.prices && service.prices[0] ? service.prices[0].maximum : '0';
+
                   return (
                     <Card key={service.id_service} className="relative overflow-hidden hover:shadow-lg transition-shadow">
                       <CardHeader>
@@ -187,17 +209,17 @@ const Services = () => {
                             {service.platform}
                           </Badge>
                           <Badge variant="secondary">
-                            ${service.prices[0]?.price || '0'}/{service.prices[0]?.pricing_per || '1K'}
+                            ${price}/{pricingPer}
                           </Badge>
                         </div>
-                        <CardTitle className="text-xl">{service.public_name}</CardTitle>
-                        <CardDescription>{service.type_name}</CardDescription>
+                        <CardTitle className="text-xl">{service.public_name || 'Xidmət'}</CardTitle>
+                        <CardDescription>{service.type_name || 'Növ göstərilməyib'}</CardDescription>
                       </CardHeader>
                       
                       <CardContent className="space-y-4">
                         <div className="flex justify-between text-sm text-muted-foreground">
-                          <span>Min: {parseInt(service.amount_minimum).toLocaleString()}</span>
-                          <span>Max: {parseInt(service.prices[0]?.maximum || '0').toLocaleString()}</span>
+                          <span>Min: {parseInt(service.amount_minimum || '0').toLocaleString()}</span>
+                          <span>Max: {parseInt(maximum).toLocaleString()}</span>
                         </div>
                         
                         <div className="space-y-2">
