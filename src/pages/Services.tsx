@@ -52,15 +52,13 @@ const Services = () => {
       name: 'instagram',
       displayName: 'Instagram',
       icon: Instagram,
-      color: 'bg-gradient-to-r from-purple-500 to-pink-500',
-      textColor: 'text-white'
+      color: 'bg-gradient-to-r from-purple-500 to-pink-500'
     },
     {
       name: 'youtube',
       displayName: 'Youtube',
       icon: Youtube,
-      color: 'bg-red-500',
-      textColor: 'text-white'
+      color: 'bg-red-500'
     },
     {
       name: 'tiktok',
@@ -70,15 +68,13 @@ const Services = () => {
           ♪
         </div>
       ),
-      color: 'bg-black',
-      textColor: 'text-white'
+      color: 'bg-black'
     },
     {
       name: 'facebook',
       displayName: 'Facebook',
       icon: Facebook,
-      color: 'bg-blue-600',
-      textColor: 'text-white'
+      color: 'bg-blue-600'
     }
   ];
 
@@ -90,32 +86,28 @@ const Services = () => {
     return Star;
   };
 
-  const getServiceTypes = () => {
+  const getUniqueServiceTypes = () => {
     if (!selectedPlatform) return [];
+    
     const platformServices = services.filter(service => 
       service.platform.toLowerCase() === selectedPlatform.toLowerCase()
     );
     
-    const typeMap = new Map();
+    const uniqueTypes = new Map();
     platformServices.forEach(service => {
-      const typeName = service.type_name;
-      if (!typeMap.has(typeName)) {
-        typeMap.set(typeName, {
-          name: typeName,
-          count: 0,
-          icon: getServiceTypeIcon(typeName)
+      if (!uniqueTypes.has(service.type_name)) {
+        uniqueTypes.set(service.type_name, {
+          name: service.type_name,
+          count: platformServices.filter(s => s.type_name === service.type_name).length,
+          icon: getServiceTypeIcon(service.type_name)
         });
       }
-      typeMap.set(typeName, {
-        ...typeMap.get(typeName),
-        count: typeMap.get(typeName).count + 1
-      });
     });
     
-    return Array.from(typeMap.values());
+    return Array.from(uniqueTypes.values());
   };
 
-  const getFilteredServices = () => {
+  const getServicesForType = () => {
     if (!selectedPlatform || !selectedServiceType) return [];
     return services.filter(service => 
       service.platform.toLowerCase() === selectedPlatform.toLowerCase() &&
@@ -153,12 +145,15 @@ const Services = () => {
             </p>
           </div>
 
-          {!selectedPlatform ? (
-            // Platform selection view
+          {/* Platform Selection */}
+          {!selectedPlatform && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
               {platforms.map((platform) => {
                 const Icon = platform.icon;
-                const serviceCount = services.filter(s => s.platform.toLowerCase() === platform.name).length;
+                const serviceCount = services.filter(s => 
+                  s.platform.toLowerCase() === platform.name.toLowerCase()
+                ).length;
+                
                 return (
                   <Card 
                     key={platform.name}
@@ -166,7 +161,7 @@ const Services = () => {
                     onClick={() => setSelectedPlatform(platform.name)}
                   >
                     <CardContent className="p-8">
-                      <div className={`${platform.color} ${platform.textColor} w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4`}>
+                      <div className={`${platform.color} text-white w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4`}>
                         <Icon className="h-10 w-10" />
                       </div>
                       <h3 className="text-xl font-semibold mb-2">{platform.displayName}</h3>
@@ -178,16 +173,15 @@ const Services = () => {
                 );
               })}
             </div>
-          ) : !selectedServiceType ? (
-            // Service type selection view - FIXED to show individual service types
+          )}
+
+          {/* Service Type Selection */}
+          {selectedPlatform && !selectedServiceType && (
             <div>
               <div className="flex items-center justify-center mb-8">
                 <Button 
                   variant="outline" 
-                  onClick={() => {
-                    setSelectedPlatform(null);
-                    setSelectedServiceType(null);
-                  }}
+                  onClick={() => setSelectedPlatform(null)}
                   className="mr-4"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
@@ -200,10 +194,10 @@ const Services = () => {
                     const Icon = platform.icon;
                     return (
                       <>
-                        <div className={`${platform.color} ${platform.textColor} w-10 h-10 rounded-full flex items-center justify-center mr-3`}>
+                        <div className={`${platform.color} text-white w-10 h-10 rounded-full flex items-center justify-center mr-3`}>
                           <Icon className="h-5 w-5" />
                         </div>
-                        <h2 className="text-2xl font-bold">{platform.displayName} üçün Xidmət Növü Seçin</h2>
+                        <h2 className="text-2xl font-bold">{platform.displayName} Xidmət Növləri</h2>
                       </>
                     );
                   })()}
@@ -211,7 +205,7 @@ const Services = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
-                {getServiceTypes().map((type) => {
+                {getUniqueServiceTypes().map((type) => {
                   const Icon = type.icon;
                   return (
                     <Card 
@@ -225,7 +219,7 @@ const Services = () => {
                         </div>
                         <h3 className="text-xl font-semibold mb-2">{type.name}</h3>
                         <p className="text-sm text-muted-foreground">
-                          {type.count} seçim
+                          {type.count} xidmət
                         </p>
                       </CardContent>
                     </Card>
@@ -233,8 +227,10 @@ const Services = () => {
                 })}
               </div>
             </div>
-          ) : (
-            // Services view for selected type
+          )}
+
+          {/* Services List */}
+          {selectedPlatform && selectedServiceType && (
             <div>
               <div className="flex items-center justify-center mb-8">
                 <Button 
@@ -253,7 +249,7 @@ const Services = () => {
                     const TypeIcon = getServiceTypeIcon(selectedServiceType);
                     return (
                       <>
-                        <div className={`${platform.color} ${platform.textColor} w-8 h-8 rounded-full flex items-center justify-center mr-2`}>
+                        <div className={`${platform.color} text-white w-8 h-8 rounded-full flex items-center justify-center mr-2`}>
                           <Icon className="h-4 w-4" />
                         </div>
                         <TypeIcon className="h-6 w-6 text-primary mr-3" />
@@ -264,65 +260,49 @@ const Services = () => {
                 </div>
               </div>
 
-              {(() => {
-                const filteredServices = getFilteredServices();
-                
-                if (filteredServices.length === 0) {
-                  return (
-                    <div className="text-center py-12">
-                      <p className="text-muted-foreground">
-                        Bu xidmət növü üçün hələ xidmət mövcud deyil.
-                      </p>
-                    </div>
-                  );
-                }
-
-                return (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredServices.map((service) => (
-                      <Card key={service.id_service} className="hover:shadow-lg transition-shadow">
-                        <CardHeader className="pb-4">
-                          <div className="flex items-center justify-between mb-2">
-                            <Badge variant="secondary" className="bg-primary text-primary-foreground">
-                              {(() => {
-                                const platform = platforms.find(p => p.name === selectedPlatform);
-                                return platform?.displayName || selectedPlatform;
-                              })()}
-                            </Badge>
-                            <div className="flex items-center">
-                              <Star className="h-4 w-4 text-yellow-500 fill-current mr-1" />
-                              <span className="text-sm font-medium">4.9</span>
-                            </div>
-                          </div>
-                          <CardTitle className="text-lg leading-tight">{service.public_name}</CardTitle>
-                          <CardDescription className="text-sm">
-                            Başlanğıc qiymət: <span className="font-semibold text-foreground">
-                              ${service.prices[0]?.price || '0'} hər {service.prices[0]?.pricing_per || '1K'}
-                            </span>
-                          </CardDescription>
-                        </CardHeader>
-                        
-                        <CardContent className="space-y-4 pt-0">
-                          <div className="bg-muted/50 p-3 rounded-md">
-                            <div className="flex justify-between text-sm">
-                              <span>Min: {parseInt(service.amount_minimum).toLocaleString()}</span>
-                              <span>Maks: {parseInt(service.prices[0]?.maximum || '0').toLocaleString()}</span>
-                            </div>
-                          </div>
-                          
-                          <Button 
-                            className="w-full" 
-                            onClick={() => handleOrderClick(service.id_service)}
-                          >
-                            <Zap className="h-4 w-4 mr-2" />
-                            Sifariş ver
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                );
-              })()}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {getServicesForType().map((service) => (
+                  <Card key={service.id_service} className="hover:shadow-lg transition-shadow">
+                    <CardHeader className="pb-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <Badge variant="secondary" className="bg-primary text-primary-foreground">
+                          {(() => {
+                            const platform = platforms.find(p => p.name === selectedPlatform);
+                            return platform?.displayName || selectedPlatform;
+                          })()}
+                        </Badge>
+                        <div className="flex items-center">
+                          <Star className="h-4 w-4 text-yellow-500 fill-current mr-1" />
+                          <span className="text-sm font-medium">4.9</span>
+                        </div>
+                      </div>
+                      <CardTitle className="text-lg leading-tight">{service.public_name}</CardTitle>
+                      <CardDescription className="text-sm">
+                        Başlanğıc qiymət: <span className="font-semibold text-foreground">
+                          ${service.prices[0]?.price || '0'} hər {service.prices[0]?.pricing_per || '1K'}
+                        </span>
+                      </CardDescription>
+                    </CardHeader>
+                    
+                    <CardContent className="space-y-4 pt-0">
+                      <div className="bg-muted/50 p-3 rounded-md">
+                        <div className="flex justify-between text-sm">
+                          <span>Min: {parseInt(service.amount_minimum).toLocaleString()}</span>
+                          <span>Maks: {parseInt(service.prices[0]?.maximum || '0').toLocaleString()}</span>
+                        </div>
+                      </div>
+                      
+                      <Button 
+                        className="w-full" 
+                        onClick={() => handleOrderClick(service.id_service)}
+                      >
+                        <Zap className="h-4 w-4 mr-2" />
+                        Sifariş ver
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
           )}
         </div>
