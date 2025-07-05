@@ -155,7 +155,6 @@ const Services = () => {
           </div>
 
           {!selectedPlatform ? (
-            // Platform selection view
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
               {platforms.map((platform) => {
                 const serviceCount = services.filter(s => 
@@ -186,7 +185,6 @@ const Services = () => {
               })}
             </div>
           ) : (
-            // Services view for selected platform
             <div>
               <div className="flex items-center mb-8">
                 <Button 
