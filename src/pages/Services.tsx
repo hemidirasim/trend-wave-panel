@@ -84,9 +84,9 @@ const Services = () => {
 
   const getServiceTypeIcon = (typeName: string) => {
     const lowerType = typeName.toLowerCase();
-    if (lowerType.includes('like')) return Heart;
-    if (lowerType.includes('follow')) return User;
-    if (lowerType.includes('view')) return Eye;
+    if (lowerType.includes('like') || lowerType.includes('bəyənmə')) return Heart;
+    if (lowerType.includes('follow') || lowerType.includes('izləyici')) return User;
+    if (lowerType.includes('view') || lowerType.includes('baxış')) return Eye;
     return Star;
   };
 
@@ -171,7 +171,7 @@ const Services = () => {
                       </div>
                       <h3 className="text-xl font-semibold mb-2">{platform.displayName}</h3>
                       <p className="text-sm text-muted-foreground">
-                        {serviceCount} services
+                        {serviceCount} xidmət
                       </p>
                     </CardContent>
                   </Card>
@@ -179,7 +179,7 @@ const Services = () => {
               })}
             </div>
           ) : !selectedServiceType ? (
-            // Service type selection view
+            // Service type selection view - FIXED to show individual service types
             <div>
               <div className="flex items-center justify-center mb-8">
                 <Button 
@@ -203,14 +203,14 @@ const Services = () => {
                         <div className={`${platform.color} ${platform.textColor} w-10 h-10 rounded-full flex items-center justify-center mr-3`}>
                           <Icon className="h-5 w-5" />
                         </div>
-                        <h2 className="text-2xl font-bold">Choose Service Type for {platform.displayName}</h2>
+                        <h2 className="text-2xl font-bold">{platform.displayName} üçün Xidmət Növü Seçin</h2>
                       </>
                     );
                   })()}
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
                 {getServiceTypes().map((type) => {
                   const Icon = type.icon;
                   return (
@@ -225,7 +225,7 @@ const Services = () => {
                         </div>
                         <h3 className="text-xl font-semibold mb-2">{type.name}</h3>
                         <p className="text-sm text-muted-foreground">
-                          {type.count} options
+                          {type.count} seçim
                         </p>
                       </CardContent>
                     </Card>
@@ -257,7 +257,7 @@ const Services = () => {
                           <Icon className="h-4 w-4" />
                         </div>
                         <TypeIcon className="h-6 w-6 text-primary mr-3" />
-                        <h2 className="text-2xl font-bold">{selectedServiceType} Services for {platform.displayName}</h2>
+                        <h2 className="text-2xl font-bold">{platform.displayName} - {selectedServiceType}</h2>
                       </>
                     );
                   })()}
@@ -296,8 +296,8 @@ const Services = () => {
                           </div>
                           <CardTitle className="text-lg leading-tight">{service.public_name}</CardTitle>
                           <CardDescription className="text-sm">
-                            Starting Price: <span className="font-semibold text-foreground">
-                              ${service.prices[0]?.price || '0'} per {service.prices[0]?.pricing_per || '1K'}
+                            Başlanğıc qiymət: <span className="font-semibold text-foreground">
+                              ${service.prices[0]?.price || '0'} hər {service.prices[0]?.pricing_per || '1K'}
                             </span>
                           </CardDescription>
                         </CardHeader>
@@ -306,7 +306,7 @@ const Services = () => {
                           <div className="bg-muted/50 p-3 rounded-md">
                             <div className="flex justify-between text-sm">
                               <span>Min: {parseInt(service.amount_minimum).toLocaleString()}</span>
-                              <span>Max: {parseInt(service.prices[0]?.maximum || '0').toLocaleString()}</span>
+                              <span>Maks: {parseInt(service.prices[0]?.maximum || '0').toLocaleString()}</span>
                             </div>
                           </div>
                           
