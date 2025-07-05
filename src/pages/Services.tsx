@@ -4,13 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import AuthDialog from '@/components/AuthDialog';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { apiService, Service } from '@/components/ApiService';
-import { Loader2, Zap, Star } from 'lucide-react';
+import { Loader2, Zap, Star, Instagram, Youtube, Facebook } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Services = () => {
@@ -23,6 +24,10 @@ const Services = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPlatform, setSelectedPlatform] = useState(defaultPlatform);
+  const [selectedServiceType, setSelectedServiceType] = useState<string>('all');
+
+  // Yalnız bu 4 platformu göstər
+  const allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook'];
 
   useEffect(() => {
     fetchServices();
@@ -32,7 +37,11 @@ const Services = () => {
     try {
       setLoading(true);
       const data = await apiService.getServices();
-      setServices(data);
+      // Yalnız icazə verilən platformlardakı xidmətləri göstər
+      const filteredData = data.filter(service => 
+        allowedPlatforms.includes(service.platform.toLowerCase())
+      );
+      setServices(filteredData);
     } catch (error) {
       toast.error('Xidmətlər yüklənərkən xəta baş verdi');
       console.error('Error fetching services:', error);
@@ -55,24 +64,53 @@ const Services = () => {
       instagram: 'bg-pink-500',
       tiktok: 'bg-purple-500',
       facebook: 'bg-blue-500',
-      twitter: 'bg-sky-500',
-      telegram: 'bg-blue-400',
     };
     return colors[platform.toLowerCase()] || 'bg-gray-500';
   };
 
+  const getPlatformIcon = (platform: string) => {
+    const icons: Record<string, any> = {
+      instagram: Instagram,
+      youtube: Youtube,
+      facebook: Facebook,
+      tiktok: () => <div className="w-4 h-4 bg-current rounded-sm" />, // TikTok üçün sadə ikon
+    };
+    return icons[platform.toLowerCase()] || null;
+  };
+
   const getUniquePlatforms = () => {
     const platforms = services.map(service => service.platform.toLowerCase());
-    return [...new Set(platforms)];
+    return [...new Set(platforms)].filter(platform => 
+      allowedPlatforms.includes(platform)
+    );
+  };
+
+  const getUniqueServiceTypes = (platform: string) => {
+    const platformServices = services.filter(service => 
+      platform === 'all' || service.platform.toLowerCase() === platform.toLowerCase()
+    );
+    const types = platformServices.map(service => service.type_name);
+    return [...new Set(types)];
   };
 
   const getFilteredServices = () => {
-    if (selectedPlatform === 'all') {
-      return services;
+    let filtered = services;
+
+    // Platform filteri
+    if (selectedPlatform !== 'all') {
+      filtered = filtered.filter(service => 
+        service.platform.toLowerCase() === selectedPlatform.toLowerCase()
+      );
     }
-    return services.filter(service => 
-      service.platform.toLowerCase() === selectedPlatform.toLowerCase()
-    );
+
+    // Xidmət növü filteri
+    if (selectedServiceType !== 'all') {
+      filtered = filtered.filter(service => 
+        service.type_name === selectedServiceType
+      );
+    }
+
+    return filtered;
   };
 
   if (loading) {
@@ -101,69 +139,102 @@ const Services = () => {
               Sosial Media <span className="text-primary">Xidmətləri</span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Bütün platformalar üçün keyfiyyətli və sürətli SMM xidmətləri
+              Instagram, TikTok, YouTube və Facebook üçün keyfiyyətli SMM xidmətləri
             </p>
           </div>
 
           <Tabs value={selectedPlatform} onValueChange={setSelectedPlatform} className="w-full">
             <TabsList className="grid w-full grid-cols-5 mb-8">
               <TabsTrigger value="all">Hamısı</TabsTrigger>
-              {getUniquePlatforms().map((platform) => (
-                <TabsTrigger key={platform} value={platform} className="capitalize">
-                  {platform}
-                </TabsTrigger>
-              ))}
+              {getUniquePlatforms().map((platform) => {
+                const IconComponent = getPlatformIcon(platform);
+                return (
+                  <TabsTrigger key={platform} value={platform} className="capitalize flex items-center gap-2">
+                    {IconComponent && <IconComponent className="w-4 h-4" />}
+                    {platform}
+                  </TabsTrigger>
+                );
+              })}
             </TabsList>
 
             <TabsContent value={selectedPlatform}>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {getFilteredServices().map((service) => (
-                  <Card key={service.id_service} className="relative overflow-hidden hover:shadow-lg transition-shadow">
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <Badge className={`${getPlatformColor(service.platform)} text-white`}>
-                          {service.platform}
-                        </Badge>
-                        <Badge variant="secondary">
-                          ${service.prices[0]?.price || '0'}/{service.prices[0]?.pricing_per || '1K'}
-                        </Badge>
-                      </div>
-                      <CardTitle className="text-xl">{service.public_name}</CardTitle>
-                      <CardDescription>{service.type_name}</CardDescription>
-                    </CardHeader>
-                    
-                    <CardContent className="space-y-4">
-                      <div className="flex justify-between text-sm text-muted-foreground">
-                        <span>Min: {parseInt(service.amount_minimum).toLocaleString()}</span>
-                        <span>Max: {parseInt(service.prices[0]?.maximum || '0').toLocaleString()}</span>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-sm">
-                          <Star className="h-3 w-3 text-yellow-500" />
-                          Keyfiyyətli xidmət
-                        </div>
-                        <div className="flex items-center gap-2 text-sm">
-                          <Star className="h-3 w-3 text-yellow-500" />
-                          Sürətli çatdırılma
-                        </div>
-                        <div className="flex items-center gap-2 text-sm">
-                          <Star className="h-3 w-3 text-yellow-500" />
-                          24/7 Dəstək
-                        </div>
-                      </div>
-                      
-                      <Button 
-                        className="w-full" 
-                        onClick={() => handleOrderClick(service.id_service)}
-                      >
-                        <Zap className="h-4 w-4 mr-2" />
-                        Sifariş ver
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
+              {/* Xidmət növü filteri */}
+              <div className="mb-6">
+                <Select value={selectedServiceType} onValueChange={setSelectedServiceType}>
+                  <SelectTrigger className="w-[300px]">
+                    <SelectValue placeholder="Xidmət növünü seçin" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Bütün xidmət növləri</SelectItem>
+                    {getUniqueServiceTypes(selectedPlatform).map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {getFilteredServices().map((service) => {
+                  const IconComponent = getPlatformIcon(service.platform);
+                  return (
+                    <Card key={service.id_service} className="relative overflow-hidden hover:shadow-lg transition-shadow">
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <Badge className={`${getPlatformColor(service.platform)} text-white flex items-center gap-1`}>
+                            {IconComponent && <IconComponent className="w-3 h-3" />}
+                            {service.platform}
+                          </Badge>
+                          <Badge variant="secondary">
+                            ${service.prices[0]?.price || '0'}/{service.prices[0]?.pricing_per || '1K'}
+                          </Badge>
+                        </div>
+                        <CardTitle className="text-xl">{service.public_name}</CardTitle>
+                        <CardDescription>{service.type_name}</CardDescription>
+                      </CardHeader>
+                      
+                      <CardContent className="space-y-4">
+                        <div className="flex justify-between text-sm text-muted-foreground">
+                          <span>Min: {parseInt(service.amount_minimum).toLocaleString()}</span>
+                          <span>Max: {parseInt(service.prices[0]?.maximum || '0').toLocaleString()}</span>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 text-sm">
+                            <Star className="h-3 w-3 text-yellow-500" />
+                            Keyfiyyətli xidmət
+                          </div>
+                          <div className="flex items-center gap-2 text-sm">
+                            <Star className="h-3 w-3 text-yellow-500" />
+                            Sürətli çatdırılma
+                          </div>
+                          <div className="flex items-center gap-2 text-sm">
+                            <Star className="h-3 w-3 text-yellow-500" />
+                            24/7 Dəstək
+                          </div>
+                        </div>
+                        
+                        <Button 
+                          className="w-full" 
+                          onClick={() => handleOrderClick(service.id_service)}
+                        >
+                          <Zap className="h-4 w-4 mr-2" />
+                          Sifariş ver
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+
+              {getFilteredServices().length === 0 && (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground text-lg">
+                    Seçilən filterlərə uyğun xidmət tapılmadı
+                  </p>
+                </div>
+              )}
             </TabsContent>
           </Tabs>
         </div>
