@@ -1,15 +1,15 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import AuthDialog from '@/components/AuthDialog';
 import { useNavigate } from 'react-router-dom';
 import { apiService, Service } from '@/components/ApiService';
-import { Loader2, Zap, Star, ArrowLeft, Instagram, Youtube, Facebook } from 'lucide-react';
+import { Loader2, Zap, Star, ArrowLeft, Instagram, Youtube, Facebook, Filter } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Services = () => {
@@ -20,6 +20,7 @@ const Services = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
+  const [selectedFilter, setSelectedFilter] = useState<string>('all');
 
   useEffect(() => {
     fetchServices();
@@ -83,9 +84,27 @@ const Services = () => {
 
   const getFilteredServices = () => {
     if (!selectedPlatform) return [];
-    return services.filter(service => 
+    let filteredServices = services.filter(service => 
       service.platform.toLowerCase() === selectedPlatform.toLowerCase()
     );
+
+    // Apply type filter
+    if (selectedFilter !== 'all') {
+      filteredServices = filteredServices.filter(service => 
+        service.type_name.toLowerCase().includes(selectedFilter.toLowerCase())
+      );
+    }
+
+    return filteredServices;
+  };
+
+  const getAvailableTypes = () => {
+    if (!selectedPlatform) return [];
+    const platformServices = services.filter(service => 
+      service.platform.toLowerCase() === selectedPlatform.toLowerCase()
+    );
+    const types = [...new Set(platformServices.map(service => service.type_name))];
+    return types.sort();
   };
 
   const groupServicesByType = (services: Service[]) => {
@@ -157,29 +176,52 @@ const Services = () => {
           ) : (
             // Services view for selected platform
             <div>
-              <div className="flex items-center mb-8">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setSelectedPlatform(null)}
-                  className="mr-4"
-                >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Geri
-                </Button>
+              <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center">
-                  {(() => {
-                    const platform = platforms.find(p => p.name === selectedPlatform);
-                    if (!platform) return null;
-                    const Icon = platform.icon;
-                    return (
-                      <>
-                        <div className={`${platform.color} ${platform.textColor} w-10 h-10 rounded-full flex items-center justify-center mr-3`}>
-                          <Icon className="h-5 w-5" />
-                        </div>
-                        <h2 className="text-2xl font-bold">{platform.displayName} Xidmətləri</h2>
-                      </>
-                    );
-                  })()}
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setSelectedPlatform(null);
+                      setSelectedFilter('all');
+                    }}
+                    className="mr-4"
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Geri
+                  </Button>
+                  <div className="flex items-center">
+                    {(() => {
+                      const platform = platforms.find(p => p.name === selectedPlatform);
+                      if (!platform) return null;
+                      const Icon = platform.icon;
+                      return (
+                        <>
+                          <div className={`${platform.color} ${platform.textColor} w-10 h-10 rounded-full flex items-center justify-center mr-3`}>
+                            <Icon className="h-5 w-5" />
+                          </div>
+                          <h2 className="text-2xl font-bold">{platform.displayName} Xidmətləri</h2>
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+
+                {/* Filter dropdown */}
+                <div className="flex items-center gap-3">
+                  <Filter className="h-4 w-4 text-muted-foreground" />
+                  <Select value={selectedFilter} onValueChange={setSelectedFilter}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Xidmət növü seçin" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Bütün xidmətlər</SelectItem>
+                      {getAvailableTypes().map((type) => (
+                        <SelectItem key={type} value={type.toLowerCase()}>
+                          {type}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
@@ -190,7 +232,12 @@ const Services = () => {
                 if (filteredServices.length === 0) {
                   return (
                     <div className="text-center py-12">
-                      <p className="text-muted-foreground">Bu platform üçün hələ xidmət mövcud deyil.</p>
+                      <p className="text-muted-foreground">
+                        {selectedFilter === 'all' 
+                          ? 'Bu platform üçün hələ xidmət mövcud deyil.' 
+                          : 'Seçilən filtrə uyğun xidmət tapılmadı.'
+                        }
+                      </p>
                     </div>
                   );
                 }
