@@ -1,17 +1,16 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import AuthDialog from '@/components/AuthDialog';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { apiService, Service } from '@/components/ApiService';
-import { Loader2, Zap, Star, Instagram, Youtube, Facebook } from 'lucide-react';
+import { Loader2, Zap, Star, Instagram, Youtube, Facebook, Heart, Users, Eye, Share, MessageCircle, Repeat } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Services = () => {
@@ -104,6 +103,19 @@ const Services = () => {
       tiktok: () => <div className="w-4 h-4 bg-current rounded-sm" />,
     };
     return icons[platform.toLowerCase()] || null;
+  };
+
+  const getServiceTypeIcon = (type: string) => {
+    const icons: Record<string, any> = {
+      'Likes': Heart,
+      'Followers': Users,
+      'Views': Eye,
+      'Shares': Share,
+      'Comments': MessageCircle,
+      'Reposts': Repeat,
+      'Other': Star,
+    };
+    return icons[type] || Star;
   };
 
   const getUniquePlatforms = () => {
@@ -223,21 +235,31 @@ const Services = () => {
 
             {getUniquePlatforms().map((platform) => (
               <TabsContent key={platform} value={platform}>
-                {/* Xidmət növü seçimi - yalnız platform seçildikdə göstər */}
+                {/* Xidmət növü seçimi - düymələrlə */}
                 {selectedPlatform && (
-                  <div className="mb-6">
-                    <Select value={selectedServiceType} onValueChange={setSelectedServiceType}>
-                      <SelectTrigger className="w-[300px]">
-                        <SelectValue placeholder="Xidmət növünü seçin" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {getUniqueServiceTypes(selectedPlatform).map((type) => (
-                          <SelectItem key={type} value={type}>
+                  <div className="mb-8">
+                    <h3 className="text-lg font-semibold mb-4">Xidmət növünü seçin:</h3>
+                    <ToggleGroup 
+                      type="single" 
+                      value={selectedServiceType} 
+                      onValueChange={(value) => setSelectedServiceType(value || '')}
+                      className="flex flex-wrap gap-3 justify-center"
+                    >
+                      {getUniqueServiceTypes(selectedPlatform).map((type) => {
+                        const IconComponent = getServiceTypeIcon(type);
+                        return (
+                          <ToggleGroupItem 
+                            key={type} 
+                            value={type}
+                            className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all hover:scale-105"
+                            variant="outline"
+                          >
+                            <IconComponent className="w-4 h-4" />
                             {type}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                          </ToggleGroupItem>
+                        );
+                      })}
+                    </ToggleGroup>
                   </div>
                 )}
 
