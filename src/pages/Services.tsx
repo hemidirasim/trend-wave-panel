@@ -26,7 +26,7 @@ const Services = () => {
   const [selectedPlatform, setSelectedPlatform] = useState(defaultPlatform);
   const [selectedServiceType, setSelectedServiceType] = useState<string>('all');
 
-  // Yalnız bu 4 platformu göstər
+  // Yalnız bu 4 platformu göstәr
   const allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook'];
 
   useEffect(() => {
@@ -36,20 +36,43 @@ const Services = () => {
   const fetchServices = async () => {
     try {
       setLoading(true);
+      console.log('Fetching services from API...');
       const data = await apiService.getServices();
-      // Yalnız icazə verilən platformlardakı xidmətləri göstər və boş data-ları filter et
-      const filteredData = data.filter(service => 
-        service && 
-        service.platform && 
-        allowedPlatforms.includes(service.platform.toLowerCase()) &&
-        service.type_name &&
-        service.type_name.trim() !== ''
-      );
-      setServices(filteredData);
+      console.log('Raw API response:', data);
+      
+      // API-dәn gәlәn mәlumatları filterlә
+      const filteredData = data.filter(service => {
+        // Service mövcudluğunu yoxla
+        if (!service || !service.platform || !service.id_service) {
+          console.log('Skipping invalid service:', service);
+          return false;
+        }
+        
+        // Platform yoxla
+        const platformMatch = allowedPlatforms.includes(service.platform.toLowerCase());
+        if (!platformMatch) {
+          console.log('Platform not allowed:', service.platform);
+          return false;
+        }
+        
+        // Qiymәt mәlumatlarını yoxla
+        if (!service.prices || service.prices.length === 0) {
+          console.log('No pricing info for service:', service.id_service);
+          return false;
+        }
+        
+        return true;
+      });
+      
       console.log('Filtered services:', filteredData);
+      setServices(filteredData);
+      
+      if (filteredData.length === 0) {
+        toast.error('Seçilmiş platformlar üçün xidmәt tapılmadı');
+      }
     } catch (error) {
-      toast.error('Xidmətlər yüklənərkən xəta baş verdi');
       console.error('Error fetching services:', error);
+      toast.error('Xidmәtlәr yüklәnәrkәn xәta baş verdi');
     } finally {
       setLoading(false);
     }
@@ -85,21 +108,36 @@ const Services = () => {
 
   const getUniquePlatforms = () => {
     const platforms = services
-      .map(service => service.platform)
-      .filter(platform => platform && allowedPlatforms.includes(platform.toLowerCase()))
-      .map(platform => platform.toLowerCase());
+      .map(service => service.platform.toLowerCase())
+      .filter(platform => allowedPlatforms.includes(platform));
     return [...new Set(platforms)];
   };
 
   const getUniqueServiceTypes = (platform: string) => {
     const platformServices = services.filter(service => {
       if (platform === 'all') return true;
-      return service.platform && service.platform.toLowerCase() === platform.toLowerCase();
+      return service.platform.toLowerCase() === platform.toLowerCase();
     });
     
+    // type_name-dәn service növlәrini çıxar
     const types = platformServices
-      .map(service => service.type_name)
-      .filter(type => type && type.trim() !== ''); // Boş və null type_name-ləri filter et
+      .map(service => {
+        if (service.type_name && service.type_name.trim() !== '') {
+          return service.type_name;
+        }
+        // Әgәr type_name yoxdursa, public_name-dәn çıxarmağa çalış
+        if (service.public_name) {
+          const name = service.public_name.toLowerCase();
+          if (name.includes('like')) return 'Likes';
+          if (name.includes('follow')) return 'Followers';
+          if (name.includes('view')) return 'Views';
+          if (name.includes('share')) return 'Shares';
+          if (name.includes('comment')) return 'Comments';
+          if (name.includes('repost')) return 'Reposts';
+        }
+        return 'Other';
+      })
+      .filter(type => type && type.trim() !== '');
     
     return [...new Set(types)];
   };
@@ -110,18 +148,33 @@ const Services = () => {
     // Platform filteri
     if (selectedPlatform !== 'all') {
       filtered = filtered.filter(service => 
-        service.platform && service.platform.toLowerCase() === selectedPlatform.toLowerCase()
+        service.platform.toLowerCase() === selectedPlatform.toLowerCase()
       );
     }
 
-    // Xidmət növü filteri
+    // Xidmәt növü filteri
     if (selectedServiceType !== 'all') {
-      filtered = filtered.filter(service => 
-        service.type_name === selectedServiceType
-      );
+      filtered = filtered.filter(service => {
+        const serviceType = service.type_name && service.type_name.trim() !== '' 
+          ? service.type_name 
+          : getServiceTypeFromName(service.public_name);
+        return serviceType === selectedServiceType;
+      });
     }
 
     return filtered;
+  };
+
+  const getServiceTypeFromName = (publicName: string) => {
+    if (!publicName) return 'Other';
+    const name = publicName.toLowerCase();
+    if (name.includes('like')) return 'Likes';
+    if (name.includes('follow')) return 'Followers';
+    if (name.includes('view')) return 'Views';
+    if (name.includes('share')) return 'Shares';
+    if (name.includes('comment')) return 'Comments';
+    if (name.includes('repost')) return 'Reposts';
+    return 'Other';
   };
 
   if (loading) {
@@ -131,7 +184,7 @@ const Services = () => {
         <div className="container mx-auto px-4 py-20">
           <div className="flex items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin" />
-            <span className="ml-2">Xidmətlər yüklənir...</span>
+            <span className="ml-2">Xidmәtlәr yüklәnir...</span>
           </div>
         </div>
         <Footer />
@@ -147,10 +200,10 @@ const Services = () => {
         <div className="container mx-auto px-4 py-8">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold mb-4">
-              Sosial Media <span className="text-primary">Xidmətləri</span>
+              Sosial Media <span className="text-primary">Xidmәtlәri</span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Instagram, TikTok, YouTube və Facebook üçün keyfiyyətli SMM xidmətləri
+              Instagram, TikTok, YouTube vә Facebook üçün keyfiyyәtli SMM xidmәtlәri
             </p>
           </div>
 
@@ -169,36 +222,32 @@ const Services = () => {
             </TabsList>
 
             <TabsContent value={selectedPlatform}>
-              {/* Xidmət növü filteri */}
+              {/* Xidmәt növü filteri */}
               <div className="mb-6">
                 <Select value={selectedServiceType} onValueChange={setSelectedServiceType}>
                   <SelectTrigger className="w-[300px]">
-                    <SelectValue placeholder="Xidmət növünü seçin" />
+                    <SelectValue placeholder="Xidmәt növünü seçin" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Bütün xidmət növləri</SelectItem>
-                    {getUniqueServiceTypes(selectedPlatform)
-                      .filter(type => type && type.trim() !== '') // Əlavə təhlükəsizlik
-                      .map((type) => (
-                        <SelectItem key={type} value={type}>
-                          {type}
-                        </SelectItem>
-                      ))}
+                    <SelectItem value="all">Bütün xidmәt növlәri</SelectItem>
+                    {getUniqueServiceTypes(selectedPlatform).map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {getFilteredServices().map((service) => {
-                  // Service data-nın mövcudluğunu yoxla
-                  if (!service || !service.id_service || !service.platform) {
-                    return null;
-                  }
-
                   const IconComponent = getPlatformIcon(service.platform);
-                  const price = service.prices && service.prices[0] ? service.prices[0].price : '0';
-                  const pricingPer = service.prices && service.prices[0] ? service.prices[0].pricing_per : '1K';
-                  const maximum = service.prices && service.prices[0] ? service.prices[0].maximum : '0';
+                  const price = service.prices?.[0]?.price || '0';
+                  const pricingPer = service.prices?.[0]?.pricing_per || '1K';
+                  const maximum = service.prices?.[0]?.maximum || '0';
+                  const serviceType = service.type_name && service.type_name.trim() !== '' 
+                    ? service.type_name 
+                    : getServiceTypeFromName(service.public_name);
 
                   return (
                     <Card key={service.id_service} className="relative overflow-hidden hover:shadow-lg transition-shadow">
@@ -212,8 +261,8 @@ const Services = () => {
                             ${price}/{pricingPer}
                           </Badge>
                         </div>
-                        <CardTitle className="text-xl">{service.public_name || 'Xidmət'}</CardTitle>
-                        <CardDescription>{service.type_name || 'Növ göstərilməyib'}</CardDescription>
+                        <CardTitle className="text-xl">{service.public_name || 'Xidmәt'}</CardTitle>
+                        <CardDescription>{serviceType}</CardDescription>
                       </CardHeader>
                       
                       <CardContent className="space-y-4">
@@ -225,21 +274,21 @@ const Services = () => {
                         <div className="space-y-2">
                           <div className="flex items-center gap-2 text-sm">
                             <Star className="h-3 w-3 text-yellow-500" />
-                            Keyfiyyətli xidmət
+                            Keyfiyyәtli xidmәt
                           </div>
                           <div className="flex items-center gap-2 text-sm">
                             <Star className="h-3 w-3 text-yellow-500" />
-                            Sürətli çatdırılma
+                            Sürәtli çatdırılma
                           </div>
                           <div className="flex items-center gap-2 text-sm">
                             <Star className="h-3 w-3 text-yellow-500" />
-                            24/7 Dəstək
+                            24/7 Dәstәk
                           </div>
                         </div>
                         
                         <Button 
                           className="w-full" 
-                          onClick={() => handleOrderClick(service.id_service)}
+                          onClick={() => handleOrderClick(service.id_service.toString())}
                         >
                           <Zap className="h-4 w-4 mr-2" />
                           Sifariş ver
@@ -253,7 +302,7 @@ const Services = () => {
               {getFilteredServices().length === 0 && (
                 <div className="text-center py-12">
                   <p className="text-muted-foreground text-lg">
-                    Seçilən filterlərə uyğun xidmət tapılmadı
+                    Seçilәn filterlәrә uyğun xidmәt tapılmadı
                   </p>
                 </div>
               )}
