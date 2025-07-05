@@ -3,26 +3,23 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import AuthDialog from '@/components/AuthDialog';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { apiService, Service } from '@/components/ApiService';
-import { Loader2, Zap, Star } from 'lucide-react';
+import { Loader2, Zap, Star, ArrowLeft, Instagram, Youtube, Facebook } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Services = () => {
   const { user } = useAuth();
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const defaultPlatform = searchParams.get('platform') || 'all';
   
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedPlatform, setSelectedPlatform] = useState(defaultPlatform);
+  const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
 
   useEffect(() => {
     fetchServices();
@@ -49,30 +46,58 @@ const Services = () => {
     }
   };
 
-  const getPlatformColor = (platform: string) => {
-    const colors: Record<string, string> = {
-      youtube: 'bg-red-500',
-      instagram: 'bg-pink-500',
-      tiktok: 'bg-purple-500',
-      facebook: 'bg-blue-500',
-      twitter: 'bg-sky-500',
-      telegram: 'bg-blue-400',
-    };
-    return colors[platform.toLowerCase()] || 'bg-gray-500';
-  };
-
-  const getUniquePlatforms = () => {
-    const platforms = services.map(service => service.platform.toLowerCase());
-    return [...new Set(platforms)];
-  };
+  const platforms = [
+    {
+      name: 'instagram',
+      displayName: 'Instagram',
+      icon: Instagram,
+      color: 'bg-gradient-to-r from-purple-500 to-pink-500',
+      textColor: 'text-white'
+    },
+    {
+      name: 'youtube',
+      displayName: 'YouTube',
+      icon: Youtube,
+      color: 'bg-red-500',
+      textColor: 'text-white'
+    },
+    {
+      name: 'tiktok',
+      displayName: 'TikTok',
+      icon: ({ className }: { className?: string }) => (
+        <div className={`${className} flex items-center justify-center font-bold text-xl`}>
+          <span>TT</span>
+        </div>
+      ),
+      color: 'bg-black',
+      textColor: 'text-white'
+    },
+    {
+      name: 'facebook',
+      displayName: 'Facebook',
+      icon: Facebook,
+      color: 'bg-blue-600',
+      textColor: 'text-white'
+    }
+  ];
 
   const getFilteredServices = () => {
-    if (selectedPlatform === 'all') {
-      return services;
-    }
+    if (!selectedPlatform) return [];
     return services.filter(service => 
       service.platform.toLowerCase() === selectedPlatform.toLowerCase()
     );
+  };
+
+  const groupServicesByType = (services: Service[]) => {
+    const grouped: Record<string, Service[]> = {};
+    services.forEach(service => {
+      const type = service.type_name || 'Digər';
+      if (!grouped[type]) {
+        grouped[type] = [];
+      }
+      grouped[type].push(service);
+    });
+    return grouped;
   };
 
   if (loading) {
@@ -105,67 +130,128 @@ const Services = () => {
             </p>
           </div>
 
-          <Tabs value={selectedPlatform} onValueChange={setSelectedPlatform} className="w-full">
-            <TabsList className="grid w-full grid-cols-5 mb-8">
-              <TabsTrigger value="all">Hamısı</TabsTrigger>
-              {getUniquePlatforms().map((platform) => (
-                <TabsTrigger key={platform} value={platform} className="capitalize">
-                  {platform}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-
-            <TabsContent value={selectedPlatform}>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {getFilteredServices().map((service) => (
-                  <Card key={service.id_service} className="relative overflow-hidden hover:shadow-lg transition-shadow">
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <Badge className={`${getPlatformColor(service.platform)} text-white`}>
-                          {service.platform}
-                        </Badge>
-                        <Badge variant="secondary">
-                          ${service.prices[0]?.price || '0'}/{service.prices[0]?.pricing_per || '1K'}
-                        </Badge>
+          {!selectedPlatform ? (
+            // Platform selection view
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+              {platforms.map((platform) => {
+                const Icon = platform.icon;
+                return (
+                  <Card 
+                    key={platform.name}
+                    className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105"
+                    onClick={() => setSelectedPlatform(platform.name)}
+                  >
+                    <CardContent className="p-8 text-center">
+                      <div className={`${platform.color} ${platform.textColor} w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4`}>
+                        <Icon className="h-10 w-10" />
                       </div>
-                      <CardTitle className="text-xl">{service.public_name}</CardTitle>
-                      <CardDescription>{service.type_name}</CardDescription>
-                    </CardHeader>
-                    
-                    <CardContent className="space-y-4">
-                      <div className="flex justify-between text-sm text-muted-foreground">
-                        <span>Min: {parseInt(service.amount_minimum).toLocaleString()}</span>
-                        <span>Max: {parseInt(service.prices[0]?.maximum || '0').toLocaleString()}</span>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-sm">
-                          <Star className="h-3 w-3 text-yellow-500" />
-                          Keyfiyyətli xidmət
-                        </div>
-                        <div className="flex items-center gap-2 text-sm">
-                          <Star className="h-3 w-3 text-yellow-500" />
-                          Sürətli çatdırılma
-                        </div>
-                        <div className="flex items-center gap-2 text-sm">
-                          <Star className="h-3 w-3 text-yellow-500" />
-                          24/7 Dəstək
-                        </div>
-                      </div>
-                      
-                      <Button 
-                        className="w-full" 
-                        onClick={() => handleOrderClick(service.id_service)}
-                      >
-                        <Zap className="h-4 w-4 mr-2" />
-                        Sifariş ver
-                      </Button>
+                      <h3 className="text-xl font-semibold">{platform.displayName}</h3>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        {services.filter(s => s.platform.toLowerCase() === platform.name).length} xidmət
+                      </p>
                     </CardContent>
                   </Card>
-                ))}
+                );
+              })}
+            </div>
+          ) : (
+            // Services view for selected platform
+            <div>
+              <div className="flex items-center mb-8">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setSelectedPlatform(null)}
+                  className="mr-4"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Geri
+                </Button>
+                <div className="flex items-center">
+                  {(() => {
+                    const platform = platforms.find(p => p.name === selectedPlatform);
+                    if (!platform) return null;
+                    const Icon = platform.icon;
+                    return (
+                      <>
+                        <div className={`${platform.color} ${platform.textColor} w-10 h-10 rounded-full flex items-center justify-center mr-3`}>
+                          <Icon className="h-5 w-5" />
+                        </div>
+                        <h2 className="text-2xl font-bold">{platform.displayName} Xidmətləri</h2>
+                      </>
+                    );
+                  })()}
+                </div>
               </div>
-            </TabsContent>
-          </Tabs>
+
+              {(() => {
+                const filteredServices = getFilteredServices();
+                const groupedServices = groupServicesByType(filteredServices);
+                
+                if (filteredServices.length === 0) {
+                  return (
+                    <div className="text-center py-12">
+                      <p className="text-muted-foreground">Bu platform üçün hələ xidmət mövcud deyil.</p>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="space-y-8">
+                    {Object.entries(groupedServices).map(([type, typeServices]) => (
+                      <div key={type}>
+                        <h3 className="text-xl font-semibold mb-4 text-primary">{type}</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {typeServices.map((service) => (
+                            <Card key={service.id_service} className="hover:shadow-lg transition-shadow">
+                              <CardHeader>
+                                <div className="flex items-center justify-between">
+                                  <Badge variant="secondary">
+                                    ${service.prices[0]?.price || '0'}/{service.prices[0]?.pricing_per || '1K'}
+                                  </Badge>
+                                </div>
+                                <CardTitle className="text-lg">{service.public_name}</CardTitle>
+                                <CardDescription>{service.type_name}</CardDescription>
+                              </CardHeader>
+                              
+                              <CardContent className="space-y-4">
+                                <div className="flex justify-between text-sm text-muted-foreground">
+                                  <span>Min: {parseInt(service.amount_minimum).toLocaleString()}</span>
+                                  <span>Max: {parseInt(service.prices[0]?.maximum || '0').toLocaleString()}</span>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <div className="flex items-center gap-2 text-sm">
+                                    <Star className="h-3 w-3 text-yellow-500" />
+                                    Keyfiyyətli xidmət
+                                  </div>
+                                  <div className="flex items-center gap-2 text-sm">
+                                    <Star className="h-3 w-3 text-yellow-500" />
+                                    Sürətli çatdırılma
+                                  </div>
+                                  <div className="flex items-center gap-2 text-sm">
+                                    <Star className="h-3 w-3 text-yellow-500" />
+                                    24/7 Dəstək
+                                  </div>
+                                </div>
+                                
+                                <Button 
+                                  className="w-full" 
+                                  onClick={() => handleOrderClick(service.id_service)}
+                                >
+                                  <Zap className="h-4 w-4 mr-2" />
+                                  Sifariş ver
+                                </Button>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+            </div>
+          )}
         </div>
 
         <Footer />
