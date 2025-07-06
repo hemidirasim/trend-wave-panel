@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -9,10 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { apiService, Service } from '@/components/ApiService';
-import { Loader2, ShoppingCart, AlertCircle, CheckCircle, Calculator, Instagram, Youtube, Facebook } from 'lucide-react';
+import { Loader2, ShoppingCart, AlertCircle, CheckCircle, Calculator, Instagram, Youtube, Facebook, Heart, Users, Eye, Share, MessageCircle, Repeat, Star } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Order = () => {
@@ -34,6 +34,7 @@ const Order = () => {
   const [calculatedPrice, setCalculatedPrice] = useState(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [selectedPlatform, setSelectedPlatform] = useState<string>('');
+  const [selectedServiceType, setSelectedServiceType] = useState<string>('');
 
   // Yalnız bu 4 platformu göstər
   const allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook'];
@@ -48,6 +49,13 @@ const Order = () => {
       if (service) {
         setSelectedService(service);
         setSelectedPlatform(service.platform.toLowerCase());
+        
+        // Set service type based on the selected service
+        const serviceType = service.type_name && service.type_name.trim() !== '' 
+          ? service.type_name 
+          : getServiceTypeFromName(service.public_name);
+        setSelectedServiceType(serviceType);
+        
         calculatePrice(service, parseInt(formData.quantity) || 0);
       }
     }
@@ -202,6 +210,19 @@ const Order = () => {
     return icons[platform.toLowerCase()] || null;
   };
 
+  const getServiceTypeIcon = (type: string) => {
+    const icons: Record<string, any> = {
+      'Likes': Heart,
+      'Followers': Users,
+      'Views': Eye,
+      'Shares': Share,
+      'Comments': MessageCircle,
+      'Reposts': Repeat,
+      'Other': Star,
+    };
+    return icons[type] || Star;
+  };
+
   const getUniquePlatforms = () => {
     const platforms = services
       .map(service => service.platform.toLowerCase())
@@ -209,10 +230,77 @@ const Order = () => {
     return [...new Set(platforms)];
   };
 
-  const getPlatformServices = (platform: string) => {
-    return services.filter(service => 
+  const getUniqueServiceTypes = (platform: string) => {
+    const platformServices = services.filter(service => 
       service.platform.toLowerCase() === platform.toLowerCase()
     );
+    
+    // type_name-dən service növlərini çıxar
+    const types = platformServices
+      .map(service => {
+        if (service.type_name && service.type_name.trim() !== '') {
+          return service.type_name;
+        }
+        // Əgər type_name yoxdursa, public_name-dən çıxarmağa çalış
+        return getServiceTypeFromName(service.public_name);
+      })
+      .filter(type => type && type.trim() !== '');
+    
+    const uniqueTypes = [...new Set(types)];
+    
+    // "Other"i siyahıdan çıxar və sonuna əlavə et
+    const otherIndex = uniqueTypes.indexOf('Other');
+    if (otherIndex > -1) {
+      uniqueTypes.splice(otherIndex, 1);
+      uniqueTypes.push('Other');
+    }
+    
+    return uniqueTypes;
+  };
+
+  const getServiceTypeFromName = (publicName: string) => {
+    if (!publicName) return 'Other';
+    const name = publicName.toLowerCase();
+    if (name.includes('like')) return 'Likes';
+    if (name.includes('follow')) return 'Followers';
+    if (name.includes('view')) return 'Views';
+    if (name.includes('share')) return 'Shares';
+    if (name.includes('comment')) return 'Comments';
+    if (name.includes('repost')) return 'Reposts';
+    return 'Other';
+  };
+
+  const getFilteredServices = () => {
+    if (!selectedPlatform || !selectedServiceType) {
+      return [];
+    }
+
+    let filtered = services.filter(service => 
+      service.platform.toLowerCase() === selectedPlatform.toLowerCase()
+    );
+
+    // Xidmət növü filteri
+    filtered = filtered.filter(service => {
+      const serviceType = service.type_name && service.type_name.trim() !== '' 
+        ? service.type_name 
+        : getServiceTypeFromName(service.public_name);
+      return serviceType === selectedServiceType;
+    });
+
+    return filtered;
+  };
+
+  const handlePlatformChange = (platform: string) => {
+    setSelectedPlatform(platform);
+    setSelectedServiceType(''); // Reset service type when platform changes
+    setFormData(prev => ({ ...prev, serviceId: '' })); // Reset selected service
+    setSelectedService(null);
+  };
+
+  const handleServiceTypeChange = (serviceType: string) => {
+    setSelectedServiceType(serviceType);
+    setFormData(prev => ({ ...prev, serviceId: '' })); // Reset selected service
+    setSelectedService(null);
   };
 
   const handleServiceSelect = (serviceId: string) => {
@@ -276,9 +364,9 @@ const Order = () => {
                   <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Service Selection with Tabs */}
                     <div className="space-y-4">
-                      <Label>Xidmət Seçin *</Label>
+                      <Label>Platform Seçin *</Label>
                       
-                      <Tabs value={selectedPlatform} onValueChange={setSelectedPlatform} className="w-full">
+                      <Tabs value={selectedPlatform} onValueChange={handlePlatformChange} className="w-full">
                         <TabsList className="grid w-full grid-cols-4 mb-6">
                           {getUniquePlatforms().map((platform) => {
                             const IconComponent = getPlatformIcon(platform);
@@ -293,26 +381,60 @@ const Order = () => {
 
                         {getUniquePlatforms().map((platform) => (
                           <TabsContent key={platform} value={platform}>
-                            <Select 
-                              value={selectedPlatform === platform ? formData.serviceId : ''} 
-                              onValueChange={handleServiceSelect}
-                            >
-                              <SelectTrigger className={errors.serviceId ? 'border-red-500' : ''}>
-                                <SelectValue placeholder="Xidmət seçin" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {getPlatformServices(platform).map(service => (
-                                  <SelectItem key={service.id_service} value={service.id_service.toString()}>
-                                    <div className="flex items-center space-x-2">
-                                      <span>{service.public_name}</span>
-                                      <Badge variant="secondary" className="ml-2">
-                                        [ID: {service.id_service}]
-                                      </Badge>
-                                    </div>
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                            {/* Xidmət növü seçimi */}
+                            {selectedPlatform && (
+                              <div className="mb-6">
+                                <Label className="text-base font-medium mb-3 block">Xidmət növünü seçin *</Label>
+                                <ToggleGroup 
+                                  type="single" 
+                                  value={selectedServiceType} 
+                                  onValueChange={(value) => handleServiceTypeChange(value || '')}
+                                  className="flex flex-wrap gap-2 justify-start"
+                                >
+                                  {getUniqueServiceTypes(selectedPlatform).map((type) => {
+                                    const IconComponent = getServiceTypeIcon(type);
+                                    return (
+                                      <ToggleGroupItem 
+                                        key={type} 
+                                        value={type}
+                                        className="flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-all"
+                                        variant="outline"
+                                      >
+                                        <IconComponent className="w-4 h-4" />
+                                        {type}
+                                      </ToggleGroupItem>
+                                    );
+                                  })}
+                                </ToggleGroup>
+                              </div>
+                            )}
+
+                            {/* Konkret xidmət seçimi */}
+                            {selectedPlatform && selectedServiceType && (
+                              <div className="space-y-2">
+                                <Label>Xidmət seçin *</Label>
+                                <Select 
+                                  value={formData.serviceId} 
+                                  onValueChange={handleServiceSelect}
+                                >
+                                  <SelectTrigger className={errors.serviceId ? 'border-red-500' : ''}>
+                                    <SelectValue placeholder="Xidmət seçin" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {getFilteredServices().map(service => (
+                                      <SelectItem key={service.id_service} value={service.id_service.toString()}>
+                                        <div className="flex items-center space-x-2">
+                                          <span>{service.public_name}</span>
+                                          <Badge variant="secondary" className="ml-2">
+                                            ${service.prices[0]?.price || '0'}/{service.prices[0]?.pricing_per || '1K'}
+                                          </Badge>
+                                        </div>
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            )}
                           </TabsContent>
                         ))}
                       </Tabs>
@@ -325,122 +447,144 @@ const Order = () => {
                       )}
                     </div>
 
-                    {/* URL Input */}
-                    <div className="space-y-2">
-                      <Label htmlFor="url">Məqsəd URL *</Label>
-                      <Input
-                        id="url"
-                        type="url"
-                        placeholder={selectedService?.example || "https://..."}
-                        value={formData.url}
-                        onChange={(e) => updateFormData('url', e.target.value)}
-                        className={errors.url ? 'border-red-500' : ''}
-                      />
-                      {errors.url && (
-                        <p className="text-sm text-red-500 flex items-center">
-                          <AlertCircle className="h-4 w-4 mr-1" />
-                          {errors.url}
-                        </p>
-                      )}
-                      {selectedService?.example && (
-                        <p className="text-sm text-muted-foreground">
-                          Nümunə: {selectedService.example}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Quantity Input */}
-                    <div className="space-y-2">
-                      <Label htmlFor="quantity">Miqdar *</Label>
-                      <Input
-                        id="quantity"
-                        type="number"
-                        placeholder="1000"
-                        value={formData.quantity}
-                        onChange={(e) => updateFormData('quantity', e.target.value)}
-                        className={errors.quantity ? 'border-red-500' : ''}
-                        min={selectedService ? selectedService.amount_minimum : 1}
-                        step={selectedService ? selectedService.amount_increment : 1}
-                      />
-                      {errors.quantity && (
-                        <p className="text-sm text-red-500 flex items-center">
-                          <AlertCircle className="h-4 w-4 mr-1" />
-                          {errors.quantity}
-                        </p>
-                      )}
-                      {selectedService && (
-                        <div className="text-sm text-muted-foreground space-y-1">
-                          <p>Minimum: {parseInt(selectedService.amount_minimum).toLocaleString()}</p>
-                          <p>Artım: {parseInt(selectedService.amount_increment).toLocaleString()}</p>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Additional Parameters */}
-                    {selectedService && selectedService.params && selectedService.params.map(param => (
-                      <div key={param.field_name} className="space-y-2">
-                        <Label htmlFor={param.field_name}>
-                          {param.field_label}
-                          {param.field_validators.includes('required') && ' *'}
-                        </Label>
-                        
-                        {param.options && param.options.length > 0 ? (
-                          <Select 
-                            value={formData.additionalParams[param.field_name] || ''} 
-                            onValueChange={(value) => updateAdditionalParam(param.field_name, value)}
-                          >
-                            <SelectTrigger className={errors[param.field_name] ? 'border-red-500' : ''}>
-                              <SelectValue placeholder={param.field_placeholder || `${param.field_label} seçin`} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {param.options.filter(opt => opt.error_selection !== '1').map(option => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  {option.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          <Textarea
-                            id={param.field_name}
-                            placeholder={param.field_placeholder}
-                            value={formData.additionalParams[param.field_name] || ''}
-                            onChange={(e) => updateAdditionalParam(param.field_name, e.target.value)}
-                            className={errors[param.field_name] ? 'border-red-500' : ''}
-                          />
-                        )}
-                        
-                        {param.field_descr && (
-                          <p className="text-sm text-muted-foreground">{param.field_descr}</p>
-                        )}
-                        
-                        {errors[param.field_name] && (
-                          <p className="text-sm text-red-500 flex items-center">
-                            <AlertCircle className="h-4 w-4 mr-1" />
-                            {errors[param.field_name]}
-                          </p>
-                        )}
+                    {/* Mesajlar */}
+                    {!selectedPlatform && (
+                      <div className="text-center py-6 text-muted-foreground">
+                        Platform seçin
                       </div>
-                    ))}
+                    )}
 
-                    <Button 
-                      type="submit" 
-                      className="w-full" 
-                      size="lg"
-                      disabled={placing || !selectedService}
-                    >
-                      {placing ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Sifariş verilir...
-                        </>
-                      ) : (
-                        <>
-                          <ShoppingCart className="h-4 w-4 mr-2" />
-                          Sifariş Ver - ${calculatedPrice.toFixed(2)}
-                        </>
-                      )}
-                    </Button>
+                    {selectedPlatform && !selectedServiceType && (
+                      <div className="text-center py-6 text-muted-foreground">
+                        Xidmət növünü seçin
+                      </div>
+                    )}
+
+                    {selectedPlatform && selectedServiceType && getFilteredServices().length === 0 && (
+                      <div className="text-center py-6 text-muted-foreground">
+                        Bu növə uyğun xidmət tapılmadı
+                      </div>
+                    )}
+
+                    {/* URL və Quantity inputları yalnız xidmət seçildikdə göstər */}
+                    {selectedService && (
+                      <>
+                        {/* URL Input */}
+                        <div className="space-y-2">
+                          <Label htmlFor="url">Məqsəd URL *</Label>
+                          <Input
+                            id="url"
+                            type="url"
+                            placeholder={selectedService.example || "https://..."}
+                            value={formData.url}
+                            onChange={(e) => updateFormData('url', e.target.value)}
+                            className={errors.url ? 'border-red-500' : ''}
+                          />
+                          {errors.url && (
+                            <p className="text-sm text-red-500 flex items-center">
+                              <AlertCircle className="h-4 w-4 mr-1" />
+                              {errors.url}
+                            </p>
+                          )}
+                          {selectedService.example && (
+                            <p className="text-sm text-muted-foreground">
+                              Nümunə: {selectedService.example}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Quantity Input */}
+                        <div className="space-y-2">
+                          <Label htmlFor="quantity">Miqdar *</Label>
+                          <Input
+                            id="quantity"
+                            type="number"
+                            placeholder="1000"
+                            value={formData.quantity}
+                            onChange={(e) => updateFormData('quantity', e.target.value)}
+                            className={errors.quantity ? 'border-red-500' : ''}
+                            min={selectedService.amount_minimum}
+                            step={selectedService.amount_increment}
+                          />
+                          {errors.quantity && (
+                            <p className="text-sm text-red-500 flex items-center">
+                              <AlertCircle className="h-4 w-4 mr-1" />
+                              {errors.quantity}
+                            </p>
+                          )}
+                          <div className="text-sm text-muted-foreground space-y-1">
+                            <p>Minimum: {parseInt(selectedService.amount_minimum).toLocaleString()}</p>
+                            <p>Artım: {parseInt(selectedService.amount_increment).toLocaleString()}</p>
+                          </div>
+                        </div>
+
+                        {/* Additional Parameters */}
+                        {selectedService.params && selectedService.params.map(param => (
+                          <div key={param.field_name} className="space-y-2">
+                            <Label htmlFor={param.field_name}>
+                              {param.field_label}
+                              {param.field_validators.includes('required') && ' *'}
+                            </Label>
+                            
+                            {param.options && param.options.length > 0 ? (
+                              <Select 
+                                value={formData.additionalParams[param.field_name] || ''} 
+                                onValueChange={(value) => updateAdditionalParam(param.field_name, value)}
+                              >
+                                <SelectTrigger className={errors[param.field_name] ? 'border-red-500' : ''}>
+                                  <SelectValue placeholder={param.field_placeholder || `${param.field_label} seçin`} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {param.options.filter(opt => opt.error_selection !== '1').map(option => (
+                                    <SelectItem key={option.value} value={option.value}>
+                                      {option.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            ) : (
+                              <Textarea
+                                id={param.field_name}
+                                placeholder={param.field_placeholder}
+                                value={formData.additionalParams[param.field_name] || ''}
+                                onChange={(e) => updateAdditionalParam(param.field_name, e.target.value)}
+                                className={errors[param.field_name] ? 'border-red-500' : ''}
+                              />
+                            )}
+                            
+                            {param.field_descr && (
+                              <p className="text-sm text-muted-foreground">{param.field_descr}</p>
+                            )}
+                            
+                            {errors[param.field_name] && (
+                              <p className="text-sm text-red-500 flex items-center">
+                                <AlertCircle className="h-4 w-4 mr-1" />
+                                {errors[param.field_name]}
+                              </p>
+                            )}
+                          </div>
+                        ))}
+
+                        <Button 
+                          type="submit" 
+                          className="w-full" 
+                          size="lg"
+                          disabled={placing}
+                        >
+                          {placing ? (
+                            <>
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              Sifariş verilir...
+                            </>
+                          ) : (
+                            <>
+                              <ShoppingCart className="h-4 w-4 mr-2" />
+                              Sifariş Ver - ${calculatedPrice.toFixed(2)}
+                            </>
+                          )}
+                        </Button>
+                      </>
+                    )}
                   </form>
                 </CardContent>
               </Card>
