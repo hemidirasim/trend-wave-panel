@@ -25,7 +25,7 @@ const Services = () => {
   const [loading, setLoading] = useState(true);
   const [selectedPlatform, setSelectedPlatform] = useState(defaultPlatform);
   const [selectedServiceType, setSelectedServiceType] = useState<string>('');
-  const [priceSort, setPriceSort] = useState<string>(''); // '' | 'asc' | 'desc'
+  const [priceSort, setPriceSort] = useState<string>('none'); // 'none' | 'asc' | 'desc'
 
   // Yalnız bu 4 platformu göstər
   const allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook'];
@@ -182,7 +182,7 @@ const Services = () => {
     });
 
     // Qiymət sıralaması
-    if (priceSort) {
+    if (priceSort && priceSort !== 'none') {
       filtered = filtered.sort((a, b) => {
         const priceA = parseFloat(a.prices?.[0]?.price || '0');
         const priceB = parseFloat(b.prices?.[0]?.price || '0');
@@ -213,7 +213,7 @@ const Services = () => {
   const handlePlatformChange = (platform: string) => {
     setSelectedPlatform(platform);
     setSelectedServiceType(''); // Reset service type when platform changes
-    setPriceSort(''); // Reset price sort when platform changes
+    setPriceSort('none'); // Reset price sort when platform changes
   };
 
   if (loading) {
@@ -300,7 +300,7 @@ const Services = () => {
                           <SelectValue placeholder="Sıralama seçin" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Sıralama yoxdur</SelectItem>
+                          <SelectItem value="none">Sıralama yoxdur</SelectItem>
                           <SelectItem value="asc">Ucuzdan bahaya</SelectItem>
                           <SelectItem value="desc">Bahadan ucuza</SelectItem>
                         </SelectContent>
