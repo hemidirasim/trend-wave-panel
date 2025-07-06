@@ -346,10 +346,10 @@ const Order = () => {
       </section>
 
       <section className="py-12">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Order Form */}
-            <div className="lg:col-span-2">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            {/* Order Form - Now takes 3 columns */}
+            <div className="lg:col-span-3">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
@@ -456,7 +456,7 @@ const Order = () => {
                         </Label>
                         <Card className="border-l-4 border-l-blue-500">
                           <CardContent className="pt-4">
-                            <div className="text-sm text-muted-foreground whitespace-pre-line">
+                            <div className="text-sm text-muted-foreground whitespace-pre-line max-h-32 overflow-y-auto">
                               {selectedService.description}
                             </div>
                           </CardContent>
@@ -607,7 +607,7 @@ const Order = () => {
               </Card>
             </div>
 
-            {/* Order Summary */}
+            {/* Order Summary - Now takes 1 column */}
             <div className="lg:col-span-1">
               <Card className="sticky top-4">
                 <CardHeader>
@@ -626,8 +626,8 @@ const Order = () => {
                             {selectedService.platform}
                           </Badge>
                         </div>
-                        <h3 className="font-medium">{selectedService.public_name}</h3>
-                        <p className="text-sm text-muted-foreground">{selectedService.type_name || 'Xidmət'}</p>
+                        <h3 className="font-medium text-sm">{selectedService.public_name}</h3>
+                        <p className="text-xs text-muted-foreground">{selectedService.type_name || 'Xidmət'}</p>
                       </div>
 
                       <div className="border-t pt-4 space-y-2">
@@ -661,7 +661,7 @@ const Order = () => {
                       </div>
                     </>
                   ) : (
-                    <p className="text-muted-foreground text-center py-8">
+                    <p className="text-muted-foreground text-center py-8 text-sm">
                       Sifariş xülasəsini görmək üçün xidmət seçin
                     </p>
                   )}
