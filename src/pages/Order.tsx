@@ -49,6 +49,7 @@ const Order = () => {
     if (services.length > 0 && formData.serviceId) {
       const service = services.find(s => s.id_service.toString() === formData.serviceId);
       if (service) {
+        console.log('Selected service found:', service);
         setSelectedService(service);
         setSelectedPlatform(service.platform.toLowerCase());
         
@@ -61,6 +62,7 @@ const Order = () => {
         calculatePrice(service, parseInt(formData.quantity) || 0);
         
         // Fetch detailed service information
+        console.log('Fetching detailed service information...');
         fetchServiceDetails(formData.serviceId);
       }
     }
@@ -95,11 +97,21 @@ const Order = () => {
       setLoadingServiceDetails(true);
       console.log('Fetching service details for ID:', serviceId);
       const details = await apiService.getServiceDetails(serviceId);
-      console.log('Service details loaded:', details);
-      setServiceDetails(details);
+      console.log('Service details response:', details);
+      
+      if (details) {
+        setServiceDetails(details);
+        console.log('Service details set:', {
+          hasDescription: !!details.description,
+          description: details.description
+        });
+      } else {
+        console.log('No service details received');
+        setServiceDetails(null);
+      }
     } catch (error) {
       console.error('Error fetching service details:', error);
-      // Don't show error toast for this as it's not critical
+      setServiceDetails(null);
     } finally {
       setLoadingServiceDetails(false);
     }
@@ -335,6 +347,20 @@ const Order = () => {
     }
   };
 
+  const getServiceDescription = () => {
+    // İlk öncə detallı məlumatlardan description almağa çalış
+    if (serviceDetails?.description && serviceDetails.description.trim()) {
+      return serviceDetails.description;
+    }
+    
+    // Əgər detallı məlumatlar yoxdursa, əsas xidmətdən almağa çalış
+    if (selectedService?.description && selectedService.description.trim()) {
+      return selectedService.description;
+    }
+    
+    return null;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -482,16 +508,16 @@ const Order = () => {
                         </Label>
                         <Card className="border-l-4 border-l-blue-500">
                           <CardContent className="pt-4">
-                            <div className="text-sm text-muted-foreground whitespace-pre-line max-h-32 overflow-y-auto">
+                            <div className="text-sm text-muted-foreground max-h-32 overflow-y-auto">
                               {loadingServiceDetails ? (
                                 <div className="flex items-center justify-center py-4">
                                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
                                   Məlumat yüklənir...
                                 </div>
-                              ) : serviceDetails?.description ? (
-                                serviceDetails.description
-                              ) : selectedService.description ? (
-                                selectedService.description
+                              ) : getServiceDescription() ? (
+                                <div className="whitespace-pre-line">
+                                  {getServiceDescription()}
+                                </div>
                               ) : (
                                 <span className="italic text-muted-foreground">
                                   Bu xidmət üçün ətraflı məlumat mövcud deyil

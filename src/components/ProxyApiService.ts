@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 const API_BASE_URL = 'https://www.qqtube.com/v1-api';
@@ -116,13 +117,27 @@ class ProxyApiService {
 
   async getServiceDetails(serviceId: string): Promise<Service | null> {
     try {
+      console.log('Fetching service details for ID:', serviceId);
       const data = await this.makeRequest({ 
         action: 'service',
         id_service: serviceId
       });
       
-      console.log('Service details response:', data);
-      return data || null;
+      console.log('Service details API response:', data);
+      
+      // The API returns the service object directly
+      if (data && typeof data === 'object') {
+        console.log('Service details found:', {
+          id: data.id_service,
+          name: data.public_name,
+          description: data.description || 'No description available',
+          hasDescription: !!data.description
+        });
+        return data;
+      }
+      
+      console.log('No service details found or invalid response format');
+      return null;
     } catch (error) {
       console.error('Error fetching service details:', error);
       throw new Error('Failed to fetch service details');
