@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -150,7 +151,16 @@ const Services = () => {
       })
       .filter(type => type && type.trim() !== '');
     
-    return [...new Set(types)];
+    const uniqueTypes = [...new Set(types)];
+    
+    // "Other"i siyahıdan çıxar və sonuna əlavə et
+    const otherIndex = uniqueTypes.indexOf('Other');
+    if (otherIndex > -1) {
+      uniqueTypes.splice(otherIndex, 1);
+      uniqueTypes.push('Other');
+    }
+    
+    return uniqueTypes;
   };
 
   const getFilteredServices = () => {
