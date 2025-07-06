@@ -52,16 +52,6 @@ export const Header = () => {
               <Link to="/services" className="text-foreground hover:text-primary transition-colors">
                 Xidmətlər
               </Link>
-              {user ? (
-                <>
-                  <Link to="/dashboard" className="text-foreground hover:text-primary transition-colors">
-                    Dashboard
-                  </Link>
-                  <Link to="/order" className="text-foreground hover:text-primary transition-colors">
-                    Sifariş ver
-                  </Link>
-                </>
-              ) : null}
             </nav>
 
             {/* Action Buttons */}
@@ -116,24 +106,6 @@ export const Header = () => {
                 >
                   Xidmətlər
                 </Link>
-                {user ? (
-                  <>
-                    <Link 
-                      to="/dashboard" 
-                      className="text-foreground hover:text-primary transition-colors"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Dashboard
-                    </Link>
-                    <Link 
-                      to="/order" 
-                      className="text-foreground hover:text-primary transition-colors"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Sifariş ver
-                    </Link>
-                  </>
-                ) : null}
                 <div className="pt-4 border-t border-border">
                   <div className="flex items-center space-x-2 text-sm text-muted-foreground mb-4">
                     <Star className="h-4 w-4 text-yellow-500" />
