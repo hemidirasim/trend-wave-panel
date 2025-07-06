@@ -3,14 +3,17 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Menu, X, Star, Zap, Users, User, LogOut } from 'lucide-react';
+import { Menu, X, Star, Zap, User, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import AuthDialog from './AuthDialog';
+import { LanguageSelector } from './LanguageSelector';
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -47,16 +50,16 @@ export const Header = () => {
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
               <Link to="/" className="text-foreground hover:text-primary transition-colors">
-                Ana səhifə
+                {t('header.home')}
               </Link>
               <Link to="/services" className="text-foreground hover:text-primary transition-colors">
-                Xidmətlər
+                {t('header.services')}
               </Link>
               <Link to="/blog" className="text-foreground hover:text-primary transition-colors">
-                Bloq
+                {t('header.blog')}
               </Link>
               <Link to="/faq" className="text-foreground hover:text-primary transition-colors">
-                FAQ
+                {t('header.faq')}
               </Link>
             </nav>
 
@@ -64,22 +67,23 @@ export const Header = () => {
             <div className="hidden md:flex items-center space-x-4">
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                 <Star className="h-4 w-4 text-yellow-500" />
-                <span>4.9/5 Rating</span>
+                <span>{t('header.rating')}</span>
               </div>
+              <LanguageSelector />
               {user ? (
                 <div className="flex items-center space-x-2">
                   <Button variant="outline" size="sm" onClick={() => navigate('/dashboard')}>
                     <User className="h-4 w-4 mr-2" />
-                    Dashboard
+                    {t('header.dashboard')}
                   </Button>
                   <Button variant="outline" size="sm" onClick={handleSignOut}>
                     <LogOut className="h-4 w-4 mr-2" />
-                    Çıxış
+                    {t('header.logout')}
                   </Button>
                 </div>
               ) : (
                 <Button onClick={handleAuthClick}>
-                  Giriş
+                  {t('header.login')}
                 </Button>
               )}
             </div>
@@ -103,40 +107,43 @@ export const Header = () => {
                   className="text-foreground hover:text-primary transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Ana səhifə
+                  {t('header.home')}
                 </Link>
                 <Link 
                   to="/services" 
                   className="text-foreground hover:text-primary transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Xidmətlər
+                  {t('header.services')}
                 </Link>
                 <Link 
                   to="/blog" 
                   className="text-foreground hover:text-primary transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Bloq
+                  {t('header.blog')}
                 </Link>
                 <Link 
                   to="/faq" 
                   className="text-foreground hover:text-primary transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  FAQ
+                  {t('header.faq')}
                 </Link>
                 <div className="pt-4 border-t border-border">
-                  <div className="flex items-center space-x-2 text-sm text-muted-foreground mb-4">
-                    <Star className="h-4 w-4 text-yellow-500" />
-                    <span>4.9/5 Rating</span>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                      <Star className="h-4 w-4 text-yellow-500" />
+                      <span>{t('header.rating')}</span>
+                    </div>
+                    <LanguageSelector />
                   </div>
                   {user ? (
                     <div className="space-y-2">
                       <Button asChild className="w-full" variant="outline">
                         <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
                           <User className="h-4 w-4 mr-2" />
-                          Dashboard
+                          {t('header.dashboard')}
                         </Link>
                       </Button>
                       <Button 
@@ -148,7 +155,7 @@ export const Header = () => {
                         }}
                       >
                         <LogOut className="h-4 w-4 mr-2" />
-                        Çıxış
+                        {t('header.logout')}
                       </Button>
                     </div>
                   ) : (
@@ -159,7 +166,7 @@ export const Header = () => {
                         setIsMenuOpen(false);
                       }}
                     >
-                      Giriş
+                      {t('header.login')}
                     </Button>
                   )}
                 </div>

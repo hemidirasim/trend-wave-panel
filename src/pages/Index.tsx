@@ -9,10 +9,12 @@ import { Footer } from '@/components/Footer';
 import AuthDialog from '@/components/AuthDialog';
 import { ArrowRight, Star, Zap, Shield, Clock, Users, TrendingUp, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Index = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     // Əgər auth=required parametri varsa, AuthDialog-u aç
@@ -33,31 +35,31 @@ const Index = () => {
   const features = [
     {
       icon: <Zap className="h-8 w-8 text-yellow-500" />,
-      title: "Sürətli Çatdırılma",
-      description: "Sifarişlər 24 saat ərzində başlayır və tez bir zamanda tamamlanır"
+      title: t('features.fast'),
+      description: t('features.fastDesc')
     },
     {
       icon: <Shield className="h-8 w-8 text-green-500" />,
-      title: "Təhlükəsiz Xidmət",
-      description: "100% təhlükəsiz və etibarlı xidmətlər, hesabınız üçün heç bir risk yoxdur"
+      title: t('features.secure'),
+      description: t('features.secureDesc')
     },
     {
       icon: <Clock className="h-8 w-8 text-blue-500" />,
-      title: "24/7 Dəstək",
-      description: "Hər zaman əlçatan müştəri dəstəyi və peşəkar kömək"
+      title: t('features.support'),
+      description: t('features.supportDesc')
     },
     {
       icon: <Users className="h-8 w-8 text-purple-500" />,
-      title: "Keyfiyyətli Takipçilər",
-      description: "Real və aktiv istifadəçilərdən ibarət keyfiyyətli takipçilər"
+      title: t('features.quality'),
+      description: t('features.qualityDesc')
     }
   ];
 
   const stats = [
-    { number: "50K+", label: "Məmnun Müştəri" },
-    { number: "1M+", label: "Tamamlanmış Sifariş" },
-    { number: "99.9%", label: "Müştəri Məmnuniyyəti" },
-    { number: "24/7", label: "Dəstək Xidməti" }
+    { number: "50K+", label: t('stats.customers') },
+    { number: "1M+", label: t('stats.orders') },
+    { number: "99.9%", label: t('stats.satisfaction') },
+    { number: "24/7", label: t('stats.support') }
   ];
 
   return (
@@ -70,26 +72,23 @@ const Index = () => {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-4xl mx-auto">
               <Badge variant="secondary" className="mb-4">
-                Ən Yaxşı SMM Paneli
+                {t('index.hero.badge')}
               </Badge>
               <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                Sosial Media{' '}
-                <span className="text-primary">Artımınız</span>{' '}
-                Burada Başlayır
+                {t('index.hero.title')}
               </h1>
               <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-                Instagram, TikTok, YouTube və Facebook üçün ən keyfiyyətli və uygun qiymətli 
-                SMM xidmətləri. Takipçi, bəyənmə və baxış sayınızı artırın!
+                {t('index.hero.subtitle')}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button asChild size="lg" className="text-lg">
                   <Link to="/services">
-                    İndi Başlayın
+                    {t('index.hero.start')}
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
                 <Button variant="outline" size="lg" onClick={() => setIsAuthDialogOpen(true)}>
-                  Hesab Yaradın
+                  {t('index.hero.signup')}
                 </Button>
               </div>
             </div>
@@ -119,10 +118,10 @@ const Index = () => {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                Dəstəklənən <span className="text-primary">Platformlar</span>
+                {t('platforms.title')}
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Ən populyar sosial media platformları üçün geniş xidmət çeşidi
+                {t('platforms.subtitle')}
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -145,7 +144,7 @@ const Index = () => {
                     </div>
                     <Button asChild className="w-full mt-4" variant="outline">
                       <Link to={`/services?platform=${platform.name.toLowerCase()}`}>
-                        Xidmətlərə Bax
+                        {t('platforms.viewServices')}
                       </Link>
                     </Button>
                   </CardContent>
@@ -160,10 +159,10 @@ const Index = () => {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                Niyə <span className="text-primary">SocialBoost</span>?
+                {t('features.title')}
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Bizim üstünlüklərimiz və sizə təqdim etdiyimiz keyfiyyətli xidmətlər
+                {t('features.subtitle')}
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -193,16 +192,15 @@ const Index = () => {
               <CardContent className="text-center py-16">
                 <TrendingUp className="h-16 w-16 mx-auto mb-6" />
                 <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                  Sosial Media Artımınızı İndi Başladın!
+                  {t('cta.title')}
                 </h2>
                 <p className="text-xl mb-8 max-w-2xl mx-auto opacity-90">
-                  Minlərlə məmnun müştərimizə qoşulun və sosial media hesablarınızı 
-                  yeni səviyyəyə çıxarın. İlk sifarişinizdə 10% endirim!
+                  {t('cta.subtitle')}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button asChild size="lg" variant="secondary" className="text-lg">
                     <Link to="/services">
-                      İndi Sifariş Verin
+                      {t('cta.order')}
                       <Zap className="ml-2 h-5 w-5" />
                     </Link>
                   </Button>
@@ -212,7 +210,7 @@ const Index = () => {
                     className="text-lg border-white text-white hover:bg-white hover:text-primary"
                     onClick={() => setIsAuthDialogOpen(true)}
                   >
-                    Qeydiyyatdan Keçin
+                    {t('cta.register')}
                   </Button>
                 </div>
               </CardContent>
