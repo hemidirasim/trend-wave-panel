@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -38,7 +39,7 @@ const Order = () => {
 
   useEffect(() => {
     if (services.length > 0 && formData.serviceId) {
-      const service = services.find(s => s.id_service === formData.serviceId);
+      const service = services.find(s => s.id_service.toString() === formData.serviceId);
       if (service) {
         setSelectedService(service);
         calculatePrice(service, parseInt(formData.quantity) || 0);
@@ -49,10 +50,12 @@ const Order = () => {
   const fetchServices = async () => {
     try {
       setLoading(true);
+      console.log('Fetching services from API...');
       const data = await apiService.getServices();
+      console.log('Services loaded:', data);
       setServices(data);
     } catch (error) {
-      toast.error('Failed to load services. Please try again.');
+      toast.error('Xidmətlər yüklənərkən xəta baş verdi');
       console.error('Error fetching services:', error);
     } finally {
       setLoading(false);
@@ -73,17 +76,17 @@ const Order = () => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.serviceId) {
-      newErrors.serviceId = 'Please select a service';
+      newErrors.serviceId = 'Xidmət seçin';
     }
 
     if (!formData.url.trim()) {
-      newErrors.url = 'URL is required';
+      newErrors.url = 'URL tələb olunur';
     } else if (selectedService && !apiService.validateUrl(selectedService.platform, formData.url)) {
-      newErrors.url = `Invalid ${selectedService.platform} URL format`;
+      newErrors.url = `Yanlış ${selectedService.platform} URL formatı`;
     }
 
     if (!formData.quantity) {
-      newErrors.quantity = 'Quantity is required';
+      newErrors.quantity = 'Miqdar tələb olunur';
     } else {
       const quantity = parseInt(formData.quantity);
       if (selectedService) {
@@ -91,9 +94,9 @@ const Order = () => {
         const increment = parseInt(selectedService.amount_increment);
         
         if (quantity < minQuantity) {
-          newErrors.quantity = `Minimum quantity is ${minQuantity.toLocaleString()}`;
+          newErrors.quantity = `Minimum miqdar ${minQuantity.toLocaleString()}`;
         } else if (increment > 1 && quantity % increment !== 0) {
-          newErrors.quantity = `Quantity must be in increments of ${increment.toLocaleString()}`;
+          newErrors.quantity = `Miqdar ${increment.toLocaleString()} artımı ilə olmalıdır`;
         }
       }
     }
@@ -102,7 +105,7 @@ const Order = () => {
     if (selectedService && selectedService.params) {
       selectedService.params.forEach(param => {
         if (param.field_validators.includes('required') && !formData.additionalParams[param.field_name]) {
-          newErrors[param.field_name] = `${param.field_label} is required`;
+          newErrors[param.field_name] = `${param.field_label} tələb olunur`;
         }
       });
     }
@@ -115,7 +118,7 @@ const Order = () => {
     e.preventDefault();
     
     if (!validateForm()) {
-      toast.error('Please fix the form errors');
+      toast.error('Zəhmət olmasa form xətalarını düzəldin');
       return;
     }
 
@@ -129,16 +132,16 @@ const Order = () => {
       );
 
       if (response.status === 'success' && response.id_service_submission) {
-        toast.success('Order placed successfully!');
+        toast.success('Sifariş uğurla verildi!');
         navigate(`/track?order=${response.id_service_submission}`);
       } else if (response.message && response.message.length > 0) {
         const errorMessages = response.message.map(msg => msg.message).join(', ');
-        toast.error(`Order failed: ${errorMessages}`);
+        toast.error(`Sifariş uğursuz: ${errorMessages}`);
       } else {
-        toast.error('Failed to place order. Please try again.');
+        toast.error('Sifariş verilmədi. Zəhmət olmasa yenidən cəhd edin.');
       }
     } catch (error) {
-      toast.error('Failed to place order. Please try again.');
+      toast.error('Sifariş verilmədi. Zəhmət olmasa yenidən cəhd edin.');
       console.error('Error placing order:', error);
     } finally {
       setPlacing(false);
@@ -181,7 +184,7 @@ const Order = () => {
         <div className="container mx-auto px-4 py-20">
           <div className="flex items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin" />
-            <span className="ml-2">Loading services...</span>
+            <span className="ml-2">Xidmətlər yüklənir...</span>
           </div>
         </div>
         <Footer />
@@ -198,10 +201,10 @@ const Order = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              Place Your Order
+              Sifarişinizi Verin
             </h1>
             <p className="text-xl text-muted-foreground mb-8">
-              Select a service and provide your details to get started
+              Xidmət seçin və məlumatlarınızı daxil edin
             </p>
           </div>
         </div>
@@ -216,27 +219,27 @@ const Order = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <ShoppingCart className="h-5 w-5 mr-2" />
-                    Order Details
+                    Sifariş Təfərrüatları
                   </CardTitle>
                   <CardDescription>
-                    Fill in the details below to place your order
+                    Sifarişinizi vermək üçün aşağıdakı məlumatları doldurun
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Service Selection */}
                     <div className="space-y-2">
-                      <Label htmlFor="service">Select Service *</Label>
+                      <Label htmlFor="service">Xidmət Seçin *</Label>
                       <Select 
                         value={formData.serviceId} 
                         onValueChange={(value) => updateFormData('serviceId', value)}
                       >
                         <SelectTrigger className={errors.serviceId ? 'border-red-500' : ''}>
-                          <SelectValue placeholder="Choose a service" />
+                          <SelectValue placeholder="Xidmət seçin" />
                         </SelectTrigger>
                         <SelectContent>
                           {services.map(service => (
-                            <SelectItem key={service.id_service} value={service.id_service}>
+                            <SelectItem key={service.id_service} value={service.id_service.toString()}>
                               <div className="flex items-center space-x-2">
                                 <Badge className={`${getPlatformColor(service.platform)} text-white text-xs`}>
                                   {service.platform}
@@ -257,7 +260,7 @@ const Order = () => {
 
                     {/* URL Input */}
                     <div className="space-y-2">
-                      <Label htmlFor="url">Target URL *</Label>
+                      <Label htmlFor="url">Məqsəd URL *</Label>
                       <Input
                         id="url"
                         type="url"
@@ -274,14 +277,14 @@ const Order = () => {
                       )}
                       {selectedService?.example && (
                         <p className="text-sm text-muted-foreground">
-                          Example: {selectedService.example}
+                          Nümunə: {selectedService.example}
                         </p>
                       )}
                     </div>
 
                     {/* Quantity Input */}
                     <div className="space-y-2">
-                      <Label htmlFor="quantity">Quantity *</Label>
+                      <Label htmlFor="quantity">Miqdar *</Label>
                       <Input
                         id="quantity"
                         type="number"
@@ -301,7 +304,7 @@ const Order = () => {
                       {selectedService && (
                         <div className="text-sm text-muted-foreground space-y-1">
                           <p>Minimum: {parseInt(selectedService.amount_minimum).toLocaleString()}</p>
-                          <p>Increment: {parseInt(selectedService.amount_increment).toLocaleString()}</p>
+                          <p>Artım: {parseInt(selectedService.amount_increment).toLocaleString()}</p>
                         </div>
                       )}
                     </div>
@@ -320,7 +323,7 @@ const Order = () => {
                             onValueChange={(value) => updateAdditionalParam(param.field_name, value)}
                           >
                             <SelectTrigger className={errors[param.field_name] ? 'border-red-500' : ''}>
-                              <SelectValue placeholder={param.field_placeholder || `Select ${param.field_label}`} />
+                              <SelectValue placeholder={param.field_placeholder || `${param.field_label} seçin`} />
                             </SelectTrigger>
                             <SelectContent>
                               {param.options.filter(opt => opt.error_selection !== '1').map(option => (
@@ -362,12 +365,12 @@ const Order = () => {
                       {placing ? (
                         <>
                           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Placing Order...
+                          Sifariş verilir...
                         </>
                       ) : (
                         <>
                           <ShoppingCart className="h-4 w-4 mr-2" />
-                          Place Order - ${calculatedPrice.toFixed(2)}
+                          Sifariş Ver - ${calculatedPrice.toFixed(2)}
                         </>
                       )}
                     </Button>
@@ -382,7 +385,7 @@ const Order = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Calculator className="h-5 w-5 mr-2" />
-                    Order Summary
+                    Sifariş Xülasəsi
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -390,26 +393,26 @@ const Order = () => {
                     <>
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">Service:</span>
+                          <span className="text-sm text-muted-foreground">Xidmət:</span>
                           <Badge className={`${getPlatformColor(selectedService.platform)} text-white`}>
                             {selectedService.platform}
                           </Badge>
                         </div>
                         <h3 className="font-medium">{selectedService.public_name}</h3>
-                        <p className="text-sm text-muted-foreground">{selectedService.type_name}</p>
+                        <p className="text-sm text-muted-foreground">{selectedService.type_name || 'Xidmət'}</p>
                       </div>
 
                       <div className="border-t pt-4 space-y-2">
                         <div className="flex justify-between text-sm">
-                          <span>Quantity:</span>
+                          <span>Miqdar:</span>
                           <span>{formData.quantity || '0'}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span>Price per {selectedService.prices[0]?.pricing_per || '1000'}:</span>
+                          <span>{selectedService.prices[0]?.pricing_per || '1000'} üçün qiymət:</span>
                           <span>${selectedService.prices[0]?.price || '0'}</span>
                         </div>
                         <div className="flex justify-between font-semibold border-t pt-2">
-                          <span>Total:</span>
+                          <span>Cəmi:</span>
                           <span>${calculatedPrice.toFixed(2)}</span>
                         </div>
                       </div>
@@ -417,21 +420,21 @@ const Order = () => {
                       <div className="border-t pt-4 space-y-2">
                         <div className="flex items-center space-x-2 text-sm text-green-600">
                           <CheckCircle className="h-4 w-4" />
-                          <span>Safe & Secure</span>
+                          <span>Təhlükəsiz</span>
                         </div>
                         <div className="flex items-center space-x-2 text-sm text-blue-600">
                           <CheckCircle className="h-4 w-4" />
-                          <span>Fast Delivery</span>
+                          <span>Sürətli Çatdırılma</span>
                         </div>
                         <div className="flex items-center space-x-2 text-sm text-purple-600">
                           <CheckCircle className="h-4 w-4" />
-                          <span>24/7 Support</span>
+                          <span>24/7 Dəstək</span>
                         </div>
                       </div>
                     </>
                   ) : (
                     <p className="text-muted-foreground text-center py-8">
-                      Select a service to see the order summary
+                      Sifariş xülasəsini görmək üçün xidmət seçin
                     </p>
                   )}
                 </CardContent>
