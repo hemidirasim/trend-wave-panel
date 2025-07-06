@@ -8,10 +8,11 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { apiService, Service } from '@/components/ApiService';
-import { Loader2, ShoppingCart, AlertCircle, CheckCircle, Calculator } from 'lucide-react';
+import { Loader2, ShoppingCart, AlertCircle, CheckCircle, Calculator, Instagram, Youtube, Facebook } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Order = () => {
@@ -32,6 +33,10 @@ const Order = () => {
   
   const [calculatedPrice, setCalculatedPrice] = useState(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [selectedPlatform, setSelectedPlatform] = useState<string>('');
+
+  // Yalnız bu 4 platformu göstər
+  const allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook'];
 
   useEffect(() => {
     fetchServices();
@@ -42,6 +47,7 @@ const Order = () => {
       const service = services.find(s => s.id_service.toString() === formData.serviceId);
       if (service) {
         setSelectedService(service);
+        setSelectedPlatform(service.platform.toLowerCase());
         calculatePrice(service, parseInt(formData.quantity) || 0);
       }
     }
@@ -53,7 +59,16 @@ const Order = () => {
       console.log('Fetching services from API...');
       const data = await apiService.getServices();
       console.log('Services loaded:', data);
-      setServices(data);
+      
+      // API-dən gələn məlumatları filterlə - yalnız icazə verilən platformlar
+      const filteredData = data.filter(service => {
+        if (!service || !service.platform || !service.id_service) {
+          return false;
+        }
+        return allowedPlatforms.includes(service.platform.toLowerCase());
+      });
+      
+      setServices(filteredData);
     } catch (error) {
       toast.error('Xidmətlər yüklənərkən xəta baş verdi');
       console.error('Error fetching services:', error);
@@ -177,6 +192,38 @@ const Order = () => {
     return colors[platform.toLowerCase()] || 'bg-gray-500';
   };
 
+  const getPlatformIcon = (platform: string) => {
+    const icons: Record<string, any> = {
+      instagram: Instagram,
+      youtube: Youtube,
+      facebook: Facebook,
+      tiktok: () => <div className="w-4 h-4 bg-current rounded-sm" />,
+    };
+    return icons[platform.toLowerCase()] || null;
+  };
+
+  const getUniquePlatforms = () => {
+    const platforms = services
+      .map(service => service.platform.toLowerCase())
+      .filter(platform => allowedPlatforms.includes(platform));
+    return [...new Set(platforms)];
+  };
+
+  const getPlatformServices = (platform: string) => {
+    return services.filter(service => 
+      service.platform.toLowerCase() === platform.toLowerCase()
+    );
+  };
+
+  const handleServiceSelect = (serviceId: string) => {
+    updateFormData('serviceId', serviceId);
+    const service = services.find(s => s.id_service.toString() === serviceId);
+    if (service) {
+      setSelectedService(service);
+      calculatePrice(service, parseInt(formData.quantity) || 0);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -227,29 +274,49 @@ const Order = () => {
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Service Selection */}
-                    <div className="space-y-2">
-                      <Label htmlFor="service">Xidmət Seçin *</Label>
-                      <Select 
-                        value={formData.serviceId} 
-                        onValueChange={(value) => updateFormData('serviceId', value)}
-                      >
-                        <SelectTrigger className={errors.serviceId ? 'border-red-500' : ''}>
-                          <SelectValue placeholder="Xidmət seçin" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {services.map(service => (
-                            <SelectItem key={service.id_service} value={service.id_service.toString()}>
-                              <div className="flex items-center space-x-2">
-                                <Badge className={`${getPlatformColor(service.platform)} text-white text-xs`}>
-                                  {service.platform}
-                                </Badge>
-                                <span>{service.public_name}</span>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                    {/* Service Selection with Tabs */}
+                    <div className="space-y-4">
+                      <Label>Xidmət Seçin *</Label>
+                      
+                      <Tabs value={selectedPlatform} onValueChange={setSelectedPlatform} className="w-full">
+                        <TabsList className="grid w-full grid-cols-4 mb-6">
+                          {getUniquePlatforms().map((platform) => {
+                            const IconComponent = getPlatformIcon(platform);
+                            return (
+                              <TabsTrigger key={platform} value={platform} className="capitalize flex items-center gap-2">
+                                {IconComponent && <IconComponent className="w-4 h-4" />}
+                                {platform}
+                              </TabsTrigger>
+                            );
+                          })}
+                        </TabsList>
+
+                        {getUniquePlatforms().map((platform) => (
+                          <TabsContent key={platform} value={platform}>
+                            <Select 
+                              value={selectedPlatform === platform ? formData.serviceId : ''} 
+                              onValueChange={handleServiceSelect}
+                            >
+                              <SelectTrigger className={errors.serviceId ? 'border-red-500' : ''}>
+                                <SelectValue placeholder="Xidmət seçin" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {getPlatformServices(platform).map(service => (
+                                  <SelectItem key={service.id_service} value={service.id_service.toString()}>
+                                    <div className="flex items-center space-x-2">
+                                      <span>{service.public_name}</span>
+                                      <Badge variant="secondary" className="ml-2">
+                                        [ID: {service.id_service}]
+                                      </Badge>
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </TabsContent>
+                        ))}
+                      </Tabs>
+                      
                       {errors.serviceId && (
                         <p className="text-sm text-red-500 flex items-center">
                           <AlertCircle className="h-4 w-4 mr-1" />
