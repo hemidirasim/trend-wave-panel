@@ -20,7 +20,9 @@ const Order = () => {
   const navigate = useNavigate();
   const [services, setServices] = useState<Service[]>([]);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [serviceDetails, setServiceDetails] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadingServiceDetails, setLoadingServiceDetails] = useState(false);
   const [placing, setPlacing] = useState(false);
   
   // Form state
@@ -57,6 +59,9 @@ const Order = () => {
         setSelectedServiceType(serviceType);
         
         calculatePrice(service, parseInt(formData.quantity) || 0);
+        
+        // Fetch detailed service information
+        fetchServiceDetails(formData.serviceId);
       }
     }
   }, [services, formData.serviceId, formData.quantity]);
@@ -82,6 +87,21 @@ const Order = () => {
       console.error('Error fetching services:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchServiceDetails = async (serviceId: string) => {
+    try {
+      setLoadingServiceDetails(true);
+      console.log('Fetching service details for ID:', serviceId);
+      const details = await apiService.getServiceDetails(serviceId);
+      console.log('Service details loaded:', details);
+      setServiceDetails(details);
+    } catch (error) {
+      console.error('Error fetching service details:', error);
+      // Don't show error toast for this as it's not critical
+    } finally {
+      setLoadingServiceDetails(false);
     }
   };
 
@@ -295,12 +315,14 @@ const Order = () => {
     setSelectedServiceType(''); // Reset service type when platform changes
     setFormData(prev => ({ ...prev, serviceId: '' })); // Reset selected service
     setSelectedService(null);
+    setServiceDetails(null);
   };
 
   const handleServiceTypeChange = (serviceType: string) => {
     setSelectedServiceType(serviceType);
     setFormData(prev => ({ ...prev, serviceId: '' })); // Reset selected service
     setSelectedService(null);
+    setServiceDetails(null);
   };
 
   const handleServiceSelect = (serviceId: string) => {
@@ -309,6 +331,7 @@ const Order = () => {
     if (service) {
       setSelectedService(service);
       calculatePrice(service, parseInt(formData.quantity) || 0);
+      fetchServiceDetails(serviceId);
     }
   };
 
@@ -448,16 +471,32 @@ const Order = () => {
                     </div>
 
                     {/* Xidmət təsviri - seçilmiş xidmət varsa göstər */}
-                    {selectedService && selectedService.description && (
+                    {selectedService && (
                       <div className="space-y-2">
                         <Label className="flex items-center text-base font-medium">
                           <Info className="h-4 w-4 mr-2" />
                           Xidmət Haqqında
+                          {loadingServiceDetails && (
+                            <Loader2 className="h-4 w-4 ml-2 animate-spin" />
+                          )}
                         </Label>
                         <Card className="border-l-4 border-l-blue-500">
                           <CardContent className="pt-4">
                             <div className="text-sm text-muted-foreground whitespace-pre-line max-h-32 overflow-y-auto">
-                              {selectedService.description}
+                              {loadingServiceDetails ? (
+                                <div className="flex items-center justify-center py-4">
+                                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                  Məlumat yüklənir...
+                                </div>
+                              ) : serviceDetails?.description ? (
+                                serviceDetails.description
+                              ) : selectedService.description ? (
+                                selectedService.description
+                              ) : (
+                                <span className="italic text-muted-foreground">
+                                  Bu xidmət üçün ətraflı məlumat mövcud deyil
+                                </span>
+                              )}
                             </div>
                           </CardContent>
                         </Card>

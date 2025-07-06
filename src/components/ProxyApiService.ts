@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 const API_BASE_URL = 'https://www.qqtube.com/v1-api';
@@ -112,6 +111,21 @@ class ProxyApiService {
     } catch (error) {
       console.error('Error fetching services:', error);
       throw new Error('Failed to fetch services');
+    }
+  }
+
+  async getServiceDetails(serviceId: string): Promise<Service | null> {
+    try {
+      const data = await this.makeRequest({ 
+        action: 'service',
+        id_service: serviceId
+      });
+      
+      console.log('Service details response:', data);
+      return data || null;
+    } catch (error) {
+      console.error('Error fetching service details:', error);
+      throw new Error('Failed to fetch service details');
     }
   }
 
