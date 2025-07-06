@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 const API_BASE_URL = 'https://www.qqtube.com/v1-api';
@@ -15,6 +16,7 @@ export interface Service {
   drip_cost: string;
   example: string;
   type_name: string;
+  description?: string;
   prices: Array<{
     minimum: string;
     maximum: string;
