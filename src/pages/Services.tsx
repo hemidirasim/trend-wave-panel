@@ -1,17 +1,17 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import AuthDialog from '@/components/AuthDialog';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { apiService, Service } from '@/components/ApiService';
-import { Loader2, Zap, Star, Instagram, Youtube, Facebook, Heart, Users, Eye, Share, MessageCircle, Repeat } from 'lucide-react';
+import { Loader2, Zap, Star, Instagram, Youtube, Facebook, Heart, Users, Eye, Share, MessageCircle, Repeat, ArrowUpDown } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Services = () => {
@@ -25,6 +25,7 @@ const Services = () => {
   const [loading, setLoading] = useState(true);
   const [selectedPlatform, setSelectedPlatform] = useState(defaultPlatform);
   const [selectedServiceType, setSelectedServiceType] = useState<string>('');
+  const [priceSort, setPriceSort] = useState<string>(''); // '' | 'asc' | 'desc'
 
   // Yalnız bu 4 platformu göstər
   const allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook'];
@@ -180,6 +181,20 @@ const Services = () => {
       return serviceType === selectedServiceType;
     });
 
+    // Qiymət sıralaması
+    if (priceSort) {
+      filtered = filtered.sort((a, b) => {
+        const priceA = parseFloat(a.prices?.[0]?.price || '0');
+        const priceB = parseFloat(b.prices?.[0]?.price || '0');
+        
+        if (priceSort === 'asc') {
+          return priceA - priceB; // Ucuzdan bahaya
+        } else {
+          return priceB - priceA; // Bahadan ucuza
+        }
+      });
+    }
+
     return filtered;
   };
 
@@ -198,6 +213,7 @@ const Services = () => {
   const handlePlatformChange = (platform: string) => {
     setSelectedPlatform(platform);
     setSelectedServiceType(''); // Reset service type when platform changes
+    setPriceSort(''); // Reset price sort when platform changes
   };
 
   if (loading) {
@@ -270,6 +286,26 @@ const Services = () => {
                         );
                       })}
                     </ToggleGroup>
+                  </div>
+                )}
+
+                {/* Qiymət sıralaması filtri */}
+                {selectedPlatform && selectedServiceType && (
+                  <div className="mb-8 flex justify-center">
+                    <div className="flex items-center gap-4">
+                      <ArrowUpDown className="h-4 w-4" />
+                      <span className="text-sm font-medium">Qiymətə görə sırala:</span>
+                      <Select value={priceSort} onValueChange={setPriceSort}>
+                        <SelectTrigger className="w-48">
+                          <SelectValue placeholder="Sıralama seçin" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">Sıralama yoxdur</SelectItem>
+                          <SelectItem value="asc">Ucuzdan bahaya</SelectItem>
+                          <SelectItem value="desc">Bahadan ucuza</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 )}
 
