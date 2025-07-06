@@ -475,7 +475,7 @@ const Order = () => {
                                         <div className="flex items-center space-x-2">
                                           <span>{service.public_name}</span>
                                           <Badge variant="secondary" className="ml-2">
-                                            ${service.prices[0]?.price || '0'}/{service.prices[0]?.pricing_per || '1K'}
+                                            ${apiService.formatPrice(service.prices[0]?.price || '0')}/{service.prices[0]?.pricing_per || '1K'}
                                           </Badge>
                                         </div>
                                       </SelectItem>
@@ -661,7 +661,7 @@ const Order = () => {
                           ) : (
                             <>
                               <ShoppingCart className="h-4 w-4 mr-2" />
-                              Sifariş Ver - ${calculatedPrice.toFixed(2)}
+                              Sifariş Ver - ${apiService.formatPrice(calculatedPrice.toFixed(2))}
                             </>
                           )}
                         </Button>
@@ -702,11 +702,11 @@ const Order = () => {
                         </div>
                         <div className="flex justify-between text-sm">
                           <span>{selectedService.prices[0]?.pricing_per || '1000'} üçün qiymət:</span>
-                          <span>${selectedService.prices[0]?.price || '0'}</span>
+                          <span>${apiService.formatPrice(selectedService.prices[0]?.price || '0')}</span>
                         </div>
                         <div className="flex justify-between font-semibold border-t pt-2">
                           <span>Cəmi:</span>
-                          <span>${calculatedPrice.toFixed(2)}</span>
+                          <span>${apiService.formatPrice(calculatedPrice.toFixed(2))}</span>
                         </div>
                       </div>
 

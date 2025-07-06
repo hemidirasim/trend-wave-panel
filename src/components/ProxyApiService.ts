@@ -220,6 +220,19 @@ class ProxyApiService {
     return (quantity / pricePer) * price;
   }
 
+  // New method to format prices properly
+  formatPrice(price: string | number): string {
+    const numPrice = typeof price === 'string' ? parseFloat(price) : price;
+    
+    // If it's a whole number, return without decimal
+    if (numPrice % 1 === 0) {
+      return numPrice.toString();
+    }
+    
+    // Remove trailing zeros after decimal point
+    return numPrice.toFixed(10).replace(/\.?0+$/, '');
+  }
+
   validateUrl(platform: string, url: string): boolean {
     const patterns: Record<string, RegExp> = {
       youtube: /^https?:\/\/(www\.)?(youtube\.com\/(watch\?v=|channel\/|user\/)|youtu\.be\/)/i,

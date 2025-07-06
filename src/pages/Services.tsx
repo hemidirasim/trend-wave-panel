@@ -278,7 +278,7 @@ const Services = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {getFilteredServices().map((service) => {
                       const IconComponent = getPlatformIcon(service.platform);
-                      const price = service.prices?.[0]?.price || '0';
+                      const price = apiService.formatPrice(service.prices?.[0]?.price || '0');
                       const pricingPer = service.prices?.[0]?.pricing_per || '1K';
                       const maximum = service.prices?.[0]?.maximum || '0';
                       const serviceType = service.type_name && service.type_name.trim() !== '' 
