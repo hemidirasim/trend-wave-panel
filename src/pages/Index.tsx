@@ -80,10 +80,10 @@ const Index = () => {
   ];
 
   const stats = [
-    { number: "50K+", label: t('stats.customers'), icon: <Users className="h-6 w-6" /> },
-    { number: "1M+", label: t('stats.orders'), icon: <TrendingUp className="h-6 w-6" /> },
-    { number: "99.9%", label: t('stats.satisfaction'), icon: <Star className="h-6 w-6" /> },
-    { number: "24/7", label: t('stats.support'), icon: <Clock className="h-6 w-6" /> }
+    { number: "50K+", label: "Happy Customers", icon: <Users className="h-6 w-6" /> },
+    { number: "1M+", label: "Orders Completed", icon: <TrendingUp className="h-6 w-6" /> },
+    { number: "99.9%", label: "Customer Satisfaction", icon: <Star className="h-6 w-6" /> },
+    { number: "24/7", label: "Support Available", icon: <Clock className="h-6 w-6" /> }
   ];
 
   return (
@@ -102,25 +102,25 @@ const Index = () => {
               <div className="animate-fade-in">
                 <Badge variant="secondary" className="mb-6 px-4 py-2 text-sm font-medium bg-white/80 backdrop-blur-sm border border-primary/20">
                   <Sparkles className="h-4 w-4 mr-2" />
-                  {t('index.hero.badge')}
+                  #1 Social Media Growth Service
                 </Badge>
                 <h1 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-primary via-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight">
-                  {t('index.hero.title')}
+                  Grow Your Social Media with HitLoyal
                 </h1>
                 <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
-                  {t('index.hero.subtitle')}
+                  Professional social media marketing services for Instagram, TikTok, YouTube, and Facebook. Get real followers, likes, and engagement to boost your online presence.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
                   <Button asChild size="lg" className="text-lg px-8 py-4 bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                     <Link to="/services">
                       <Rocket className="mr-2 h-5 w-5" />
-                      {t('index.hero.start')}
+                      Start Growing Now
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
                   </Button>
                   <Button variant="outline" size="lg" className="text-lg px-8 py-4 bg-white/80 backdrop-blur-sm border-2 hover:bg-white/90 transition-all duration-300" onClick={() => setIsAuthDialogOpen(true)}>
                     <Globe className="mr-2 h-5 w-5" />
-                    {t('index.hero.signup')}
+                    Join HitLoyal
                   </Button>
                 </div>
               </div>
@@ -242,16 +242,16 @@ const Index = () => {
                   <TrendingUp className="h-20 w-20 mx-auto text-white mb-6" />
                 </div>
                 <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">
-                  {t('cta.title')}
+                  Ready to Go Viral?
                 </h2>
                 <p className="text-xl mb-10 max-w-3xl mx-auto text-white/90 leading-relaxed">
-                  {t('cta.subtitle')}
+                  Join thousands of creators and businesses who trust HitLoyal to grow their social media presence. Start your journey to social media success today!
                 </p>
                 <div className="flex flex-col sm:flex-row gap-6 justify-center">
                   <Button asChild size="lg" variant="secondary" className="text-lg px-8 py-4 bg-white text-primary hover:bg-white/90 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
                     <Link to="/services">
                       <Zap className="mr-2 h-5 w-5" />
-                      {t('cta.order')}
+                      Order Now
                     </Link>
                   </Button>
                   <Button 
@@ -261,7 +261,7 @@ const Index = () => {
                     onClick={() => setIsAuthDialogOpen(true)}
                   >
                     <Users className="mr-2 h-5 w-5" />
-                    {t('cta.register')}
+                    Create Account
                   </Button>
                 </div>
               </CardContent>

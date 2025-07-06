@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -36,7 +35,7 @@ const Terms = () => {
                   1. Introduction
                 </h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  Welcome to SocialBoost ("we," "our," or "us"). These Terms & Conditions ("Terms") govern your use of our social media marketing services and website. By accessing or using our services, you agree to be bound by these Terms.
+                  Welcome to HitLoyal ("we," "our," or "us"). These Terms & Conditions ("Terms") govern your use of our social media marketing services and website. By accessing or using our services, you agree to be bound by these Terms.
                 </p>
               </section>
 
@@ -48,7 +47,7 @@ const Terms = () => {
                   2. Our Services
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
-                  <p>SocialBoost provides social media marketing services including but not limited to:</p>
+                  <p>HitLoyal provides social media marketing services including but not limited to:</p>
                   <ul className="list-disc pl-6 space-y-2">
                     <li>Instagram followers, likes, and views</li>
                     <li>TikTok followers, likes, and views</li>
@@ -153,7 +152,7 @@ const Terms = () => {
                   8. Contact Information
                 </h2>
                 <p className="text-muted-foreground">
-                  If you have any questions about these Terms, please contact us at support@socialboost.com or through our support system.
+                  If you have any questions about these Terms, please contact us at support@hitloyal.com or through our support system.
                 </p>
               </section>
             </CardContent>

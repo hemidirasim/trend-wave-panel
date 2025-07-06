@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 import { Zap, Shield, Headphones, Clock } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -16,10 +15,10 @@ export const Footer = () => {
               <div className="bg-primary text-primary-foreground p-2 rounded-xl shadow-lg">
                 <Zap className="h-6 w-6" />
               </div>
-              <span className="text-xl font-bold gradient-text">SocialBoost</span>
+              <span className="text-xl font-bold gradient-text">HitLoyal</span>
             </div>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              {t('footer.description')}
+              Professional social media growth services for Instagram, TikTok, YouTube, and Facebook. Grow your audience with real engagement.
             </p>
             <div className="flex items-center space-x-4 text-sm">
               <div className="flex items-center space-x-1">
@@ -74,14 +73,14 @@ export const Footer = () => {
         <div className="border-t border-border/50 mt-8 pt-8">
           <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
             <p className="text-sm text-muted-foreground">
-              {t('footer.copyright')}
+              © 2024 HitLoyal. All rights reserved.
             </p>
             <div className="flex items-center space-x-4 text-sm text-muted-foreground">
               <span className="flex items-center space-x-1">
                 <Shield className="h-4 w-4 text-green-500" />
                 <span>SSL Secured</span>
               </span>
-              <span>{t('footer.trustedBy')}</span>
+              <span>Trusted by 50K+ customers</span>
             </div>
           </div>
         </div>
