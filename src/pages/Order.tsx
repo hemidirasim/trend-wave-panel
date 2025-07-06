@@ -12,7 +12,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { apiService, Service } from '@/components/ApiService';
-import { Loader2, ShoppingCart, AlertCircle, CheckCircle, Calculator, Instagram, Youtube, Facebook, Heart, Users, Eye, Share, MessageCircle, Repeat, Star } from 'lucide-react';
+import { Loader2, ShoppingCart, AlertCircle, CheckCircle, Calculator, Instagram, Youtube, Facebook, Heart, Users, Eye, Share, MessageCircle, Repeat, Star, Info } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Order = () => {
@@ -446,6 +446,23 @@ const Order = () => {
                         </p>
                       )}
                     </div>
+
+                    {/* Xidmət təsviri - seçilmiş xidmət varsa göstər */}
+                    {selectedService && selectedService.description && (
+                      <div className="space-y-2">
+                        <Label className="flex items-center text-base font-medium">
+                          <Info className="h-4 w-4 mr-2" />
+                          Xidmət Haqqında
+                        </Label>
+                        <Card className="border-l-4 border-l-blue-500">
+                          <CardContent className="pt-4">
+                            <div className="text-sm text-muted-foreground whitespace-pre-line">
+                              {selectedService.description}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    )}
 
                     {/* Mesajlar */}
                     {!selectedPlatform && (
