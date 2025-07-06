@@ -1,5 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 type Language = 'az' | 'en' | 'tr' | 'ru';
 
@@ -247,14 +248,46 @@ const translations = {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider = ({ children }: { children: React.ReactNode }) => {
-  const [language, setLanguage] = useState<Language>(() => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [language, setLanguageState] = useState<Language>(() => {
+    // First check URL parameter
+    const urlLang = searchParams.get('lang') as Language;
+    if (urlLang && ['az', 'en', 'tr', 'ru'].includes(urlLang)) {
+      return urlLang;
+    }
+    // Then check localStorage
     const saved = localStorage.getItem('language');
     return (saved as Language) || 'az';
   });
 
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    localStorage.setItem('language', lang);
+    
+    // Update URL parameter
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set('lang', lang);
+    setSearchParams(newSearchParams, { replace: true });
+  };
+
   useEffect(() => {
-    localStorage.setItem('language', language);
-  }, [language]);
+    // Sync URL with current language on mount
+    const urlLang = searchParams.get('lang');
+    if (urlLang !== language) {
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.set('lang', language);
+      setSearchParams(newSearchParams, { replace: true });
+    }
+  }, []);
+
+  useEffect(() => {
+    // Listen for URL changes and update language
+    const urlLang = searchParams.get('lang') as Language;
+    if (urlLang && ['az', 'en', 'tr', 'ru'].includes(urlLang) && urlLang !== language) {
+      setLanguageState(urlLang);
+      localStorage.setItem('language', urlLang);
+    }
+  }, [searchParams]);
 
   const t = (key: string): string => {
     return translations[language][key] || key;
