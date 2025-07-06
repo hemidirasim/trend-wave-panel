@@ -52,6 +52,12 @@ export const Header = () => {
               <Link to="/services" className="text-foreground hover:text-primary transition-colors">
                 Xidmətlər
               </Link>
+              <Link to="/blog" className="text-foreground hover:text-primary transition-colors">
+                Bloq
+              </Link>
+              <Link to="/faq" className="text-foreground hover:text-primary transition-colors">
+                FAQ
+              </Link>
             </nav>
 
             {/* Action Buttons */}
@@ -105,6 +111,20 @@ export const Header = () => {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Xidmətlər
+                </Link>
+                <Link 
+                  to="/blog" 
+                  className="text-foreground hover:text-primary transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Bloq
+                </Link>
+                <Link 
+                  to="/faq" 
+                  className="text-foreground hover:text-primary transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  FAQ
                 </Link>
                 <div className="pt-4 border-t border-border">
                   <div className="flex items-center space-x-2 text-sm text-muted-foreground mb-4">

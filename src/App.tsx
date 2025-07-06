@@ -10,6 +10,8 @@ import Index from "./pages/Index";
 import Services from "./pages/Services";
 import Order from "./pages/Order";
 import Dashboard from "./pages/Dashboard";
+import FAQ from "./pages/FAQ";
+import Blog from "./pages/Blog";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +26,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/services" element={<Services />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/blog" element={<Blog />} />
             <Route path="/dashboard" element={
               <ProtectedRoute>
                 <Dashboard />
