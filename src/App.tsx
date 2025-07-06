@@ -13,6 +13,8 @@ import Order from "./pages/Order";
 import Dashboard from "./pages/Dashboard";
 import FAQ from "./pages/FAQ";
 import Blog from "./pages/Blog";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +32,8 @@ const App = () => (
               <Route path="/services" element={<Services />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/blog" element={<Blog />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/privacy" element={<Privacy />} />
               <Route path="/dashboard" element={
                 <ProtectedRoute>
                   <Dashboard />
