@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -13,12 +12,14 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { apiService, Service } from '@/components/ApiService';
+import { useSettings } from '@/contexts/SettingsContext';
 import { Loader2, ShoppingCart, AlertCircle, CheckCircle, Calculator, Instagram, Youtube, Facebook, Heart, Users, Eye, Share, MessageCircle, Repeat, Star, Info, Filter, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Order = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { settings } = useSettings();
   const [services, setServices] = useState<Service[]>([]);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [serviceDetails, setServiceDetails] = useState<Service | null>(null);
@@ -78,7 +79,7 @@ const Order = () => {
         fetchServiceDetails(formData.serviceId);
       }
     }
-  }, [services, formData.serviceId, formData.quantity]);
+  }, [services, formData.serviceId, formData.quantity, settings.commission_rate]);
 
   const fetchServices = async () => {
     try {
@@ -142,7 +143,9 @@ const Order = () => {
       return;
     }
     
-    const price = apiService.calculatePrice(service, quantity);
+    console.log('Calculating price with commission rate:', settings.commission_rate);
+    const price = apiService.calculatePrice(service, quantity, settings.commission_rate);
+    console.log('Calculated price:', price);
     setCalculatedPrice(price);
   };
 
@@ -338,10 +341,10 @@ const Order = () => {
       return serviceType === selectedServiceType;
     });
 
-    // Qiymət filtri tətbiq et
+    // Qiymət filtri tətbiq et - komissiya ilə birlikdə
     const sortedServices = [...filtered].sort((a, b) => {
-      const priceA = parseFloat(a.prices[0]?.price || '0');
-      const priceB = parseFloat(b.prices[0]?.price || '0');
+      const priceA = apiService.calculatePrice(a, 1000, settings.commission_rate);
+      const priceB = apiService.calculatePrice(b, 1000, settings.commission_rate);
       
       if (priceFilter === 'low-to-high') {
         return priceA - priceB;
@@ -390,6 +393,12 @@ const Order = () => {
     }
     
     return null;
+  };
+
+  // Helper function to get service price with commission
+  const getServicePriceWithCommission = (service: Service) => {
+    const basePrice = parseFloat(service.prices[0]?.price || '0');
+    return apiService.calculatePrice(service, parseInt(service.prices[0]?.pricing_per || '1000'), settings.commission_rate) / parseInt(service.prices[0]?.pricing_per || '1000');
   };
 
   if (loading) {
@@ -532,7 +541,7 @@ const Order = () => {
                                           <div className="flex items-center space-x-2">
                                             <span>{service.public_name}</span>
                                             <Badge variant="secondary" className="ml-2">
-                                              ${apiService.formatPrice(service.prices[0]?.price || '0')}/{service.prices[0]?.pricing_per || '1K'}
+                                              ${apiService.formatPrice(getServicePriceWithCommission(service).toString())}/{service.prices[0]?.pricing_per || '1K'}
                                             </Badge>
                                           </div>
                                         </SelectItem>
@@ -760,8 +769,14 @@ const Order = () => {
                         </div>
                         <div className="flex justify-between text-sm">
                           <span>{selectedService.prices[0]?.pricing_per || '1000'} üçün qiymət:</span>
-                          <span>${apiService.formatPrice(selectedService.prices[0]?.price || '0')}</span>
+                          <span>${apiService.formatPrice(getServicePriceWithCommission(selectedService).toString())}</span>
                         </div>
+                        {settings.commission_rate > 0 && (
+                          <div className="flex justify-between text-xs text-muted-foreground">
+                            <span>Komissiya ({settings.commission_rate}%):</span>
+                            <span>Daxildir</span>
+                          </div>
+                        )}
                         <div className="flex justify-between font-semibold border-t pt-2">
                           <span>Cəmi:</span>
                           <span>${apiService.formatPrice(calculatedPrice.toFixed(2))}</span>
