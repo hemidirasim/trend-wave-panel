@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Target, Heart, Play, Video, Users } from 'lucide-react';
+import { Target, Camera, Music, Play, Users } from 'lucide-react';
 import { proxyApiService, Service } from './ProxyApiService';
 import { Link } from 'react-router-dom';
 
@@ -12,8 +12,8 @@ interface Platform {
 }
 
 const platformIcons: Record<string, any> = {
-  instagram: Heart,
-  tiktok: Video,
+  instagram: Camera,
+  tiktok: Music,
   youtube: Play,
   facebook: Users
 };
@@ -89,33 +89,35 @@ export const ServicesSection = () => {
             <p className="text-muted-foreground">Hal-hazırda sosial media xidmətləri mövcud deyil.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-            {apiServices.map((platform, index) => {
-              const platformKey = platform.name?.toLowerCase() || '';
-              const IconComponent = platformIcons[platformKey] || Heart;
-              const colors = [
-                'from-pink-500 to-rose-500',
-                'from-green-500 to-blue-500', 
-                'from-red-500 to-orange-500',
-                'from-blue-500 to-purple-500',
-                'from-purple-500 to-pink-500',
-                'from-blue-500 to-teal-500'
-              ];
-              const color = colors[index % colors.length];
-              
-              return (
-                <Link key={platform.name} to={`/order?platform=${platform.name?.toLowerCase()}`}>
-                  <div className="group cursor-pointer">
-                    <div className={`w-20 h-20 bg-gradient-to-br ${color} rounded-2xl mx-auto mb-4 flex items-center justify-center text-white group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}>
-                      <IconComponent className="h-8 w-8" />
+          <div className="flex justify-center">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl">
+              {apiServices.map((platform, index) => {
+                const platformKey = platform.name?.toLowerCase() || '';
+                const IconComponent = platformIcons[platformKey] || Camera;
+                const colors = [
+                  'from-pink-500 to-rose-500',
+                  'from-green-500 to-blue-500', 
+                  'from-red-500 to-orange-500',
+                  'from-blue-500 to-purple-500',
+                  'from-purple-500 to-pink-500',
+                  'from-blue-500 to-teal-500'
+                ];
+                const color = colors[index % colors.length];
+                
+                return (
+                  <Link key={platform.name} to={`/order?platform=${platform.name?.toLowerCase()}`}>
+                    <div className="group cursor-pointer">
+                      <div className={`w-20 h-20 bg-gradient-to-br ${color} rounded-2xl mx-auto mb-4 flex items-center justify-center text-white group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}>
+                        <IconComponent className="h-8 w-8" />
+                      </div>
+                      <h3 className="text-center text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
+                        {platform.displayName}
+                      </h3>
                     </div>
-                    <h3 className="text-center text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
-                      {platform.displayName}
-                    </h3>
-                  </div>
-                </Link>
-              );
-            })}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>
