@@ -92,30 +92,30 @@ const Index = () => {
         <Header />
         
         {/* Hero Section */}
-        <section className="relative py-32 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-hero opacity-5"></div>
-          <div className="absolute top-20 left-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-10 w-80 h-80 bg-primary-variant/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <section className="relative py-24 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-secondary/10 to-accent/5"></div>
+          <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-r from-blue-400/20 to-cyan-400/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
           
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center max-w-5xl mx-auto">
               <div className="animate-fade-in">
-                <Badge variant="secondary" className="mb-8 px-6 py-3 text-sm font-semibold glass-effect">
+                <Badge variant="secondary" className="mb-6 px-4 py-2 text-sm font-medium bg-white/80 backdrop-blur-sm border border-primary/20">
                   <Sparkles className="h-4 w-4 mr-2" />
                   #1 Social Media Growth Platform
                 </Badge>
-                <h1 className="text-6xl md:text-8xl font-bold mb-10 gradient-text leading-tight animate-scale-in">
+                <h1 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-primary via-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight">
                   Master Your Social Media Growth with HitLoyal
                 </h1>
-                <p className="text-xl md:text-2xl text-muted-foreground mb-16 max-w-4xl mx-auto leading-relaxed font-medium">
+                <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
                   Professional social media growth platform offering strategic guidance, analytics, and expert consultation for Instagram, TikTok, YouTube, and Facebook. Build your authentic online presence with proven strategies.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
-                  <Button asChild size="lg" className="text-lg px-10 py-5 gradient-bg hover-lift modern-shadow text-white font-semibold rounded-2xl">
+                <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                  <Button asChild size="lg" className="text-lg px-8 py-4 bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                     <Link to="/services">
-                      <Rocket className="mr-3 h-5 w-5" />
+                      <Rocket className="mr-2 h-5 w-5" />
                       Start Your Journey
-                      <ArrowRight className="ml-3 h-5 w-5" />
+                      <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
                   </Button>
                 </div>
@@ -125,19 +125,19 @@ const Index = () => {
         </section>
 
         {/* Stats Section */}
-        <section className="py-24 bg-gradient-secondary">
+        <section className="py-20 bg-gradient-to-r from-muted/30 via-muted/50 to-muted/30">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {stats.map((stat, index) => (
                 <div key={index} className="text-center group">
-                  <div className="glass-effect rounded-3xl p-8 modern-shadow hover-lift">
-                    <div className="flex justify-center mb-4 text-primary">
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-primary/10">
+                    <div className="flex justify-center mb-3 text-primary">
                       {stat.icon}
                     </div>
-                    <div className="text-4xl md:text-5xl font-bold text-primary mb-3 group-hover:scale-110 transition-transform duration-300">
+                    <div className="text-3xl md:text-4xl font-bold text-primary mb-2 group-hover:scale-110 transition-transform duration-300">
                       {stat.number}
                     </div>
-                    <div className="text-muted-foreground font-semibold">
+                    <div className="text-muted-foreground font-medium">
                       {stat.label}
                     </div>
                   </div>
@@ -148,36 +148,36 @@ const Index = () => {
         </section>
 
         {/* Platforms Section */}
-        <section className="py-28 relative">
-          <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/3 to-background"></div>
+        <section className="py-24 relative">
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/5 to-background"></div>
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="text-center mb-24">
-              <h2 className="text-5xl md:text-6xl font-bold mb-8 gradient-text">
+            <div className="text-center mb-20">
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
                 Platform Expertise
               </h2>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto font-medium">
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
                 Specialized growth strategies and tools for each major social media platform
               </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {platforms.map((platform, index) => (
-                <Card key={index} className="glass-effect modern-shadow hover-lift cursor-pointer group rounded-3xl border-0">
-                  <CardHeader className="text-center pb-6">
-                    <div className={`w-24 h-24 bg-gradient-to-r ${platform.color} rounded-3xl mx-auto mb-6 flex items-center justify-center text-white text-4xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 modern-shadow`}>
+                <Card key={index} className="hover:shadow-2xl transition-all duration-500 cursor-pointer group bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:scale-105">
+                  <CardHeader className="text-center pb-4">
+                    <div className={`w-20 h-20 bg-gradient-to-r ${platform.color} rounded-2xl mx-auto mb-4 flex items-center justify-center text-white text-3xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}>
                       {platform.icon}
                     </div>
                     <CardTitle className="text-2xl font-bold">{platform.name}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4 mb-8">
+                    <div className="space-y-3 mb-6">
                       {platform.services.map((service, idx) => (
                         <div key={idx} className="flex items-center text-muted-foreground">
-                          <Check className="h-5 w-5 text-success mr-3 flex-shrink-0" />
-                          <span className="font-semibold">{service}</span>
+                          <Check className="h-4 w-4 text-green-500 mr-3 flex-shrink-0" />
+                          <span className="font-medium">{service}</span>
                         </div>
                       ))}
                     </div>
-                    <Button asChild className="w-full gradient-bg hover-lift text-white font-semibold rounded-2xl py-3" variant="default">
+                    <Button asChild className="w-full bg-gradient-to-r from-primary/90 to-purple-600/90 hover:from-primary hover:to-purple-600 transition-all duration-300" variant="default">
                       <Link to={`/services?platform=${platform.name.toLowerCase()}`}>
                         Explore Tools
                         <ArrowRight className="ml-2 h-4 w-4" />
@@ -191,27 +191,27 @@ const Index = () => {
         </section>
 
         {/* Features Section */}
-        <section className="py-28 bg-gradient-secondary">
+        <section className="py-24 bg-gradient-to-br from-muted/20 via-primary/5 to-secondary/10">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-24">
-              <h2 className="text-5xl md:text-6xl font-bold mb-8 gradient-text">
+            <div className="text-center mb-20">
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
                 Why Choose HitLoyal?
               </h2>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto font-medium">
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
                 Comprehensive social media growth platform with expert guidance and proven strategies
               </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {features.map((feature, index) => (
-                <Card key={index} className="text-center glass-effect modern-shadow hover-lift group rounded-3xl border-0">
-                  <CardHeader className="pb-6">
-                    <div className={`w-20 h-20 mx-auto mb-6 rounded-3xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 modern-shadow`}>
+                <Card key={index} className="text-center hover:shadow-2xl transition-all duration-500 group bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:scale-105">
+                  <CardHeader className="pb-4">
+                    <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-md`}>
                       {feature.icon}
                     </div>
-                    <CardTitle className="text-2xl font-bold">{feature.title}</CardTitle>
+                    <CardTitle className="text-xl font-bold">{feature.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <CardDescription className="text-base leading-relaxed font-medium">
+                    <CardDescription className="text-base leading-relaxed">
                       {feature.description}
                     </CardDescription>
                   </CardContent>
@@ -222,41 +222,41 @@ const Index = () => {
         </section>
 
         {/* CTA Section */}
-        <section className="py-32 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-hero"></div>
-          <div className="absolute inset-0 bg-background/20"></div>
+        <section className="py-24 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-600 to-pink-600"></div>
+          <div className="absolute inset-0 bg-black/20"></div>
           <div className="absolute top-0 left-0 w-full h-full">
-            <div className="absolute top-20 left-20 w-40 h-40 bg-white/10 rounded-full blur-xl animate-pulse"></div>
-            <div className="absolute bottom-20 right-20 w-56 h-56 bg-white/10 rounded-full blur-2xl animate-pulse delay-500"></div>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-white/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            <div className="absolute top-20 left-20 w-32 h-32 bg-white/10 rounded-full blur-xl"></div>
+            <div className="absolute bottom-20 right-20 w-48 h-48 bg-white/10 rounded-full blur-2xl"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
           </div>
           
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <Card className="glass-effect modern-shadow-xl rounded-3xl border-white/20">
-              <CardContent className="text-center py-24">
-                <div className="mb-10">
-                  <Globe className="h-24 w-24 mx-auto text-white mb-8 animate-scale-in" />
+            <Card className="bg-white/10 backdrop-blur-xl border-white/20 shadow-2xl">
+              <CardContent className="text-center py-20">
+                <div className="mb-8">
+                  <Globe className="h-20 w-20 mx-auto text-white mb-6" />
                 </div>
-                <h2 className="text-5xl md:text-6xl font-bold mb-8 text-white">
+                <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">
                   Ready to Transform Your Social Media Presence?
                 </h2>
-                <p className="text-xl mb-14 max-w-4xl mx-auto text-white/90 leading-relaxed font-medium">
+                <p className="text-xl mb-10 max-w-3xl mx-auto text-white/90 leading-relaxed">
                   Join thousands of creators and businesses who trust HitLoyal to guide their social media growth journey. Start building your authentic online presence today!
                 </p>
-                <div className="flex flex-col sm:flex-row gap-8 justify-center">
-                  <Button asChild size="lg" variant="secondary" className="text-lg px-10 py-5 bg-white text-primary hover:bg-white/90 modern-shadow hover-lift font-semibold rounded-2xl">
+                <div className="flex flex-col sm:flex-row gap-6 justify-center">
+                  <Button asChild size="lg" variant="secondary" className="text-lg px-8 py-4 bg-white text-primary hover:bg-white/90 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
                     <Link to="/services">
-                      <Target className="mr-3 h-5 w-5" />
+                      <Target className="mr-2 h-5 w-5" />
                       Explore Services
                     </Link>
                   </Button>
                   <Button 
                     size="lg" 
                     variant="outline" 
-                    className="text-lg px-10 py-5 border-2 border-white/50 text-white hover:bg-white/10 backdrop-blur-sm hover-lift font-semibold rounded-2xl"
+                    className="text-lg px-8 py-4 border-2 border-white/50 text-white hover:bg-white/10 backdrop-blur-sm transition-all duration-300 hover:scale-105"
                     onClick={() => setIsAuthDialogOpen(true)}
                   >
-                    <Users className="mr-3 h-5 w-5" />
+                    <Users className="mr-2 h-5 w-5" />
                     Get Started
                   </Button>
                 </div>
