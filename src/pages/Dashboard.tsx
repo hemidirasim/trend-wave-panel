@@ -330,12 +330,9 @@ const Dashboard = () => {
                   <div className="text-center py-8">
                     <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-semibold mb-2">Hələ sifariş yoxdur</h3>
-                    <p className="text-muted-foreground mb-4">
+                    <p className="text-muted-foreground">
                       İlk sifarişinizi vermək üçün xidmətlər səhifəsinə keçin
                     </p>
-                    <Button onClick={() => navigate('/services')}>
-                      Xidmətlərə bax
-                    </Button>
                   </div>
                 )}
               </CardContent>
