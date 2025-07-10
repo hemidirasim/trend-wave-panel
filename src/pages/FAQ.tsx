@@ -9,52 +9,64 @@ import { HelpCircle, Shield, Clock, Zap } from 'lucide-react';
 const FAQ = () => {
   const faqData = [
     {
-      question: "SocialBoost nədir və necə işləyir?",
-      answer: "SocialBoost, Instagram, TikTok, YouTube və Facebook üçün peşəkar SMM xidmətləri təqdim edən platformadır. Siz istədiyiniz xidməti seçir, linkinizi daxil edir və sifarişiniz avtomatik olaraq işə başlayır."
+      question: "Instagram Followers artırma xidməti necə işləyir?",
+      answer: "Instagram Followers xidməti üçün profil linkinizi və istədiyiniz followers sayını seçirsiniz. Real və aktiv istifadəçilər vasitəsilə followers sayınız təhlükəsiz şəkildə artırılır. Artım 24-48 saat ərzində başlayır və tədricən tamamlanır."
     },
     {
-      question: "Instagram followers artırma xidməti necə işləyir?",
-      answer: "Instagram followers artırma xidməti tamamilə təhlükəsizdir. Siz profil linkinizi və istədiyiniz followers sayını daxil edirsiniz. Biz real və aktiv istifadəçilər vasitəsilə followers sayınızı artırırıq. 24-48 saat ərzində artım başlayır."
+      question: "Instagram Likes xidməti ilə hansı nəticələr əldə edə bilərəm?",
+      answer: "Instagram Likes xidməti paylaşımlarınızın məşhurluğunu artırır və daha çox insanın diqqətini çəkir. Real istifadəçilər tərəfindən like alacaqsınız və bu da organik reach-inizi artıracaq."
     },
     {
-      question: "TikTok görüntüləmə sayı artırma xidməti nə qədər vaxt alır?",
-      answer: "TikTok görüntüləmə sayı artırma xidməti ən sürətli xidmətlərimizdən biridir. Sifarişiniz verildikdən sonra 1-6 saat ərzində artım başlayır və 24 saat ərzində tamamlanır."
+      question: "TikTok Views artırma xidməti nə qədər sürətlidir?",
+      answer: "TikTok Views xidməti bizim ən sürətli xidmətlərimizdən biridir. Sifarişiniz verildikdən sonra 1-6 saat ərzində görüntüləmə sayınız artmağa başlayır və 24 saat ərzində tamamlanır."
     },
     {
-      question: "YouTube izləyici artırma xidməti təhlükəsizdirmi?",
-      answer: "Bəli, YouTube izləyici artırma xidməti tamamilə təhlükəsizdir. Biz yalnız real istifadəçilər və təbii artım metodları istifadə edirik. YouTube-un qaydalarına uyğun olaraq işləyirik və hesabınız heç bir risk altında deyil."
+      question: "TikTok Followers xidməti təhlükəsizdirmi?",
+      answer: "Bəli, TikTok Followers xidməti tamamilə təhlükəsizdir. Real istifadəçilər və təbii artım metodları istifadə edirik. TikTok-un qaydalarına uyğun işləyirik və hesabınız risk altında deyil."
     },
     {
-      question: "Facebook like və comment artırma necə edilir?",
-      answer: "Facebook like və comment artırma xidməti üçün paylaşımınızın linkini bizə göndərin. Biz həm like, həm də keyfiyyətli comment artırma xidməti təqdim edirik. Real istifadəçilər tərəfindən müsbət təsirlər yaradırıq."
+      question: "YouTube Views artırma xidməti necə işləyir?",
+      answer: "YouTube Views xidməti üçün video linkinizi göndərin. Real izləyicilər tərəfindən videonuz izlənəcək və görüntüləmə sayınız artacaq. Bu da YouTube alqoritmi tərəfindən videonuzun daha çox tövsiyə edilməsinə kömək edəcək."
     },
     {
-      question: "Sifarişimi necə izləyə bilərəm?",
-      answer: "Hesabınıza daxil olaraq sifarişlərinizin statusunu real vaxtda izləyə bilərsiniz. Hər sifarişin gedişatı, başlama vaxtı və tamamlanma müddəti görünür. SMS və email bildirişləri də göndəririk."
+      question: "YouTube Subscribers xidməti ilə kanal inkişafım necə olacaq?",
+      answer: "YouTube Subscribers xidməti kanalınızın kredibilliyini artırır və daha çox organik izləyici cəlb etməyə kömək edir. Real abunəçilər əldə edəcəksiniz və bu da kanalınızın ümumi performansını yaxşılaşdıracaq."
     },
     {
-      question: "Ödəniş metodları hansılardır?",
-      answer: "Biz müxtəlif ödəniş metodlarını qəbul edirik: Kapital Bank, Rabitəbank, Bank kartları, Visa/MasterCard, və digər yerli bank kartları. Bütün ödənişlər təhlükəsizdir və şifrələnmişdir."
-    },
-    {
-      question: "Geri qaytarma siyasəti necədir?",
-      answer: "Əgər xidmət təqdim edilməyibsə və ya keyfiyyət aşağıdırsa, 30 gün ərzində tam geri qaytarma təklif edirik. Müştəri məmnuniyyəti bizim prioritetimizdir. Xidmət başladıqdan sonra geri qaytarma mümkün deyil."
+      question: "Facebook Post Likes xidməti hansı növ paylaşımlar üçün uyğundur?",
+      answer: "Facebook Post Likes xidməti bütün növ paylaşımlar üçün uyğundur - foto, video, mətn və ya link paylaşımları. Paylaşımınızın linkini bizə göndərin və real istifadəçilər tərəfindən like alın."
     },
     {
       question: "Minimum və maksimum sifarişlər nədir?",
-      answer: "Hər xidmətin öz minimum və maksimum limitləri var. Adətən minimum 100, maksimum 100.000-ə qədər sifarişlər qəbul edirik. Instagram followers üçün minimum 100, maksimum 50.000-dir."
+      answer: "Hər xidmətin öz minimum və maksimum limitləri mövcuddur. Ümumiyyətlə minimum 100, maksimum 100.000 həddində sifarişlər qəbul edirik. Instagram Followers üçün minimum 100, maksimum 50.000 followers sifariş edə bilərsiniz."
+    },
+    {
+      question: "Sifarişimi necə izləyə bilərəm?",
+      answer: "Hesabınıza daxil olaraq bütün sifarişlərinizin statusunu real vaxtda izləyə bilərsiniz. Hər sifarişin gedişatı, başlama vaxtı və tamamlanma müddəti göstərilir. Eyni zamanda SMS və email bildirişləri də göndəririk."
+    },
+    {
+      question: "Ödəniş metodları hansılardır?",
+      answer: "Müxtəlif ödəniş metodlarını qəbul edirik: Bank kartları (Visa/MasterCard), Kapital Bank, Rabitəbank və digər yerli bank kartları. Bütün ödənişlər SSL şifrələmə ilə təmin edilir və tamamilə təhlükəsizdir."
+    },
+    {
+      question: "Xidmətlər başladıqdan sonra dayandırıla bilərmi?",
+      answer: "Xidmət başladıqdan sonra dayandırılması mümkün deyil, çünki proses avtomatik olaraq işə salınır. Lakin əgər texniki problem yaşanırsa, dəstək komandamızla əlaqə saxlayın və həll yolu tapacağıq."
+    },
+    {
+      question: "Geri qaytarma siyasəti necədir?",
+      answer: "Əgər xidmət başlamayıbsa və ya keyfiyyət gözlənilən səviyyədə deyilsə, 7 gün ərzində tam geri qaytarma mümkündür. Xidmət başladıqdan sonra qismən geri qaytarma yalnız xüsusi hallarda həyata keçirilir."
     },
     {
       question: "24/7 müştəri dəstəyi mövcuddur?",
-      answer: "Bəli, bizim müştəri dəstəyi komandamız 24/7 xidmətinizdədir. WhatsApp, email və ya telefon vasitəsilə bizimlə əlaqə saxlaya bilərsiniz. Suallarınızı dərhal cavablandırırıq."
+      answer: "Bəli, müştəri dəstəyi komandamız 24/7 xidmətinizdədir. WhatsApp, email və ya telefon vasitəsilə bizimlə əlaqə saxlaya bilərsiniz. Bütün suallarınızı ən qısa müddətdə cavablandırırıq."
     },
     {
       question: "Toplu sifarişlər üçün endirimlər varmı?",
-      answer: "Bəli, böyük sifarişlər və müntəzəm müştərilər üçün xüsusi endirimlər mövcuddur. 10.000+ followers sifarişlərində 10% endirim, 50.000+ sifarişlərində 20% endirim tətbiq edirik."
+      answer: "Bəli, böyük həcmli sifarişlər və müntəzəm müştərilər üçün xüsusi endirimlər təklif edirik. 10.000+ həcmli sifarişlərdə 10% endirim, 50.000+ sifarişlərdə isə 20% endirim tətbiq olunur."
     },
     {
-      question: "Hesabım bağlana bilərmi?",
-      answer: "Xeyr, bizim istifadə etdiyimiz metodlar tamamilə təhlükəsizdir və platform qaydalarına uyğundur. Heç bir müştərimizin hesabı bağlanmamışdır. Biz yalnız real istifadəçilər və təbii artım metodları istifadə edirik."
+      question: "Hesabımın təhlükəsizliyi təmin edilirmi?",
+      answer: "Bəli, istifadə etdiyimiz bütün metodlar platform qaydalarına uyğun və tamamilə təhlükəsizdir. Real istifadəçilər və təbii artım metodları sayəsində hesabınız heç bir risk altında deyil. İndiyədək heç bir müştərimizin hesabı bağlanmamışdır."
     }
   ];
 
