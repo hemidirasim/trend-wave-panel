@@ -26,7 +26,7 @@ interface Service {
   name: string;
   description: string | null;
   price: number | null;
-  category: 'standard' | 'social_media';
+  category: 'social_media';
   platform: string | null;
   icon: string | null;
   active: boolean;
@@ -62,7 +62,7 @@ export default function AdminServices() {
     name: '',
     description: '',
     price: '',
-    category: 'standard' as 'standard' | 'social_media',
+    category: 'social_media' as 'social_media',
     platform: '',
     icon: '',
     active: true,
@@ -228,7 +228,7 @@ export default function AdminServices() {
       name: '',
       description: '',
       price: '',
-      category: 'standard',
+      category: 'social_media',
       platform: '',
       icon: '',
       active: true,
@@ -252,9 +252,9 @@ export default function AdminServices() {
             <TabsTrigger value="api">API Xidmətləri</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="local" className="space-y-6">
+            <TabsContent value="local" className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold">Yerli Xidmətlər</h2>
+              <h2 className="text-2xl font-semibold">Sosial Media Xidmətləri</h2>
               <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DialogTrigger asChild>
                   <Button onClick={resetForm}>
@@ -268,7 +268,7 @@ export default function AdminServices() {
                       {editingService ? 'Xidməti Redaktə Et' : 'Yeni Xidmət Əlavə Et'}
                     </DialogTitle>
                     <DialogDescription>
-                      Xidmət məlumatlarını daxil edin
+                      Sosial media xidməti məlumatlarını daxil edin
                     </DialogDescription>
                   </DialogHeader>
                   
@@ -290,24 +290,6 @@ export default function AdminServices() {
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                       />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="category">Kateqoriya</Label>
-                      <Select
-                        value={formData.category}
-                        onValueChange={(value: 'standard' | 'social_media') => 
-                          setFormData({ ...formData, category: value })
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="standard">Standart Xidmətlər</SelectItem>
-                          <SelectItem value="social_media">Sosial Media</SelectItem>
-                        </SelectContent>
-                      </Select>
                     </div>
                     
                     <div>
@@ -336,7 +318,7 @@ export default function AdminServices() {
                         id="icon"
                         value={formData.icon}
                         onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                        placeholder="Users, Heart, Search..."
+                        placeholder="Heart, UserPlus, Eye..."
                       />
                     </div>
                     
@@ -375,116 +357,55 @@ export default function AdminServices() {
             {loading ? (
               <div className="text-center">Yüklənir...</div>
             ) : (
-              <div className="space-y-8">
-                {/* Standard Services */}
-                <div>
-                  <h3 className="text-xl font-semibold mb-4">Standart Xidmətlər</h3>
-                  <div className="grid gap-4">
-                    {services
-                      .filter(service => service.category === 'standard')
-                      .map((service) => (
-                        <Card key={service.id}>
-                          <CardContent className="p-4">
-                            <div className="flex justify-between items-start">
-                              <div className="flex-1">
-                                <h4 className="font-semibold">{service.name}</h4>
-                                <p className="text-sm text-muted-foreground">{service.description}</p>
-                                <div className="flex gap-2 mt-2">
-                                  <span className="text-xs bg-muted px-2 py-1 rounded">
-                                    {service.platform || 'Ümumi'}
-                                  </span>
-                                  <span className="text-xs bg-muted px-2 py-1 rounded">
-                                    Sıra: {service.order_index}
-                                  </span>
-                                  {service.price && (
-                                    <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                                      {service.price} AZN
-                                    </span>
-                                  )}
-                                  <span className={`text-xs px-2 py-1 rounded ${
-                                    service.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                  }`}>
-                                    {service.active ? 'Aktiv' : 'Deaktiv'}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="flex gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => handleEdit(service)}
-                                >
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="destructive"
-                                  onClick={() => handleDelete(service.id)}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
+              <div className="grid gap-4">
+                {services
+                  .filter(service => service.category === 'social_media')
+                  .map((service) => (
+                    <Card key={service.id}>
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <h4 className="font-semibold">{service.name}</h4>
+                            <p className="text-sm text-muted-foreground">{service.description}</p>
+                            <div className="flex gap-2 mt-2">
+                              <span className="text-xs bg-muted px-2 py-1 rounded">
+                                {service.platform || 'Ümumi'}
+                              </span>
+                              <span className="text-xs bg-muted px-2 py-1 rounded">
+                                Sıra: {service.order_index}
+                              </span>
+                              {service.price && (
+                                <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
+                                  {service.price} AZN
+                                </span>
+                              )}
+                              <span className={`text-xs px-2 py-1 rounded ${
+                                service.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                              }`}>
+                                {service.active ? 'Aktiv' : 'Deaktiv'}
+                              </span>
                             </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                  </div>
-                </div>
-
-                {/* Social Media Services */}
-                <div>
-                  <h3 className="text-xl font-semibold mb-4">Sosial Media Xidmətləri</h3>
-                  <div className="grid gap-4">
-                    {services
-                      .filter(service => service.category === 'social_media')
-                      .map((service) => (
-                        <Card key={service.id}>
-                          <CardContent className="p-4">
-                            <div className="flex justify-between items-start">
-                              <div className="flex-1">
-                                <h4 className="font-semibold">{service.name}</h4>
-                                <p className="text-sm text-muted-foreground">{service.description}</p>
-                                <div className="flex gap-2 mt-2">
-                                  <span className="text-xs bg-muted px-2 py-1 rounded">
-                                    {service.platform || 'Ümumi'}
-                                  </span>
-                                  <span className="text-xs bg-muted px-2 py-1 rounded">
-                                    Sıra: {service.order_index}
-                                  </span>
-                                  {service.price && (
-                                    <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                                      {service.price} AZN
-                                    </span>
-                                  )}
-                                  <span className={`text-xs px-2 py-1 rounded ${
-                                    service.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                  }`}>
-                                    {service.active ? 'Aktiv' : 'Deaktiv'}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="flex gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => handleEdit(service)}
-                                >
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="destructive"
-                                  onClick={() => handleDelete(service.id)}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                  </div>
-                </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleEdit(service)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => handleDelete(service.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
               </div>
             )}
           </TabsContent>
