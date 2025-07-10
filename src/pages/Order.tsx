@@ -62,8 +62,8 @@ const Order = () => {
     if (services.length > 0 && formData.serviceId) {
       const service = services.find(s => s.id_service.toString() === formData.serviceId);
       if (service) {
-        console.log('Selected service found:', service);
-        console.log('Current service fee:', settings.service_fee);
+        console.log('🔥 Selected service found:', service);
+        console.log('🔥 Current service fee for calculation:', settings.service_fee);
         setSelectedService(service);
         setSelectedPlatform(service.platform.toLowerCase());
         
@@ -85,9 +85,9 @@ const Order = () => {
   const fetchServices = async () => {
     try {
       setLoading(true);
-      console.log('🔥 fetchServices çağırıldı - Cari xidmət haqqı:', settings.service_fee);
+      console.log('🔥 fetchServices çağırıldı - Admin Panel xidmət haqqı:', settings.service_fee);
       const data = await proxyApiService.getServices();
-      console.log('Services loaded:', data);
+      console.log('🔥 API-dən gələn xidmətlər sayı:', data.length);
       
       // API-dən gələn məlumatları filterlə və qiymətə görə sırala
       const filteredData = data.filter(service => {
@@ -97,21 +97,24 @@ const Order = () => {
         return allowedPlatforms.includes(service.platform.toLowerCase());
       });
       
+      console.log('🔥 Filterlənmiş xidmətlər sayı:', filteredData.length);
+      
       // Qiymətə görə sırala (avtomatik olaraq ucuzdan bahaya) - xidmət haqqı ilə birlikdə
       const sortedData = [...filteredData].sort((a, b) => {
         const priceA = proxyApiService.calculatePrice(a, 1000, settings.service_fee);
         const priceB = proxyApiService.calculatePrice(b, 1000, settings.service_fee);
-        console.log('🔥 Sorting prices:', {
+        console.log('🔥 Xidmət qiymət müqayisəsi:', {
           serviceA: a.public_name,
           priceA,
           serviceB: b.public_name,
           priceB,
-          serviceFee: settings.service_fee
+          appliedServiceFee: settings.service_fee
         });
         return priceA - priceB;
       });
       
       setServices(sortedData);
+      console.log('🔥 Sıralanmış xidmətlər yadda saxlanıldı');
     } catch (error) {
       toast.error('Xidmətlər yüklənərkən xəta baş verdi');
       console.error('Error fetching services:', error);
@@ -151,9 +154,9 @@ const Order = () => {
       return;
     }
     
-    console.log('🔥 calculatePrice çağırıldı - Xidmət haqqı:', settings.service_fee);
+    console.log('🔥 calculatePrice - Tətbiq edilən xidmət haqqı:', settings.service_fee);
     const price = proxyApiService.calculatePrice(service, quantity, settings.service_fee);
-    console.log('🔥 Hesablanan qiymət:', price);
+    console.log('🔥 Yekun hesablanan qiymət:', price);
     setCalculatedPrice(price);
   };
 
@@ -354,12 +357,12 @@ const Order = () => {
       const priceA = proxyApiService.calculatePrice(a, 1000, settings.service_fee);
       const priceB = proxyApiService.calculatePrice(b, 1000, settings.service_fee);
       
-      console.log('🔥 Filtering and sorting services:', {
+      console.log('🔥 Filterlənmiş xidmətlərin qiymət sıralaması:', {
         serviceA: a.public_name,
         priceA,
         serviceB: b.public_name,
         priceB,
-        serviceFee: settings.service_fee,
+        appliedServiceFee: settings.service_fee,
         filter: priceFilter
       });
       
@@ -418,10 +421,10 @@ const Order = () => {
     const priceWithFee = proxyApiService.calculatePrice(service, basePricePer, settings.service_fee);
     const pricePerUnit = priceWithFee / basePricePer;
     
-    console.log('🔥 Service price calculation:', {
+    console.log('🔥 Xidmətin vahid qiyməti (xidmət haqqı ilə):', {
       serviceName: service.public_name,
       basePricePer,
-      serviceFee: settings.service_fee,
+      appliedServiceFee: settings.service_fee,
       priceWithFee,
       pricePerUnit
     });
