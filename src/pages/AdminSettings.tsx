@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -9,6 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { Save, Database, Settings, Globe } from 'lucide-react';
 import { AdminLayout } from '@/components/AdminLayout';
+import { useSettings } from '@/contexts/SettingsContext';
 
 interface Settings {
   site_name: string;
@@ -19,10 +21,12 @@ interface Settings {
   allow_registration: boolean;
   default_balance: number;
   notification_email: string;
+  commission_rate: number;
 }
 
 export default function AdminSettings() {
   const { toast } = useToast();
+  const { updateSettings } = useSettings();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   
@@ -34,7 +38,8 @@ export default function AdminSettings() {
     maintenance_mode: false,
     allow_registration: true,
     default_balance: 0,
-    notification_email: 'admin@hitloyal.com'
+    notification_email: 'admin@hitloyal.com',
+    commission_rate: 0
   });
 
   const [stats, setStats] = useState({
@@ -46,8 +51,21 @@ export default function AdminSettings() {
 
   useEffect(() => {
     fetchStats();
-    setLoading(false); // Settings are hardcoded for now
+    loadSettings();
   }, []);
+
+  const loadSettings = () => {
+    const savedSettings = localStorage.getItem('admin_settings');
+    if (savedSettings) {
+      try {
+        const parsed = JSON.parse(savedSettings);
+        setSettings(prev => ({ ...prev, ...parsed }));
+      } catch (error) {
+        console.error('Error loading settings:', error);
+      }
+    }
+    setLoading(false);
+  };
 
   const fetchStats = async () => {
     try {
@@ -83,9 +101,9 @@ export default function AdminSettings() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      // In a real app, you would save these to a settings table
-      // For now, we'll just show a success message
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      // Save settings to localStorage and context
+      localStorage.setItem('admin_settings', JSON.stringify(settings));
+      updateSettings({ commission_rate: settings.commission_rate });
       
       toast({
         title: "Uğurlu",
@@ -269,6 +287,22 @@ export default function AdminSettings() {
                 />
                 <p className="text-sm text-muted-foreground mt-1">
                   Sistem bildirişləri üçün email ünvanı
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="commission_rate">Komissiya Faizi (%)</Label>
+                <Input
+                  id="commission_rate"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="100"
+                  value={settings.commission_rate}
+                  onChange={(e) => handleInputChange('commission_rate', parseFloat(e.target.value) || 0)}
+                />
+                <p className="text-sm text-muted-foreground mt-1">
+                  Xidmət qiymətlərinə əlavə olunacaq komissiya faizi
                 </p>
               </div>
             </CardContent>

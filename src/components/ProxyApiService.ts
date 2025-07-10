@@ -205,7 +205,7 @@ class ProxyApiService {
     }
   }
 
-  calculatePrice(service: Service, quantity: number): number {
+  calculatePrice(service: Service, quantity: number, commissionRate: number = 0): number {
     const priceRange = service.prices.find(
       (price) =>
         quantity >= parseInt(price.minimum) && quantity <= parseInt(price.maximum)
@@ -216,8 +216,11 @@ class ProxyApiService {
     }
 
     const pricePer = parseInt(priceRange.pricing_per);
-    const price = parseFloat(priceRange.price);
-    return (quantity / pricePer) * price;
+    const basePrice = parseFloat(priceRange.price);
+    const baseCost = (quantity / pricePer) * basePrice;
+    
+    // Apply commission
+    return baseCost * (1 + commissionRate / 100);
   }
 
   // New method to format prices properly
