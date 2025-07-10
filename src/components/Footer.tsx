@@ -29,8 +29,7 @@ export const Footer = () => {
         .select('*')
         .eq('active', true)
         .eq('category', 'standard')
-        .order('order_index', { ascending: true })
-        .limit(4);
+        .order('order_index', { ascending: true });
 
       if (error) throw error;
       setServices((data || []) as Service[]);
