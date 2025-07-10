@@ -18,6 +18,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { AdminLayout } from '@/components/AdminLayout';
 
 interface Service {
   id: string;
@@ -198,11 +199,11 @@ export default function Admin() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
+    <AdminLayout>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold">Admin Panel</h1>
+            <h1 className="text-3xl font-bold">Xidmətlər</h1>
             <p className="text-muted-foreground">Xidmətləri idarə edin</p>
           </div>
           
@@ -439,6 +440,6 @@ export default function Admin() {
           </div>
         )}
       </div>
-    </div>
+    </AdminLayout>
   );
 }
