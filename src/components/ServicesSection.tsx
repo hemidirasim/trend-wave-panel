@@ -47,7 +47,7 @@ export const ServicesSection = () => {
   };
 
   return (
-    <section className="py-24 relative">
+    <section id="services-section" className="py-24 relative">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5"></div>
       <div className="absolute top-10 left-10 w-64 h-64 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full blur-3xl"></div>
       <div className="absolute bottom-10 right-10 w-48 h-48 bg-gradient-to-r from-secondary/10 to-primary/10 rounded-full blur-2xl"></div>
@@ -81,32 +81,21 @@ export const ServicesSection = () => {
             const color = colors[index % colors.length];
             
             return (
-              <Card key={service.id} className="bg-white/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-500 cursor-pointer group border border-primary/10 hover:border-primary/20 hover:scale-105">
-                <CardHeader className="text-center pb-4">
-                  <div className={`w-20 h-20 bg-gradient-to-br ${color} rounded-2xl mx-auto mb-4 flex items-center justify-center text-white group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}>
-                    {IconComponent && <IconComponent className="h-8 w-8" />}
-                  </div>
-                  <CardTitle className="text-xl font-bold text-foreground">{service.name}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-6 text-center">
-                    {service.description}
-                  </p>
-                  <div className="space-y-3">
-                    <Button asChild className="w-full transition-all duration-300" variant="outline">
-                      <Link to={`/service/${service.id}`}>
-                        Ətraflı Məlumat
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Link>
-                    </Button>
-                    <ConsultationDialog serviceName={service.name}>
-                      <Button className="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 transition-all duration-300">
-                        Məsləhət Alın
-                      </Button>
-                    </ConsultationDialog>
-                  </div>
-                </CardContent>
-              </Card>
+              <Link key={service.id} to={`/service/${service.id}`}>
+                <Card className="bg-white/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-500 cursor-pointer group border border-primary/10 hover:border-primary/20 hover:scale-105">
+                  <CardHeader className="text-center pb-4">
+                    <div className={`w-20 h-20 bg-gradient-to-br ${color} rounded-2xl mx-auto mb-4 flex items-center justify-center text-white group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}>
+                      {IconComponent && <IconComponent className="h-8 w-8" />}
+                    </div>
+                    <CardTitle className="text-xl font-bold text-foreground">{service.name}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground text-center">
+                      {service.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
             );
           })}
         </div>
