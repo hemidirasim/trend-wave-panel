@@ -36,7 +36,7 @@ export const ServicesSection = () => {
   const fetchApiServices = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/functions/v1/qqtube-api', {
+      const response = await fetch('https://lnsragearbdkxpbhhyez.supabase.co/functions/v1/qqtube-api', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -49,13 +49,19 @@ export const ServicesSection = () => {
       if (!response.ok) throw new Error('API xətası');
       
       const data = await response.json();
+      console.log('API-dən gələn məlumatlar:', data);
+      
       // Sosial media platformalarına aid xidmətləri filtrləyirik
-      const socialMediaServices = (data || []).filter((service: ApiService) => 
-        ['Instagram', 'TikTok', 'YouTube', 'Facebook', 'Twitter'].includes(service.platform)
-      );
+      const socialMediaServices = (data || []).filter((service: ApiService) => {
+        const platform = service.platform?.toLowerCase();
+        return ['instagram', 'tiktok', 'youtube', 'facebook', 'twitter'].includes(platform || '');
+      });
+      
+      console.log('Filtrləndikdən sonra:', socialMediaServices);
       setApiServices(socialMediaServices.slice(0, 8)); // İlk 8 sosial media xidməti
     } catch (error) {
       console.error('Error fetching API services:', error);
+      setApiServices([]); // Xəta olduqda boş array
     } finally {
       setLoading(false);
     }
