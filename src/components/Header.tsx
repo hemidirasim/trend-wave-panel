@@ -109,7 +109,7 @@ export const Header = () => {
           </button>
         </div>
         
-        <div className="hidden lg:flex lg:gap-x-8">
+        <div className="hidden lg:flex lg:items-center lg:gap-x-6">
           {navigation.map((item) => (
             <Link
               key={item.name}
@@ -123,13 +123,13 @@ export const Header = () => {
           ))}
           
           <NavigationMenu>
-            <NavigationMenuList>
+            <NavigationMenuList className="gap-2">
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="text-sm font-semibold leading-6 text-foreground hover:text-primary">
+                <NavigationMenuTrigger className="text-sm font-semibold leading-6 text-foreground hover:text-primary bg-transparent border-none shadow-none">
                   {t('nav.services')}
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <div className="w-[400px] p-4">
+                  <div className="w-[400px] p-4 bg-popover border border-border shadow-lg rounded-md">
                     <h3 className="mb-2 text-sm font-medium leading-none text-muted-foreground">
                       Əsas Xidmətlər
                     </h3>
@@ -152,11 +152,11 @@ export const Header = () => {
               </NavigationMenuItem>
               
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="text-sm font-semibold leading-6 text-foreground hover:text-primary">
+                <NavigationMenuTrigger className="text-sm font-semibold leading-6 text-foreground hover:text-primary bg-transparent border-none shadow-none">
                   Sosial Media
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <div className="w-[300px] p-4">
+                  <div className="w-[300px] p-4 bg-popover border border-border shadow-lg rounded-md">
                     <h3 className="mb-2 text-sm font-medium leading-none text-muted-foreground">
                       Sosial Şəbəkələr
                     </h3>
@@ -181,18 +181,7 @@ export const Header = () => {
           </NavigationMenu>
         </div>
         
-        <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center lg:gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleLanguage}
-            className="flex items-center gap-2"
-          >
-            <Globe className="h-4 w-4" />
-            {language.toUpperCase()}
-          </Button>
-          
-          {user ? (
+        <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center lg:gap-4">{user ? (
             <div className="flex items-center gap-4">
               <Link to="/dashboard">
                 <Button variant="outline" size="sm">
@@ -208,6 +197,16 @@ export const Header = () => {
               {t('nav.signIn')}
             </Button>
           )}
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleLanguage}
+            className="flex items-center gap-2"
+          >
+            <Globe className="h-4 w-4" />
+            {language.toUpperCase()}
+          </Button>
         </div>
       </nav>
 
