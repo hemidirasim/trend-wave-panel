@@ -1,42 +1,32 @@
-
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { ArrowRight, CheckCircle, Star, Clock, Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { ArrowLeft, CheckCircle, Star, Users, TrendingUp, Palette, Globe, Tv, Facebook, Heart, UserPlus, Eye, Search } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 interface Service {
   id: string;
   name: string;
   description: string | null;
-  price: number | null;
   category: string;
   platform: string | null;
   icon: string | null;
   active: boolean;
   order_index: number;
+  price: number | null;
 }
 
 const iconMap: Record<string, any> = {
-  Users: () => <div className="w-6 h-6 bg-current rounded" />,
-  Search: () => <div className="w-6 h-6 bg-current rounded" />,
-  TrendingUp: () => <div className="w-6 h-6 bg-current rounded" />,
-  PenTool: () => <div className="w-6 h-6 bg-current rounded" />,
-  Code: () => <div className="w-6 h-6 bg-current rounded" />,
-  Tv: () => <div className="w-6 h-6 bg-current rounded" />,
-  Facebook: () => <div className="w-6 h-6 bg-current rounded" />,
-  Heart: () => <div className="w-6 h-6 bg-current rounded" />,
-  UserPlus: () => <div className="w-6 h-6 bg-current rounded" />,
-  Eye: () => <div className="w-6 h-6 bg-current rounded" />
+  Users, Search, TrendingUp, Palette, Globe, Tv, Facebook, Heart, UserPlus, Eye
 };
 
 const ServiceDetail = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
   const [service, setService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -53,7 +43,6 @@ const ServiceDetail = () => {
         .from('services')
         .select('*')
         .eq('id', id)
-        .eq('active', true)
         .single();
 
       if (error) throw error;
@@ -65,18 +54,14 @@ const ServiceDetail = () => {
     }
   };
 
-  const handleContactClick = () => {
-    navigate('/faq');
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
         <div className="container mx-auto px-4 py-20">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-4 text-muted-foreground">Yüklənir...</p>
+          <div className="flex items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin" />
+            <span className="ml-2">Xidmət məlumatları yüklənir...</span>
           </div>
         </div>
         <Footer />
@@ -91,9 +76,9 @@ const ServiceDetail = () => {
         <div className="container mx-auto px-4 py-20">
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">Xidmət tapılmadı</h1>
-            <Button onClick={() => navigate('/services')}>
-              Xidmətlərə qayıt
-            </Button>
+            <Link to="/" className="text-primary hover:underline">
+              Ana səhifəyə qayıt
+            </Link>
           </div>
         </div>
         <Footer />
@@ -107,121 +92,166 @@ const ServiceDetail = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      {/* Hero Section */}
-      <section className="py-20 bg-gradient-to-r from-primary/10 to-purple-600/10">
-        <div className="container mx-auto px-4">
+      {/* Breadcrumb */}
+      <section className="py-6 border-b border-border/50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+            <Link to="/" className="hover:text-primary transition-colors">Ana səhifə</Link>
+            <span>/</span>
+            <Link to="/#services" className="hover:text-primary transition-colors">Xidmətlər</Link>
+            <span>/</span>
+            <span className="text-foreground">{service.name}</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Service Header */}
+      <section className="py-12 bg-gradient-to-br from-primary/5 to-secondary/5">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="w-20 h-20 bg-gradient-to-br from-primary to-purple-600 rounded-2xl mx-auto mb-6 flex items-center justify-center text-white shadow-lg">
-              <IconComponent />
+            <div className="flex justify-center mb-6">
+              <div className="bg-gradient-to-r from-primary to-purple-600 text-primary-foreground p-4 rounded-2xl shadow-lg">
+                <IconComponent className="h-12 w-12" />
+              </div>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-              {service.name}
-            </h1>
-            <p className="text-xl text-muted-foreground mb-8">
-              {service.description}
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">{service.name}</h1>
+            <p className="text-xl text-muted-foreground mb-6">
+              {service.description || 'Peşəkar xidmətimizlə biznesinizi inkişaf etdirin'}
             </p>
-            <div className="flex items-center justify-center gap-4 mb-8">
-              <Badge variant="secondary" className="bg-primary/10 text-primary">
-                <Star className="h-4 w-4 mr-1" />
-                Premium Xidmət
+            <div className="flex justify-center space-x-4">
+              <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
+                Əsas Xidmət
               </Badge>
-              <Badge variant="secondary" className="bg-green-100 text-green-700">
-                <Shield className="h-4 w-4 mr-1" />
-                Təhlükəsiz
-              </Badge>
-            </div>
-            <div className="text-center mb-8">
-              {service.price ? (
-                <>
-                  <span className="text-3xl font-bold text-primary">₼{service.price}</span>
-                  <span className="text-lg text-muted-foreground ml-2">-dan başlayır</span>
-                </>
-              ) : (
-                <span className="text-2xl text-muted-foreground">Qiymət sorğu ilə</span>
+              {service.price && (
+                <Badge variant="outline" className="border-green-500/20 text-green-600">
+                  ${service.price}-dan başlayır
+                </Badge>
               )}
             </div>
-            <Button 
-              onClick={handleContactClick}
-              size="lg" 
-              className="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-lg px-8 py-4 shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              Məsləhət Alın
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Service Content */}
       <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-12">Nə üçün Bizim Xidmətimizi Seçməlisiniz?</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Card className="text-center hover:shadow-lg transition-shadow">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            
+            {/* Main Content */}
+            <div className="lg:col-span-2 space-y-8">
+              
+              {/* Service Description */}
+              <Card>
                 <CardHeader>
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg mx-auto mb-4 flex items-center justify-center">
-                    <CheckCircle className="h-6 w-6 text-primary" />
-                  </div>
-                  <CardTitle className="text-lg">Keyfiyyətli Xidmət</CardTitle>
+                  <CardTitle>Xidmət Haqqında</CardTitle>
+                  <CardDescription>
+                    Bu xidmətimizin təfərrüatlı məlumatları
+                  </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">
-                    Peşəkar komandamız tərəfindən yüksək keyfiyyətli xidmət təminatı
+                <CardContent className="prose prose-slate max-w-none">
+                  <p className="text-muted-foreground leading-relaxed">
+                    {service.description || `${service.name} xidməti ilə bağlı ətraflı məlumatlar tezliklə əlavə ediləcək. Bu xidmətimiz sizin ehtiyaclarınıza uyğun olaraq hazırlanmışdır və peşəkar komandamız tərəfindən həyata keçirilir.`}
                   </p>
                 </CardContent>
               </Card>
 
-              <Card className="text-center hover:shadow-lg transition-shadow">
+              {/* Features */}
+              <Card>
                 <CardHeader>
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg mx-auto mb-4 flex items-center justify-center">
-                    <Clock className="h-6 w-6 text-primary" />
-                  </div>
-                  <CardTitle className="text-lg">Sürətli Çatdırılma</CardTitle>
+                  <CardTitle>Nə təklif edirik?</CardTitle>
+                  <CardDescription>
+                    Bu xidmətin əsas üstünlükləri
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">
-                    Sifarişləriniz ən qısa müddətdə yerinə yetirilir
-                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex items-center space-x-3">
+                      <CheckCircle className="h-5 w-5 text-green-500" />
+                      <span>Peşəkar yanaşma</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <CheckCircle className="h-5 w-5 text-green-500" />
+                      <span>Sürətli həyata keçirmə</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <CheckCircle className="h-5 w-5 text-green-500" />
+                      <span>24/7 dəstək</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <CheckCircle className="h-5 w-5 text-green-500" />
+                      <span>Keyfiyyət zəmanəti</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <CheckCircle className="h-5 w-5 text-green-500" />
+                      <span>Əlverişli qiymət</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <CheckCircle className="h-5 w-5 text-green-500" />
+                      <span>Nəticə zəmanəti</span>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
-              <Card className="text-center hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg mx-auto mb-4 flex items-center justify-center">
-                    <Shield className="h-6 w-6 text-primary" />
-                  </div>
-                  <CardTitle className="text-lg">Təhlükəsizlik</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">
-                    100% təhlükəsiz və etibarlı xidmət təminatı
-                  </p>
-                </CardContent>
-              </Card>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-primary to-purple-600">
-        <div className="container mx-auto px-4 text-center">
-          <div className="max-w-3xl mx-auto text-white">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              İndi Başlayın
-            </h2>
-            <p className="text-xl mb-8 opacity-90">
-              Peşəkar xidmətimizlə biznesinizi növbəti səviyyəyə çıxarın
-            </p>
-            <Button 
-              onClick={handleContactClick}
-              size="lg" 
-              className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-4 shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              Məsləhət Alın
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
+            {/* Sidebar */}
+            <div className="space-y-6">
+              
+              {/* Contact Card */}
+              <Card className="sticky top-4">
+                <CardHeader>
+                  <CardTitle>Sifarişə hazırsınız?</CardTitle>
+                  <CardDescription>
+                    Bizimlə əlaqə saxlayın və layihənizi müzakirə edək
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Button className="w-full" size="lg">
+                    İndi Sifariş Verin
+                  </Button>
+                  <Button variant="outline" className="w-full">
+                    Məsləhət Alın
+                  </Button>
+                  
+                  <div className="border-t pt-4 space-y-2">
+                    <div className="flex items-center space-x-2 text-sm text-green-600">
+                      <CheckCircle className="h-4 w-4" />
+                      <span>Pulsuz məsləhət</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-sm text-blue-600">
+                      <CheckCircle className="h-4 w-4" />
+                      <span>Sürətli cavab</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-sm text-purple-600">
+                      <CheckCircle className="h-4 w-4" />
+                      <span>Fərdi yanaşma</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Rating Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Müştəri Məmnuniyyəti</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center space-x-2 mb-2">
+                    <div className="flex space-x-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star key={star} className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                      ))}
+                    </div>
+                    <span className="text-sm font-medium">4.9</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    500+ məmnun müştəri
+                  </p>
+                </CardContent>
+              </Card>
+
+            </div>
           </div>
         </div>
       </section>
