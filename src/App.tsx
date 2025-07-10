@@ -20,6 +20,7 @@ import Terms from '@/pages/Terms';
 import Privacy from '@/pages/Privacy';
 import NotFound from '@/pages/NotFound';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import ProtectedAdminRoute from '@/components/ProtectedAdminRoute';
 
 const queryClient = new QueryClient();
 
@@ -70,25 +71,25 @@ function App() {
                 <Route 
                   path="/admin" 
                   element={
-                    <ProtectedRoute>
+                    <ProtectedAdminRoute>
                       <Admin />
-                    </ProtectedRoute>
+                    </ProtectedAdminRoute>
                   } 
                 />
                 <Route 
                   path="/admin/blog" 
                   element={
-                    <ProtectedRoute>
+                    <ProtectedAdminRoute>
                       <AdminBlog />
-                    </ProtectedRoute>
+                    </ProtectedAdminRoute>
                   } 
                 />
                 <Route 
                   path="/admin/faq" 
                   element={
-                    <ProtectedRoute>
+                    <ProtectedAdminRoute>
                       <AdminFAQ />
-                    </ProtectedRoute>
+                    </ProtectedAdminRoute>
                   } 
                 />
                 <Route path="*" element={<NotFound />} />
