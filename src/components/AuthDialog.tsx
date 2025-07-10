@@ -31,14 +31,20 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
     try {
       const { error } = await signIn(loginEmail, loginPassword);
       if (error) {
-        if (error.message.includes('Invalid login credentials')) {
+        console.error('Login error:', error);
+        if (error.message?.includes('Invalid login credentials')) {
           toast.error('Email və ya şifrə yanlışdır');
+        } else if (error.message?.includes('Email not confirmed')) {
+          toast.error('Email təsdiqləməni tamamlayın');
         } else {
-          toast.error('Giriş zamanı xəta baş verdi');
+          toast.error('Giriş zamanı xəta baş verdi: ' + (error.message || 'Bilinməyən xəta'));
         }
       } else {
         toast.success('Uğurla daxil oldunuz!');
         onOpenChange(false);
+        // Clear form fields
+        setLoginEmail('');
+        setLoginPassword('');
       }
     } catch (error) {
       toast.error('Giriş zamanı xəta baş verdi');
@@ -54,14 +60,21 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
     try {
       const { error } = await signUp(signupEmail, signupPassword, signupFullName);
       if (error) {
-        if (error.message.includes('User already registered')) {
+        console.error('Signup error:', error);
+        if (error.message?.includes('User already registered')) {
           toast.error('Bu email artıq qeydiyyatdan keçib');
+        } else if (error.message?.includes('Password')) {
+          toast.error('Şifrə ən az 6 simvol olmalıdır');
         } else {
-          toast.error('Qeydiyyat zamanı xəta baş verdi');
+          toast.error('Qeydiyyat zamanı xəta baş verdi: ' + (error.message || 'Bilinməyən xəta'));
         }
       } else {
         toast.success('Qeydiyyat uğurla tamamlandı! Email-inizi yoxlayın.');
         onOpenChange(false);
+        // Clear form fields
+        setSignupEmail('');
+        setSignupPassword('');
+        setSignupFullName('');
       }
     } catch (error) {
       toast.error('Qeydiyyat zamanı xəta baş verdi');
@@ -78,7 +91,7 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
             <div className="bg-primary text-primary-foreground p-2 rounded-lg">
               <Zap className="h-6 w-6" />
             </div>
-            <DialogTitle className="text-2xl font-bold">SocialBoost</DialogTitle>
+            <DialogTitle className="text-2xl font-bold">hitloyal</DialogTitle>
           </div>
         </DialogHeader>
 
