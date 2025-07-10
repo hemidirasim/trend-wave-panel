@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -16,7 +15,7 @@ interface Service {
   id: string;
   name: string;
   description: string | null;
-  category: 'standard' | 'social_media';
+  category: string;
   platform: string | null;
   icon: string | null;
   active: boolean;
@@ -61,65 +60,6 @@ const Index = () => {
       setSearchParams({});
     }
   }, [searchParams, setSearchParams]);
-
-  const mainServices = [
-    { 
-      name: 'SMM Xidməti', 
-      color: 'from-pink-500 to-rose-500', 
-      description: 'Sosial media marketinq və idarəetmə',
-      icon: <Users className="h-8 w-8" />,
-      link: '/services#smm'
-    },
-    { 
-      name: 'Google-da Reklam', 
-      color: 'from-green-500 to-blue-500', 
-      description: 'Google Ads və axtarış nəticələrində reklam',
-      icon: <Search className="h-8 w-8" />,
-      link: '/services#google-ads'
-    },
-    { 
-      name: 'YouTube-da Reklam', 
-      color: 'from-red-500 to-orange-500', 
-      description: 'YouTube video reklamları və marketinq',
-      icon: <Youtube className="h-8 w-8" />,
-      link: '/services#youtube-ads'
-    },
-    { 
-      name: 'SEO Xidməti', 
-      color: 'from-blue-500 to-purple-500', 
-      description: 'Axtarış motorlarında optimallaşdırma',
-      icon: <TrendingUp className="h-8 w-8" />,
-      link: '/services#seo'
-    },
-    { 
-      name: 'Loqo Hazırlanması', 
-      color: 'from-purple-500 to-pink-500', 
-      description: 'Peşəkar loqo və brend identikası dizaynı',
-      icon: <PenTool className="h-8 w-8" />,
-      link: '/services#logo'
-    },
-    { 
-      name: 'Saytların Hazırlanması', 
-      color: 'from-blue-500 to-teal-500', 
-      description: 'Modern və responsive veb saytlar',
-      icon: <Code className="h-8 w-8" />,
-      link: '/services#web'
-    },
-    { 
-      name: 'TV/Radio Reklam', 
-      color: 'from-orange-500 to-red-500', 
-      description: 'Televiziya və radio reklamları',
-      icon: <Tv className="h-8 w-8" />,
-      link: '/services#tv-radio'
-    },
-    { 
-      name: 'Facebook Reklam', 
-      color: 'from-blue-600 to-blue-800', 
-      description: 'Facebook və Instagram reklamları',
-      icon: <Facebook className="h-8 w-8" />,
-      link: '/services#facebook-ads'
-    }
-  ];
 
   const features = [
     {
@@ -263,7 +203,7 @@ const Index = () => {
                         {service.description}
                       </p>
                       <Button asChild className="w-full transition-all duration-300" variant="default">
-                        <Link to={`/services#${service.id}`}>
+                        <Link to={`/service/${service.id}`}>
                           Ətraflı Məlumat
                           <ArrowRight className="ml-2 h-4 w-4" />
                         </Link>
