@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Menu, X, Star, Zap, User, LogOut } from 'lucide-react';
+import { Menu, X, Star, Zap, User, LogOut, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import AuthDialog from './AuthDialog';
@@ -58,13 +58,29 @@ export const Header = () => {
                 {t('header.home')}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
               </Link>
-              <Link 
-                to="/services" 
-                className="text-foreground/80 hover:text-primary transition-colors duration-200 font-medium relative group"
-              >
-                {t('header.services')}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
-              </Link>
+              <div className="relative group">
+                <button className="text-foreground/80 hover:text-primary transition-colors duration-200 font-medium relative flex items-center">
+                  {t('header.services')}
+                  <ChevronDown className="ml-1 h-4 w-4" />
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+                </button>
+                <div className="absolute top-full left-0 mt-2 w-64 bg-background border border-border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <div className="p-2">
+                    <Link to="/services" className="block px-3 py-2 text-sm hover:bg-muted rounded transition-colors">
+                      Reklam və Marketinq
+                    </Link>
+                    <Link to="/services#web" className="block px-3 py-2 text-sm hover:bg-muted rounded transition-colors">
+                      Veb Dizayn
+                    </Link>
+                    <Link to="/services#brand" className="block px-3 py-2 text-sm hover:bg-muted rounded transition-colors">
+                      Brend Xidmətləri
+                    </Link>
+                    <Link to="/services#additional" className="block px-3 py-2 text-sm hover:bg-muted rounded transition-colors">
+                      Əlavə Xidmətlər
+                    </Link>
+                  </div>
+                </div>
+              </div>
               <Link 
                 to="/blog" 
                 className="text-foreground/80 hover:text-primary transition-colors duration-200 font-medium relative group"

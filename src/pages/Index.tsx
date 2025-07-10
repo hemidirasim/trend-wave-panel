@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import AuthDialog from '@/components/AuthDialog';
-import { ArrowRight, Star, Zap, Shield, Clock, Users, TrendingUp, Check, Sparkles, Rocket, Globe, Target, BarChart3, BookOpen, Award } from 'lucide-react';
+import { ArrowRight, Star, Zap, Shield, Clock, Users, TrendingUp, Check, Sparkles, Rocket, Globe, Target, BarChart3, BookOpen, Award, Megaphone, Search, Youtube, Lightbulb, PenTool, Code, Radio, Video, Facebook, Instagram, Monitor, Briefcase, Tv } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -25,31 +25,63 @@ const Index = () => {
     }
   }, [searchParams, setSearchParams]);
 
-  const platforms = [
+  const mainServices = [
     { 
-      name: 'Instagram', 
+      name: 'SMM Xidməti', 
       color: 'from-pink-500 to-rose-500', 
-      services: ['Artırma Strategiyası', 'Analitika', 'Məzmun Planlaması'],
-      icon: '📸'
+      description: 'Sosial media marketinq və idarəetmə',
+      icon: <Users className="h-8 w-8" />,
+      link: '/services#smm'
     },
     { 
-      name: 'TikTok', 
-      color: 'from-purple-500 to-indigo-500', 
-      services: ['Trend Təhlili', 'Auditoriya Analizi', 'Performans İzləmə'],
-      icon: '🎵'
+      name: 'Google-da Reklam', 
+      color: 'from-green-500 to-blue-500', 
+      description: 'Google Ads və axtarış nəticələrində reklam',
+      icon: <Search className="h-8 w-8" />,
+      link: '/services#google-ads'
     },
     { 
-      name: 'YouTube', 
+      name: 'YouTube-da Reklam', 
       color: 'from-red-500 to-orange-500', 
-      services: ['Kanal Artırımı', 'SEO Optimallaşdırma', 'Analitika Paneli'],
-      icon: '📺'
+      description: 'YouTube video reklamları və marketinq',
+      icon: <Youtube className="h-8 w-8" />,
+      link: '/services#youtube-ads'
     },
     { 
-      name: 'Facebook', 
-      color: 'from-blue-500 to-cyan-500', 
-      services: ['Səhifə İdarəetməsi', 'Auditoriya Qurma', 'Əlaqə Strategiyası'],
-      icon: '👥'
+      name: 'SEO Xidməti', 
+      color: 'from-blue-500 to-purple-500', 
+      description: 'Axtarış motorlarında optimallaşdırma',
+      icon: <TrendingUp className="h-8 w-8" />,
+      link: '/services#seo'
     },
+    { 
+      name: 'Loqo Hazırlanması', 
+      color: 'from-purple-500 to-pink-500', 
+      description: 'Peşəkar loqo və brend identikası dizaynı',
+      icon: <PenTool className="h-8 w-8" />,
+      link: '/services#logo'
+    },
+    { 
+      name: 'Saytların Hazırlanması', 
+      color: 'from-blue-500 to-teal-500', 
+      description: 'Modern və responsive veb saytlar',
+      icon: <Code className="h-8 w-8" />,
+      link: '/services#web'
+    },
+    { 
+      name: 'TV/Radio Reklam', 
+      color: 'from-orange-500 to-red-500', 
+      description: 'Televiziya və radio reklamları',
+      icon: <Tv className="h-8 w-8" />,
+      link: '/services#tv-radio'
+    },
+    { 
+      name: 'Facebook Reklam', 
+      color: 'from-blue-600 to-blue-800', 
+      description: 'Facebook və Instagram reklamları',
+      icon: <Facebook className="h-8 w-8" />,
+      link: '/services#facebook-ads'
+    }
   ];
 
   const features = [
@@ -160,33 +192,28 @@ const Index = () => {
                 Platform Mütəxəssisliyi
               </Badge>
               <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Bütün Platformlarda Uğur
+                Əsas Xidmətlərimiz
               </h2>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-                Hər bir böyük sosial media platformu üçün xüsusi inkişaf xidmətləri və hərtərəfli alətlər
+                Biznesinizi böyütmək üçün tam spektrli reklam və marketinq həlləri
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {platforms.map((platform, index) => (
+              {mainServices.map((service, index) => (
                 <Card key={index} className="bg-white/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-500 cursor-pointer group border border-primary/10 hover:border-primary/20 hover:scale-105">
                   <CardHeader className="text-center pb-4">
-                    <div className={`w-20 h-20 bg-gradient-to-br ${platform.color} rounded-2xl mx-auto mb-4 flex items-center justify-center text-white text-3xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}>
-                      {platform.icon}
+                    <div className={`w-20 h-20 bg-gradient-to-br ${service.color} rounded-2xl mx-auto mb-4 flex items-center justify-center text-white group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}>
+                      {service.icon}
                     </div>
-                    <CardTitle className="text-2xl font-bold text-foreground">{platform.name}</CardTitle>
+                    <CardTitle className="text-xl font-bold text-foreground">{service.name}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-3 mb-6">
-                      {platform.services.map((service, idx) => (
-                        <div key={idx} className="flex items-center text-muted-foreground">
-                          <Check className="h-4 w-4 text-primary mr-3 flex-shrink-0" />
-                          <span className="font-medium">{service}</span>
-                        </div>
-                      ))}
-                    </div>
+                    <p className="text-muted-foreground mb-6 text-center">
+                      {service.description}
+                    </p>
                     <Button asChild className="w-full transition-all duration-300" variant="default">
-                      <Link to={`/services?platform=${platform.name.toLowerCase()}`}>
-                        Xidmətləri Kəşf Et
+                      <Link to={service.link}>
+                        Ətraflı Məlumat
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Link>
                     </Button>
