@@ -1,8 +1,44 @@
 
 import { Link } from 'react-router-dom';
-import { Globe, Shield, Zap, Clock, Twitter, Instagram, Facebook, Youtube } from 'lucide-react';
+import { Globe, Shield, Zap, Clock } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+
+interface Service {
+  id: string;
+  name: string;
+  description: string | null;
+  category: string;
+  platform: string | null;
+  icon: string | null;
+  active: boolean;
+  order_index: number;
+}
 
 export const Footer = () => {
+  const [services, setServices] = useState<Service[]>([]);
+
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const fetchServices = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('services')
+        .select('*')
+        .eq('active', true)
+        .eq('category', 'standard')
+        .order('order_index', { ascending: true })
+        .limit(4);
+
+      if (error) throw error;
+      setServices((data || []) as Service[]);
+    } catch (error) {
+      console.error('Error fetching services:', error);
+    }
+  };
+
   return (
     <footer className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
       <div className="container mx-auto px-6 py-16">
@@ -18,48 +54,21 @@ export const Footer = () => {
               </span>
             </div>
             <p className="text-slate-300 leading-relaxed max-w-sm">
-              Instagram, TikTok, YouTube və Facebook üçün peşəkar SMM xidmətləri. Sosial media hesablarınızı real və keyfiyyətli şəkildə inkişaf etdirin.
+              Peşəkar reklam və marketinq agentliyi. Biznesinizi rəqəmsal dünyada gücləndirir, brendinizi növbəti səviyyəyə çıxarırıq. Google reklamları, SMM, SEO və digər xidmətlərlə uğurunuzu təmin edirik.
             </p>
-            <div className="flex space-x-4">
-              <a href="#" className="w-10 h-10 bg-slate-700 hover:bg-primary rounded-full flex items-center justify-center transition-colors duration-300">
-                <Twitter className="h-4 w-4" />
-              </a>
-              <a href="#" className="w-10 h-10 bg-slate-700 hover:bg-primary rounded-full flex items-center justify-center transition-colors duration-300">
-                <Instagram className="h-4 w-4" />
-              </a>
-              <a href="#" className="w-10 h-10 bg-slate-700 hover:bg-primary rounded-full flex items-center justify-center transition-colors duration-300">
-                <Facebook className="h-4 w-4" />
-              </a>
-              <a href="#" className="w-10 h-10 bg-slate-700 hover:bg-primary rounded-full flex items-center justify-center transition-colors duration-300">
-                <Youtube className="h-4 w-4" />
-              </a>
-            </div>
           </div>
 
           {/* Services Section */}
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-white">SMM Xidmətləri</h3>
+            <h3 className="text-xl font-semibold text-white">Xidmətlərimiz</h3>
             <ul className="space-y-3">
-              <li>
-                <Link to="/services" className="text-slate-300 hover:text-primary transition-colors duration-300 flex items-center">
-                  Instagram Xidmətləri
-                </Link>
-              </li>
-              <li>
-                <Link to="/services" className="text-slate-300 hover:text-primary transition-colors duration-300 flex items-center">
-                  TikTok Xidmətləri
-                </Link>
-              </li>
-              <li>
-                <Link to="/services" className="text-slate-300 hover:text-primary transition-colors duration-300 flex items-center">
-                  YouTube Xidmətləri
-                </Link>
-              </li>
-              <li>
-                <Link to="/services" className="text-slate-300 hover:text-primary transition-colors duration-300 flex items-center">
-                  Facebook Xidmətləri
-                </Link>
-              </li>
+              {services.map((service) => (
+                <li key={service.id}>
+                  <Link to="/services" className="text-slate-300 hover:text-primary transition-colors duration-300 flex items-center">
+                    {service.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -114,10 +123,10 @@ export const Footer = () => {
         <div className="border-t border-slate-700 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-slate-400 text-sm">
-              © 2024 HitLoyal. Bütün hüquqlar qorunur.
+              © 2024 HitLoyal. Bütün hüquqlar qorunur. Bu sayt rəsmi olaraq Midiya Agency MMC-ə aiddir. VOEN: 6402180791
             </div>
             <div className="text-slate-400 text-sm">
-              15,000+ müştərimizin etibar etdiyi platform
+              1,500+ müştərimizin etibar etdiyi platform
             </div>
           </div>
         </div>

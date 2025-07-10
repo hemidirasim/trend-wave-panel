@@ -12,7 +12,7 @@ const Terms = () => {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">Qaydalar və Şərtlər</h1>
           <p className="text-muted-foreground text-lg">
-            HitLoyal SMM xidmətlərini istifadə etməzdən əvvəl bu şərtləri diqqətlə oxuyun
+            HitLoyal reklam və marketinq xidmətlərini istifadə etməzdən əvvəl bu şərtləri diqqətlə oxuyun
           </p>
         </div>
 
@@ -23,7 +23,7 @@ const Terms = () => {
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                HitLoyal SMM xidmətləri platformasını ("Xidmət") əldə etməklə və istifadə etməklə, siz bu razılaşmanın şərtlərini və müddəalarını qəbul etmiş olursunuz. Əgər yuxarıdakı şərtlərə əməl etməyi qəbul etmirsinizsə, lütfən bu xidməti istifadə etməyin.
+                HitLoyal reklam və marketinq xidmətləri platformasını ("Xidmət") əldə etməklə və istifadə etməklə, siz bu razılaşmanın şərtlərini və müddəalarını qəbul etmiş olursunuz. Əgər yuxarıdakı şərtlərə əməl etməyi qəbul etmirsinizsə, lütfən bu xidməti istifadə etməyin.
               </p>
             </CardContent>
           </Card>
@@ -34,16 +34,19 @@ const Terms = () => {
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                HitLoyal Instagram, TikTok, YouTube və Facebook daxil olmaqla müxtəlif sosial media platformalarında şəxslərə və biznes strukturlarına real və keyfiyyətli izləyicilər, bəyənmələr, baxışlar və digər SMM xidmətləri təqdim edir.
+                HitLoyal (Midiya Agency MMC, VOEN: 6402180791) Google reklamları, sosial media marketinqi (SMM), axtarış motoru optimallaşdırması (SEO), veb sayt dizaynı, loqo hazırlanması və TV/Radio reklam kampaniyaları daxil olmaqla tam spektrli reklam və marketinq xidmətləri təqdim edir.
               </p>
               <p>
                 Xidmətlərimizə daxildir:
               </p>
               <ul>
-                <li>Real və aktiv sosial media izləyiciləri</li>
-                <li>Post və video bəyənmələri</li>
-                <li>Video baxışları və şərhləri</li>
-                <li>Instagram, TikTok, YouTube və Facebook xidmətləri</li>
+                <li>Google Ads və YouTube reklam kampaniyaları</li>
+                <li>Facebook və Instagram reklam strategiyaları</li>
+                <li>SEO və axtarış motoru marketinqi</li>
+                <li>Sosial media hesab idarəetməsi</li>
+                <li>Veb sayt və mobil tətbiq inkişafı</li>
+                <li>Brend və loqo dizaynı</li>
+                <li>TV və Radio reklam məzmunu</li>
                 <li>24/7 müştəri dəstəyi</li>
               </ul>
             </CardContent>
@@ -56,58 +59,59 @@ const Terms = () => {
             <CardContent className="prose prose-slate max-w-none">
               <p>İstifadəçilər aşağıdakılardan məsuldurlar:</p>
               <ul>
-                <li>Dəqiq və yenilənmiş məlumat vermək</li>
-                <li>Sosial media platformalarının qaydalarına uyğun davranmaq</li>
+                <li>Reklam kampaniyaları üçün dəqiq və yenilənmiş məlumat vermək</li>
+                <li>Reklam platformalarının qaydalarına uyğun davranmaq</li>
                 <li>Hesab məlumatlarının məxfiliyini qorumaq</li>
                 <li>Xidmətlərimizi etik və məsuliyyətlə istifadə etmək</li>
                 <li>Bütün tətbiq olunan qanun və qaydalara əməl etmək</li>
+                <li>Ödəniş öhdəliklərini vaxtında yerinə yetirmək</li>
               </ul>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>4. Xidmət Məhdudiyyətləri</CardTitle>
+              <CardTitle>4. Xidmət Keyfiyyəti və Nəticələr</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                HitLoyal real və keyfiyyətli SMM xidmətləri təqdim edir. Xidmətlərimiz sosial media platformalarının qaydalarına uyğundur və 100% təhlükəsizdir. Lakin internet və sosial media platformalarının dəyişkən təbiətinə görə nəticələrdə kiçik dəyişikliklər ola bilər.
+                HitLoyal peşəkar və keyfiyyətli reklam xidmətləri təqdim edir. Bütün kampaniyalarımız müvafiq platformaların qaydalarına uyğundur və etik marketinq prinsiplərinə əsaslanır. Reklam kampaniyalarının performansı bazar şəraitindən, target auditoriyadan və məzmun keyfiyyətindən asılı ola bilər.
               </p>
               <p>
-                Sifarişləriniz adətən 24 saat ərzində başlayır və xidmətin növündən asılı olaraq tamamlanır. Biz şifrənizi və ya giriş məlumatlarınızı heç vaxt tələb etmirik.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>5. Ödəniş və Geri Qaytarma</CardTitle>
-            </CardHeader>
-            <CardContent className="prose prose-slate max-w-none">
-              <p>
-                Ödəniş şərtləri xidmətin növünə görə dəyişir. Xidmət təqdim edilməyibsə və ya keyfiyyət göstərilən standartlara uyğun deyilsə, 30 gün ərzində tam geri qaytarma təklif edirik. Müştəri məmnuniyyəti bizim prioritetimizdir.
+                Kampaniyalar adətən 24-48 saat ərzində aktiv olur və nəticələr platform və xidmət növündən asılı olaraq müxtəlif müddətlərdə görünür. Biz heç vaxt giriş məlumatlarınızı tələb etmirik.
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>6. Əqli Mülkiyyət Hüquqları</CardTitle>
+              <CardTitle>5. Ödəniş və Qaytarma</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                HitLoyal tərəfindən təqdim edilən bütün məzmun, metodikalar və materiallar əqli mülkiyyət qanunları ilə qorunur. İstifadəçilər yazılı icazə olmadan məlumatları yenidən paylaşa və ya sata bilməzlər.
+                Ödəniş şərtləri xidmətin növü və müddətinə görə müəyyən edilir. Xidmət təqdim edilməyibsə və ya razılaşdırılan standartlara uyğun deyilsə, 30 gün ərzində qaytarma mümkündür. Qaytarma tələbi əsaslı səbəblərə əsaslanmalıdır.
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>7. Məxfilik və Məlumat Qorunması</CardTitle>
+              <CardTitle>6. Əqli Mülkiyyət</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                Biz sizin məxfiliyinizə hörmət edirik və şəxsi məlumatlarınızı qorumağa sadiqik. Məlumatlarınızı necə topladığımız, istifadə etdiyimiz və qoruduğumuz haqqında ətraflı məlumat üçün Məxfilik Siyasətimizə baxın.
+                HitLoyal tərəfindən hazırlanmış bütün reklam materialları, strategiyalar və metodikalar əqli mülkiyyət qanunları ilə qorunur. Müştəriyə təhvil verilən materiallar müştərinin mülkiyyətinə keçir, lakin metodikalar şirkətin mülkiyyəti olaraq qalır.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>7. Məxfilik və Təhlükəsizlik</CardTitle>
+            </CardHeader>
+            <CardContent className="prose prose-slate max-w-none">
+              <p>
+                Müştəri məlumatlarının məxfiliyini qorumaq prioritetimizdir. Biznes məlumatları, reklam strategiyaları və digər kommersiya sirləri qorunur və üçüncü tərəflə paylaşılmır. Ətraflı məlumat üçün Məxfilik Siyasətimizə baxın.
               </p>
             </CardContent>
           </Card>
@@ -118,18 +122,18 @@ const Terms = () => {
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                HitLoyal xidmətimizdən istifadəniz nəticəsində yaranan heç bir dolayı, təsadüfi, xüsusi və ya cəzalandırıcı zərərə görə məsuliyyət daşımır. Bu, gəlir itkisi, məlumat itkisi və ya digər maddi olmayan itkiləri də əhatə edir.
+                HitLoyal reklam kampaniyalarının nəticələrindən tam məsuliyyət daşıyır, lakin bazar şəraitindən, rəqabət mühitindən və xarici faktorlardan yaranan nəticələrə görə məhdud məsuliyyət daşıyır.
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>9. Xidmətin Dayandırılması</CardTitle>
+              <CardTitle>9. Müqavilənin Ləğvi</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                Hər iki tərəf yazılı bildiriş ilə istənilən vaxt xidmət müqaviləsini ləğv edə bilər. Dayandırma zamanı xüsusi materiallara və davamlı dəstəyə çıxışınız dayandırılacaq.
+                Hər iki tərəf 30 gün əvvəl yazılı bildiriş ilə müqaviləni ləğv edə bilər. Ləğv zamanı davam edən kampaniyalar tamamlanır və hesablaşmalar aparılır.
               </p>
             </CardContent>
           </Card>
@@ -140,22 +144,24 @@ const Terms = () => {
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                HitLoyal bu şərtləri istənilən vaxt dəyişdirmək hüququnu özündə saxlayır. Mühüm dəyişikliklər email və ya platform bildirişi ilə sizə çatdırılacaq. Dəyişikliklərdən sonra xidmətin istifadəsi yeni şərtlərin qəbul edilməsi deməkdir.
+                HitLoyal bu şərtləri dəyişdirmək hüququnu özündə saxlayır. Mühüm dəyişikliklər müştərilərə email vasitəsilə bildirilir. Dəyişikliklərdən sonra xidmətin istifadəsi yeni şərtlərin qəbul edilməsi deməkdir.
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>11. Əlaqə Məlumatları</CardTitle>
+              <CardTitle>11. Əlaqə</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                Bu Qaydalar və Şərtlər haqqında suallarınız üçün bizimlə əlaqə saxlayın:
+                Bu şərtlər haqqında suallarınız üçün:
               </p>
               <p>
-                Email: info@hitloyal.com<br />
-                Son yenilənmə: Yanvar 2024
+                <strong>Midiya Agency MMC</strong><br />
+                <strong>VOEN:</strong> 6402180791<br />
+                <strong>Email:</strong> info@hitloyal.com<br />
+                <strong>Son Yenilənmə:</strong> Yanvar 2024
               </p>
             </CardContent>
           </Card>

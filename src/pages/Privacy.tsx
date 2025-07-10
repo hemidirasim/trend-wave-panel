@@ -12,212 +12,183 @@ const Privacy = () => {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">Məxfilik Siyasəti</h1>
           <p className="text-muted-foreground text-lg">
-            Məxfiliyiniz bizim üçün vacibdir. Bu siyasət HitLoyal-un məlumatlarınızı necə topladığını, istifadə etdiyini və qoruduğunu izah edir.
+            Məxfiliyiniz bizim üçün ən vacib prioritetdir. Bu siyasət HitLoyal-un məlumatlarınızı necə qoruyub istifadə etdiyini izah edir.
           </p>
         </div>
 
         <div className="space-y-8">
           <Card>
             <CardHeader>
-              <CardTitle>1. Topladığımız Məlumatlar</CardTitle>
-            </CardHeader>
-            <CardContent className="prose prose-slate max-w-none">
-              <h4>Şəxsi Məlumatlar</h4>
-              <p>
-                Biz sizin birbaşa verdiyiniz məlumatları topluyuruq, məsələn hesab yaratdığınız, xidmətlərimizə abunə olduğunuz və ya dəstək üçün bizimlə əlaqə saxladığınız zaman:
-              </p>
-              <ul>
-                <li>Ad və əlaqə məlumatları (email ünvanı, telefon nömrəsi)</li>
-                <li>Hesab məlumatları və profil məlumatları</li>
-                <li>Ödəniş məlumatları (üçüncü tərəf provayderlər vasitəsilə təhlükəsiz emal edilir)</li>
-                <li>Kommunikasiya seçimləri və tarixçəsi</li>
-              </ul>
-
-              <h4>İstifadə Məlumatları</h4>
-              <p>
-                Biz platformamızdan necə istifadə etdiyinizə dair bəzi məlumatları avtomatik topluyuruq:
-              </p>
-              <ul>
-                <li>Giriş tezliyi və sessiya müddəti</li>
-                <li>İstifadə edilən funksiyalar və əldə edilən məzmun</li>
-                <li>Performans analitikası və əlaqə metrikləri</li>
-                <li>Cihaz məlumatları və texniki xüsusiyyətlər</li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>2. Məlumatlarınızı Necə İstifadə Edirik</CardTitle>
-            </CardHeader>
-            <CardContent className="prose prose-slate max-w-none">
-              <p>Topladığımız məlumatları aşağıdakı məqsədlər üçün istifadə edirik:</p>
-              <ul>
-                <li>SMM xidmətlərimizi təqdim etmək, qorumaq və təkmilləşdirmək</li>
-                <li>Fərdiləşdirilmiş sosial media strategiyaları və təkliflər hazırlamaq</li>
-                <li>Ödənişləri emal etmək və abunəlikləri idarə etmək</li>
-                <li>Mühüm yeniliklər, bildirişlər və marketinq materialları göndərmək</li>
-                <li>Müştəri dəstəyi təqdim etmək və sorğulara cavab vermək</li>
-                <li>İstifadə nümunələrini təhlil edərək istifadəçi təcrübəsini artırmaq</li>
-                <li>Platform təhlükəsizliyini təmin etmək və saxtakarlığın qarşısını almaq</li>
-                <li>Qanuni öhdəliklərə əməl etmək və şərtlərimizi tətbiq etmək</li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>3. Information Sharing and Disclosure</CardTitle>
+              <CardTitle>1. Şirkət Məlumatları</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                We do not sell, trade, or rent your personal information to third parties. We may share your information in the following circumstances:
-              </p>
-              <ul>
-                <li><strong>Service Providers:</strong> With trusted third-party vendors who assist in operating our platform</li>
-                <li><strong>Legal Requirements:</strong> When required by law or to protect our rights and safety</li>
-                <li><strong>Business Transfers:</strong> In connection with a merger, acquisition, or sale of assets</li>
-                <li><strong>Consent:</strong> With your explicit consent for specific purposes</li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>4. Data Security</CardTitle>
-            </CardHeader>
-            <CardContent className="prose prose-slate max-w-none">
-              <p>
-                We implement robust security measures to protect your personal information:
-              </p>
-              <ul>
-                <li>Encryption of data in transit and at rest</li>
-                <li>Regular security audits and assessments</li>
-                <li>Access controls and authentication requirements</li>
-                <li>Secure payment processing through certified providers</li>
-                <li>Employee training on data protection best practices</li>
-              </ul>
-              <p>
-                However, no method of transmission over the internet is 100% secure. While we strive to protect your information, we cannot guarantee absolute security.
+                Bu məxfilik siyasəti <strong>Midiya Agency MMC</strong> (VOEN: 6402180791) tərəfindən idarə olunan HitLoyal platforması üçün tətbiq edilir. Bizim əsas missiyamız müştərilərimizin rəqəmsal marketinq uğurlarını təmin etməklə yanaşı, onların şəxsi məlumatlarının tam təhlükəsizliyini qorumaqdır.
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>5. Data Retention</CardTitle>
+              <CardTitle>2. Topladığımız Məlumatlar</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
+              <h4>Müştəri Məlumatları</h4>
               <p>
-                We retain your information for as long as necessary to provide our services and fulfill the purposes outlined in this policy. Specific retention periods include:
+                Reklam və marketinq xidmətlərimizi təqdim etmək üçün aşağıdakı məlumatları topluyuruq:
               </p>
               <ul>
-                <li>Account information: Until account deletion or as required by law</li>
-                <li>Usage analytics: Anonymized after 24 months</li>
-                <li>Communication records: 3 years for customer support purposes</li>
-                <li>Payment information: As required by financial regulations</li>
+                <li>Şəxsi və ya şirkət adı, əlaqə məlumatları</li>
+                <li>Email ünvanı və telefon nömrəsi</li>
+                <li>Biznes sahəsi və target auditoriya məlumatları</li>
+                <li>Reklam kampaniya tələbləri və büdcə məlumatları</li>
+                <li>Ödəniş məlumatları (təhlükəsiz ödəniş sistemləri vasitəsilə)</li>
+              </ul>
+
+              <h4>Texniki Məlumatlar</h4>
+              <p>
+                Platformamızın performansını artırmaq üçün toplanır:
+              </p>
+              <ul>
+                <li>Saytda keçirdiyi vaxt və baxdığı səhifələr</li>
+                <li>İstifadə olunan cihaz və brauzer məlumatları</li>
+                <li>Reklam kampaniyalarının performans göstəriciləri</li>
+                <li>Analitik məlumatlar və istifadəçi davranış nümunələri</li>
               </ul>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>6. Your Rights and Choices</CardTitle>
+              <CardTitle>3. Məlumatların İstifadə Məqsədləri</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
-              <p>You have the right to:</p>
+              <p>Topladığımız məlumatları yalnız aşağıdakı məqsədlər üçün istifadə edirik:</p>
               <ul>
-                <li>Access and review your personal information</li>
-                <li>Correct inaccurate or incomplete information</li>
-                <li>Delete your account and associated data</li>
-                <li>Opt-out of marketing communications</li>
-                <li>Request data portability in machine-readable format</li>
-                <li>Withdraw consent for specific data processing activities</li>
-              </ul>
-              <p>
-                To exercise these rights, please contact us at privacy@hitloyal.com.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>7. Cookies and Tracking Technologies</CardTitle>
-            </CardHeader>
-            <CardContent className="prose prose-slate max-w-none">
-              <p>
-                We use cookies and similar technologies to enhance your experience:
-              </p>
-              <ul>
-                <li><strong>Essential Cookies:</strong> Required for basic platform functionality</li>
-                <li><strong>Analytics Cookies:</strong> Help us understand how you use our platform</li>
-                <li><strong>Preference Cookies:</strong> Remember your settings and preferences</li>
-                <li><strong>Marketing Cookies:</strong> Used to deliver relevant advertisements</li>
-              </ul>
-              <p>
-                You can control cookie preferences through your browser settings.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>8. Third-Party Services</CardTitle>
-            </CardHeader>
-            <CardContent className="prose prose-slate max-w-none">
-              <p>
-                Our platform may integrate with third-party services for enhanced functionality. These services have their own privacy policies, and we encourage you to review them:
-              </p>
-              <ul>
-                <li>Social media platform APIs for analytics</li>
-                <li>Payment processors for subscription management</li>
-                <li>Analytics tools for performance measurement</li>
-                <li>Communication tools for customer support</li>
+                <li>Google Ads, Facebook Ads və digər reklam kampaniyalarını planlaşdırmaq</li>
+                <li>SEO və sosial media strategiyaları hazırlamaq</li>
+                <li>Veb sayt və brend dizayn xidmətlərini təqdim etmək</li>
+                <li>Kampaniya nəticələri haqqında hesabatlar hazırlamaq</li>
+                <li>Müştəri dəstəyi və məsləhət xidmətləri göstərmək</li>
+                <li>Ödəniş əməliyyatlarını təhlükəsiz şəkildə həyata keçirmək</li>
+                <li>Qanuni tələblərə uyğunluğu təmin etmək</li>
               </ul>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>9. International Data Transfers</CardTitle>
+              <CardTitle>4. Məlumat Paylaşımı</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                Your information may be transferred to and processed in countries other than your own. We ensure appropriate safeguards are in place to protect your data during international transfers, including:
+                Biz müştəri məlumatlarını satmır və ya icarəyə vermiriik. Məlumatlarınız yalnız aşağıdakı hallarda paylaşıla bilər:
               </p>
               <ul>
-                <li>Standard contractual clauses approved by regulatory authorities</li>
-                <li>Adequacy decisions for specific countries</li>
-                <li>Certification under recognized privacy frameworks</li>
+                <li><strong>Reklam Platformaları:</strong> Google, Facebook kimi platformalarla yalnız kampaniya məqsədilə</li>
+                <li><strong>Ödəniş Təminatçıları:</strong> Təhlükəsiz ödəniş emalı üçün</li>
+                <li><strong>Qanuni Tələblər:</strong> Hüquqi öhdəliklər çərçivəsində</li>
+                <li><strong>Razılıq:</strong> Sizin açıq razılığınızla müəyyən məqsədlər üçün</li>
               </ul>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>10. Changes to This Policy</CardTitle>
+              <CardTitle>5. Məlumat Təhlükəsizliyi</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                We may update this Privacy Policy periodically to reflect changes in our practices or for legal and regulatory reasons. We will notify you of significant changes via email or platform notification.
+                Məlumatlarınızın qorunması üçün güclü təhlükəsizlik tədbirləri həyata keçiririk:
               </p>
+              <ul>
+                <li>SSL şifrələməsi və təhlükəsiz serverlərdə saxlanma</li>
+                <li>Müntəzəm təhlükəsizlik auditləri və yoxlamalar</li>
+                <li>Məhdud giriş nəzarəti və avtorizasiya</li>
+                <li>İşçilərin məlumat qorunması sahəsində təlimi</li>
+                <li>Düzenli məlumat ehtiyat nüsxələrinin yaradılması</li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>6. Məlumat Saxlanma Müddəti</CardTitle>
+            </CardHeader>
+            <CardContent className="prose prose-slate max-w-none">
               <p>
-                Continued use of our services after policy updates constitutes acceptance of the revised terms.
+                Məlumatlarınızı yalnız zəruri olduğu müddət ərzində saxlayırıq:
+              </p>
+              <ul>
+                <li>Müştəri hesab məlumatları: Hesab aktiv olduğu müddətdə</li>
+                <li>Reklam kampaniya məlumatları: 5 il müddətində</li>
+                <li>Əlaqə yazışmaları: 3 il müddətində</li>
+                <li>Ödəniş məlumatları: Maliyyə qanunvericiliyinin tələbi ilə</li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>7. Sizin Hüquqlarınız</CardTitle>
+            </CardHeader>
+            <CardContent className="prose prose-slate max-w-none">
+              <p>Siz aşağıdakı hüquqlara sahibsiniz:</p>
+              <ul>
+                <li>Şəxsi məlumatlarınızı əldə etmək və nəzərdən keçirmək</li>
+                <li>Yanlış və ya natamamı məlumatları düzəltmək</li>
+                <li>Hesabınızı və məlumatlarınızı silmək</li>
+                <li>Marketinq kommunikasiyalarından imtina etmək</li>
+                <li>Məlumat portativliyi tələb etmək</li>
+                <li>Müəyyən məlumat işləmə fəaliyyətlərindən imtina etmək</li>
+              </ul>
+              <p>
+                Bu hüquqları həyata keçirmək üçün info@hitloyal.com ünvanına müraciət edin.
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>11. Bizimlə Əlaqə</CardTitle>
+              <CardTitle>8. Cookies və İzləmə</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                Bu Məxfilik Siyasəti və ya məlumatlarınızı necə idarə etdiyimiz haqqında suallarınız varsa, bizimlə əlaqə saxlayın:
+                Daha yaxşı xidmət üçün cookies istifadə edirik:
+              </p>
+              <ul>
+                <li><strong>Zəruri Cookies:</strong> Saytın əsas funksiyaları üçün</li>
+                <li><strong>Analitik Cookies:</strong> Sayt performansını başa düşmək üçün</li>
+                <li><strong>Funksional Cookies:</strong> Tənzimləmələri yadda saxlamaq üçün</li>
+                <li><strong>Reklam Cookies:</strong> Əlaqəli reklamlar göstərmək üçün</li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>9. Siyasətdə Dəyişikliklər</CardTitle>
+            </CardHeader>
+            <CardContent className="prose prose-slate max-w-none">
+              <p>
+                Bu məxfilik siyasətini vaxtaşırı yeniləyə bilərik. Mühüm dəyişikliklər email və ya platform bildirişi ilə size çatdırılacaq. Dəyişikliklərdən sonra xidmətin istifadəsi yeni siyasətin qəbul edilməsi deməkdir.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>10. Bizimlə Əlaqə</CardTitle>
+            </CardHeader>
+            <CardContent className="prose prose-slate max-w-none">
+              <p>
+                Bu məxfilik siyasəti haqqında suallarınız üçün:
               </p>
               <p>
+                <strong>Midiya Agency MMC</strong><br />
+                <strong>VOEN:</strong> 6402180791<br />
                 <strong>Email:</strong> info@hitloyal.com<br />
-                <strong>Ünvan:</strong> HitLoyal Məxfilik Komandası<br />
+                <strong>Məxfilik Sorğuları:</strong> privacy@hitloyal.com<br />
                 <strong>Son Yenilənmə:</strong> Yanvar 2024
               </p>
             </CardContent>
