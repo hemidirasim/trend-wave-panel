@@ -48,6 +48,14 @@ function App() {
                   } 
                 />
                 <Route 
+                  path="/order" 
+                  element={
+                    <ProtectedRoute>
+                      <Order />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
                   path="/order/:serviceId" 
                   element={
                     <ProtectedRoute>
