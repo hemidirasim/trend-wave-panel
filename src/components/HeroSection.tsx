@@ -22,7 +22,7 @@ export const HeroSection = () => {
               HitLoyal ilə Brendinizi Güclündirin
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
-              İşlərinizi böyütmək üçün peşəkar sosial media marketinq strategiyaları. Organik böyümə və etik yanaşma ilə brendinizi müasir rəqabət mühitində güclündirin.
+              Instagram, TikTok, YouTube və digər sosial media platformalarında hesablarınızı böyütmək üçün ən keyfiyyətli xidmətlər. Organik böyümə və təhlükəsiz yanaşma ilə real nəticələr əldə edin.
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
               <Button 

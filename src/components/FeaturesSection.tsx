@@ -38,7 +38,7 @@ export const FeaturesSection = () => {
             Niyə HitLoyal?
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Sübut olunmuş strategiyalar və peşəkar yanaşma ilə sosial media hesablarınızı güclü şəkildə inkişaf etdirin
+            Sosial media xidmətlərimizlə hesablarınızı güclü şəkildə inkişaf etdirin və real nəticələr əldə edin
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
