@@ -1,8 +1,16 @@
 
 import { useState } from 'react';
-import { Menu, X, Globe } from 'lucide-react';
+import { Menu, X, Globe, ChevronDown } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from '@/components/ui/navigation-menu';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import AuthDialog from './AuthDialog';
@@ -16,9 +24,25 @@ export const Header = () => {
 
   const navigation = [
     { name: t('nav.home'), href: '/' },
-    { name: t('nav.services'), href: '/services' },
     { name: t('nav.blog'), href: '/blog' },
     { name: t('nav.faq'), href: '/faq' },
+  ];
+
+  const mainServices = [
+    { name: 'SMM Xidməti', href: '/services#smm' },
+    { name: 'Google Reklamı', href: '/services#google-ads' },
+    { name: 'YouTube Reklamı', href: '/services#youtube-ads' },
+    { name: 'SEO Xidməti', href: '/services#seo' },
+    { name: 'Loqo Hazırlanması', href: '/services#logo' },
+    { name: 'Sayt Hazırlanması', href: '/services#web' },
+    { name: 'TV/Radio Reklam', href: '/services#tv-radio' },
+    { name: 'Facebook Reklam', href: '/services#facebook-ads' },
+  ];
+
+  const socialMediaServices = [
+    { name: 'Instagram Xidmətləri', href: '/services#instagram' },
+    { name: 'TikTok Marketinq', href: '/services#tiktok' },
+    { name: 'YouTube Böyütmə', href: '/services#youtube-growth' },
   ];
 
   const isActive = (href: string) => location.pathname === href;
@@ -56,7 +80,7 @@ export const Header = () => {
           </button>
         </div>
         
-        <div className="hidden lg:flex lg:gap-x-12">
+        <div className="hidden lg:flex lg:gap-x-8">
           {navigation.map((item) => (
             <Link
               key={item.name}
@@ -68,6 +92,58 @@ export const Header = () => {
               {item.name}
             </Link>
           ))}
+          
+          <NavigationMenu>
+            <NavigationMenuList>
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="text-sm font-semibold leading-6 text-foreground hover:text-primary">
+                  {t('nav.services')}
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="grid w-[600px] gap-3 p-4 md:grid-cols-2">
+                    <div>
+                      <h3 className="mb-2 text-sm font-medium leading-none text-muted-foreground">
+                        Əsas Xidmətlər
+                      </h3>
+                      <ul className="space-y-1">
+                        {mainServices.map((service) => (
+                          <li key={service.name}>
+                            <NavigationMenuLink asChild>
+                              <Link
+                                to={service.href}
+                                className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                              >
+                                <div className="text-sm font-medium leading-none">{service.name}</div>
+                              </Link>
+                            </NavigationMenuLink>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <h3 className="mb-2 text-sm font-medium leading-none text-muted-foreground">
+                        Sosial Media Xidmətləri
+                      </h3>
+                      <ul className="space-y-1">
+                        {socialMediaServices.map((service) => (
+                          <li key={service.name}>
+                            <NavigationMenuLink asChild>
+                              <Link
+                                to={service.href}
+                                className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                              >
+                                <div className="text-sm font-medium leading-none">{service.name}</div>
+                              </Link>
+                            </NavigationMenuLink>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
         </div>
         
         <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center lg:gap-4">
@@ -133,6 +209,38 @@ export const Header = () => {
                       {item.name}
                     </Link>
                   ))}
+                  
+                  <div className="space-y-1">
+                    <div className="px-3 py-2 text-base font-semibold leading-7 text-foreground">
+                      Əsas Xidmətlər
+                    </div>
+                    {mainServices.map((service) => (
+                      <Link
+                        key={service.name}
+                        to={service.href}
+                        className="block rounded-lg px-6 py-2 text-sm leading-7 text-muted-foreground hover:bg-muted hover:text-foreground"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {service.name}
+                      </Link>
+                    ))}
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <div className="px-3 py-2 text-base font-semibold leading-7 text-foreground">
+                      Sosial Media Xidmətləri
+                    </div>
+                    {socialMediaServices.map((service) => (
+                      <Link
+                        key={service.name}
+                        to={service.href}
+                        className="block rounded-lg px-6 py-2 text-sm leading-7 text-muted-foreground hover:bg-muted hover:text-foreground"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {service.name}
+                      </Link>
+                    ))}
+                  </div>
                 </div>
                 <div className="py-6 space-y-4">
                   <Button
