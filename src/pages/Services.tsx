@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { ConsultationDialog } from '@/components/ConsultationDialog';
 import { useAuth } from '@/contexts/AuthContext';
 import AuthDialog from '@/components/AuthDialog';
 import { useNavigate } from 'react-router-dom';
@@ -54,10 +55,6 @@ const Services = () => {
     } catch (error) {
       console.error('Error fetching services:', error);
     }
-  };
-
-  const handleContactClick = () => {
-    navigate('/faq');
   };
 
   // Əsas Xidmətlər
@@ -349,13 +346,12 @@ const Services = () => {
                           <span className="text-lg text-muted-foreground">Qiymət sorğu ilə</span>
                         )}
                       </div>
-                      <Button 
-                        onClick={handleContactClick}
-                        className="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 transition-all duration-300"
-                      >
-                        Məsləhət Alın
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
+                      <ConsultationDialog serviceName={service.name}>
+                        <Button className="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 transition-all duration-300">
+                          Məsləhət Alın
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </ConsultationDialog>
                     </CardContent>
                   </Card>
                 );
@@ -414,14 +410,15 @@ const Services = () => {
                                 <span className="text-lg text-muted-foreground">Qiymət sorğu ilə</span>
                               )}
                             </div>
-                            <Button 
-                              onClick={handleContactClick}
-                              size="sm"
-                              variant="outline"
-                              className="w-full border-primary text-primary hover:bg-primary hover:text-white transition-all duration-300"
-                            >
-                              Məsləhət Alın
-                            </Button>
+                            <ConsultationDialog serviceName={service.name}>
+                              <Button 
+                                size="sm"
+                                variant="outline"
+                                className="w-full border-primary text-primary hover:bg-primary hover:text-white transition-all duration-300"
+                              >
+                                Məsləhət Alın
+                              </Button>
+                            </ConsultationDialog>
                           </CardContent>
                         </Card>
                       );
@@ -459,14 +456,15 @@ const Services = () => {
                               <span className="text-2xl font-bold text-primary">{service.startPrice}</span>
                               <span className="text-sm text-muted-foreground ml-1">-dan başlayır</span>
                             </div>
-                            <Button 
-                              onClick={handleContactClick}
-                              size="sm"
-                              variant="outline"
-                              className="w-full border-primary text-primary hover:bg-primary hover:text-white transition-all duration-300"
-                            >
-                              Məsləhət Alın
-                            </Button>
+                            <ConsultationDialog serviceName={service.name}>
+                              <Button 
+                                size="sm"
+                                variant="outline"
+                                className="w-full border-primary text-primary hover:bg-primary hover:text-white transition-all duration-300"
+                              >
+                                Məsləhət Alın
+                              </Button>
+                            </ConsultationDialog>
                           </CardContent>
                         </Card>
                       ))}
@@ -488,14 +486,15 @@ const Services = () => {
               <p className="text-xl text-white/90 mb-8">
                 Peşəkar komandamızla birlikdə biznesinizi növbəti səviyyəyə çıxarın və rəqabətdə qabaqlayın
               </p>
-              <Button 
-                onClick={handleContactClick}
-                size="lg" 
-                className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-4 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-              >
-                İndi Başla
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
+              <ConsultationDialog>
+                <Button 
+                  size="lg" 
+                  className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-4 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                >
+                  İndi Başla
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </ConsultationDialog>
             </div>
           </div>
         </section>

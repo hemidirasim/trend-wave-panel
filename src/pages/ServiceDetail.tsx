@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -5,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { ConsultationDialog } from '@/components/ConsultationDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, CheckCircle, Star, Users, TrendingUp, Palette, Globe, Tv, Facebook, Heart, UserPlus, Eye, Search } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
@@ -201,18 +203,17 @@ const ServiceDetail = () => {
               {/* Contact Card */}
               <Card className="sticky top-4">
                 <CardHeader>
-                  <CardTitle>Sifarişə hazırsınız?</CardTitle>
+                  <CardTitle>Məsləhət almağa hazırsınız?</CardTitle>
                   <CardDescription>
                     Bizimlə əlaqə saxlayın və layihənizi müzakirə edək
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <Button className="w-full" size="lg">
-                    İndi Sifariş Verin
-                  </Button>
-                  <Button variant="outline" className="w-full">
-                    Məsləhət Alın
-                  </Button>
+                  <ConsultationDialog serviceName={service.name}>
+                    <Button className="w-full" size="lg">
+                      Məsləhət Alın
+                    </Button>
+                  </ConsultationDialog>
                   
                   <div className="border-t pt-4 space-y-2">
                     <div className="flex items-center space-x-2 text-sm text-green-600">

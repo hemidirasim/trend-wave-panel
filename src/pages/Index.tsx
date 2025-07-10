@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import AuthDialog from '@/components/AuthDialog';
+import { ConsultationDialog } from '@/components/ConsultationDialog';
 import { ArrowRight, Star, Zap, Shield, Clock, Users, TrendingUp, Check, Sparkles, Rocket, Globe, Target, BarChart3, BookOpen, Award, Megaphone, Search, Youtube, Lightbulb, PenTool, Code, Radio, Video, Facebook, Instagram, Monitor, Briefcase, Tv, Heart, UserPlus, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -202,12 +203,19 @@ const Index = () => {
                       <p className="text-muted-foreground mb-6 text-center">
                         {service.description}
                       </p>
-                      <Button asChild className="w-full transition-all duration-300" variant="default">
-                        <Link to={`/service/${service.id}`}>
-                          Ətraflı Məlumat
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        </Link>
-                      </Button>
+                      <div className="space-y-3">
+                        <Button asChild className="w-full transition-all duration-300" variant="outline">
+                          <Link to={`/service/${service.id}`}>
+                            Ətraflı Məlumat
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                          </Link>
+                        </Button>
+                        <ConsultationDialog serviceName={service.name}>
+                          <Button className="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 transition-all duration-300">
+                            Məsləhət Alın
+                          </Button>
+                        </ConsultationDialog>
+                      </div>
                     </CardContent>
                   </Card>
                 );
