@@ -79,7 +79,7 @@ const Order = () => {
         fetchServiceDetails(formData.serviceId);
       }
     }
-  }, [services, formData.serviceId, formData.quantity, settings.commission_rate]);
+  }, [services, formData.serviceId, formData.quantity, settings.service_fee]);
 
   const fetchServices = async () => {
     try {
