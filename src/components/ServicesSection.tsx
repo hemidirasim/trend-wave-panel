@@ -3,21 +3,8 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Target, Heart, UserPlus, Eye } from 'lucide-react';
-
-interface ApiService {
-  id_service: number;
-  public_name: string;
-  amount_minimum: number;
-  amount_increment: number;
-  platform: string;
-  example: string;
-  prices: Array<{
-    price: string;
-    minimum: number;
-    maximum: number;
-    pricing_per: number;
-  }>;
-}
+import { proxyApiService, Service } from './ProxyApiService';
+import { Link } from 'react-router-dom';
 
 const platformIcons: Record<string, any> = {
   instagram: Heart,
@@ -32,7 +19,7 @@ const platformIcons: Record<string, any> = {
 };
 
 export const ServicesSection = () => {
-  const [apiServices, setApiServices] = useState<ApiService[]>([]);
+  const [apiServices, setApiServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -42,36 +29,21 @@ export const ServicesSection = () => {
   const fetchApiServices = async () => {
     setLoading(true);
     try {
-      const response = await fetch('https://lnsragearbdkxpbhhyez.supabase.co/functions/v1/qqtube-api', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'services'
-        })
-      });
-
-      if (!response.ok) throw new Error('API xətası');
+      const services = await proxyApiService.getServices();
+      console.log('🔍 API-dən gələn bütün xidmətlər:', services);
       
-      const data = await response.json();
-      console.log('🔍 API-dən gələn bütün məlumatlar:', data);
-      console.log('🔍 İlk xidmətin platforması:', data?.[0]?.platform);
-      console.log('🔍 İlk xidmətin adı:', data?.[0]?.public_name);
+      // Sosial media platformaları filtrləyirik
+      const socialServices = services.filter(service => 
+        ['instagram', 'tiktok', 'youtube', 'facebook', 'twitter'].some(platform => 
+          service.platform?.toLowerCase().includes(platform)
+        )
+      );
       
-      if (!data || !Array.isArray(data)) {
-        console.log('❌ API cavabı yanlışdır:', data);
-        setApiServices([]);
-        return;
-      }
-      
-      // Hər hansı sosial media xidmətlərini göstər, filtrləmə olmadan
-      const allServices = data.slice(0, 12);
-      console.log('✅ Göstəriləcək xidmətlər:', allServices);
-      setApiServices(allServices);
+      console.log('✅ Sosial media xidmətləri:', socialServices);
+      setApiServices(socialServices.slice(0, 12)); // İlk 12 xidməti göstər
     } catch (error) {
       console.error('Error fetching API services:', error);
-      setApiServices([]); // Xəta olduqda boş array
+      setApiServices([]);
     } finally {
       setLoading(false);
     }
@@ -124,31 +96,33 @@ export const ServicesSection = () => {
               const color = colors[index % colors.length];
               
               return (
-                <Card key={service.id_service} className="bg-white/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-500 cursor-pointer group border border-primary/10 hover:border-primary/20 hover:scale-105">
-                  <CardHeader className="text-center pb-4">
-                    <div className={`w-20 h-20 bg-gradient-to-br ${color} rounded-2xl mx-auto mb-4 flex items-center justify-center text-white group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}>
-                      <IconComponent className="h-8 w-8" />
-                    </div>
-                    <CardTitle className="text-lg font-bold text-foreground line-clamp-2">
-                      {service.public_name.replace(/\s*-\s*\[.*?\]\s*.*$/g, '')}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground capitalize">
-                        Platform: <span className="font-medium">{service.platform}</span>
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Min: <span className="font-medium">{service.amount_minimum}</span>
-                      </p>
-                      {service.prices?.[0] && (
-                        <p className="text-sm font-semibold text-primary">
-                          ${service.prices[0].price}/1000
+                <Link key={service.id_service} to={`/order?platform=${service.platform?.toLowerCase()}`}>
+                  <Card className="bg-white/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-500 cursor-pointer group border border-primary/10 hover:border-primary/20 hover:scale-105">
+                    <CardHeader className="text-center pb-4">
+                      <div className={`w-20 h-20 bg-gradient-to-br ${color} rounded-2xl mx-auto mb-4 flex items-center justify-center text-white group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}>
+                        <IconComponent className="h-8 w-8" />
+                      </div>
+                      <CardTitle className="text-lg font-bold text-foreground line-clamp-2">
+                        {service.public_name.replace(/\s*-\s*\[.*?\]\s*.*$/g, '')}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <p className="text-sm text-muted-foreground capitalize">
+                          Platform: <span className="font-medium">{service.platform}</span>
                         </p>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
+                        <p className="text-sm text-muted-foreground">
+                          Min: <span className="font-medium">{service.amount_minimum}</span>
+                        </p>
+                        {service.prices?.[0] && (
+                          <p className="text-sm font-semibold text-primary">
+                            ${service.prices[0].price}/1000
+                          </p>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
               );
             })}
           </div>
