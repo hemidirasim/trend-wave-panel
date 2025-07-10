@@ -57,10 +57,17 @@ export const ServicesSection = () => {
       const data = await response.json();
       console.log('API-dən gələn məlumatlar:', data);
       
-      // Sosial media platformalarına aid xidmətləri filtrləyirik
+      // Sosial media like, view, followers xidmətlərini filtrləyirik
       const socialMediaServices = (data || []).filter((service: ApiService) => {
         const platform = service.platform?.toLowerCase();
-        return ['instagram', 'tiktok', 'youtube', 'facebook', 'twitter'].includes(platform || '');
+        const serviceName = service.public_name?.toLowerCase();
+        
+        // Sosial media platformaları və populyar xidmət növləri
+        const socialPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook', 'twitter'];
+        const serviceTypes = ['likes', 'followers', 'views', 'subscribers'];
+        
+        return socialPlatforms.includes(platform || '') && 
+               serviceTypes.some(type => serviceName?.includes(type));
       });
       
       console.log('Filtrləndikdən sonra:', socialMediaServices);
