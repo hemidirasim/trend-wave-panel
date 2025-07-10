@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { apiService, Service } from '@/components/ApiService';
+import { proxyApiService, Service } from '@/components/ProxyApiService';
 import { useSettings } from '@/contexts/SettingsContext';
 import { Loader2, ShoppingCart, AlertCircle, CheckCircle, Calculator, Instagram, Youtube, Facebook, Heart, Users, Eye, Share, MessageCircle, Repeat, Star, Info, Filter, X } from 'lucide-react';
 import { toast } from 'sonner';
@@ -49,7 +49,7 @@ const Order = () => {
 
   useEffect(() => {
     fetchServices();
-  }, []);
+  }, [settings.service_fee]); // Xidmət haqqı dəyişəndə yenidən yüklə
 
   useEffect(() => {
     // URL-dən platform parametri varsa, onu seç
@@ -85,9 +85,8 @@ const Order = () => {
   const fetchServices = async () => {
     try {
       setLoading(true);
-      console.log('Fetching services from API...');
-      console.log('Current service fee from settings:', settings.service_fee);
-      const data = await apiService.getServices();
+      console.log('🔥 fetchServices çağırıldı - Cari xidmət haqqı:', settings.service_fee);
+      const data = await proxyApiService.getServices();
       console.log('Services loaded:', data);
       
       // API-dən gələn məlumatları filterlə və qiymətə görə sırala
@@ -100,9 +99,9 @@ const Order = () => {
       
       // Qiymətə görə sırala (avtomatik olaraq ucuzdan bahaya) - xidmət haqqı ilə birlikdə
       const sortedData = [...filteredData].sort((a, b) => {
-        const priceA = apiService.calculatePrice(a, 1000, settings.service_fee);
-        const priceB = apiService.calculatePrice(b, 1000, settings.service_fee);
-        console.log('Sorting prices:', {
+        const priceA = proxyApiService.calculatePrice(a, 1000, settings.service_fee);
+        const priceB = proxyApiService.calculatePrice(b, 1000, settings.service_fee);
+        console.log('🔥 Sorting prices:', {
           serviceA: a.public_name,
           priceA,
           serviceB: b.public_name,
@@ -125,7 +124,7 @@ const Order = () => {
     try {
       setLoadingServiceDetails(true);
       console.log('Fetching service details for ID:', serviceId);
-      const details = await apiService.getServiceDetails(serviceId);
+      const details = await proxyApiService.getServiceDetails(serviceId);
       console.log('Service details response:', details);
       
       if (details) {
@@ -152,9 +151,9 @@ const Order = () => {
       return;
     }
     
-    console.log('Calculating price with service fee:', settings.service_fee);
-    const price = apiService.calculatePrice(service, quantity, settings.service_fee);
-    console.log('Calculated price:', price);
+    console.log('🔥 calculatePrice çağırıldı - Xidmət haqqı:', settings.service_fee);
+    const price = proxyApiService.calculatePrice(service, quantity, settings.service_fee);
+    console.log('🔥 Hesablanan qiymət:', price);
     setCalculatedPrice(price);
   };
 
@@ -167,7 +166,7 @@ const Order = () => {
 
     if (!formData.url.trim()) {
       newErrors.url = 'URL tələb olunur';
-    } else if (selectedService && !apiService.validateUrl(selectedService.platform, formData.url)) {
+    } else if (selectedService && !proxyApiService.validateUrl(selectedService.platform, formData.url)) {
       newErrors.url = `Yanlış ${selectedService.platform} URL formatı`;
     }
 
@@ -210,7 +209,7 @@ const Order = () => {
 
     try {
       setPlacing(true);
-      const response = await apiService.placeOrder(
+      const response = await proxyApiService.placeOrder(
         formData.serviceId,
         formData.url,
         parseInt(formData.quantity),
@@ -352,10 +351,10 @@ const Order = () => {
 
     // Qiymət filtri tətbiq et - xidmət haqqı ilə birlikdə
     const sortedServices = [...filtered].sort((a, b) => {
-      const priceA = apiService.calculatePrice(a, 1000, settings.service_fee);
-      const priceB = apiService.calculatePrice(b, 1000, settings.service_fee);
+      const priceA = proxyApiService.calculatePrice(a, 1000, settings.service_fee);
+      const priceB = proxyApiService.calculatePrice(b, 1000, settings.service_fee);
       
-      console.log('Filtering and sorting services:', {
+      console.log('🔥 Filtering and sorting services:', {
         serviceA: a.public_name,
         priceA,
         serviceB: b.public_name,
@@ -416,10 +415,10 @@ const Order = () => {
   // Helper function to get service price with service fee
   const getServicePriceWithFee = (service: Service) => {
     const basePricePer = parseInt(service.prices[0]?.pricing_per || '1000');
-    const priceWithFee = apiService.calculatePrice(service, basePricePer, settings.service_fee);
+    const priceWithFee = proxyApiService.calculatePrice(service, basePricePer, settings.service_fee);
     const pricePerUnit = priceWithFee / basePricePer;
     
-    console.log('Service price calculation:', {
+    console.log('🔥 Service price calculation:', {
       serviceName: service.public_name,
       basePricePer,
       serviceFee: settings.service_fee,
@@ -570,7 +569,7 @@ const Order = () => {
                                           <div className="flex items-center space-x-2">
                                             <span>{service.public_name}</span>
                                             <Badge variant="secondary" className="ml-2">
-                                              ${apiService.formatPrice(getServicePriceWithFee(service).toString())}/{service.prices[0]?.pricing_per || '1K'}
+                                              ${proxyApiService.formatPrice(getServicePriceWithFee(service).toString())}/{service.prices[0]?.pricing_per || '1K'}
                                             </Badge>
                                           </div>
                                         </SelectItem>
@@ -757,7 +756,7 @@ const Order = () => {
                           ) : (
                             <>
                               <ShoppingCart className="h-4 w-4 mr-2" />
-                              Sifariş Ver - ${apiService.formatPrice(calculatedPrice.toFixed(2))}
+                              Sifariş Ver - ${proxyApiService.formatPrice(calculatedPrice.toFixed(2))}
                             </>
                           )}
                         </Button>
@@ -798,7 +797,7 @@ const Order = () => {
                         </div>
                         <div className="flex justify-between text-sm">
                           <span>{selectedService.prices[0]?.pricing_per || '1000'} üçün qiymət:</span>
-                          <span>${apiService.formatPrice(getServicePriceWithFee(selectedService).toString())}</span>
+                          <span>${proxyApiService.formatPrice(getServicePriceWithFee(selectedService).toString())}</span>
                         </div>
                         {settings.service_fee > 0 && (
                           <div className="flex justify-between text-xs text-muted-foreground">
@@ -808,7 +807,7 @@ const Order = () => {
                         )}
                         <div className="flex justify-between font-semibold border-t pt-2">
                           <span>Cəmi:</span>
-                          <span>${apiService.formatPrice(calculatedPrice.toFixed(2))}</span>
+                          <span>${proxyApiService.formatPrice(calculatedPrice.toFixed(2))}</span>
                         </div>
                       </div>
 
