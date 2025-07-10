@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Target, Heart, UserPlus, Eye } from 'lucide-react';
+import { Target, Heart, Play, Video, Users } from 'lucide-react';
 import { proxyApiService, Service } from './ProxyApiService';
 import { Link } from 'react-router-dom';
 
@@ -13,14 +13,9 @@ interface Platform {
 
 const platformIcons: Record<string, any> = {
   instagram: Heart,
-  tiktok: UserPlus,
-  youtube: Eye,
-  facebook: Heart,
-  twitter: UserPlus,
-  vimeo: Eye,
-  pinterest: Heart,
-  soundcloud: UserPlus,
-  twitch: Eye
+  tiktok: Video,
+  youtube: Play,
+  facebook: Users
 };
 
 export const ServicesSection = () => {
@@ -37,10 +32,10 @@ export const ServicesSection = () => {
       const services = await proxyApiService.getServices();
       console.log('🔍 API-dən gələn xidmətlər:', services);
       
-      // Yalnız unikal sosial media platformalarını alırıq
+      // Twitter-siz sosial media platformalarını alırıq
       const platforms = [...new Set(services
         .filter(service => 
-          ['instagram', 'tiktok', 'youtube', 'facebook', 'twitter'].some(platform => 
+          ['instagram', 'tiktok', 'youtube', 'facebook'].some(platform => 
             service.platform?.toLowerCase().includes(platform)
           )
         )
