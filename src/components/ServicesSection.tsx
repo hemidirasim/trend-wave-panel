@@ -20,9 +20,15 @@ interface ApiService {
 }
 
 const platformIcons: Record<string, any> = {
-  Instagram: Heart,
-  TikTok: UserPlus,
-  YouTube: Eye
+  instagram: Heart,
+  tiktok: UserPlus,
+  youtube: Eye,
+  facebook: Heart,
+  twitter: UserPlus,
+  vimeo: Eye,
+  pinterest: Heart,
+  soundcloud: UserPlus,
+  twitch: Eye
 };
 
 export const ServicesSection = () => {
@@ -92,10 +98,15 @@ export const ServicesSection = () => {
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
             <p className="mt-2 text-muted-foreground">Xidmətlər yüklənir...</p>
           </div>
+        ) : apiServices.length === 0 ? (
+          <div className="text-center">
+            <p className="text-muted-foreground">Hal-hazırda sosial media xidmətləri mövcud deyil.</p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {apiServices.map((service, index) => {
-              const IconComponent = platformIcons[service.platform] || Heart;
+              const platformKey = service.platform?.toLowerCase() || '';
+              const IconComponent = platformIcons[platformKey] || Heart;
               const colors = [
                 'from-pink-500 to-rose-500',
                 'from-green-500 to-blue-500', 
@@ -114,15 +125,17 @@ export const ServicesSection = () => {
                     <div className={`w-20 h-20 bg-gradient-to-br ${color} rounded-2xl mx-auto mb-4 flex items-center justify-center text-white group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}>
                       <IconComponent className="h-8 w-8" />
                     </div>
-                    <CardTitle className="text-xl font-bold text-foreground">{service.public_name}</CardTitle>
+                    <CardTitle className="text-lg font-bold text-foreground line-clamp-2">
+                      {service.public_name.replace(/\s*-\s*\[.*?\]\s*.*$/g, '')}
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground">
-                        Platform: {service.platform}
+                      <p className="text-sm text-muted-foreground capitalize">
+                        Platform: <span className="font-medium">{service.platform}</span>
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        Min: {service.amount_minimum}
+                        Min: <span className="font-medium">{service.amount_minimum}</span>
                       </p>
                       {service.prices?.[0] && (
                         <p className="text-sm font-semibold text-primary">
