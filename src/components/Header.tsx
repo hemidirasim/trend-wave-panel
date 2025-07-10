@@ -50,7 +50,7 @@ export const Header = () => {
       }
     };
 
-    // Fetch services from API
+    // Fetch services from API and group by platform
     const fetchApiServices = async () => {
       try {
         const services = await proxyApiService.getServices();
@@ -60,7 +60,7 @@ export const Header = () => {
             service.platform?.toLowerCase().includes(platform)
           )
         );
-        setApiServices(socialServices.slice(0, 10)); // Limit to 10 services
+        setApiServices(socialServices);
       } catch (error) {
         console.error('Error fetching API services:', error);
       }
@@ -69,6 +69,10 @@ export const Header = () => {
     fetchDbServices();
     fetchApiServices();
   }, []);
+
+  // Get unique platforms from API services
+  const socialPlatforms = [...new Set(apiServices.map(service => service.platform).filter(Boolean))]
+    .slice(0, 8); // Limit to 8 platforms
 
   const isActive = (href: string) => location.pathname === href;
 
@@ -125,45 +129,51 @@ export const Header = () => {
                   {t('nav.services')}
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <div className="grid w-[600px] gap-3 p-4 md:grid-cols-2">
-                    <div>
-                      <h3 className="mb-2 text-sm font-medium leading-none text-muted-foreground">
-                        Əsas Xidmətlər
-                      </h3>
-                       <ul className="space-y-1">
-                         {dbServices.map((service) => (
-                           <li key={service.id}>
-                             <NavigationMenuLink asChild>
-                               <Link
-                                 to={`/service/${service.id}`}
-                                 className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                               >
-                                 <div className="text-sm font-medium leading-none">{service.name}</div>
-                               </Link>
-                             </NavigationMenuLink>
-                           </li>
-                         ))}
-                       </ul>
-                    </div>
-                    <div>
-                      <h3 className="mb-2 text-sm font-medium leading-none text-muted-foreground">
-                        Sosial Media Xidmətləri
-                      </h3>
-                       <ul className="space-y-1">
-                         {apiServices.map((service) => (
-                           <li key={service.id_service}>
-                             <NavigationMenuLink asChild>
-                               <Link
-                                 to={`/service/api/${service.id_service}`}
-                                 className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                               >
-                                 <div className="text-sm font-medium leading-none">{service.public_name}</div>
-                               </Link>
-                             </NavigationMenuLink>
-                           </li>
-                         ))}
-                       </ul>
-                    </div>
+                  <div className="w-[400px] p-4">
+                    <h3 className="mb-2 text-sm font-medium leading-none text-muted-foreground">
+                      Əsas Xidmətlər
+                    </h3>
+                    <ul className="space-y-1">
+                      {dbServices.map((service) => (
+                        <li key={service.id}>
+                          <NavigationMenuLink asChild>
+                            <Link
+                              to={`/service/${service.id}`}
+                              className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                            >
+                              <div className="text-sm font-medium leading-none">{service.name}</div>
+                            </Link>
+                          </NavigationMenuLink>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+              
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="text-sm font-semibold leading-6 text-foreground hover:text-primary">
+                  Sosial Media
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="w-[300px] p-4">
+                    <h3 className="mb-2 text-sm font-medium leading-none text-muted-foreground">
+                      Sosial Şəbəkələr
+                    </h3>
+                    <ul className="space-y-1">
+                      {socialPlatforms.map((platform) => (
+                        <li key={platform}>
+                          <NavigationMenuLink asChild>
+                            <Link
+                              to={`/order?platform=${platform.toLowerCase()}`}
+                              className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                            >
+                              <div className="text-sm font-medium leading-none capitalize">{platform}</div>
+                            </Link>
+                          </NavigationMenuLink>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 </NavigationMenuContent>
               </NavigationMenuItem>
@@ -253,16 +263,16 @@ export const Header = () => {
                    
                    <div className="space-y-1">
                      <div className="px-3 py-2 text-base font-semibold leading-7 text-foreground">
-                       Sosial Media Xidmətləri
+                       Sosial Şəbəkələr
                      </div>
-                     {apiServices.map((service) => (
+                     {socialPlatforms.map((platform) => (
                        <Link
-                         key={service.id_service}
-                         to={`/service/api/${service.id_service}`}
-                         className="block rounded-lg px-6 py-2 text-sm leading-7 text-muted-foreground hover:bg-muted hover:text-foreground"
+                         key={platform}
+                         to={`/order?platform=${platform.toLowerCase()}`}
+                         className="block rounded-lg px-6 py-2 text-sm leading-7 text-muted-foreground hover:bg-muted hover:text-foreground capitalize"
                          onClick={() => setIsMenuOpen(false)}
                        >
-                         {service.public_name}
+                         {platform}
                        </Link>
                      ))}
                    </div>
