@@ -19,7 +19,7 @@ export const HeroSection = () => {
               #1 SMM Xidmətləri Platforması
             </Badge>
             <h1 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-primary via-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight">
-              HitLoyal ilə Brendinizi Güclündirin
+              HitLoyal ilə Brendinizi Gücləndirin
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
               Instagram, TikTok, YouTube və digər sosial media platformalarında hesablarınızı böyütmək üçün ən keyfiyyətli xidmətlər. Organik böyümə və təhlükəsiz yanaşma ilə real nəticələr əldə edin.
