@@ -1,46 +1,12 @@
+
 import { Link } from 'react-router-dom';
 import { Shield, Zap, Clock } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-
-interface Service {
-  id: string;
-  name: string;
-  description: string | null;
-  category: string;
-  platform: string | null;
-  icon: string | null;
-  active: boolean;
-  order_index: number;
-}
 
 export const Footer = () => {
-  const [services, setServices] = useState<Service[]>([]);
-
-  useEffect(() => {
-    fetchServices();
-  }, []);
-
-  const fetchServices = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('services')
-        .select('*')
-        .eq('active', true)
-        .eq('category', 'standard')
-        .order('order_index', { ascending: true });
-
-      if (error) throw error;
-      setServices((data || []) as Service[]);
-    } catch (error) {
-      console.error('Error fetching services:', error);
-    }
-  };
-
   return (
     <footer className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
       <div className="container mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
           {/* Brand Section */}
           <div className="space-y-6">
             <div className="flex items-center space-x-3">
@@ -51,23 +17,6 @@ export const Footer = () => {
             <p className="text-slate-300 leading-relaxed max-w-sm">
               Peşəkar reklam və marketinq agentliyi. Biznesinizi rəqəmsal dünyada gücləndirir, brendinizi növbəti səviyyəyə çıxarırıq. Google reklamları, SMM, SEO və digər xidmətlərlə uğurunuzu təmin edirik.
             </p>
-          </div>
-
-          {/* Services Section */}
-          <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-white">Xidmətlərimiz</h3>
-            <ul className="space-y-3">
-              {services.map((service) => (
-                <li key={service.id}>
-                  <Link 
-                    to={`/service/${service.id}`} 
-                    className="text-slate-300 hover:text-primary transition-colors duration-300 flex items-center"
-                  >
-                    {service.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
           </div>
 
           {/* Company Section */}

@@ -13,14 +13,12 @@ import {
 } from '@/components/ui/navigation-menu';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 import { proxyApiService, Service } from './ProxyApiService';
 import AuthDialog from './AuthDialog';
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
-  const [dbServices, setDbServices] = useState<any[]>([]);
   const [apiServices, setApiServices] = useState<Service[]>([]);
   const location = useLocation();
   const { language, setLanguage, t } = useLanguage();
@@ -33,23 +31,6 @@ export const Header = () => {
   ];
 
   useEffect(() => {
-    // Fetch services from database
-    const fetchDbServices = async () => {
-      try {
-        const { data: services, error } = await supabase
-          .from('services')
-          .select('*')
-          .eq('active', true)
-          .eq('category', 'standard')
-          .order('order_index');
-        
-        if (error) throw error;
-        setDbServices(services || []);
-      } catch (error) {
-        console.error('Error fetching database services:', error);
-      }
-    };
-
     // Fetch services from API and group by platform
     const fetchApiServices = async () => {
       try {
@@ -66,7 +47,6 @@ export const Header = () => {
       }
     };
 
-    fetchDbServices();
     fetchApiServices();
   }, []);
 
@@ -126,33 +106,6 @@ export const Header = () => {
           
           <NavigationMenu>
             <NavigationMenuList className="gap-2">
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="text-sm font-semibold leading-6 text-foreground hover:text-primary bg-transparent border-none shadow-none">
-                  {t('nav.services')}
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="w-[400px] p-4 bg-popover border border-border shadow-lg rounded-md">
-                    <h3 className="mb-2 text-sm font-medium leading-none text-muted-foreground">
-                      Əsas Xidmətlər
-                    </h3>
-                    <ul className="space-y-1">
-                      {dbServices.map((service) => (
-                        <li key={service.id}>
-                          <NavigationMenuLink asChild>
-                            <Link
-                              to={`/service/${service.id}`}
-                              className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                            >
-                              <div className="text-sm font-medium leading-none">{service.name}</div>
-                            </Link>
-                          </NavigationMenuLink>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-              
               <NavigationMenuItem>
                 <NavigationMenuTrigger className="text-sm font-semibold leading-6 text-foreground hover:text-primary bg-transparent border-none shadow-none">
                   Sosial Media
@@ -249,22 +202,6 @@ export const Header = () => {
                     </Link>
                   ))}
                   
-                   <div className="space-y-1">
-                     <div className="px-3 py-2 text-base font-semibold leading-7 text-foreground">
-                       Əsas Xidmətlər
-                     </div>
-                     {dbServices.map((service) => (
-                       <Link
-                         key={service.id}
-                         to={`/service/${service.id}`}
-                         className="block rounded-lg px-6 py-2 text-sm leading-7 text-muted-foreground hover:bg-muted hover:text-foreground"
-                         onClick={() => setIsMenuOpen(false)}
-                       >
-                         {service.name}
-                       </Link>
-                     ))}
-                   </div>
-                   
                    <div className="space-y-1">
                      <div className="px-3 py-2 text-base font-semibold leading-7 text-foreground">
                        Sosial Şəbəkələr
