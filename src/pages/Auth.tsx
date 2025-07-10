@@ -32,9 +32,7 @@ const Auth = () => {
 
     try {
       const { error } = await signIn(loginEmail, loginPassword);
-      if (!error) {
-        navigate('/dashboard');
-      }
+      // Redirect is now handled in AuthContext based on user role
     } catch (error) {
       // Error notification is already handled in AuthContext
     } finally {

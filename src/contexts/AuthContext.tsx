@@ -87,9 +87,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
       
       if (data.user) {
-        // Force page reload to ensure clean state
-        setTimeout(() => {
-          window.location.href = '/dashboard';
+        // Check if user is admin and redirect accordingly
+        setTimeout(async () => {
+          try {
+            const { data: roleData } = await supabase
+              .from('user_roles')
+              .select('role')
+              .eq('user_id', data.user.id)
+              .eq('role', 'admin')
+              .single();
+            
+            if (roleData) {
+              window.location.href = '/admin';
+            } else {
+              window.location.href = '/dashboard';
+            }
+          } catch (error) {
+            // If role check fails, redirect to dashboard
+            window.location.href = '/dashboard';
+          }
         }, 1000); // Wait for notification to show
       }
       
