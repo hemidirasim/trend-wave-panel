@@ -15,8 +15,11 @@ import Dashboard from '@/pages/Dashboard';
 import Order from '@/pages/Order';
 import Track from '@/pages/Track';
 import Admin from '@/pages/Admin';
+import AdminServices from '@/pages/AdminServices';
 import AdminBlog from '@/pages/AdminBlog';
 import AdminFAQ from '@/pages/AdminFAQ';
+import AdminUsers from '@/pages/AdminUsers';
+import AdminSettings from '@/pages/AdminSettings';
 import Terms from '@/pages/Terms';
 import Privacy from '@/pages/Privacy';
 import NotFound from '@/pages/NotFound';
@@ -79,6 +82,14 @@ function App() {
                     } 
                   />
                   <Route 
+                    path="/admin/services" 
+                    element={
+                      <ProtectedAdminRoute>
+                        <AdminServices />
+                      </ProtectedAdminRoute>
+                    } 
+                  />
+                  <Route 
                     path="/admin/blog" 
                     element={
                       <ProtectedAdminRoute>
@@ -91,6 +102,22 @@ function App() {
                     element={
                       <ProtectedAdminRoute>
                         <AdminFAQ />
+                      </ProtectedAdminRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/admin/users" 
+                    element={
+                      <ProtectedAdminRoute>
+                        <AdminUsers />
+                      </ProtectedAdminRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/admin/settings" 
+                    element={
+                      <ProtectedAdminRoute>
+                        <AdminSettings />
                       </ProtectedAdminRoute>
                     } 
                   />

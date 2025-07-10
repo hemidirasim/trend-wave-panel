@@ -1,444 +1,202 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { useToast } from '@/hooks/use-toast';
-import { Trash2, Edit, Plus } from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+import { BarChart, Users, ShoppingCart, DollarSign, TrendingUp, Package } from 'lucide-react';
 import { AdminLayout } from '@/components/AdminLayout';
 
-interface Service {
-  id: string;
-  name: string;
-  description: string | null;
-  price: number | null;
-  category: 'standard' | 'social_media';
-  platform: string | null;
-  icon: string | null;
-  active: boolean;
-  order_index: number;
-}
-
 export default function Admin() {
-  const { user } = useAuth();
-  const { toast } = useToast();
-  const [services, setServices] = useState<Service[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [editingService, setEditingService] = useState<Service | null>(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
-
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    price: '',
-    category: 'standard' as 'standard' | 'social_media',
-    platform: '',
-    icon: '',
-    active: true,
-    order_index: 0
+  const [stats, setStats] = useState({
+    total_users: 0,
+    total_orders: 0,
+    total_revenue: 0,
+    active_services: 0,
+    pending_orders: 0,
+    completed_orders: 0
   });
+  
+  const [recentOrders, setRecentOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
-      fetchServices();
-    }
-  }, [user]);
+    fetchDashboardData();
+  }, []);
 
-  const fetchServices = async () => {
+  const fetchDashboardData = async () => {
     try {
-      const { data, error } = await supabase
-        .from('services')
-        .select('*')
-        .order('category', { ascending: true })
-        .order('order_index', { ascending: true });
+      // Fetch user count
+      const { count: userCount } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
 
-      if (error) throw error;
-      setServices((data || []) as Service[]);
-    } catch (error) {
-      toast({
-        title: "Xəta",
-        description: "Xidmətlər yüklənmədi",
-        variant: "destructive"
+      // Fetch order count and revenue
+      const { data: orders } = await supabase
+        .from('orders')
+        .select('price, status, created_at, service_name, user_id')
+        .order('created_at', { ascending: false });
+
+      // Fetch active services count
+      const { count: servicesCount } = await supabase
+        .from('services')
+        .select('*', { count: 'exact', head: true })
+        .eq('active', true);
+
+      const totalRevenue = orders?.reduce((sum, order) => sum + (order.price || 0), 0) || 0;
+      const pendingOrders = orders?.filter(order => order.status === 'pending').length || 0;
+      const completedOrders = orders?.filter(order => order.status === 'completed').length || 0;
+
+      setStats({
+        total_users: userCount || 0,
+        total_orders: orders?.length || 0,
+        total_revenue: totalRevenue,
+        active_services: servicesCount || 0,
+        pending_orders: pendingOrders,
+        completed_orders: completedOrders
       });
+
+      // Set recent orders (last 5)
+      setRecentOrders(orders?.slice(0, 5) || []);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    try {
-      const serviceData = {
-        name: formData.name,
-        description: formData.description || null,
-        price: formData.price ? parseFloat(formData.price) : null,
-        category: formData.category,
-        platform: formData.platform || null,
-        icon: formData.icon || null,
-        active: formData.active,
-        order_index: formData.order_index
-      };
-
-      if (editingService) {
-        const { error } = await supabase
-          .from('services')
-          .update(serviceData)
-          .eq('id', editingService.id);
-        
-        if (error) throw error;
-        
-        toast({
-          title: "Uğurlu",
-          description: "Xidmət yeniləndi"
-        });
-      } else {
-        const { error } = await supabase
-          .from('services')
-          .insert([serviceData]);
-        
-        if (error) throw error;
-        
-        toast({
-          title: "Uğurlu",
-          description: "Xidmət əlavə edildi"
-        });
-      }
-
-      resetForm();
-      setDialogOpen(false);
-      fetchServices();
-    } catch (error) {
-      toast({
-        title: "Xəta",
-        description: "Əməliyyat uğursuz oldu",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!confirm('Bu xidməti silmək istədiyinizə əminsiniz?')) return;
-
-    try {
-      const { error } = await supabase
-        .from('services')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Uğurlu",
-        description: "Xidmət silindi"
-      });
-      
-      fetchServices();
-    } catch (error) {
-      toast({
-        title: "Xəta",
-        description: "Xidmət silinmədi",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleEdit = (service: Service) => {
-    setEditingService(service);
-    setFormData({
-      name: service.name,
-      description: service.description || '',
-      price: service.price?.toString() || '',
-      category: service.category,
-      platform: service.platform || '',
-      icon: service.icon || '',
-      active: service.active,
-      order_index: service.order_index
-    });
-    setDialogOpen(true);
-  };
-
-  const resetForm = () => {
-    setEditingService(null);
-    setFormData({
-      name: '',
-      description: '',
-      price: '',
-      category: 'standard',
-      platform: '',
-      icon: '',
-      active: true,
-      order_index: 0
-    });
-  };
-
-  if (!user) {
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Card className="w-96">
-          <CardHeader>
-            <CardTitle>Giriş Tələb Olunur</CardTitle>
-            <CardDescription>Admin panelinə daxil olmaq üçün giriş edin</CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
+      <AdminLayout>
+        <div className="text-center">Yüklənir...</div>
+      </AdminLayout>
     );
   }
 
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold">Xidmətlər</h1>
-            <p className="text-muted-foreground">Xidmətləri idarə edin</p>
-          </div>
-          
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={resetForm}>
-                <Plus className="h-4 w-4 mr-2" />
-                Yeni Xidmət
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>
-                  {editingService ? 'Xidməti Redaktə Et' : 'Yeni Xidmət Əlavə Et'}
-                </DialogTitle>
-                <DialogDescription>
-                  Xidmət məlumatlarını daxil edin
-                </DialogDescription>
-              </DialogHeader>
-              
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="name">Ad</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="description">Təsvir</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="category">Kateqoriya</Label>
-                  <Select
-                    value={formData.category}
-                    onValueChange={(value: 'standard' | 'social_media') => 
-                      setFormData({ ...formData, category: value })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="standard">Standart Xidmətlər</SelectItem>
-                      <SelectItem value="social_media">Sosial Media</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <Label htmlFor="price">Qiymət</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    step="0.01"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="platform">Platform</Label>
-                  <Input
-                    id="platform"
-                    value={formData.platform}
-                    onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="icon">İkon</Label>
-                  <Input
-                    id="icon"
-                    value={formData.icon}
-                    onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                    placeholder="Users, Heart, Search..."
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="order_index">Sıralama</Label>
-                  <Input
-                    id="order_index"
-                    type="number"
-                    value={formData.order_index}
-                    onChange={(e) => setFormData({ ...formData, order_index: parseInt(e.target.value) || 0 })}
-                  />
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="active"
-                    checked={formData.active}
-                    onCheckedChange={(checked) => setFormData({ ...formData, active: checked })}
-                  />
-                  <Label htmlFor="active">Aktiv</Label>
-                </div>
-                
-                <div className="flex justify-end space-x-2">
-                  <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
-                    Ləğv Et
-                  </Button>
-                  <Button type="submit">
-                    {editingService ? 'Yenilə' : 'Əlavə Et'}
-                  </Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
+        <div>
+          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+          <p className="text-muted-foreground">HitLoyal admin paneli</p>
         </div>
 
-        {loading ? (
-          <div className="text-center">Yüklənir...</div>
-        ) : (
-          <div className="space-y-8">
-            {/* Standard Services */}
-            <div>
-              <h2 className="text-2xl font-semibold mb-4">Standart Xidmətlər</h2>
-              <div className="grid gap-4">
-                {services
-                  .filter(service => service.category === 'standard')
-                  .map((service) => (
-                    <Card key={service.id}>
-                      <CardContent className="p-4">
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1">
-                            <h3 className="font-semibold">{service.name}</h3>
-                            <p className="text-sm text-muted-foreground">{service.description}</p>
-                            <div className="flex gap-2 mt-2">
-                              <span className="text-xs bg-muted px-2 py-1 rounded">
-                                {service.platform || 'Ümumi'}
-                              </span>
-                              <span className="text-xs bg-muted px-2 py-1 rounded">
-                                Sıra: {service.order_index}
-                              </span>
-                              {service.price && (
-                                <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                                  {service.price} AZN
-                                </span>
-                              )}
-                              <span className={`text-xs px-2 py-1 rounded ${
-                                service.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                              }`}>
-                                {service.active ? 'Aktiv' : 'Deaktiv'}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleEdit(service)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => handleDelete(service.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-              </div>
-            </div>
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Ümumi İstifadəçilər</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.total_users}</div>
+              <p className="text-xs text-muted-foreground">
+                Qeydiyyatlı istifadəçilər
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Ümumi Sifarişlər</CardTitle>
+              <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.total_orders}</div>
+              <p className="text-xs text-muted-foreground">
+                Bütün sifarişlər
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Ümumi Gəlir</CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.total_revenue.toFixed(2)} AZN</div>
+              <p className="text-xs text-muted-foreground">
+                Bütün sifarişlərdən gəlir
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Aktiv Xidmətlər</CardTitle>
+              <Package className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.active_services}</div>
+              <p className="text-xs text-muted-foreground">
+                Mövcud xidmətlər
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Gözləyən Sifarişlər</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.pending_orders}</div>
+              <p className="text-xs text-muted-foreground">
+                Emal edilməkdə
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Tamamlanan Sifarişlər</CardTitle>
+              <BarChart className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.completed_orders}</div>
+              <p className="text-xs text-muted-foreground">
+                Uğurla tamamlanan
+              </p>
+            </CardContent>
+          </Card>
+        </div>
 
-            {/* Social Media Services */}
-            <div>
-              <h2 className="text-2xl font-semibold mb-4">Sosial Media Xidmətləri</h2>
-              <div className="grid gap-4">
-                {services
-                  .filter(service => service.category === 'social_media')
-                  .map((service) => (
-                    <Card key={service.id}>
-                      <CardContent className="p-4">
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1">
-                            <h3 className="font-semibold">{service.name}</h3>
-                            <p className="text-sm text-muted-foreground">{service.description}</p>
-                            <div className="flex gap-2 mt-2">
-                              <span className="text-xs bg-muted px-2 py-1 rounded">
-                                {service.platform || 'Ümumi'}
-                              </span>
-                              <span className="text-xs bg-muted px-2 py-1 rounded">
-                                Sıra: {service.order_index}
-                              </span>
-                              {service.price && (
-                                <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                                  {service.price} AZN
-                                </span>
-                              )}
-                              <span className={`text-xs px-2 py-1 rounded ${
-                                service.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                              }`}>
-                                {service.active ? 'Aktiv' : 'Deaktiv'}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleEdit(service)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => handleDelete(service.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+        {/* Recent Orders */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Son Sifarişlər</CardTitle>
+            <CardDescription>Ən son verilən sifarişlər</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {recentOrders.length > 0 ? (
+              <div className="space-y-4">
+                {recentOrders.map((order, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div>
+                      <p className="font-medium">{order.service_name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(order.created_at).toLocaleDateString('az-AZ')}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-medium">{order.price} AZN</p>
+                      <span className={`text-xs px-2 py-1 rounded ${
+                        order.status === 'completed' 
+                          ? 'bg-green-100 text-green-800' 
+                          : order.status === 'pending'
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        {order.status === 'completed' ? 'Tamamlandı' : 
+                         order.status === 'pending' ? 'Gözləyir' : 'Xəta'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
-          </div>
-        )}
+            ) : (
+              <p className="text-center text-muted-foreground">Hələ sifariş yoxdur</p>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </AdminLayout>
   );
