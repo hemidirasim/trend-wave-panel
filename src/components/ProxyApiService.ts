@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 const API_BASE_URL = 'https://www.qqtube.com/v1-api';
@@ -205,7 +204,7 @@ class ProxyApiService {
     }
   }
 
-  calculatePrice(service: Service, quantity: number, commissionRate: number = 0): number {
+  calculatePrice(service: Service, quantity: number, serviceFee: number = 0): number {
     const priceRange = service.prices.find(
       (price) =>
         quantity >= parseInt(price.minimum) && quantity <= parseInt(price.maximum)
@@ -219,8 +218,8 @@ class ProxyApiService {
     const basePrice = parseFloat(priceRange.price);
     const baseCost = (quantity / pricePer) * basePrice;
     
-    // Apply commission
-    return baseCost * (1 + commissionRate / 100);
+    // Apply fixed service fee instead of percentage
+    return baseCost + serviceFee;
   }
 
   // New method to format prices properly

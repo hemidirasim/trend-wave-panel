@@ -143,8 +143,8 @@ const Order = () => {
       return;
     }
     
-    console.log('Calculating price with commission rate:', settings.commission_rate);
-    const price = apiService.calculatePrice(service, quantity, settings.commission_rate);
+    console.log('Calculating price with service fee:', settings.service_fee);
+    const price = apiService.calculatePrice(service, quantity, settings.service_fee);
     console.log('Calculated price:', price);
     setCalculatedPrice(price);
   };
@@ -341,10 +341,10 @@ const Order = () => {
       return serviceType === selectedServiceType;
     });
 
-    // Qiymət filtri tətbiq et - komissiya ilə birlikdə
+    // Qiymət filtri tətbiq et - xidmət haqqı ilə birlikdə
     const sortedServices = [...filtered].sort((a, b) => {
-      const priceA = apiService.calculatePrice(a, 1000, settings.commission_rate);
-      const priceB = apiService.calculatePrice(b, 1000, settings.commission_rate);
+      const priceA = apiService.calculatePrice(a, 1000, settings.service_fee);
+      const priceB = apiService.calculatePrice(b, 1000, settings.service_fee);
       
       if (priceFilter === 'low-to-high') {
         return priceA - priceB;
@@ -395,10 +395,10 @@ const Order = () => {
     return null;
   };
 
-  // Helper function to get service price with commission
+  // Helper function to get service price with service fee
   const getServicePriceWithCommission = (service: Service) => {
     const basePrice = parseFloat(service.prices[0]?.price || '0');
-    return apiService.calculatePrice(service, parseInt(service.prices[0]?.pricing_per || '1000'), settings.commission_rate) / parseInt(service.prices[0]?.pricing_per || '1000');
+    return apiService.calculatePrice(service, parseInt(service.prices[0]?.pricing_per || '1000'), settings.service_fee) / parseInt(service.prices[0]?.pricing_per || '1000');
   };
 
   if (loading) {
@@ -771,9 +771,9 @@ const Order = () => {
                           <span>{selectedService.prices[0]?.pricing_per || '1000'} üçün qiymət:</span>
                           <span>${apiService.formatPrice(getServicePriceWithCommission(selectedService).toString())}</span>
                         </div>
-                        {settings.commission_rate > 0 && (
+                        {settings.service_fee > 0 && (
                           <div className="flex justify-between text-xs text-muted-foreground">
-                            <span>Komissiya ({settings.commission_rate}%):</span>
+                            <span>Xidmət haqqı (+${settings.service_fee}):</span>
                             <span>Daxildir</span>
                           </div>
                         )}

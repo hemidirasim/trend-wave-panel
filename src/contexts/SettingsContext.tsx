@@ -2,20 +2,20 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface Settings {
-  commission_rate: number;
+  service_fee: number; // Changed from commission_rate to service_fee
 }
 
 interface SettingsContextType {
   settings: Settings;
   updateSettings: (newSettings: Partial<Settings>) => void;
-  applyCommission: (basePrice: number) => number;
+  applyServiceFee: (basePrice: number) => number;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [settings, setSettings] = useState<Settings>({
-    commission_rate: 0
+    service_fee: 0 // Default service fee is 0 dollars
   });
 
   useEffect(() => {
@@ -24,6 +24,11 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (savedSettings) {
       try {
         const parsed = JSON.parse(savedSettings);
+        // Handle migration from old commission_rate to new service_fee
+        if (parsed.commission_rate !== undefined && parsed.service_fee === undefined) {
+          parsed.service_fee = 0; // Default to 0 for migration
+          delete parsed.commission_rate;
+        }
         setSettings(prev => ({ ...prev, ...parsed }));
       } catch (error) {
         console.error('Error parsing saved settings:', error);
@@ -39,12 +44,12 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     });
   };
 
-  const applyCommission = (basePrice: number): number => {
-    return basePrice * (1 + settings.commission_rate / 100);
+  const applyServiceFee = (basePrice: number): number => {
+    return basePrice + settings.service_fee;
   };
 
   return (
-    <SettingsContext.Provider value={{ settings, updateSettings, applyCommission }}>
+    <SettingsContext.Provider value={{ settings, updateSettings, applyServiceFee }}>
       {children}
     </SettingsContext.Provider>
   );

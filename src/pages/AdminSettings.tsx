@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -21,7 +20,7 @@ interface Settings {
   allow_registration: boolean;
   default_balance: number;
   notification_email: string;
-  commission_rate: number;
+  service_fee: number;
 }
 
 export default function AdminSettings() {
@@ -39,7 +38,7 @@ export default function AdminSettings() {
     allow_registration: true,
     default_balance: 0,
     notification_email: 'admin@hitloyal.com',
-    commission_rate: 0
+    service_fee: 0
   });
 
   const [stats, setStats] = useState({
@@ -59,6 +58,11 @@ export default function AdminSettings() {
     if (savedSettings) {
       try {
         const parsed = JSON.parse(savedSettings);
+        // Handle migration from old commission_rate to new service_fee
+        if (parsed.commission_rate !== undefined && parsed.service_fee === undefined) {
+          parsed.service_fee = 0; // Default to 0 for migration
+          delete parsed.commission_rate;
+        }
         setSettings(prev => ({ ...prev, ...parsed }));
       } catch (error) {
         console.error('Error loading settings:', error);
@@ -103,7 +107,7 @@ export default function AdminSettings() {
     try {
       // Save settings to localStorage and context
       localStorage.setItem('admin_settings', JSON.stringify(settings));
-      updateSettings({ commission_rate: settings.commission_rate });
+      updateSettings({ service_fee: settings.service_fee });
       
       toast({
         title: "Uğurlu",
@@ -291,18 +295,17 @@ export default function AdminSettings() {
               </div>
 
               <div>
-                <Label htmlFor="commission_rate">Komissiya Faizi (%)</Label>
+                <Label htmlFor="service_fee">Xidmət Haqqı (USD)</Label>
                 <Input
-                  id="commission_rate"
+                  id="service_fee"
                   type="number"
                   step="0.01"
                   min="0"
-                  max="100"
-                  value={settings.commission_rate}
-                  onChange={(e) => handleInputChange('commission_rate', parseFloat(e.target.value) || 0)}
+                  value={settings.service_fee}
+                  onChange={(e) => handleInputChange('service_fee', parseFloat(e.target.value) || 0)}
                 />
                 <p className="text-sm text-muted-foreground mt-1">
-                  Xidmət qiymətlərinə əlavə olunacaq komissiya faizi
+                  Hər xidmətin qiymətinə əlavə olunacaq konkret məbləğ (USD)
                 </p>
               </div>
             </CardContent>
