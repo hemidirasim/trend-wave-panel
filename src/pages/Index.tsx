@@ -155,11 +155,11 @@ const Index = () => {
           
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center mb-20">
-              <Badge variant="secondary" className="mb-6 px-4 py-2 text-sm font-medium backdrop-blur-sm border border-primary/20">
+              <Badge variant="secondary" className="mb-6 px-4 py-2 text-sm font-medium bg-white/80 backdrop-blur-sm border border-primary/20">
                 <Target className="h-4 w-4 mr-2" />
                 Platform Expertise
               </Badge>
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 gradient-text">
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary via-purple-600 to-pink-600 bg-clip-text text-transparent">
                 Master Every Platform
               </h2>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
@@ -168,7 +168,7 @@ const Index = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {platforms.map((platform, index) => (
-                <Card key={index} className="glass-effect hover:shadow-2xl transition-all duration-500 cursor-pointer group border border-primary/10 hover:border-primary/20 hover:scale-105">
+                <Card key={index} className="bg-white/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-500 cursor-pointer group border border-primary/10 hover:border-primary/20 hover:scale-105">
                   <CardHeader className="text-center pb-4">
                     <div className={`w-20 h-20 bg-gradient-to-br ${platform.color} rounded-2xl mx-auto mb-4 flex items-center justify-center text-white text-3xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}>
                       {platform.icon}
@@ -225,57 +225,6 @@ const Index = () => {
                 </Card>
               ))}
             </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="py-24 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary via-secondary to-accent"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-background/20 via-transparent to-background/20"></div>
-          <div className="absolute top-0 left-0 w-full h-full">
-            <div className="absolute top-20 left-20 w-32 h-32 bg-white/10 rounded-full blur-xl animate-pulse"></div>
-            <div className="absolute bottom-20 right-20 w-48 h-48 bg-white/10 rounded-full blur-2xl animate-pulse delay-500"></div>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-white/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
-          </div>
-          
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <Card className="glass-effect border-white/20 shadow-2xl">
-              <CardContent className="text-center py-20">
-                <div className="mb-8">
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-white/20 rounded-full blur-xl"></div>
-                    <Globe className="h-20 w-20 mx-auto text-white mb-6 relative z-10" />
-                  </div>
-                </div>
-                <Badge variant="secondary" className="mb-6 px-4 py-2 text-sm font-medium bg-white/20 text-white border-white/30 backdrop-blur-sm">
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Transform Your Presence
-                </Badge>
-                <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white leading-tight">
-                  Ready to Transform Your Social Media Presence?
-                </h2>
-                <p className="text-xl mb-10 max-w-3xl mx-auto text-white/90 leading-relaxed">
-                  Join thousands of creators and businesses who trust HitLoyal to guide their social media growth journey. Start building your authentic online presence today!
-                </p>
-                <div className="flex flex-col sm:flex-row gap-6 justify-center">
-                  <Button asChild size="lg" variant="secondary" className="text-lg px-8 py-4 bg-white text-primary hover:bg-white/90 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
-                    <Link to="/services">
-                      <Target className="mr-2 h-5 w-5" />
-                      Explore Services
-                    </Link>
-                  </Button>
-                  <Button 
-                    size="lg" 
-                    variant="outline" 
-                    className="text-lg px-8 py-4 border-2 border-white/50 text-white hover:bg-white/10 backdrop-blur-sm transition-all duration-300 hover:scale-105"
-                    onClick={() => setIsAuthDialogOpen(true)}
-                  >
-                    <Users className="mr-2 h-5 w-5" />
-                    Get Started
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </section>
 
