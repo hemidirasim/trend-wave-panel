@@ -30,6 +30,8 @@ const iconMap: Record<string, any> = {
 const Services = () => {
   const { user } = useAuth();
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
+  const [isConsultationDialogOpen, setIsConsultationDialogOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState<string>('');
   const [standardServices, setStandardServices] = useState<Service[]>([]);
   const [socialMediaServices, setSocialMediaServices] = useState<Service[]>([]);
   const navigate = useNavigate();
@@ -55,6 +57,15 @@ const Services = () => {
     } catch (error) {
       console.error('Error fetching services:', error);
     }
+  };
+
+  const handleConsultationClick = (serviceName: string) => {
+    if (!user) {
+      setIsAuthDialogOpen(true);
+      return;
+    }
+    setSelectedService(serviceName);
+    setIsConsultationDialogOpen(true);
   };
 
   // Əsas Xidmətlər
@@ -346,12 +357,13 @@ const Services = () => {
                           <span className="text-lg text-muted-foreground">Qiymət sorğu ilə</span>
                         )}
                       </div>
-                      <ConsultationDialog serviceName={service.name}>
-                        <Button className="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 transition-all duration-300">
-                          Məsləhət Alın
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
-                      </ConsultationDialog>
+                      <Button 
+                        onClick={() => handleConsultationClick(service.name)}
+                        className="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 transition-all duration-300"
+                      >
+                        Məsləhət Alın
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
                     </CardContent>
                   </Card>
                 );
@@ -410,15 +422,14 @@ const Services = () => {
                                 <span className="text-lg text-muted-foreground">Qiymət sorğu ilə</span>
                               )}
                             </div>
-                            <ConsultationDialog serviceName={service.name}>
-                              <Button 
-                                size="sm"
-                                variant="outline"
-                                className="w-full border-primary text-primary hover:bg-primary hover:text-white transition-all duration-300"
-                              >
-                                Məsləhət Alın
-                              </Button>
-                            </ConsultationDialog>
+                            <Button 
+                              onClick={() => handleConsultationClick(service.name)}
+                              size="sm"
+                              variant="outline"
+                              className="w-full border-primary text-primary hover:bg-primary hover:text-white transition-all duration-300"
+                            >
+                              Məsləhət Alın
+                            </Button>
                           </CardContent>
                         </Card>
                       );
@@ -456,15 +467,14 @@ const Services = () => {
                               <span className="text-2xl font-bold text-primary">{service.startPrice}</span>
                               <span className="text-sm text-muted-foreground ml-1">-dan başlayır</span>
                             </div>
-                            <ConsultationDialog serviceName={service.name}>
-                              <Button 
-                                size="sm"
-                                variant="outline"
-                                className="w-full border-primary text-primary hover:bg-primary hover:text-white transition-all duration-300"
-                              >
-                                Məsləhət Alın
-                              </Button>
-                            </ConsultationDialog>
+                            <Button 
+                              onClick={() => handleConsultationClick(service.name)}
+                              size="sm"
+                              variant="outline"
+                              className="w-full border-primary text-primary hover:bg-primary hover:text-white transition-all duration-300"
+                            >
+                              Məsləhət Alın
+                            </Button>
                           </CardContent>
                         </Card>
                       ))}
@@ -486,15 +496,14 @@ const Services = () => {
               <p className="text-xl text-white/90 mb-8">
                 Peşəkar komandamızla birlikdə biznesinizi növbəti səviyyəyə çıxarın və rəqabətdə qabaqlayın
               </p>
-              <ConsultationDialog>
-                <Button 
-                  size="lg" 
-                  className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-4 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-                >
-                  İndi Başla
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </ConsultationDialog>
+              <Button 
+                onClick={() => handleConsultationClick('Ümumi Məsləhət')}
+                size="lg" 
+                className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-4 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              >
+                İndi Başla
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
             </div>
           </div>
         </section>
@@ -506,6 +515,14 @@ const Services = () => {
         open={isAuthDialogOpen} 
         onOpenChange={setIsAuthDialogOpen} 
       />
+
+      {user && (
+        <ConsultationDialog 
+          open={isConsultationDialogOpen}
+          onOpenChange={setIsConsultationDialogOpen}
+          serviceName={selectedService}
+        />
+      )}
     </>
   );
 };

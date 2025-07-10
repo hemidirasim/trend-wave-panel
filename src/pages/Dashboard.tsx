@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Loader2, Plus, User, Package, Clock, CheckCircle, XCircle, AlertCircle, Wallet, LifeBuoy, Settings, CreditCard } from 'lucide-react';
+import { Loader2, Plus, User, Package, Clock, CheckCircle, XCircle, AlertCircle, Wallet, LifeBuoy, Settings, CreditCard, MessageSquare } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import OrderTracker from '@/components/OrderTracker';
@@ -36,9 +35,21 @@ interface Profile {
   created_at: string;
 }
 
+interface Consultation {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  service: string;
+  message: string;
+  status: string;
+  created_at: string;
+}
+
 const Dashboard = () => {
   const { user, signOut, loading: authLoading } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
+  const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -85,6 +96,20 @@ const Dashboard = () => {
       } else {
         setOrders(ordersData || []);
       }
+
+      // Fetch user consultations
+      const { data: consultationsData, error: consultationsError } = await supabase
+        .from('consultations')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
+
+      if (consultationsError) {
+        console.error('Error fetching consultations:', consultationsError);
+        toast.error('Məsləhətlər yüklənərkən xəta baş verdi');
+      } else {
+        setConsultations(consultationsData || []);
+      }
     } catch (error) {
       console.error('Error:', error);
       toast.error('Məlumatlar yüklənərkən xəta baş verdi');
@@ -103,6 +128,19 @@ const Dashboard = () => {
         return <Badge variant="outline" className="text-green-600"><CheckCircle className="h-3 w-3 mr-1" />Tamamlandı</Badge>;
       case 'cancelled':
         return <Badge variant="outline" className="text-red-600"><XCircle className="h-3 w-3 mr-1" />Ləğv edildi</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  const getConsultationStatusBadge = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return <Badge variant="outline" className="text-yellow-600"><Clock className="h-3 w-3 mr-1" />Gözlənir</Badge>;
+      case 'contacted':
+        return <Badge variant="outline" className="text-blue-600"><MessageSquare className="h-3 w-3 mr-1" />Əlaqə saxlandı</Badge>;
+      case 'completed':
+        return <Badge variant="outline" className="text-green-600"><CheckCircle className="h-3 w-3 mr-1" />Tamamlandı</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -188,7 +226,7 @@ const Dashboard = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Ümumi Sifarişlər</CardTitle>
@@ -222,14 +260,28 @@ const Dashboard = () => {
               </div>
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Məsləhət Sorğuları</CardTitle>
+              <MessageSquare className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{consultations.length}</div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="orders" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-8">
+          <TabsList className="grid w-full grid-cols-5 mb-8">
             <TabsTrigger value="orders" className="flex items-center gap-2">
               <Package className="h-4 w-4" />
               Sifarişlər
+            </TabsTrigger>
+            <TabsTrigger value="consultations" className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Məsləhətlər
             </TabsTrigger>
             <TabsTrigger value="track" className="flex items-center gap-2">
               <Package className="h-4 w-4" />
@@ -285,6 +337,54 @@ const Dashboard = () => {
                     <h3 className="text-lg font-semibold mb-2">Hələ sifariş yoxdur</h3>
                     <p className="text-muted-foreground mb-4">
                       İlk sifarişinizi vermək üçün xidmətlər səhifəsinə keçin
+                    </p>
+                    <Button onClick={() => navigate('/services')}>
+                      Xidmətlərə bax
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="consultations">
+            <Card>
+              <CardHeader>
+                <CardTitle>Məsləhət Sorğuları</CardTitle>
+                <CardDescription>
+                  Göndərdiyiniz məsləhət sorğularının siyahısı və vəziyyəti
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {consultations.length > 0 ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Xidmət</TableHead>
+                        <TableHead>Ad</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Vəziyyət</TableHead>
+                        <TableHead>Tarix</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {consultations.map((consultation) => (
+                        <TableRow key={consultation.id}>
+                          <TableCell className="font-medium">{consultation.service}</TableCell>
+                          <TableCell>{consultation.name}</TableCell>
+                          <TableCell>{consultation.email}</TableCell>
+                          <TableCell>{getConsultationStatusBadge(consultation.status)}</TableCell>
+                          <TableCell>{formatDate(consultation.created_at)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <div className="text-center py-8">
+                    <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">Hələ məsləhət sorğusu yoxdur</h3>
+                    <p className="text-muted-foreground mb-4">
+                      İlk məsləhət sorğunuzu göndərmək üçün xidmətlər səhifəsinə keçin
                     </p>
                     <Button onClick={() => navigate('/services')}>
                       Xidmətlərə bax

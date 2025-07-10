@@ -1,17 +1,18 @@
 
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Phone, Mail, MessageCircle } from 'lucide-react';
+import { Phone, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Ad ən azı 2 simvol olmalıdır'),
@@ -22,29 +23,59 @@ const formSchema = z.object({
 });
 
 interface ConsultationDialogProps {
-  children: React.ReactNode;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   serviceName?: string;
 }
 
-export function ConsultationDialog({ children, serviceName }: ConsultationDialogProps) {
-  const [open, setOpen] = useState(false);
+export function ConsultationDialog({ open, onOpenChange, serviceName }: ConsultationDialogProps) {
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
-      email: '',
+      email: user?.email || '',
       phone: '',
       service: serviceName || '',
       message: '',
     },
   });
 
+  // Update service field when serviceName changes
+  React.useEffect(() => {
+    if (serviceName) {
+      form.setValue('service', serviceName);
+    }
+  }, [serviceName, form]);
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (!user) {
+      toast({
+        title: "Xəta baş verdi",
+        description: "Məsləhət sorğusu göndərmək üçün daxil olmalısınız.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
-      // Here you would typically send the data to your backend
-      console.log('Form submitted:', values);
+      setLoading(true);
+      
+      const { error } = await supabase
+        .from('consultations')
+        .insert({
+          user_id: user.id,
+          name: values.name,
+          email: values.email,
+          phone: values.phone,
+          service: values.service,
+          message: values.message,
+        });
+
+      if (error) throw error;
       
       toast({
         title: "Müraciətiniz göndərildi!",
@@ -52,21 +83,21 @@ export function ConsultationDialog({ children, serviceName }: ConsultationDialog
       });
       
       form.reset();
-      setOpen(false);
+      onOpenChange(false);
     } catch (error) {
+      console.error('Consultation submission error:', error);
       toast({
         title: "Xəta baş verdi",
         description: "Zəhmət olmasa yenidən cəhd edin.",
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {children}
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center mb-2">
@@ -127,23 +158,27 @@ export function ConsultationDialog({ children, serviceName }: ConsultationDialog
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Maraqlandığınız xidmət *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Xidmət seçin" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="smm">SMM Xidməti</SelectItem>
-                      <SelectItem value="google-ads">Google Reklamları</SelectItem>
-                      <SelectItem value="youtube-ads">YouTube Reklamları</SelectItem>
-                      <SelectItem value="seo">SEO Xidməti</SelectItem>
-                      <SelectItem value="logo">Loqo Hazırlanması</SelectItem>
-                      <SelectItem value="web">Sayt Hazırlanması</SelectItem>
-                      <SelectItem value="tv-radio">TV/Radio Reklam</SelectItem>
-                      <SelectItem value="facebook-ads">Facebook/Instagram Reklam</SelectItem>
-                      <SelectItem value="social-media">Sosial Media Engagement</SelectItem>
-                      <SelectItem value="other">Digər</SelectItem>
+                      <SelectItem value="SMM Xidməti">SMM Xidməti</SelectItem>
+                      <SelectItem value="Google Reklamları">Google Reklamları</SelectItem>
+                      <SelectItem value="YouTube Reklamları">YouTube Reklamları</SelectItem>
+                      <SelectItem value="SEO Xidməti">SEO Xidməti</SelectItem>
+                      <SelectItem value="Loqo Hazırlanması">Loqo Hazırlanması</SelectItem>
+                      <SelectItem value="Sayt Hazırlanması">Sayt Hazırlanması</SelectItem>
+                      <SelectItem value="TV/Radio Reklam">TV/Radio Reklam</SelectItem>
+                      <SelectItem value="Facebook/Instagram Reklam">Facebook/Instagram Reklam</SelectItem>
+                      <SelectItem value="Sosial Media Engagement">Sosial Media Engagement</SelectItem>
+                      <SelectItem value="Instagram Engagement">Instagram Engagement</SelectItem>
+                      <SelectItem value="TikTok Marketinq">TikTok Marketinq</SelectItem>
+                      <SelectItem value="YouTube Böyütmə">YouTube Böyütmə</SelectItem>
+                      <SelectItem value="Ümumi Məsləhət">Ümumi Məsləhət</SelectItem>
+                      <SelectItem value="Digər">Digər</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -170,8 +205,8 @@ export function ConsultationDialog({ children, serviceName }: ConsultationDialog
             />
             
             <div className="space-y-4 pt-4">
-              <Button type="submit" className="w-full" size="lg">
-                Məsləhət Tələb Et
+              <Button type="submit" className="w-full" size="lg" disabled={loading}>
+                {loading ? 'Göndərilir...' : 'Məsləhət Tələb Et'}
               </Button>
               
               <div className="text-center space-y-2">
