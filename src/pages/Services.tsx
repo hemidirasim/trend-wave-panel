@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -47,7 +48,7 @@ const Services = () => {
         .select('*')
         .eq('active', true)
         .order('category', { ascending: true })
-        .order('price', { ascending: true, nullsLast: true });
+        .order('price', { ascending: true, nullsFirst: false });
 
       if (error) throw error;
       

@@ -82,7 +82,7 @@ export default function AdminServices() {
         .from('services')
         .select('*')
         .order('category', { ascending: true })
-        .order('price', { ascending: true, nullsLast: true });
+        .order('price', { ascending: true, nullsFirst: false });
 
       if (error) throw error;
       setServices((data || []) as Service[]);
