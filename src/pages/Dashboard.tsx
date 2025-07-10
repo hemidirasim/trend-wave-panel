@@ -11,7 +11,6 @@ import { toast } from 'sonner';
 import { Loader2, Plus, User, Package, Clock, CheckCircle, XCircle, AlertCircle, Wallet, LifeBuoy, Settings, CreditCard, MessageSquare } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import OrderTracker from '@/components/OrderTracker';
 import Support from '@/components/Support';
 import AccountSettings from '@/components/AccountSettings';
 
@@ -274,7 +273,7 @@ const Dashboard = () => {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="orders" className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-8">
+          <TabsList className="grid w-full grid-cols-4 mb-8">
             <TabsTrigger value="orders" className="flex items-center gap-2">
               <Package className="h-4 w-4" />
               Sifarişlər
@@ -282,10 +281,6 @@ const Dashboard = () => {
             <TabsTrigger value="consultations" className="flex items-center gap-2">
               <MessageSquare className="h-4 w-4" />
               Məsləhətlər
-            </TabsTrigger>
-            <TabsTrigger value="track" className="flex items-center gap-2">
-              <Package className="h-4 w-4" />
-              Sifariş İzlə
             </TabsTrigger>
             <TabsTrigger value="support" className="flex items-center gap-2">
               <LifeBuoy className="h-4 w-4" />
@@ -393,10 +388,6 @@ const Dashboard = () => {
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
-
-          <TabsContent value="track">
-            <OrderTracker />
           </TabsContent>
 
           <TabsContent value="support">
