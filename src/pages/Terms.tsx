@@ -10,152 +10,152 @@ const Terms = () => {
       
       <div className="container mx-auto px-4 py-16 max-w-4xl">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">Terms & Conditions</h1>
+          <h1 className="text-4xl font-bold mb-4">Qaydalar və Şərtlər</h1>
           <p className="text-muted-foreground text-lg">
-            Please read these terms carefully before using HitLoyal's social media growth platform
+            SocialBoost SMM xidmətlərini istifadə etməzdən əvvəl bu şərtləri diqqətlə oxuyun
           </p>
         </div>
 
         <div className="space-y-8">
           <Card>
             <CardHeader>
-              <CardTitle>1. Acceptance of Terms</CardTitle>
+              <CardTitle>1. Şərtlərin Qəbulu</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                By accessing and using HitLoyal's social media growth platform ("Service"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
+                SocialBoost SMM xidmətləri platformasını ("Xidmət") əldə etməklə və istifadə etməklə, siz bu razılaşmanın şərtlərini və müddəalarını qəbul etmiş olursunuz. Əgər yuxarıdakı şərtlərə əməl etməyi qəbul etmirsinizsə, lütfən bu xidməti istifadə etməyin.
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>2. Description of Service</CardTitle>
+              <CardTitle>2. Xidmətin Təsviri</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                HitLoyal provides social media growth strategies, analytics, consultation services, and educational resources to help individuals and businesses build their authentic online presence across various social media platforms including Instagram, TikTok, YouTube, and Facebook.
+                SocialBoost Instagram, TikTok, YouTube və Facebook daxil olmaqla müxtəlif sosial media platformalarında şəxslərə və biznes strukturlarına real və keyfiyyətli izləyicilər, bəyənmələr, baxışlar və digər SMM xidmətləri təqdim edir.
               </p>
               <p>
-                Our services include but are not limited to:
+                Xidmətlərimizə daxildir:
               </p>
               <ul>
-                <li>Strategic growth planning and consultation</li>
-                <li>Performance analytics and insights</li>
-                <li>Educational resources and training materials</li>
-                <li>Expert guidance and mentoring</li>
-                <li>Platform-specific optimization strategies</li>
+                <li>Real və aktiv sosial media izləyiciləri</li>
+                <li>Post və video bəyənmələri</li>
+                <li>Video baxışları və şərhləri</li>
+                <li>Instagram, TikTok, YouTube və Facebook xidmətləri</li>
+                <li>24/7 müştəri dəstəyi</li>
               </ul>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>3. User Responsibilities</CardTitle>
+              <CardTitle>3. İstifadəçi Məsuliyyətləri</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
-              <p>Users are responsible for:</p>
+              <p>İstifadəçilər aşağıdakılardan məsuldurlar:</p>
               <ul>
-                <li>Providing accurate and up-to-date information</li>
-                <li>Implementing strategies in compliance with platform terms of service</li>
-                <li>Maintaining the confidentiality of account credentials</li>
-                <li>Using our services ethically and responsibly</li>
-                <li>Following all applicable laws and regulations</li>
+                <li>Dəqiq və yenilənmiş məlumat vermək</li>
+                <li>Sosial media platformalarının qaydalarına uyğun davranmaq</li>
+                <li>Hesab məlumatlarının məxfiliyini qorumaq</li>
+                <li>Xidmətlərimizi etik və məsuliyyətlə istifadə etmək</li>
+                <li>Bütün tətbiq olunan qanun və qaydalara əməl etmək</li>
               </ul>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>4. Service Limitations</CardTitle>
+              <CardTitle>4. Xidmət Məhdudiyyətləri</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                HitLoyal provides guidance and strategic advice for organic social media growth. We do not guarantee specific results or outcomes. Success depends on various factors including content quality, consistency, audience engagement, and platform algorithm changes.
+                SocialBoost real və keyfiyyətli SMM xidmətləri təqdim edir. Xidmətlərimiz sosial media platformalarının qaydalarına uyğundur və 100% təhlükəsizdir. Lakin internet və sosial media platformalarının dəyişkən təbiətinə görə nəticələrdə kiçik dəyişikliklər ola bilər.
               </p>
               <p>
-                Our services are consultative and educational in nature. We do not directly interact with or modify your social media accounts unless explicitly authorized.
+                Sifarişləriniz adətən 24 saat ərzində başlayır və xidmətin növündən asılı olaraq tamamlanır. Biz şifrənizi və ya giriş məlumatlarınızı heç vaxt tələb etmirik.
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>5. Payment and Refunds</CardTitle>
+              <CardTitle>5. Ödəniş və Geri Qaytarma</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                Payment terms vary by service package. All fees are non-refundable unless otherwise specified in writing. We reserve the right to modify pricing with 30 days notice to existing customers.
+                Ödəniş şərtləri xidmətin növünə görə dəyişir. Xidmət təqdim edilməyibsə və ya keyfiyyət göstərilən standartlara uyğun deyilsə, 30 gün ərzində tam geri qaytarma təklif edirik. Müştəri məmnuniyyəti bizim prioritetimizdir.
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>6. Intellectual Property</CardTitle>
+              <CardTitle>6. Əqli Mülkiyyət Hüquqları</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                All content, strategies, methodologies, and materials provided by HitLoyal are proprietary and protected by intellectual property laws. Users may not redistribute, resell, or share proprietary content without explicit written permission.
+                SocialBoost tərəfindən təqdim edilən bütün məzmun, metodikalar və materiallar əqli mülkiyyət qanunları ilə qorunur. İstifadəçilər yazılı icazə olmadan məlumatları yenidən paylaşa və ya sata bilməzlər.
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>7. Privacy and Data Protection</CardTitle>
+              <CardTitle>7. Məxfilik və Məlumat Qorunması</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                We respect your privacy and are committed to protecting your personal information. Please refer to our Privacy Policy for detailed information about how we collect, use, and protect your data.
+                Biz sizin məxfiliyinizə hörmət edirik və şəxsi məlumatlarınızı qorumağa sadiqik. Məlumatlarınızı necə topladığımız, istifadə etdiyimiz və qoruduğumuz haqqında ətraflı məlumat üçün Məxfilik Siyasətimizə baxın.
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>8. Limitation of Liability</CardTitle>
+              <CardTitle>8. Məsuliyyətin Məhdudlaşdırılması</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                HitLoyal shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your use of the service.
+                SocialBoost xidmətimizdən istifadəniz nəticəsində yaranan heç bir dolayı, təsadüfi, xüsusi və ya cəzalandırıcı zərərə görə məsuliyyət daşımır. Bu, gəlir itkisi, məlumat itkisi və ya digər maddi olmayan itkiləri də əhatə edir.
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>9. Termination</CardTitle>
+              <CardTitle>9. Xidmətin Dayandırılması</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                Either party may terminate the service agreement at any time with written notice. Upon termination, your access to proprietary materials and ongoing support will cease.
+                Hər iki tərəf yazılı bildiriş ilə istənilən vaxt xidmət müqaviləsini ləğv edə bilər. Dayandırma zamanı xüsusi materiallara və davamlı dəstəyə çıxışınız dayandırılacaq.
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>10. Changes to Terms</CardTitle>
+              <CardTitle>10. Şərtlərdə Dəyişikliklər</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                HitLoyal reserves the right to modify these terms at any time. Users will be notified of significant changes via email or platform notification. Continued use of the service after changes constitutes acceptance of new terms.
+                SocialBoost bu şərtləri istənilən vaxt dəyişdirmək hüququnu özündə saxlayır. Mühüm dəyişikliklər email və ya platform bildirişi ilə sizə çatdırılacaq. Dəyişikliklərdən sonra xidmətin istifadəsi yeni şərtlərin qəbul edilməsi deməkdir.
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>11. Contact Information</CardTitle>
+              <CardTitle>11. Əlaqə Məlumatları</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                For questions about these Terms & Conditions, please contact us at:
+                Bu Qaydalar və Şərtlər haqqında suallarınız üçün bizimlə əlaqə saxlayın:
               </p>
               <p>
-                Email: legal@hitloyal.com<br />
-                Last updated: January 2024
+                Email: info@socialboost.az<br />
+                Son yenilənmə: Yanvar 2024
               </p>
             </CardContent>
           </Card>

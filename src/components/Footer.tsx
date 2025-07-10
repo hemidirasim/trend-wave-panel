@@ -14,11 +14,11 @@ export const Footer = () => {
                 <Globe className="h-6 w-6 text-white" />
               </div>
               <span className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-                HitLoyal
+                SocialBoost
               </span>
             </div>
             <p className="text-slate-300 leading-relaxed max-w-sm">
-              Professional social media growth platform providing strategic guidance, analytics, and expert consultation to help you build an authentic online presence.
+              Instagram, TikTok, YouTube və Facebook üçün peşəkar SMM xidmətləri. Sosial media hesablarınızı real və keyfiyyətli şəkildə inkişaf etdirin.
             </p>
             <div className="flex space-x-4">
               <a href="#" className="w-10 h-10 bg-slate-700 hover:bg-primary rounded-full flex items-center justify-center transition-colors duration-300">
@@ -38,26 +38,26 @@ export const Footer = () => {
 
           {/* Services Section */}
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-white">Growth Services</h3>
+            <h3 className="text-xl font-semibold text-white">SMM Xidmətləri</h3>
             <ul className="space-y-3">
               <li>
                 <Link to="/services" className="text-slate-300 hover:text-primary transition-colors duration-300 flex items-center">
-                  Strategic Planning
+                  Instagram Xidmətləri
                 </Link>
               </li>
               <li>
                 <Link to="/services" className="text-slate-300 hover:text-primary transition-colors duration-300 flex items-center">
-                  Analytics & Insights
+                  TikTok Xidmətləri
                 </Link>
               </li>
               <li>
                 <Link to="/services" className="text-slate-300 hover:text-primary transition-colors duration-300 flex items-center">
-                  Expert Consultation
+                  YouTube Xidmətləri
                 </Link>
               </li>
               <li>
                 <Link to="/services" className="text-slate-300 hover:text-primary transition-colors duration-300 flex items-center">
-                  Educational Resources
+                  Facebook Xidmətləri
                 </Link>
               </li>
             </ul>
@@ -65,26 +65,26 @@ export const Footer = () => {
 
           {/* Company Section */}
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-white">Company</h3>
+            <h3 className="text-xl font-semibold text-white">Şirkət</h3>
             <ul className="space-y-3">
               <li>
                 <Link to="/blog" className="text-slate-300 hover:text-primary transition-colors duration-300">
-                  Blog
+                  Bloq
                 </Link>
               </li>
               <li>
                 <Link to="/faq" className="text-slate-300 hover:text-primary transition-colors duration-300">
-                  FAQ
+                  Suallar
                 </Link>
               </li>
               <li>
                 <Link to="/terms" className="text-slate-300 hover:text-primary transition-colors duration-300">
-                  Terms & Conditions
+                  Qaydalar və Şərtlər
                 </Link>
               </li>
               <li>
                 <Link to="/privacy" className="text-slate-300 hover:text-primary transition-colors duration-300">
-                  Privacy Policy
+                  Məxfilik Siyasəti
                 </Link>
               </li>
             </ul>
@@ -92,19 +92,19 @@ export const Footer = () => {
 
           {/* Features Section */}
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-white">Why Choose Us</h3>
+            <h3 className="text-xl font-semibold text-white">Niyə Bizimlə?</h3>
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
                 <Shield className="h-5 w-5 text-green-400 flex-shrink-0" />
-                <span className="text-slate-300 text-sm">Secure & Reliable</span>
+                <span className="text-slate-300 text-sm">Təhlükəsiz və Etibarlı</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Zap className="h-5 w-5 text-yellow-400 flex-shrink-0" />
-                <span className="text-slate-300 text-sm">Expert Guidance</span>
+                <span className="text-slate-300 text-sm">Sürətli Xidmət</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Clock className="h-5 w-5 text-blue-400 flex-shrink-0" />
-                <span className="text-slate-300 text-sm">24/7 Support</span>
+                <span className="text-slate-300 text-sm">24/7 Dəstək</span>
               </div>
             </div>
           </div>
@@ -114,10 +114,10 @@ export const Footer = () => {
         <div className="border-t border-slate-700 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-slate-400 text-sm">
-              © 2024 HitLoyal. All rights reserved.
+              © 2024 SocialBoost. Bütün hüquqlar qorunur.
             </div>
             <div className="text-slate-400 text-sm">
-              Trusted by 10,000+ creators and businesses worldwide
+              15,000+ müştərimizin etibar etdiyi platform
             </div>
           </div>
         </div>

@@ -234,10 +234,10 @@ const Services = () => {
         <div className="container mx-auto px-4 py-8">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold mb-4">
-              Sosial Media <span className="text-primary">Growth Strategies</span>
+              Sosial Media <span className="text-primary">SMM Xidmətləri</span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Instagram, TikTok, YouTube və Facebook üçün professional growth consultancy və strategic guidance
+              Instagram, TikTok, YouTube və Facebook üçün peşəkar SMM xidmətləri. Real və keyfiyyətli nəticələr əldə edin.
             </p>
           </div>
 
@@ -249,31 +249,31 @@ const Services = () => {
                   <div className="p-2 bg-blue-500 rounded-lg text-white">
                     <Target className="h-6 w-6" />
                   </div>
-                  <Badge className="bg-blue-500 text-white">Strategic Planning</Badge>
+                  <Badge className="bg-blue-500 text-white">Instagram</Badge>
                 </div>
-                <CardTitle className="text-xl">Growth Strategy Development</CardTitle>
+                <CardTitle className="text-xl">Instagram Xidmətləri</CardTitle>
                 <CardDescription>
-                  Comprehensive growth strategies tailored to your brand and audience
+                  Instagram hesabınız üçün izləyicilər, bəyənmələr və baxışlar
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm">
                     <Star className="h-3 w-3 text-yellow-500" />
-                    Audience analysis and targeting
+                    Real və aktiv izləyicilər
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <Star className="h-3 w-3 text-yellow-500" />
-                    Content strategy planning
+                    Post və story bəyənmələri
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <Star className="h-3 w-3 text-yellow-500" />
-                    Growth timeline and milestones
+                    Video baxışları və şərhlər
                   </div>
                 </div>
                 <Button className="w-full bg-blue-500 hover:bg-blue-600" onClick={() => setIsAuthDialogOpen(true)}>
                   <Target className="h-4 w-4 mr-2" />
-                  Get Strategy Consultation
+                  Instagram Xidmətləri
                 </Button>
               </CardContent>
             </Card>
@@ -284,31 +284,31 @@ const Services = () => {
                   <div className="p-2 bg-green-500 rounded-lg text-white">
                     <BarChart3 className="h-6 w-6" />
                   </div>
-                  <Badge className="bg-green-500 text-white">Analytics & Insights</Badge>
+                  <Badge className="bg-green-500 text-white">TikTok</Badge>
                 </div>
-                <CardTitle className="text-xl">Performance Analytics</CardTitle>
+                <CardTitle className="text-xl">TikTok Xidmətləri</CardTitle>
                 <CardDescription>
-                  Advanced analytics and performance tracking tools
+                  TikTok hesabınız üçün izləyicilər və bəyənmələr
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm">
                     <Star className="h-3 w-3 text-yellow-500" />
-                    Detailed performance reports
+                    Real TikTok izləyiciləri
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <Star className="h-3 w-3 text-yellow-500" />
-                    Competitor analysis
+                    Video bəyənmələri
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <Star className="h-3 w-3 text-yellow-500" />
-                    Growth optimization tips
+                    Video baxışları
                   </div>
                 </div>
                 <Button className="w-full bg-green-500 hover:bg-green-600" onClick={() => setIsAuthDialogOpen(true)}>
                   <BarChart3 className="h-4 w-4 mr-2" />
-                  Access Analytics Tools
+                  TikTok Xidmətləri
                 </Button>
               </CardContent>
             </Card>
@@ -319,31 +319,31 @@ const Services = () => {
                   <div className="p-2 bg-purple-500 rounded-lg text-white">
                     <BookOpen className="h-6 w-6" />
                   </div>
-                  <Badge className="bg-purple-500 text-white">Education</Badge>
+                  <Badge className="bg-purple-500 text-white">YouTube</Badge>
                 </div>
-                <CardTitle className="text-xl">Expert Training</CardTitle>
+                <CardTitle className="text-xl">YouTube Xidmətləri</CardTitle>
                 <CardDescription>
-                  Learn from social media experts and industry professionals
+                  YouTube kanalınız üçün izləyicilər və baxışlar
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm">
                     <Star className="h-3 w-3 text-yellow-500" />
-                    Video tutorials and guides
+                    YouTube kanalına abunəçilər
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <Star className="h-3 w-3 text-yellow-500" />
-                    One-on-one mentoring
+                    Video baxışları
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <Star className="h-3 w-3 text-yellow-500" />
-                    Best practices and tips
+                    Video bəyənmələri və şərhlər
                   </div>
                 </div>
                 <Button className="w-full bg-purple-500 hover:bg-purple-600" onClick={() => setIsAuthDialogOpen(true)}>
                   <BookOpen className="h-4 w-4 mr-2" />
-                  Start Learning
+                  YouTube Xidmətləri
                 </Button>
               </CardContent>
             </Card>
@@ -351,8 +351,8 @@ const Services = () => {
 
           {/* Platform-specific features */}
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-4">Platform-Specific Growth Tools</h2>
-            <p className="text-muted-foreground">Specialized tools and strategies for each major social media platform</p>
+            <h2 className="text-3xl font-bold mb-4">Platforma Üzrə Xidmətlər</h2>
+            <p className="text-muted-foreground">Hər bir sosial media platformu üçün xüsusi xidmətlər və alətlər</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -369,12 +369,12 @@ const Services = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2 mb-4">
-                    <div className="text-sm text-muted-foreground">✓ Growth strategy consultation</div>
-                    <div className="text-sm text-muted-foreground">✓ Performance analytics</div>
-                    <div className="text-sm text-muted-foreground">✓ Expert guidance</div>
+                    <div className="text-sm text-muted-foreground">✓ Real izləyicilər və bəyənmələr</div>
+                    <div className="text-sm text-muted-foreground">✓ Sürətli çatdırılma</div>
+                    <div className="text-sm text-muted-foreground">✓ 24/7 dəstək xidməti</div>
                   </div>
                   <Button className="w-full" variant="outline" onClick={() => setIsAuthDialogOpen(true)}>
-                    Explore {platform} Tools
+                    {platform} Xidmətləri
                   </Button>
                 </CardContent>
               </Card>

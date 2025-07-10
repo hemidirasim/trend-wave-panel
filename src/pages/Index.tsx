@@ -29,25 +29,25 @@ const Index = () => {
     { 
       name: 'Instagram', 
       color: 'from-pink-500 to-rose-500', 
-      services: ['Growth Strategy', 'Analytics', 'Content Planning'],
+      services: ['Artırma Strategiyası', 'Analitika', 'Məzmun Planlaması'],
       icon: '📸'
     },
     { 
       name: 'TikTok', 
       color: 'from-purple-500 to-indigo-500', 
-      services: ['Trend Analysis', 'Audience Insights', 'Performance Tracking'],
+      services: ['Trend Təhlili', 'Auditoriya Analizi', 'Performans İzləmə'],
       icon: '🎵'
     },
     { 
       name: 'YouTube', 
       color: 'from-red-500 to-orange-500', 
-      services: ['Channel Growth', 'SEO Optimization', 'Analytics Dashboard'],
+      services: ['Kanal Artırımı', 'SEO Optimallaşdırma', 'Analitika Paneli'],
       icon: '📺'
     },
     { 
       name: 'Facebook', 
       color: 'from-blue-500 to-cyan-500', 
-      services: ['Page Management', 'Audience Building', 'Engagement Strategy'],
+      services: ['Səhifə İdarəetməsi', 'Auditoriya Qurma', 'Əlaqə Strategiyası'],
       icon: '👥'
     },
   ];
@@ -55,35 +55,35 @@ const Index = () => {
   const features = [
     {
       icon: <Target className="h-8 w-8 text-yellow-500" />,
-      title: 'Strategic Growth Planning',
-      description: 'Develop comprehensive social media strategies tailored to your brand and audience for sustainable growth.',
+      title: 'Sürətli və Keyfiyyətli',
+      description: 'Real istifadəçilərlə işləyərək sosial media hesablarınızı sürətli və təhlükəsiz şəkildə inkişaf etdiririk.',
       gradient: 'from-yellow-100 to-amber-100'
     },
     {
       icon: <BarChart3 className="h-8 w-8 text-green-500" />,
-      title: 'Advanced Analytics',
-      description: 'Get detailed insights into your performance with comprehensive analytics and reporting tools.',
+      title: '24/7 Dəstək Xidməti',
+      description: 'Peşəkar müştəri dəstəyi komandamız həftənin 7 günü sizin xidmətinizdədir.',
       gradient: 'from-green-100 to-emerald-100'
     },
     {
       icon: <BookOpen className="h-8 w-8 text-blue-500" />,
-      title: 'Educational Resources',
-      description: 'Access expert guides, tutorials, and best practices to master social media marketing.',
+      title: 'Təhlükəsiz Ödəniş',
+      description: 'Bütün ödənişləriniz SSL şifrələməsi ilə qorunur və müxtəlif ödəniş üsullarını dəstəkləyirik.',
       gradient: 'from-blue-100 to-sky-100'
     },
     {
       icon: <Award className="h-8 w-8 text-purple-500" />,
-      title: 'Expert Consultation',
-      description: 'Get personalized advice from social media experts to optimize your growth strategy.',
+      title: 'Zəmanət və Keyfiyyət',
+      description: 'Bütün xidmətlərimiz 100% zəmanətlidir və keyfiyyət standartlarımıza uyğundur.',
       gradient: 'from-purple-100 to-violet-100'
     }
   ];
 
   const stats = [
-    { number: "10K+", label: "Successful Projects", icon: <TrendingUp className="h-6 w-6" /> },
-    { number: "500+", label: "Growth Strategies", icon: <Target className="h-6 w-6" /> },
-    { number: "95%", label: "Client Success Rate", icon: <Star className="h-6 w-6" /> },
-    { number: "24/7", label: "Expert Support", icon: <Clock className="h-6 w-6" /> }
+    { number: "50K+", label: "Tamamlanmış Sifarişlər", icon: <TrendingUp className="h-6 w-6" /> },
+    { number: "15K+", label: "Məmnun Müştərilər", icon: <Target className="h-6 w-6" /> },
+    { number: "98%", label: "Müştəri Məmnuniyyəti", icon: <Star className="h-6 w-6" /> },
+    { number: "24/7", label: "Dəstək Xidməti", icon: <Clock className="h-6 w-6" /> }
   ];
 
   return (
@@ -102,19 +102,19 @@ const Index = () => {
               <div className="animate-fade-in">
                 <Badge variant="secondary" className="mb-6 px-4 py-2 text-sm font-medium bg-white/80 backdrop-blur-sm border border-primary/20">
                   <Sparkles className="h-4 w-4 mr-2" />
-                  #1 Social Media Growth Platform
+                  #1 SMM Xidmətləri Platforması
                 </Badge>
                 <h1 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-primary via-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight">
-                  Master Your Social Media Growth with HitLoyal
+                  SocialBoost ilə Sosial Medianı Zəbt Et
                 </h1>
                 <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
-                  Professional social media growth platform offering strategic guidance, analytics, and expert consultation for Instagram, TikTok, YouTube, and Facebook. Build your authentic online presence with proven strategies.
+                  Instagram, TikTok, YouTube və Facebook üçün peşəkar SMM xidmətləri. Real və keyfiyyətli izləyicilər, bəyənmələr və baxışlarla sosial media hesablarınızı güclü şəkildə inkişaf etdirin.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
                   <Button asChild size="lg" className="text-lg px-8 py-4 bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                     <Link to="/services">
                       <Rocket className="mr-2 h-5 w-5" />
-                      Start Your Journey
+                      İndi Başla
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
                   </Button>
@@ -157,13 +157,13 @@ const Index = () => {
             <div className="text-center mb-20">
               <Badge variant="secondary" className="mb-6 px-4 py-2 text-sm font-medium bg-white/80 backdrop-blur-sm border border-primary/20">
                 <Target className="h-4 w-4 mr-2" />
-                Platform Expertise
+                Platform Mütəxəssisliyi
               </Badge>
               <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Master Every Platform
+                Bütün Platformlarda Uğur
               </h2>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-                Specialized growth strategies and comprehensive tools designed for each major social media platform
+                Hər bir böyük sosial media platformu üçün xüsusi inkişaf xidmətləri və hərtərəfli alətlər
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -186,7 +186,7 @@ const Index = () => {
                     </div>
                     <Button asChild className="w-full transition-all duration-300" variant="default">
                       <Link to={`/services?platform=${platform.name.toLowerCase()}`}>
-                        Explore Tools
+                        Xidmətləri Kəşf Et
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Link>
                     </Button>
@@ -202,10 +202,10 @@ const Index = () => {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-20">
               <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-                Why Choose HitLoyal?
+                Niyə SocialBoost?
               </h2>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                Comprehensive social media growth platform with expert guidance and proven strategies
+                Sübut olunmuş strategiyalar və peşəkar yanaşma ilə sosial media hesablarınızı güclü şəkildə inkişaf etdirin
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">

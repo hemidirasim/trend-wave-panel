@@ -10,57 +10,57 @@ const Privacy = () => {
       
       <div className="container mx-auto px-4 py-16 max-w-4xl">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">Privacy Policy</h1>
+          <h1 className="text-4xl font-bold mb-4">Məxfilik Siyasəti</h1>
           <p className="text-muted-foreground text-lg">
-            Your privacy is important to us. This policy explains how HitLoyal collects, uses, and protects your information.
+            Məxfiliyiniz bizim üçün vacibdir. Bu siyasət SocialBoost-un məlumatlarınızı necə topladığını, istifadə etdiyini və qoruduğunu izah edir.
           </p>
         </div>
 
         <div className="space-y-8">
           <Card>
             <CardHeader>
-              <CardTitle>1. Information We Collect</CardTitle>
+              <CardTitle>1. Topladığımız Məlumatlar</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
-              <h4>Personal Information</h4>
+              <h4>Şəxsi Məlumatlar</h4>
               <p>
-                We collect information you provide directly to us, such as when you create an account, subscribe to our services, or contact us for support:
+                Biz sizin birbaşa verdiyiniz məlumatları topluyuruq, məsələn hesab yaratdığınız, xidmətlərimizə abunə olduğunuz və ya dəstək üçün bizimlə əlaqə saxladığınız zaman:
               </p>
               <ul>
-                <li>Name and contact information (email address, phone number)</li>
-                <li>Account credentials and profile information</li>
-                <li>Payment information (processed securely through third-party providers)</li>
-                <li>Communication preferences and history</li>
+                <li>Ad və əlaqə məlumatları (email ünvanı, telefon nömrəsi)</li>
+                <li>Hesab məlumatları və profil məlumatları</li>
+                <li>Ödəniş məlumatları (üçüncü tərəf provayderlər vasitəsilə təhlükəsiz emal edilir)</li>
+                <li>Kommunikasiya seçimləri və tarixçəsi</li>
               </ul>
 
-              <h4>Usage Information</h4>
+              <h4>İstifadə Məlumatları</h4>
               <p>
-                We automatically collect certain information about how you use our platform:
+                Biz platformamızdan necə istifadə etdiyinizə dair bəzi məlumatları avtomatik topluyuruq:
               </p>
               <ul>
-                <li>Login frequency and session duration</li>
-                <li>Features used and content accessed</li>
-                <li>Performance analytics and engagement metrics</li>
-                <li>Device information and technical specifications</li>
+                <li>Giriş tezliyi və sessiya müddəti</li>
+                <li>İstifadə edilən funksiyalar və əldə edilən məzmun</li>
+                <li>Performans analitikası və əlaqə metrikləri</li>
+                <li>Cihaz məlumatları və texniki xüsusiyyətlər</li>
               </ul>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>2. How We Use Your Information</CardTitle>
+              <CardTitle>2. Məlumatlarınızı Necə İstifadə Edirik</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
-              <p>We use the information we collect to:</p>
+              <p>Topladığımız məlumatları aşağıdakı məqsədlər üçün istifadə edirik:</p>
               <ul>
-                <li>Provide, maintain, and improve our social media growth services</li>
-                <li>Develop personalized growth strategies and recommendations</li>
-                <li>Process payments and manage subscriptions</li>
-                <li>Send important updates, notifications, and marketing communications</li>
-                <li>Provide customer support and respond to inquiries</li>
-                <li>Analyze usage patterns to enhance user experience</li>
-                <li>Ensure platform security and prevent fraud</li>
-                <li>Comply with legal obligations and enforce our terms</li>
+                <li>SMM xidmətlərimizi təqdim etmək, qorumaq və təkmilləşdirmək</li>
+                <li>Fərdiləşdirilmiş sosial media strategiyaları və təkliflər hazırlamaq</li>
+                <li>Ödənişləri emal etmək və abunəlikləri idarə etmək</li>
+                <li>Mühüm yeniliklər, bildirişlər və marketinq materialları göndərmək</li>
+                <li>Müştəri dəstəyi təqdim etmək və sorğulara cavab vermək</li>
+                <li>İstifadə nümunələrini təhlil edərək istifadəçi təcrübəsini artırmaq</li>
+                <li>Platform təhlükəsizliyini təmin etmək və saxtakarlığın qarşısını almaq</li>
+                <li>Qanuni öhdəliklərə əməl etmək və şərtlərimizi tətbiq etmək</li>
               </ul>
             </CardContent>
           </Card>
@@ -209,16 +209,16 @@ const Privacy = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>11. Contact Us</CardTitle>
+              <CardTitle>11. Bizimlə Əlaqə</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                If you have questions about this Privacy Policy or how we handle your information, please contact us:
+                Bu Məxfilik Siyasəti və ya məlumatlarınızı necə idarə etdiyimiz haqqında suallarınız varsa, bizimlə əlaqə saxlayın:
               </p>
               <p>
-                <strong>Email:</strong> privacy@hitloyal.com<br />
-                <strong>Address:</strong> HitLoyal Privacy Team<br />
-                <strong>Last Updated:</strong> January 2024
+                <strong>Email:</strong> info@socialboost.az<br />
+                <strong>Ünvan:</strong> SocialBoost Məxfilik Komandası<br />
+                <strong>Son Yenilənmə:</strong> Yanvar 2024
               </p>
             </CardContent>
           </Card>
