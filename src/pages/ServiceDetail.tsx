@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -14,7 +13,7 @@ interface Service {
   id: string;
   name: string;
   description: string | null;
-  category: 'standard' | 'social_media';
+  category: string;
   platform: string | null;
   icon: string | null;
   active: boolean;
