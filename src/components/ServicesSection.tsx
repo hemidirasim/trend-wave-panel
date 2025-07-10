@@ -49,7 +49,11 @@ export const ServicesSection = () => {
       if (!response.ok) throw new Error('API xətası');
       
       const data = await response.json();
-      setApiServices((data || []).slice(0, 8)); // İlk 8 xidməti göstər
+      // Sosial media platformalarına aid xidmətləri filtrləyirik
+      const socialMediaServices = (data || []).filter((service: ApiService) => 
+        ['Instagram', 'TikTok', 'YouTube', 'Facebook', 'Twitter'].includes(service.platform)
+      );
+      setApiServices(socialMediaServices.slice(0, 8)); // İlk 8 sosial media xidməti
     } catch (error) {
       console.error('Error fetching API services:', error);
     } finally {
