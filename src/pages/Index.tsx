@@ -105,10 +105,10 @@ const Index = () => {
                   #1 SMM Xidmətləri Platforması
                 </Badge>
                 <h1 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-primary via-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight">
-                  HitLoyal ilə Sosial Medianı Zəbt Et
+                  HitLoyal ilə Brendinizi Güclündirin
                 </h1>
                 <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
-                  Instagram, TikTok, YouTube və Facebook üçün peşəkar SMM xidmətləri. Real və keyfiyyətli izləyicilər, bəyənmələr və baxışlarla sosial media hesablarınızı güclü şəkildə inkişaf etdirin.
+                  İşlərinizi böyütmək üçün peşəkar sosial media marketinq strategiyaları. Organik böyümə və etik yanaşma ilə brendinizi müasir rəqabət mühitində güclündirin.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
                   <Button asChild size="lg" className="text-lg px-8 py-4 bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">

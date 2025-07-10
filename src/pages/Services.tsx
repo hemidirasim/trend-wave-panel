@@ -30,10 +30,10 @@ const Services = () => {
       gradient: 'from-pink-50 to-rose-50',
       borderColor: 'border-pink-200',
       services: [
-        { name: 'İzləyicilər', icon: Users, description: 'Real və aktiv Instagram izləyiciləri', startPrice: '₼5' },
-        { name: 'Bəyənmələr', icon: Heart, description: 'Post və story bəyənmələri', startPrice: '₼2' },
-        { name: 'Baxışlar', icon: Eye, description: 'Video və story baxışları', startPrice: '₼1' },
-        { name: 'Şərhlər', icon: MessageCircle, description: 'Keyfiyyətli şərhlər', startPrice: '₼3' }
+        { name: 'Auditoriya Artırma', icon: Users, description: 'Organik təsir edən marketinq strategiyaları', startPrice: '₼5' },
+        { name: 'Məzmun Təşviqi', icon: Heart, description: 'Məzmunun yayılması və təbliği', startPrice: '₼2' },
+        { name: 'Baxış Artırma', icon: Eye, description: 'Video və story məzmununun təbliği', startPrice: '₼1' },
+        { name: 'Münasibət Yaratma', icon: MessageCircle, description: 'Auditoriya ilə əlaqə qurma', startPrice: '₼3' }
       ]
     },
     {
@@ -43,10 +43,10 @@ const Services = () => {
       gradient: 'from-purple-50 to-indigo-50',
       borderColor: 'border-purple-200',
       services: [
-        { name: 'İzləyicilər', icon: Users, description: 'Real TikTok izləyiciləri', startPrice: '₼4' },
-        { name: 'Bəyənmələr', icon: Heart, description: 'Video bəyənmələri', startPrice: '₼1.5' },
-        { name: 'Baxışlar', icon: Eye, description: 'Video baxışları', startPrice: '₼0.5' },
-        { name: 'Paylaşımlar', icon: Share2, description: 'Video paylaşımları', startPrice: '₼3' }
+        { name: 'Auditoriya Genişləndirilməsi', icon: Users, description: 'TikTok kanalının təbliği və inkişafı', startPrice: '₼4' },
+        { name: 'Video Təşviqi', icon: Heart, description: 'Video məzmununun təşviqi və yayılması', startPrice: '₼1.5' },
+        { name: 'İzləmə Artırma', icon: Eye, description: 'Video məzmununun görünürlüyünün artırılması', startPrice: '₼0.5' },
+        { name: 'Paylaşım Strategiyası', icon: Share2, description: 'Məzmun paylaşımı və viral strategiyalar', startPrice: '₼3' }
       ]
     },
     {
@@ -56,10 +56,10 @@ const Services = () => {
       gradient: 'from-red-50 to-orange-50',
       borderColor: 'border-red-200',
       services: [
-        { name: 'Abunəçilər', icon: Users, description: 'YouTube kanalına abunəçilər', startPrice: '₼8' },
-        { name: 'Baxışlar', icon: Eye, description: 'Video baxışları', startPrice: '₼2' },
-        { name: 'Bəyənmələr', icon: Heart, description: 'Video bəyənmələri', startPrice: '₼3' },
-        { name: 'Şərhlər', icon: MessageCircle, description: 'Video şərhləri', startPrice: '₼5' }
+        { name: 'Kanal İnkişafı', icon: Users, description: 'YouTube kanalının organik böyüməsi', startPrice: '₼8' },
+        { name: 'Video Təbliği', icon: Eye, description: 'Video məzmununun təşviqi və yayılması', startPrice: '₼2' },
+        { name: 'Məzmun Dəstəyi', icon: Heart, description: 'Video məzmununun dəstəklənməsi', startPrice: '₼3' },
+        { name: 'Auditoriya Əlaqəsi', icon: MessageCircle, description: 'İzləyicilərlə əlaqə strategiyaları', startPrice: '₼5' }
       ]
     },
     {
@@ -69,10 +69,10 @@ const Services = () => {
       gradient: 'from-blue-50 to-cyan-50',
       borderColor: 'border-blue-200',
       services: [
-        { name: 'Səhifə Bəyənmələri', icon: Heart, description: 'Facebook səhifə bəyənmələri', startPrice: '₼6' },
-        { name: 'Post Bəyənmələri', icon: Heart, description: 'Post bəyənmələri', startPrice: '₼2' },
-        { name: 'Paylaşımlar', icon: Share2, description: 'Post paylaşımları', startPrice: '₼4' },
-        { name: 'İzləyicilər', icon: Users, description: 'Səhifə izləyiciləri', startPrice: '₼7' }
+        { name: 'Səhifə Marketinqi', icon: Heart, description: 'Facebook biznes səhifələrinin təbliği', startPrice: '₼6' },
+        { name: 'Məzmun Dəstəyi', icon: Heart, description: 'Post məzmununun təşviqi', startPrice: '₼2' },
+        { name: 'Viral Strategiya', icon: Share2, description: 'Məzmunun yayılması strategiyası', startPrice: '₼4' },
+        { name: 'Auditoriya Böyütmə', icon: Users, description: 'Səhifə auditoriyasının artırılması', startPrice: '₼7' }
       ]
     }
   ];
@@ -80,8 +80,8 @@ const Services = () => {
   const features = [
     {
       icon: <Shield className="h-8 w-8 text-green-500" />,
-      title: '100% Təhlükəsiz',
-      description: 'Bütün xidmətlərimiz tamamilə təhlükəsiz və sosial media platformalarının qaydalarına uyğundur.',
+      title: 'Platform Uyğunluğu',
+      description: 'Bütün marketinq strategiyalarımız sosial media platformalarının Terms of Service qaydalarına tam uyğundur.',
       color: 'from-green-50 to-emerald-50'
     },
     {
@@ -120,10 +120,10 @@ const Services = () => {
                 Peşəkar SMM Xidmətləri
               </Badge>
               <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Sosial Media <span className="block">Xidmətlərimiz</span>
+                Peşəkar SMM <span className="block">Marketinq Xidmətləri</span>
               </h1>
               <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-                Instagram, TikTok, YouTube və Facebook üçün real və keyfiyyətli SMM xidmətləri. Sosial media hesablarınızı güclü şəkildə inkişaf etdirin.
+                İşinizi böyütmək üçün peşəkar sosial media marketinq strategiyaları. Organik inkişaf və real auditoriya cəlbi ilə brendinizi gücləndirik.
               </p>
             </div>
             
@@ -224,8 +224,8 @@ const Services = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[
                 {
-                  title: 'Real və Aktiv İstifadəçilər',
-                  description: 'Yalnız real və aktiv sosial media istifadəçiləri ilə işləyirik. Heç bir bot və ya saxta hesab yoxdur.',
+                  title: 'Etik Marketinq Yanaşması',
+                  description: 'Bütün strategiyalarımız etik marketinq prinsiplərinə əsaslanır və organik böyümə təmin edir.',
                   icon: <CheckCircle className="h-6 w-6 text-green-500" />
                 },
                 {
