@@ -214,10 +214,6 @@ const Dashboard = () => {
               </CardContent>
             </Card>
             
-            <Button onClick={() => navigate('/services')} className="flex items-center">
-              <Plus className="h-4 w-4 mr-2" />
-              Yeni Sifariş
-            </Button>
             <Button variant="outline" onClick={handleSignOut}>
               Çıxış
             </Button>
@@ -273,14 +269,10 @@ const Dashboard = () => {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="orders" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-8">
+          <TabsList className="grid w-full grid-cols-3 mb-8">
             <TabsTrigger value="orders" className="flex items-center gap-2">
               <Package className="h-4 w-4" />
               Sifarişlər
-            </TabsTrigger>
-            <TabsTrigger value="consultations" className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4" />
-              Məsləhətlər
             </TabsTrigger>
             <TabsTrigger value="support" className="flex items-center gap-2">
               <LifeBuoy className="h-4 w-4" />
@@ -333,54 +325,6 @@ const Dashboard = () => {
                     <p className="text-muted-foreground">
                       İlk sifarişinizi vermək üçün xidmətlər səhifəsinə keçin
                     </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="consultations">
-            <Card>
-              <CardHeader>
-                <CardTitle>Məsləhət Sorğuları</CardTitle>
-                <CardDescription>
-                  Göndərdiyiniz məsləhət sorğularının siyahısı və vəziyyəti
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {consultations.length > 0 ? (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Xidmət</TableHead>
-                        <TableHead>Ad</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Vəziyyət</TableHead>
-                        <TableHead>Tarix</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {consultations.map((consultation) => (
-                        <TableRow key={consultation.id}>
-                          <TableCell className="font-medium">{consultation.service}</TableCell>
-                          <TableCell>{consultation.name}</TableCell>
-                          <TableCell>{consultation.email}</TableCell>
-                          <TableCell>{getConsultationStatusBadge(consultation.status)}</TableCell>
-                          <TableCell>{formatDate(consultation.created_at)}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                ) : (
-                  <div className="text-center py-8">
-                    <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">Hələ məsləhət sorğusu yoxdur</h3>
-                    <p className="text-muted-foreground mb-4">
-                      İlk məsləhət sorğunuzu göndərmək üçün xidmətlər səhifəsinə keçin
-                    </p>
-                    <Button onClick={() => navigate('/services')}>
-                      Xidmətlərə bax
-                    </Button>
                   </div>
                 )}
               </CardContent>
