@@ -135,7 +135,20 @@ const Dashboard = () => {
         console.error('Error fetching service requests:', serviceRequestsError);
         toast.error('Xidmət sorğuları yüklənərkən xəta baş verdi');
       } else {
-        setServiceRequests(serviceRequestsData || []);
+        // Convert the data to match our ServiceRequest interface
+        const formattedRequests: ServiceRequest[] = (serviceRequestsData || []).map(request => ({
+          id: request.id,
+          name: request.name,
+          email: request.email,
+          phone: request.phone,
+          service: request.service,
+          message: request.message,
+          status: (request.status as 'pending' | 'accepted' | 'cancelled' | 'completed') || 'pending',
+          price: undefined, // This would need to be added to the consultations table
+          created_at: request.created_at,
+          updated_at: request.updated_at
+        }));
+        setServiceRequests(formattedRequests);
       }
     } catch (error) {
       console.error('Error:', error);
