@@ -149,35 +149,42 @@ const Index = () => {
 
         {/* Platforms Section */}
         <section className="py-24 relative">
-          <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/5 to-background"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5"></div>
+          <div className="absolute top-10 left-10 w-64 h-64 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-10 right-10 w-48 h-48 bg-gradient-to-r from-secondary/10 to-primary/10 rounded-full blur-2xl"></div>
+          
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center mb-20">
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+              <Badge variant="secondary" className="mb-6 px-4 py-2 text-sm font-medium backdrop-blur-sm border border-primary/20">
+                <Target className="h-4 w-4 mr-2" />
                 Platform Expertise
+              </Badge>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 gradient-text">
+                Master Every Platform
               </h2>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                Specialized growth strategies and tools for each major social media platform
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+                Specialized growth strategies and comprehensive tools designed for each major social media platform
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {platforms.map((platform, index) => (
-                <Card key={index} className="hover:shadow-2xl transition-all duration-500 cursor-pointer group bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:scale-105">
+                <Card key={index} className="glass-effect hover:shadow-2xl transition-all duration-500 cursor-pointer group border border-primary/10 hover:border-primary/20 hover:scale-105">
                   <CardHeader className="text-center pb-4">
-                    <div className={`w-20 h-20 bg-gradient-to-r ${platform.color} rounded-2xl mx-auto mb-4 flex items-center justify-center text-white text-3xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}>
+                    <div className={`w-20 h-20 bg-gradient-to-br ${platform.color} rounded-2xl mx-auto mb-4 flex items-center justify-center text-white text-3xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}>
                       {platform.icon}
                     </div>
-                    <CardTitle className="text-2xl font-bold">{platform.name}</CardTitle>
+                    <CardTitle className="text-2xl font-bold text-foreground">{platform.name}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3 mb-6">
                       {platform.services.map((service, idx) => (
                         <div key={idx} className="flex items-center text-muted-foreground">
-                          <Check className="h-4 w-4 text-green-500 mr-3 flex-shrink-0" />
+                          <Check className="h-4 w-4 text-primary mr-3 flex-shrink-0" />
                           <span className="font-medium">{service}</span>
                         </div>
                       ))}
                     </div>
-                    <Button asChild className="w-full bg-gradient-to-r from-primary/90 to-purple-600/90 hover:from-primary hover:to-purple-600 transition-all duration-300" variant="default">
+                    <Button asChild className="w-full transition-all duration-300" variant="default">
                       <Link to={`/services?platform=${platform.name.toLowerCase()}`}>
                         Explore Tools
                         <ArrowRight className="ml-2 h-4 w-4" />
@@ -223,21 +230,28 @@ const Index = () => {
 
         {/* CTA Section */}
         <section className="py-24 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-600 to-pink-600"></div>
-          <div className="absolute inset-0 bg-black/20"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-primary via-secondary to-accent"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-background/20 via-transparent to-background/20"></div>
           <div className="absolute top-0 left-0 w-full h-full">
-            <div className="absolute top-20 left-20 w-32 h-32 bg-white/10 rounded-full blur-xl"></div>
-            <div className="absolute bottom-20 right-20 w-48 h-48 bg-white/10 rounded-full blur-2xl"></div>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
+            <div className="absolute top-20 left-20 w-32 h-32 bg-white/10 rounded-full blur-xl animate-pulse"></div>
+            <div className="absolute bottom-20 right-20 w-48 h-48 bg-white/10 rounded-full blur-2xl animate-pulse delay-500"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-white/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
           </div>
           
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <Card className="bg-white/10 backdrop-blur-xl border-white/20 shadow-2xl">
+            <Card className="glass-effect border-white/20 shadow-2xl">
               <CardContent className="text-center py-20">
                 <div className="mb-8">
-                  <Globe className="h-20 w-20 mx-auto text-white mb-6" />
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-white/20 rounded-full blur-xl"></div>
+                    <Globe className="h-20 w-20 mx-auto text-white mb-6 relative z-10" />
+                  </div>
                 </div>
-                <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">
+                <Badge variant="secondary" className="mb-6 px-4 py-2 text-sm font-medium bg-white/20 text-white border-white/30 backdrop-blur-sm">
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Transform Your Presence
+                </Badge>
+                <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white leading-tight">
                   Ready to Transform Your Social Media Presence?
                 </h2>
                 <p className="text-xl mb-10 max-w-3xl mx-auto text-white/90 leading-relaxed">
