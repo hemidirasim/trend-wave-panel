@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -68,137 +69,177 @@ const Services = () => {
     setIsConsultationDialogOpen(true);
   };
 
-  // Əsas Xidmətlər
-  const mainServices = [
-    {
-      id: 'smm',
-      name: 'SMM Xidməti',
+  // Əsas Xidmətlər - Genişləndirilmiş məlumatlarla
+  const mainServicesDetails = {
+    'SMM (Sosial Media Marketinq)': {
       icon: Users,
       color: 'from-pink-500 to-rose-500',
       gradient: 'from-pink-50 to-rose-50',
       borderColor: 'border-pink-200',
-      description: 'Sosial media hesablarınızın peşəkar idarəetməsi və marketinq strategiyaları',
-      services: [
-        'İçerik strategiyası və planlaması',
-        'Sosial media hesab idarəetməsi',
-        'Auditoriya analizi və targetinq',
-        'Performans hesabatı və analitika'
+      fullDescription: 'Sosial media platformalarında brendinizin peşəkar təqdimatı və auditoriya ilə əlaqənin gücləndirilməsi üçün hərtərəfli xidmətlər.',
+      detailedServices: [
+        'Instagram hesabının peşəkar idarəetməsi və məzmun strategiyası',
+        'Facebook səhifələrinin optimallaşdırılması və auditoriya analizi',
+        'TikTok məzmun yaradıcılığı və viral strategiyalar',
+        'YouTube kanalının inkişafı və video marketinq',
+        'LinkedIn biznes profili idarəetməsi',
+        'Twitter/X hesabının aktiv idarəetməsi',
+        'Sosial media reklam kampaniyalarının hazırlanması',
+        'Influencer marketinq əlaqələrinin qurulması'
+      ],
+      benefits: [
+        'Brendin tanınırlığının artırılması',
+        'Müştəri bazasının genişləndirilməsi',
+        'Satışların artırılması',
+        'Auditoriya ilə güclü əlaqə'
       ],
       startPrice: '₼150'
     },
-    {
-      id: 'google-ads',
-      name: 'Google-da Reklam',
+    'Google/YouTube Reklamı': {
       icon: Search,
       color: 'from-green-500 to-blue-500',
       gradient: 'from-green-50 to-blue-50',
       borderColor: 'border-green-200',
-      description: 'Google Ads kampaniyaları və axtarış nəticələrində reklam yerləşdirilməsi',
-      services: [
-        'Google Ads kampaniya qurulması',
-        'Açar söz tədqiqi və optimallaşdırma',
-        'Reklam mətnlərinin hazırlanması',
-        'Kampaniya performansının izlənməsi'
+      fullDescription: 'Google axtarış şəbəkəsində və YouTube platformasında hədəfli reklam kampaniyaları ilə maksimum ROI əldə edin.',
+      detailedServices: [
+        'Google Ads axtarış kampaniyalarının qurulması',
+        'YouTube video reklamlarının hazırlanması',
+        'Google Shopping reklamlarının idarəetməsi',
+        'Display şəbəkəsində banner reklamları',
+        'Remarketing kampaniyalarının təşkili',
+        'Açar söz tədqiqi və rəqabət analizi',
+        'Landing page optimallaşdırması',
+        'Konversiya izləməsi və A/B testlər'
+      ],
+      benefits: [
+        'Yüksək keyfiyyətli trafik',
+        'Ölçülə bilən nəticələr',
+        'Hədəfli auditoriya',
+        'Sürətli geri qaytarım'
       ],
       startPrice: '₼200'
     },
-    {
-      id: 'youtube-ads',
-      name: 'YouTube-da Reklam',
-      icon: Youtube,
-      color: 'from-red-500 to-orange-500',
-      gradient: 'from-red-50 to-orange-50',
-      borderColor: 'border-red-200',
-      description: 'YouTube video reklamları və kanal marketinq strategiyaları',
-      services: [
-        'YouTube reklam kampaniyaları',
-        'Video məzmun strategiyası',
-        'Kanal optimallaşdırması',
-        'Auditoriya targetinqi və analitika'
-      ],
-      startPrice: '₼180'
-    },
-    {
-      id: 'seo',
-      name: 'SEO Xidməti',
+    'SEO': {
       icon: TrendingUp,
       color: 'from-blue-500 to-purple-500',
       gradient: 'from-blue-50 to-purple-50',
       borderColor: 'border-blue-200',
-      description: 'Axtarış motorlarında saytınızın görünürlüyünün artırılması',
-      services: [
-        'Açar söz tədqiqi və strategiya',
-        'Sayt daxili optimallaşdırma',
-        'Link building və sayt xarici SEO',
-        'Texniki SEO audit və düzəliş'
+      fullDescription: 'Axtarış motorlarında üst sıralar üçün hərtərəfli SEO strategiyası və uzunmüddətli organik böyümə.',
+      detailedServices: [
+        'Texniki SEO audit və optimallaşdırma',
+        'Açar söz strategiyası və məzmun planlaması',
+        'On-page SEO optimallaşdırması',
+        'Link building və off-page SEO',
+        'Yerli SEO (Local SEO) xidmətləri',
+        'E-ticarət SEO strategiyaları',
+        'Sayt sürətinin optimallaşdırılması',
+        'Mobil SEO və Core Web Vitals'
+      ],
+      benefits: [
+        'Organik trafikin artırılması',
+        'Uzunmüddətli nəticələr',
+        'Brendin etibarının artırılması',
+        'Rəqabətdə üstünlük'
       ],
       startPrice: '₼120'
     },
-    {
-      id: 'logo',
-      name: 'Loqo Hazırlanması',
+    'Loqo Dizaynı': {
       icon: PenTool,
       color: 'from-purple-500 to-pink-500',
       gradient: 'from-purple-50 to-pink-50',
       borderColor: 'border-purple-200',
-      description: 'Peşəkar loqo dizaynı və brend identikası yaradılması',
-      services: [
-        'Loqo konsepti və dizayn',
-        'Brend identikası paketi',
-        'Fərqli format və ölçülərdə çıxarış',
-        'Brend rehbəri hazırlanması'
+      fullDescription: 'Brendinizin unikallığını əks etdirən peşəkar loqo dizaynı və tam brend identikası paketi.',
+      detailedServices: [
+        'Orijinal loqo konsepti və dizayn',
+        'Brend identikası və rəng palitri',
+        'Tipoqrafiya və şrift seçimi',
+        'Vizit kartı dizaynı',
+        'Letterhead və korporativ materiallar',
+        'Sosial media profil dizaynları',
+        'Brend rehbəri (Brand Guidelines)',
+        'Fərqli format və ölçülərdə hazırlıq'
+      ],
+      benefits: [
+        'Peşəkar görünüş',
+        'Brendin yadda qalması',
+        'Rəqabətdə fərqlənmə',
+        'Uzunmüddətli dəyər'
       ],
       startPrice: '₼80'
     },
-    {
-      id: 'web',
-      name: 'Sayt Hazırlanması',
+    'Sayt Hazırlanması': {
       icon: Code,
       color: 'from-blue-500 to-teal-500',
       gradient: 'from-blue-50 to-teal-50',
       borderColor: 'border-blue-200',
-      description: 'Modern, responsive və funksional veb saytların yaradılması',
-      services: [
-        'Korporativ veb saytlar',
-        'E-ticarət platformaları',
+      fullDescription: 'Müasir texnologiyalarla hazırlanmış, responsive və SEO-friendly veb saytlar.',
+      detailedServices: [
+        'Korporativ veb sayt dizaynı',
+        'E-ticarət platforması inkişafı',
+        'Landing page yaradılması',
+        'CMS (Məzmun İdarəetmə Sistemi)',
         'Mobil tətbiq inkişafı',
-        'Sayt təhlükəsizliyi və hosting'
+        'API inteqrasiyaları',
+        'SSL sertifikatı və təhlükəsizlik',
+        'Hosting və domen xidmətləri'
+      ],
+      benefits: [
+        '24/7 onlayn mövcudluq',
+        'Peşəkar imidj',
+        'Müştəri çıxışının artırılması',
+        'Avtomatlaşdırılmış proseslər'
       ],
       startPrice: '₼300'
     },
-    {
-      id: 'tv-radio',
-      name: 'TV/Radio Reklam',
+    'TV/Radio Reklamı': {
       icon: Tv,
       color: 'from-orange-500 to-red-500',
       gradient: 'from-orange-50 to-red-50',
       borderColor: 'border-orange-200',
-      description: 'Televiziya və radio reklamlarının hazırlanması və yayımlanması',
-      services: [
+      fullDescription: 'Televiziya və radio kanallarında geniş auditoriyaya çatmaq üçün peşəkar reklam kampaniyaları.',
+      detailedServices: [
         'TV reklam çarxlarının hazırlanması',
-        'Radio reklam səsləndirilməsi',
-        'Media planlaması və alış',
-        'Kampaniya effektivliyinin ölçülməsi'
+        'Radio spot reklamlarının yaradılması',
+        'Peşəkar səsləndirmə xidmətləri',
+        'Media planlaması və kanal seçimi',
+        'Yayım vaxtlarının optimallaşdırılması',
+        'Kampaniya effektivliyinin ölçülməsi',
+        'Kreatif konsept hazırlanması',
+        'Post-produksiya xidmətləri'
+      ],
+      benefits: [
+        'Kütləvi auditoriya',
+        'Brendin tanınırlığı',
+        'Emosional təsir',
+        'Geniş əhatə dairəsi'
       ],
       startPrice: '₼500'
     },
-    {
-      id: 'facebook-ads',
-      name: 'Facebook Reklam',
+    'Facebook Reklamı': {
       icon: Facebook,
       color: 'from-blue-600 to-blue-800',
       gradient: 'from-blue-50 to-blue-100',
       borderColor: 'border-blue-200',
-      description: 'Facebook və Instagram reklamları və sosial media marketinq',
-      services: [
-        'Facebook Ads kampaniya qurulması',
-        'Instagram reklam strategiyası',
-        'Auditoriya segmentasiyası',
-        'Kreativ məzmun hazırlanması'
+      fullDescription: 'Facebook və Instagram platformalarında hədəfli reklam kampaniyaları ilə maksimum geri qaytarım.',
+      detailedServices: [
+        'Facebook Ads kampaniya idarəetməsi',
+        'Instagram reklam strategiyaları',
+        'Auditoriya segmentasiyası və targetinq',
+        'Kreativ məzmun hazırlanması',
+        'Video reklam produksiyası',
+        'Messenger reklamları',
+        'Retargeting kampaniyaları',
+        'Pixel quraşdırması və izləmə'
+      ],
+      benefits: [
+        'Dəqiq hədəfləmə',
+        'Yüksək ROI',
+        'Geniş auditoriya',
+        'Detallı analitika'
       ],
       startPrice: '₼160'
     }
-  ];
+  };
 
   // Əlavə Xidmətlər
   const additionalServices = [
@@ -206,30 +247,30 @@ const Services = () => {
       name: 'Instagram Engagement',
       icon: Instagram,
       services: [
-        { name: 'İzləyici Artırma', icon: Users, description: 'Organik izləyici böyütmə strategiyaları', startPrice: '₼5' },
-        { name: 'Bəyənmə Kampaniyası', icon: Heart, description: 'Post bəyənmələrinin artırılması', startPrice: '₼2' },
-        { name: 'Baxış Artırma', icon: Eye, description: 'Story və video baxışlarının çoxaldılması', startPrice: '₼1' },
-        { name: 'Şərh Strategiyası', icon: MessageCircle, description: 'Keyfiyyətli əlaqə qurma', startPrice: '₼3' }
+        { name: 'İzləyici Artırma', icon: Users, description: 'Organik və keyfiyyətli Instagram izləyiciləri', startPrice: '₼5', details: 'Real və aktiv hesablardan izləyicilər' },
+        { name: 'Bəyənmə Kampaniyası', icon: Heart, description: 'Post bəyənmələrinin artırılması', startPrice: '₼2', details: 'Postlarınızın görünürlüyünü artırın' },
+        { name: 'Baxış Artırma', icon: Eye, description: 'Story və video baxışlarının çoxaldılması', startPrice: '₼1', details: 'Məzmununuzun əhatə dairəsini genişləndirin' },
+        { name: 'Şərh Strategiyası', icon: MessageCircle, description: 'Keyfiyyətli əlaqə qurma', startPrice: '₼3', details: 'Auditoriya ilə aktiv qarşılıqlı əlaqə' }
       ]
     },
     {
       name: 'TikTok Marketinq',
       icon: Play,
       services: [
-        { name: 'Auditoriya Böyütmə', icon: Users, description: 'TikTok kanalının inkişaf strategiyası', startPrice: '₼4' },
-        { name: 'Video Təşviqi', icon: Heart, description: 'Video məzmununun təbliği', startPrice: '₼1.5' },
-        { name: 'Görünürlük Artırma', icon: Eye, description: 'Video izləmələrinin artırılması', startPrice: '₼0.5' },
-        { name: 'Viral Strategiya', icon: Share2, description: 'Məzmunun viral olma strategiyası', startPrice: '₼3' }
+        { name: 'Auditoriya Böyütmə', icon: Users, description: 'TikTok kanalının inkişaf strategiyası', startPrice: '₼4', details: 'Organik follower artımı' },
+        { name: 'Video Təşviqi', icon: Heart, description: 'Video məzmununun təbliği', startPrice: '₼1.5', details: 'Videolarınızın viral olma şansını artırın' },
+        { name: 'Görünürlük Artırma', icon: Eye, description: 'Video izləmələrinin artırılması', startPrice: '₼0.5', details: 'Məzmununuzun daha çox insana çatması' },
+        { name: 'Viral Strategiya', icon: Share2, description: 'Məzmunun viral olma strategiyası', startPrice: '₼3', details: 'Trend məzmun yaradılması' }
       ]
     },
     {
       name: 'YouTube Böyütmə',
       icon: Youtube,
       services: [
-        { name: 'Kanal İnkişafı', icon: Users, description: 'Abunəçi sayının artırılması', startPrice: '₼8' },
-        { name: 'Video Təbliği', icon: Eye, description: 'Video baxışlarının çoxaldılması', startPrice: '₼2' },
-        { name: 'Əlaqə Artırma', icon: Heart, description: 'Video reaksiyalarının böyütməsi', startPrice: '₼3' },
-        { name: 'Auditoriya Əlaqəsi', icon: MessageCircle, description: 'İzləyicilərlə əlaqə strategiyaları', startPrice: '₼5' }
+        { name: 'Kanal İnkişafı', icon: Users, description: 'Abunəçi sayının artırılması', startPrice: '₼8', details: 'Keyfiyyətli və aktiv abunəçilər' },
+        { name: 'Video Təbliği', icon: Eye, description: 'Video baxışlarının çoxaldılması', startPrice: '₼2', details: 'Videolarınızın əhatə dairəsini artırın' },
+        { name: 'Əlaqə Artırma', icon: Heart, description: 'Video reaksiyalarının böyütməsi', startPrice: '₼3', details: 'Like və comment sayının artırılması' },
+        { name: 'Auditoriya Əlaqəsi', icon: MessageCircle, description: 'İzləyicilərlə əlaqə strategiyaları', startPrice: '₼5', details: 'Kommentlər və community building' }
       ]
     }
   ];
@@ -321,51 +362,82 @@ const Services = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            <div className="space-y-16">
               {standardServices.map((service, index) => {
-                const IconComponent = iconMap[service.icon || 'Users'];
-                const colors = [
-                  { color: 'from-pink-500 to-rose-500', gradient: 'from-pink-50 to-rose-50', border: 'border-pink-200' },
-                  { color: 'from-green-500 to-blue-500', gradient: 'from-green-50 to-blue-50', border: 'border-green-200' },
-                  { color: 'from-red-500 to-orange-500', gradient: 'from-red-50 to-orange-50', border: 'border-red-200' },
-                  { color: 'from-blue-500 to-purple-500', gradient: 'from-blue-50 to-purple-50', border: 'border-blue-200' },
-                  { color: 'from-purple-500 to-pink-500', gradient: 'from-purple-50 to-pink-50', border: 'border-purple-200' },
-                  { color: 'from-blue-500 to-teal-500', gradient: 'from-blue-50 to-teal-50', border: 'border-blue-200' },
-                  { color: 'from-orange-500 to-red-500', gradient: 'from-orange-50 to-red-50', border: 'border-orange-200' },
-                  { color: 'from-blue-600 to-blue-800', gradient: 'from-blue-50 to-blue-100', border: 'border-blue-200' }
-                ];
-                const colorScheme = colors[index % colors.length];
+                const serviceDetails = mainServicesDetails[service.name as keyof typeof mainServicesDetails];
+                if (!serviceDetails) return null;
+
+                const isEven = index % 2 === 0;
                 
                 return (
-                  <Card key={service.id} id={service.id} className={`overflow-hidden bg-gradient-to-br ${colorScheme.gradient} ${colorScheme.border} border-2 hover:shadow-2xl transition-all duration-500 group`}>
-                    <CardHeader className="text-center pb-6">
-                      <div className={`w-16 h-16 bg-gradient-to-br ${colorScheme.color} rounded-2xl mx-auto mb-4 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                        {IconComponent && <IconComponent className="h-8 w-8" />}
+                  <div key={service.id} className={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-center ${!isEven ? 'lg:grid-cols-[1fr,1fr]' : ''}`}>
+                    <div className={`${!isEven ? 'order-2 lg:order-1' : 'order-1'}`}>
+                      <Card className={`overflow-hidden bg-gradient-to-br ${serviceDetails.gradient} ${serviceDetails.borderColor} border-2 hover:shadow-2xl transition-all duration-500`}>
+                        <CardHeader className="text-center pb-6">
+                          <div className={`w-20 h-20 bg-gradient-to-br ${serviceDetails.color} rounded-3xl mx-auto mb-6 flex items-center justify-center text-white shadow-lg`}>
+                            <serviceDetails.icon className="h-10 w-10" />
+                          </div>
+                          <h3 className="text-2xl font-bold text-foreground mb-2">{service.name}</h3>
+                          <p className="text-muted-foreground">{serviceDetails.fullDescription}</p>
+                        </CardHeader>
+                        
+                        <CardContent>
+                          <div className="text-center mb-6">
+                            {service.price ? (
+                              <>
+                                <span className="text-3xl font-bold text-primary">₼{service.price}</span>
+                                <span className="text-sm text-muted-foreground ml-1">-dan başlayır</span>
+                              </>
+                            ) : (
+                              <>
+                                <span className="text-3xl font-bold text-primary">{serviceDetails.startPrice}</span>
+                                <span className="text-sm text-muted-foreground ml-1">-dan başlayır</span>
+                              </>
+                            )}
+                          </div>
+                          <Button 
+                            onClick={() => handleConsultationClick(service.name)}
+                            className="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 transition-all duration-300"
+                            size="lg"
+                          >
+                            Məsləhət Alın
+                            <ArrowRight className="ml-2 h-5 w-5" />
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    <div className={`${!isEven ? 'order-1 lg:order-2' : 'order-2'} space-y-6`}>
+                      <div>
+                        <h4 className="text-xl font-bold text-foreground mb-4 flex items-center">
+                          <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
+                          Xidmət Daxilində
+                        </h4>
+                        <div className="grid grid-cols-1 gap-3">
+                          {serviceDetails.detailedServices.map((item, idx) => (
+                            <div key={idx} className="flex items-start space-x-3 p-3 rounded-lg bg-white/50 hover:bg-white/80 transition-colors">
+                              <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                              <span className="text-sm text-muted-foreground">{item}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <h3 className="text-xl font-bold text-foreground">{service.name}</h3>
-                      <p className="text-sm text-muted-foreground mt-2">{service.description}</p>
-                    </CardHeader>
-                    
-                    <CardContent>
-                      <div className="text-center mb-4">
-                        {service.price ? (
-                          <>
-                            <span className="text-2xl font-bold text-primary">₼{service.price}</span>
-                            <span className="text-sm text-muted-foreground ml-1">-dan başlayır</span>
-                          </>
-                        ) : (
-                          <span className="text-lg text-muted-foreground">Qiymət sorğu ilə</span>
-                        )}
+
+                      <div>
+                        <h4 className="text-xl font-bold text-foreground mb-4 flex items-center">
+                          <Star className="h-5 w-5 text-yellow-500 mr-2" />
+                          Əsas Faydalar
+                        </h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {serviceDetails.benefits.map((benefit, idx) => (
+                            <Badge key={idx} variant="secondary" className="justify-start p-3 bg-primary/10 text-primary border-primary/20">
+                              {benefit}
+                            </Badge>
+                          ))}
+                        </div>
                       </div>
-                      <Button 
-                        onClick={() => handleConsultationClick(service.name)}
-                        className="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 transition-all duration-300"
-                      >
-                        Məsləhət Alın
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 );
               })}
             </div>
@@ -437,6 +509,7 @@ const Services = () => {
                   </div>
                 </CardContent>
               </Card>
+
               {additionalServices.map((platform, platformIndex) => (
                 <Card key={platformIndex} className="overflow-hidden bg-white/90 backdrop-blur-sm border-2 border-gray-200 hover:shadow-2xl transition-all duration-500">
                   <CardHeader className="text-center pb-8">
@@ -461,6 +534,7 @@ const Services = () => {
                             </div>
                             <h4 className="text-lg font-bold text-foreground">{service.name}</h4>
                             <p className="text-sm text-muted-foreground">{service.description}</p>
+                            <p className="text-xs text-muted-foreground mt-2 italic">{service.details}</p>
                           </CardHeader>
                           <CardContent className="text-center">
                             <div className="mb-4">
@@ -528,3 +602,4 @@ const Services = () => {
 };
 
 export default Services;
+
