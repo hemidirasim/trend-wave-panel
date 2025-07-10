@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Trash2, Edit, Plus, RefreshCw } from 'lucide-react';
+import { Trash2, Edit, Plus, RefreshCw, Filter, X } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -57,6 +57,7 @@ export default function AdminServices() {
   const [apiLoading, setApiLoading] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [priceFilter, setPriceFilter] = useState<'low-to-high' | 'high-to-low' | ''>('low-to-high');
 
   const [formData, setFormData] = useState({
     name: '',
@@ -81,7 +82,7 @@ export default function AdminServices() {
         .from('services')
         .select('*')
         .order('category', { ascending: true })
-        .order('order_index', { ascending: true });
+        .order('price', { ascending: true, nullsLast: true });
 
       if (error) throw error;
       setServices((data || []) as Service[]);
@@ -112,7 +113,15 @@ export default function AdminServices() {
       if (!response.ok) throw new Error('API xətası');
       
       const data = await response.json();
-      setApiServices(data || []);
+      
+      // API xidmətlərini qiymətə görə sıralayırıq
+      const sortedServices = [...(data || [])].sort((a, b) => {
+        const priceA = a.prices?.[0] ? parseFloat(a.prices[0].price) : 0;
+        const priceB = b.prices?.[0] ? parseFloat(b.prices[0].price) : 0;
+        return priceA - priceB;
+      });
+      
+      setApiServices(sortedServices);
       
       toast({
         title: "Uğurlu",
@@ -127,6 +136,38 @@ export default function AdminServices() {
     } finally {
       setApiLoading(false);
     }
+  };
+
+  // Yerli xidmətləri qiymətə görə filtrelə
+  const getSortedServices = (servicesList: Service[]) => {
+    if (!priceFilter) return servicesList;
+    
+    return [...servicesList].sort((a, b) => {
+      const priceA = a.price || 0;
+      const priceB = b.price || 0;
+      
+      if (priceFilter === 'low-to-high') {
+        return priceA - priceB;
+      } else {
+        return priceB - priceA;
+      }
+    });
+  };
+
+  // API xidmətlərini qiymətə görə filtrelə
+  const getSortedApiServices = (servicesList: ApiService[]) => {
+    if (!priceFilter) return servicesList;
+    
+    return [...servicesList].sort((a, b) => {
+      const priceA = a.prices?.[0] ? parseFloat(a.prices[0].price) : 0;
+      const priceB = b.prices?.[0] ? parseFloat(b.prices[0].price) : 0;
+      
+      if (priceFilter === 'low-to-high') {
+        return priceA - priceB;
+      } else {
+        return priceB - priceA;
+      }
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -252,114 +293,138 @@ export default function AdminServices() {
             <TabsTrigger value="api">API Xidmətləri</TabsTrigger>
           </TabsList>
           
-            <TabsContent value="local" className="space-y-6">
+          <TabsContent value="local" className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-semibold">Sosial Media Xidmətləri</h2>
-              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button onClick={resetForm}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Yeni Xidmət
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>
-                      {editingService ? 'Xidməti Redaktə Et' : 'Yeni Xidmət Əlavə Et'}
-                    </DialogTitle>
-                    <DialogDescription>
-                      Sosial media xidməti məlumatlarını daxil edin
-                    </DialogDescription>
-                  </DialogHeader>
-                  
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                      <Label htmlFor="name">Ad</Label>
-                      <Input
-                        id="name"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        required
-                      />
-                    </div>
+              <div className="flex gap-3">
+                {/* Qiymət filtri */}
+                <div className="flex items-center gap-2">
+                  <Filter className="h-4 w-4" />
+                  <Select value={priceFilter} onValueChange={(value: 'low-to-high' | 'high-to-low' | '') => setPriceFilter(value)}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Qiymət sıralaması" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low-to-high">Ucuzdan Bahaya</SelectItem>
+                      <SelectItem value="high-to-low">Bahadan Ucuza</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {priceFilter && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => setPriceFilter('')}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+                
+                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button onClick={resetForm}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Yeni Xidmət
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>
+                        {editingService ? 'Xidməti Redaktə Et' : 'Yeni Xidmət Əlavə Et'}
+                      </DialogTitle>
+                      <DialogDescription>
+                        Sosial media xidməti məlumatlarını daxil edin
+                      </DialogDescription>
+                    </DialogHeader>
                     
-                    <div>
-                      <Label htmlFor="description">Təsvir</Label>
-                      <Textarea
-                        id="description"
-                        value={formData.description}
-                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="price">Qiymət</Label>
-                      <Input
-                        id="price"
-                        type="number"
-                        step="0.01"
-                        value={formData.price}
-                        onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="platform">Platform</Label>
-                      <Input
-                        id="platform"
-                        value={formData.platform}
-                        onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="icon">İkon</Label>
-                      <Input
-                        id="icon"
-                        value={formData.icon}
-                        onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                        placeholder="Heart, UserPlus, Eye..."
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="order_index">Sıralama</Label>
-                      <Input
-                        id="order_index"
-                        type="number"
-                        value={formData.order_index}
-                        onChange={(e) => setFormData({ ...formData, order_index: parseInt(e.target.value) || 0 })}
-                      />
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id="active"
-                        checked={formData.active}
-                        onCheckedChange={(checked) => setFormData({ ...formData, active: checked })}
-                      />
-                      <Label htmlFor="active">Aktiv</Label>
-                    </div>
-                    
-                    <div className="flex justify-end space-x-2">
-                      <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
-                        Ləğv Et
-                      </Button>
-                      <Button type="submit">
-                        {editingService ? 'Yenilə' : 'Əlavə Et'}
-                      </Button>
-                    </div>
-                  </form>
-                </DialogContent>
-              </Dialog>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                      <div>
+                        <Label htmlFor="name">Ad</Label>
+                        <Input
+                          id="name"
+                          value={formData.name}
+                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                          required
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="description">Təsvir</Label>
+                        <Textarea
+                          id="description"
+                          value={formData.description}
+                          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="price">Qiymət</Label>
+                        <Input
+                          id="price"
+                          type="number"
+                          step="0.01"
+                          value={formData.price}
+                          onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="platform">Platform</Label>
+                        <Input
+                          id="platform"
+                          value={formData.platform}
+                          onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="icon">İkon</Label>
+                        <Input
+                          id="icon"
+                          value={formData.icon}
+                          onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                          placeholder="Heart, UserPlus, Eye..."
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="order_index">Sıralama</Label>
+                        <Input
+                          id="order_index"
+                          type="number"
+                          value={formData.order_index}
+                          onChange={(e) => setFormData({ ...formData, order_index: parseInt(e.target.value) || 0 })}
+                        />
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id="active"
+                          checked={formData.active}
+                          onCheckedChange={(checked) => setFormData({ ...formData, active: checked })}
+                        />
+                        <Label htmlFor="active">Aktiv</Label>
+                      </div>
+                      
+                      <div className="flex justify-end space-x-2">
+                        <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                          Ləğv Et
+                        </Button>
+                        <Button type="submit">
+                          {editingService ? 'Yenilə' : 'Əlavə Et'}
+                        </Button>
+                      </div>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </div>
 
             {loading ? (
               <div className="text-center">Yüklənir...</div>
             ) : (
               <div className="grid gap-4">
-                {services
-                  .filter(service => service.category === 'social_media')
+                {getSortedServices(services.filter(service => service.category === 'social_media'))
                   .map((service) => (
                     <Card key={service.id}>
                       <CardContent className="p-4">
@@ -413,17 +478,42 @@ export default function AdminServices() {
           <TabsContent value="api" className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-semibold">API Xidmətləri</h2>
-              <Button onClick={fetchApiServices} disabled={apiLoading}>
-                <RefreshCw className={`h-4 w-4 mr-2 ${apiLoading ? 'animate-spin' : ''}`} />
-                Yenilə
-              </Button>
+              <div className="flex gap-3">
+                {/* API xidmətləri üçün qiymət filtri */}
+                <div className="flex items-center gap-2">
+                  <Filter className="h-4 w-4" />
+                  <Select value={priceFilter} onValueChange={(value: 'low-to-high' | 'high-to-low' | '') => setPriceFilter(value)}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Qiymət sıralaması" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low-to-high">Ucuzdan Bahaya</SelectItem>
+                      <SelectItem value="high-to-low">Bahadan Ucuza</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {priceFilter && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => setPriceFilter('')}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+                
+                <Button onClick={fetchApiServices} disabled={apiLoading}>
+                  <RefreshCw className={`h-4 w-4 mr-2 ${apiLoading ? 'animate-spin' : ''}`} />
+                  Yenilə
+                </Button>
+              </div>
             </div>
             
             {apiLoading ? (
               <div className="text-center">API xidmətləri yüklənir...</div>
             ) : (
               <div className="grid gap-4">
-                {apiServices.map((service) => (
+                {getSortedApiServices(apiServices).map((service) => (
                   <Card key={service.id_service}>
                     <CardContent className="p-4">
                       <div className="space-y-2">

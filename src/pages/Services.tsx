@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -48,13 +47,22 @@ const Services = () => {
         .select('*')
         .eq('active', true)
         .order('category', { ascending: true })
-        .order('order_index', { ascending: true });
+        .order('price', { ascending: true, nullsLast: true });
 
       if (error) throw error;
       
       const services = (data || []) as Service[];
       setStandardServices(services.filter(s => s.category === 'standard'));
-      setSocialMediaServices(services.filter(s => s.category === 'social_media'));
+      
+      // Sosial media xidmətlərini qiymətə görə sıralayırıq (ucuzdan bahaya)
+      const socialServices = services.filter(s => s.category === 'social_media');
+      const sortedSocialServices = [...socialServices].sort((a, b) => {
+        const priceA = a.price || 0;
+        const priceB = b.price || 0;
+        return priceA - priceB;
+      });
+      
+      setSocialMediaServices(sortedSocialServices);
     } catch (error) {
       console.error('Error fetching services:', error);
     }
@@ -602,4 +610,3 @@ const Services = () => {
 };
 
 export default Services;
-
