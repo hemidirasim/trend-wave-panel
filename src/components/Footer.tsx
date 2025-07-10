@@ -14,7 +14,7 @@ export const Footer = () => {
                 <Globe className="h-6 w-6 text-white" />
               </div>
               <span className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-                SocialBoost
+                HitLoyal
               </span>
             </div>
             <p className="text-slate-300 leading-relaxed max-w-sm">
@@ -114,7 +114,7 @@ export const Footer = () => {
         <div className="border-t border-slate-700 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-slate-400 text-sm">
-              © 2024 SocialBoost. Bütün hüquqlar qorunur.
+              © 2024 HitLoyal. Bütün hüquqlar qorunur.
             </div>
             <div className="text-slate-400 text-sm">
               15,000+ müştərimizin etibar etdiyi platform

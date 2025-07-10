@@ -105,7 +105,7 @@ const Index = () => {
                   #1 SMM Xidmətləri Platforması
                 </Badge>
                 <h1 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-primary via-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight">
-                  SocialBoost ilə Sosial Medianı Zəbt Et
+                  HitLoyal ilə Sosial Medianı Zəbt Et
                 </h1>
                 <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
                   Instagram, TikTok, YouTube və Facebook üçün peşəkar SMM xidmətləri. Real və keyfiyyətli izləyicilər, bəyənmələr və baxışlarla sosial media hesablarınızı güclü şəkildə inkişaf etdirin.
@@ -202,7 +202,7 @@ const Index = () => {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-20">
               <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-                Niyə SocialBoost?
+                Niyə HitLoyal?
               </h2>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
                 Sübut olunmuş strategiyalar və peşəkar yanaşma ilə sosial media hesablarınızı güclü şəkildə inkişaf etdirin

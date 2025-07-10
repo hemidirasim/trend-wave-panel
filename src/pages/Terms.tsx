@@ -12,7 +12,7 @@ const Terms = () => {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">Qaydalar və Şərtlər</h1>
           <p className="text-muted-foreground text-lg">
-            SocialBoost SMM xidmətlərini istifadə etməzdən əvvəl bu şərtləri diqqətlə oxuyun
+            HitLoyal SMM xidmətlərini istifadə etməzdən əvvəl bu şərtləri diqqətlə oxuyun
           </p>
         </div>
 
@@ -23,7 +23,7 @@ const Terms = () => {
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                SocialBoost SMM xidmətləri platformasını ("Xidmət") əldə etməklə və istifadə etməklə, siz bu razılaşmanın şərtlərini və müddəalarını qəbul etmiş olursunuz. Əgər yuxarıdakı şərtlərə əməl etməyi qəbul etmirsinizsə, lütfən bu xidməti istifadə etməyin.
+                HitLoyal SMM xidmətləri platformasını ("Xidmət") əldə etməklə və istifadə etməklə, siz bu razılaşmanın şərtlərini və müddəalarını qəbul etmiş olursunuz. Əgər yuxarıdakı şərtlərə əməl etməyi qəbul etmirsinizsə, lütfən bu xidməti istifadə etməyin.
               </p>
             </CardContent>
           </Card>
@@ -34,7 +34,7 @@ const Terms = () => {
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                SocialBoost Instagram, TikTok, YouTube və Facebook daxil olmaqla müxtəlif sosial media platformalarında şəxslərə və biznes strukturlarına real və keyfiyyətli izləyicilər, bəyənmələr, baxışlar və digər SMM xidmətləri təqdim edir.
+                HitLoyal Instagram, TikTok, YouTube və Facebook daxil olmaqla müxtəlif sosial media platformalarında şəxslərə və biznes strukturlarına real və keyfiyyətli izləyicilər, bəyənmələr, baxışlar və digər SMM xidmətləri təqdim edir.
               </p>
               <p>
                 Xidmətlərimizə daxildir:
@@ -71,7 +71,7 @@ const Terms = () => {
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                SocialBoost real və keyfiyyətli SMM xidmətləri təqdim edir. Xidmətlərimiz sosial media platformalarının qaydalarına uyğundur və 100% təhlükəsizdir. Lakin internet və sosial media platformalarının dəyişkən təbiətinə görə nəticələrdə kiçik dəyişikliklər ola bilər.
+                HitLoyal real və keyfiyyətli SMM xidmətləri təqdim edir. Xidmətlərimiz sosial media platformalarının qaydalarına uyğundur və 100% təhlükəsizdir. Lakin internet və sosial media platformalarının dəyişkən təbiətinə görə nəticələrdə kiçik dəyişikliklər ola bilər.
               </p>
               <p>
                 Sifarişləriniz adətən 24 saat ərzində başlayır və xidmətin növündən asılı olaraq tamamlanır. Biz şifrənizi və ya giriş məlumatlarınızı heç vaxt tələb etmirik.
@@ -96,7 +96,7 @@ const Terms = () => {
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                SocialBoost tərəfindən təqdim edilən bütün məzmun, metodikalar və materiallar əqli mülkiyyət qanunları ilə qorunur. İstifadəçilər yazılı icazə olmadan məlumatları yenidən paylaşa və ya sata bilməzlər.
+                HitLoyal tərəfindən təqdim edilən bütün məzmun, metodikalar və materiallar əqli mülkiyyət qanunları ilə qorunur. İstifadəçilər yazılı icazə olmadan məlumatları yenidən paylaşa və ya sata bilməzlər.
               </p>
             </CardContent>
           </Card>
@@ -118,7 +118,7 @@ const Terms = () => {
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                SocialBoost xidmətimizdən istifadəniz nəticəsində yaranan heç bir dolayı, təsadüfi, xüsusi və ya cəzalandırıcı zərərə görə məsuliyyət daşımır. Bu, gəlir itkisi, məlumat itkisi və ya digər maddi olmayan itkiləri də əhatə edir.
+                HitLoyal xidmətimizdən istifadəniz nəticəsində yaranan heç bir dolayı, təsadüfi, xüsusi və ya cəzalandırıcı zərərə görə məsuliyyət daşımır. Bu, gəlir itkisi, məlumat itkisi və ya digər maddi olmayan itkiləri də əhatə edir.
               </p>
             </CardContent>
           </Card>
@@ -140,7 +140,7 @@ const Terms = () => {
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
-                SocialBoost bu şərtləri istənilən vaxt dəyişdirmək hüququnu özündə saxlayır. Mühüm dəyişikliklər email və ya platform bildirişi ilə sizə çatdırılacaq. Dəyişikliklərdən sonra xidmətin istifadəsi yeni şərtlərin qəbul edilməsi deməkdir.
+                HitLoyal bu şərtləri istənilən vaxt dəyişdirmək hüququnu özündə saxlayır. Mühüm dəyişikliklər email və ya platform bildirişi ilə sizə çatdırılacaq. Dəyişikliklərdən sonra xidmətin istifadəsi yeni şərtlərin qəbul edilməsi deməkdir.
               </p>
             </CardContent>
           </Card>
@@ -154,7 +154,7 @@ const Terms = () => {
                 Bu Qaydalar və Şərtlər haqqında suallarınız üçün bizimlə əlaqə saxlayın:
               </p>
               <p>
-                Email: info@socialboost.az<br />
+                Email: info@hitloyal.com<br />
                 Son yenilənmə: Yanvar 2024
               </p>
             </CardContent>

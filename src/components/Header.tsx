@@ -43,7 +43,7 @@ export const Header = () => {
               <div className="bg-gradient-to-r from-primary to-purple-600 text-primary-foreground p-2 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300">
                 <Zap className="h-6 w-6" />
               </div>
-              <span className="text-xl font-bold gradient-text">SocialBoost</span>
+              <span className="text-xl font-bold gradient-text">HitLoyal</span>
               <Badge variant="secondary" className="hidden sm:inline-flex bg-primary/10 text-primary border-primary/20">
                 Pro
               </Badge>

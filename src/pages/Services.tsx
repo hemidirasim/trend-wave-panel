@@ -1,386 +1,296 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import AuthDialog from '@/components/AuthDialog';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { apiService, Service } from '@/components/ApiService';
-import { Loader2, Target, Star, Instagram, Youtube, Facebook, BookOpen, Users, BarChart3, ArrowUpDown, Lightbulb, TrendingUp } from 'lucide-react';
-import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
+import { Star, Shield, Clock, Zap, Instagram, Youtube, Facebook, TrendingUp, Users, Eye, Heart, MessageCircle, Share2, Play, ArrowRight, CheckCircle } from 'lucide-react';
 
 const Services = () => {
   const { user } = useAuth();
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const defaultPlatform = searchParams.get('platform') || '';
-  
-  const [services, setServices] = useState<Service[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedPlatform, setSelectedPlatform] = useState(defaultPlatform);
-  const [selectedServiceType, setSelectedServiceType] = useState<string>('');
-  const [priceSort, setPriceSort] = useState<string>('none');
 
-  const allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook'];
-
-  useEffect(() => {
-    fetchServices();
-  }, []);
-
-  const fetchServices = async () => {
-    try {
-      setLoading(true);
-      console.log('Fetching growth services from API...');
-      const data = await apiService.getServices();
-      console.log('Raw API response:', data);
-      
-      const filteredData = data.filter(service => {
-        if (!service || !service.platform || !service.id_service) {
-          console.log('Skipping invalid service:', service);
-          return false;
-        }
-        
-        const platformMatch = allowedPlatforms.includes(service.platform.toLowerCase());
-        if (!platformMatch) {
-          console.log('Platform not supported:', service.platform);
-          return false;
-        }
-        
-        if (!service.prices || service.prices.length === 0) {
-          console.log('No pricing info for service:', service.id_service);
-          return false;
-        }
-        
-        return true;
-      });
-      
-      console.log('Filtered growth services:', filteredData);
-      setServices(filteredData);
-      
-      if (filteredData.length === 0) {
-        toast.error('Seçilmiş platformlar üçün growth xidməti tapılmadı');
-      }
-    } catch (error) {
-      console.error('Error fetching growth services:', error);
-      toast.error('Growth xidmətləri yüklənərkən xəta baş verdi');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleConsultationClick = (serviceId: string) => {
+  const handleOrderClick = () => {
     if (user) {
-      navigate(`/order?service=${serviceId}`);
+      navigate('/order');
     } else {
       setIsAuthDialogOpen(true);
     }
   };
 
-  const getPlatformColor = (platform: string) => {
-    const colors: Record<string, string> = {
-      youtube: 'bg-red-500',
-      instagram: 'bg-pink-500',
-      tiktok: 'bg-purple-500',
-      facebook: 'bg-blue-500',
-    };
-    return colors[platform.toLowerCase()] || 'bg-gray-500';
-  };
-
-  const getPlatformIcon = (platform: string) => {
-    const icons: Record<string, any> = {
-      instagram: Instagram,
-      youtube: Youtube,
-      facebook: Facebook,
-      tiktok: () => <div className="w-4 h-4 bg-current rounded-sm" />,
-    };
-    return icons[platform.toLowerCase()] || null;
-  };
-
-  const getServiceTypeIcon = (type: string) => {
-    const icons: Record<string, any> = {
-      'Strategy': Target,
-      'Analytics': BarChart3,
-      'Content': BookOpen,
-      'Engagement': Users,
-      'Growth': TrendingUp,
-      'Consultation': Lightbulb,
-      'Other': Star,
-    };
-    return icons[type] || Star;
-  };
-
-  const getUniquePlatforms = () => {
-    const platforms = services
-      .map(service => service.platform.toLowerCase())
-      .filter(platform => allowedPlatforms.includes(platform));
-    return [...new Set(platforms)];
-  };
-
-  const getUniqueServiceTypes = (platform: string) => {
-    const platformServices = services.filter(service => 
-      service.platform.toLowerCase() === platform.toLowerCase()
-    );
-    
-    // type_name-dən service növlərini çıxar
-    const types = platformServices
-      .map(service => {
-        if (service.type_name && service.type_name.trim() !== '') {
-          return service.type_name;
-        }
-        // Əgər type_name yoxdursa, public_name-dən çıxarmağa çalış
-        if (service.public_name) {
-          const name = service.public_name.toLowerCase();
-          if (name.includes('like')) return 'Likes';
-          if (name.includes('follow')) return 'Followers';
-          if (name.includes('view')) return 'Views';
-          if (name.includes('share')) return 'Shares';
-          if (name.includes('comment')) return 'Comments';
-          if (name.includes('repost')) return 'Reposts';
-        }
-        return 'Other';
-      })
-      .filter(type => type && type.trim() !== '');
-    
-    const uniqueTypes = [...new Set(types)];
-    
-    // "Other"i siyahıdan çıxar və sonuna əlavə et
-    const otherIndex = uniqueTypes.indexOf('Other');
-    if (otherIndex > -1) {
-      uniqueTypes.splice(otherIndex, 1);
-      uniqueTypes.push('Other');
+  const platforms = [
+    {
+      name: 'Instagram',
+      icon: Instagram,
+      color: 'from-pink-500 to-rose-500',
+      gradient: 'from-pink-50 to-rose-50',
+      borderColor: 'border-pink-200',
+      services: [
+        { name: 'İzləyicilər', icon: Users, description: 'Real və aktiv Instagram izləyiciləri', startPrice: '₼5' },
+        { name: 'Bəyənmələr', icon: Heart, description: 'Post və story bəyənmələri', startPrice: '₼2' },
+        { name: 'Baxışlar', icon: Eye, description: 'Video və story baxışları', startPrice: '₼1' },
+        { name: 'Şərhlər', icon: MessageCircle, description: 'Keyfiyyətli şərhlər', startPrice: '₼3' }
+      ]
+    },
+    {
+      name: 'TikTok',
+      icon: Play,
+      color: 'from-purple-500 to-indigo-500',
+      gradient: 'from-purple-50 to-indigo-50',
+      borderColor: 'border-purple-200',
+      services: [
+        { name: 'İzləyicilər', icon: Users, description: 'Real TikTok izləyiciləri', startPrice: '₼4' },
+        { name: 'Bəyənmələr', icon: Heart, description: 'Video bəyənmələri', startPrice: '₼1.5' },
+        { name: 'Baxışlar', icon: Eye, description: 'Video baxışları', startPrice: '₼0.5' },
+        { name: 'Paylaşımlar', icon: Share2, description: 'Video paylaşımları', startPrice: '₼3' }
+      ]
+    },
+    {
+      name: 'YouTube',
+      icon: Youtube,
+      color: 'from-red-500 to-orange-500',
+      gradient: 'from-red-50 to-orange-50',
+      borderColor: 'border-red-200',
+      services: [
+        { name: 'Abunəçilər', icon: Users, description: 'YouTube kanalına abunəçilər', startPrice: '₼8' },
+        { name: 'Baxışlar', icon: Eye, description: 'Video baxışları', startPrice: '₼2' },
+        { name: 'Bəyənmələr', icon: Heart, description: 'Video bəyənmələri', startPrice: '₼3' },
+        { name: 'Şərhlər', icon: MessageCircle, description: 'Video şərhləri', startPrice: '₼5' }
+      ]
+    },
+    {
+      name: 'Facebook',
+      icon: Facebook,
+      color: 'from-blue-500 to-cyan-500',
+      gradient: 'from-blue-50 to-cyan-50',
+      borderColor: 'border-blue-200',
+      services: [
+        { name: 'Səhifə Bəyənmələri', icon: Heart, description: 'Facebook səhifə bəyənmələri', startPrice: '₼6' },
+        { name: 'Post Bəyənmələri', icon: Heart, description: 'Post bəyənmələri', startPrice: '₼2' },
+        { name: 'Paylaşımlar', icon: Share2, description: 'Post paylaşımları', startPrice: '₼4' },
+        { name: 'İzləyicilər', icon: Users, description: 'Səhifə izləyiciləri', startPrice: '₼7' }
+      ]
     }
-    
-    return uniqueTypes;
-  };
+  ];
 
-  const getFilteredServices = () => {
-    if (!selectedPlatform || !selectedServiceType) {
-      return [];
+  const features = [
+    {
+      icon: <Shield className="h-8 w-8 text-green-500" />,
+      title: '100% Təhlükəsiz',
+      description: 'Bütün xidmətlərimiz tamamilə təhlükəsiz və sosial media platformalarının qaydalarına uyğundur.',
+      color: 'from-green-50 to-emerald-50'
+    },
+    {
+      icon: <Zap className="h-8 w-8 text-yellow-500" />,
+      title: 'Sürətli Çatdırılma',
+      description: 'Sifarişləriniz 24 saat ərzində başlayır və sürətlə tamamlanır.',
+      color: 'from-yellow-50 to-amber-50'
+    },
+    {
+      icon: <Clock className="h-8 w-8 text-blue-500" />,
+      title: '24/7 Dəstək',
+      description: 'Peşəkar müştəri dəstəyi komandamız həftənin 7 günü xidmətinizdədir.',
+      color: 'from-blue-50 to-sky-50'
+    },
+    {
+      icon: <TrendingUp className="h-8 w-8 text-purple-500" />,
+      title: 'Real Nəticələr',
+      description: 'Yalnız real və aktiv istifadəçilərlə işləyirik. Heç bir bot və ya saxta hesab yoxdur.',
+      color: 'from-purple-50 to-violet-50'
     }
-
-    let filtered = services.filter(service => 
-      service.platform.toLowerCase() === selectedPlatform.toLowerCase()
-    );
-
-    // Xidmət növü filteri
-    filtered = filtered.filter(service => {
-      const serviceType = service.type_name && service.type_name.trim() !== '' 
-        ? service.type_name 
-        : getServiceTypeFromName(service.public_name);
-      return serviceType === selectedServiceType;
-    });
-
-    // Qiymət sıralaması
-    if (priceSort && priceSort !== 'none') {
-      filtered = filtered.sort((a, b) => {
-        const priceA = parseFloat(a.prices?.[0]?.price || '0');
-        const priceB = parseFloat(b.prices?.[0]?.price || '0');
-        
-        if (priceSort === 'asc') {
-          return priceA - priceB; // Ucuzdan bahaya
-        } else {
-          return priceB - priceA; // Bahadan ucuza
-        }
-      });
-    }
-
-    return filtered;
-  };
-
-  const getServiceTypeFromName = (publicName: string) => {
-    if (!publicName) return 'Other';
-    const name = publicName.toLowerCase();
-    if (name.includes('like')) return 'Likes';
-    if (name.includes('follow')) return 'Followers';
-    if (name.includes('view')) return 'Views';
-    if (name.includes('share')) return 'Shares';
-    if (name.includes('comment')) return 'Comments';
-    if (name.includes('repost')) return 'Reposts';
-    return 'Other';
-  };
-
-  const handlePlatformChange = (platform: string) => {
-    setSelectedPlatform(platform);
-    setSelectedServiceType(''); // Reset service type when platform changes
-    setPriceSort('none'); // Reset price sort when platform changes
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="container mx-auto px-4 py-20">
-          <div className="flex items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin" />
-            <span className="ml-2">Growth xidmətləri yüklənir...</span>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
+  ];
 
   return (
     <>
       <div className="min-h-screen bg-background">
         <Header />
         
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold mb-4">
-              Sosial Media <span className="text-primary">SMM Xidmətləri</span>
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Instagram, TikTok, YouTube və Facebook üçün peşəkar SMM xidmətləri. Real və keyfiyyətli nəticələr əldə edin.
-            </p>
+        {/* Hero Section */}
+        <section className="relative py-20 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-secondary/10 to-accent/5"></div>
+          
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="text-center mb-16">
+              <Badge variant="secondary" className="mb-6 px-4 py-2 text-sm font-medium bg-white/80 backdrop-blur-sm border border-primary/20">
+                <Star className="h-4 w-4 mr-2" />
+                Peşəkar SMM Xidmətləri
+              </Badge>
+              <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Sosial Media <span className="block">Xidmətlərimiz</span>
+              </h1>
+              <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+                Instagram, TikTok, YouTube və Facebook üçün real və keyfiyyətli SMM xidmətləri. Sosial media hesablarınızı güclü şəkildə inkişaf etdirin.
+              </p>
+            </div>
+            
+            {/* Features Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+              {features.map((feature, index) => (
+                <Card key={index} className={`text-center hover:shadow-lg transition-all duration-300 hover:scale-105 bg-gradient-to-br ${feature.color} border-0`}>
+                  <CardHeader className="pb-4">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white/80 flex items-center justify-center shadow-md">
+                      {feature.icon}
+                    </div>
+                    <h3 className="text-lg font-bold text-foreground">{feature.title}</h3>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {feature.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
+        </section>
 
-          {/* Growth Services Content */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-            <Card className="hover:shadow-lg transition-shadow bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
-              <CardHeader>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-blue-500 rounded-lg text-white">
-                    <Target className="h-6 w-6" />
-                  </div>
-                  <Badge className="bg-blue-500 text-white">Instagram</Badge>
-                </div>
-                <CardTitle className="text-xl">Instagram Xidmətləri</CardTitle>
-                <CardDescription>
-                  Instagram hesabınız üçün izləyicilər, bəyənmələr və baxışlar
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Star className="h-3 w-3 text-yellow-500" />
-                    Real və aktiv izləyicilər
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Star className="h-3 w-3 text-yellow-500" />
-                    Post və story bəyənmələri
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Star className="h-3 w-3 text-yellow-500" />
-                    Video baxışları və şərhlər
-                  </div>
-                </div>
-                <Button className="w-full bg-blue-500 hover:bg-blue-600" onClick={() => setIsAuthDialogOpen(true)}>
-                  <Target className="h-4 w-4 mr-2" />
-                  Instagram Xidmətləri
-                </Button>
-              </CardContent>
-            </Card>
+        {/* Platforms Section */}
+        <section className="py-20 bg-gradient-to-br from-muted/20 via-primary/5 to-secondary/10">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+                Platformlar və Xidmətlər
+              </h2>
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+                Hər bir platforma üçün xüsusi dizayn edilmiş xidmətlər
+              </p>
+            </div>
 
-            <Card className="hover:shadow-lg transition-shadow bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
-              <CardHeader>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-green-500 rounded-lg text-white">
-                    <BarChart3 className="h-6 w-6" />
-                  </div>
-                  <Badge className="bg-green-500 text-white">TikTok</Badge>
-                </div>
-                <CardTitle className="text-xl">TikTok Xidmətləri</CardTitle>
-                <CardDescription>
-                  TikTok hesabınız üçün izləyicilər və bəyənmələr
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Star className="h-3 w-3 text-yellow-500" />
-                    Real TikTok izləyiciləri
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Star className="h-3 w-3 text-yellow-500" />
-                    Video bəyənmələri
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Star className="h-3 w-3 text-yellow-500" />
-                    Video baxışları
-                  </div>
-                </div>
-                <Button className="w-full bg-green-500 hover:bg-green-600" onClick={() => setIsAuthDialogOpen(true)}>
-                  <BarChart3 className="h-4 w-4 mr-2" />
-                  TikTok Xidmətləri
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-lg transition-shadow bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
-              <CardHeader>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-purple-500 rounded-lg text-white">
-                    <BookOpen className="h-6 w-6" />
-                  </div>
-                  <Badge className="bg-purple-500 text-white">YouTube</Badge>
-                </div>
-                <CardTitle className="text-xl">YouTube Xidmətləri</CardTitle>
-                <CardDescription>
-                  YouTube kanalınız üçün izləyicilər və baxışlar
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Star className="h-3 w-3 text-yellow-500" />
-                    YouTube kanalına abunəçilər
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Star className="h-3 w-3 text-yellow-500" />
-                    Video baxışları
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Star className="h-3 w-3 text-yellow-500" />
-                    Video bəyənmələri və şərhlər
-                  </div>
-                </div>
-                <Button className="w-full bg-purple-500 hover:bg-purple-600" onClick={() => setIsAuthDialogOpen(true)}>
-                  <BookOpen className="h-4 w-4 mr-2" />
-                  YouTube Xidmətləri
-                </Button>
-              </CardContent>
-            </Card>
+            <div className="space-y-12">
+              {platforms.map((platform, platformIndex) => (
+                <Card key={platformIndex} className={`overflow-hidden bg-gradient-to-br ${platform.gradient} ${platform.borderColor} border-2 hover:shadow-2xl transition-all duration-500`}>
+                  <CardHeader className="text-center pb-8">
+                    <div className="flex items-center justify-center gap-4 mb-4">
+                      <div className={`w-16 h-16 bg-gradient-to-br ${platform.color} rounded-2xl flex items-center justify-center text-white shadow-lg`}>
+                        <platform.icon className="h-8 w-8" />
+                      </div>
+                      <div>
+                        <h3 className="text-3xl font-bold text-foreground">{platform.name}</h3>
+                        <p className="text-muted-foreground">Peşəkar SMM Xidmətləri</p>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                      {platform.services.map((service, serviceIndex) => (
+                        <Card key={serviceIndex} className="bg-white/80 backdrop-blur-sm hover:bg-white/90 transition-all duration-300 hover:scale-105 border border-white/50">
+                          <CardHeader className="text-center pb-4">
+                            <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                              <service.icon className="h-6 w-6 text-gray-600" />
+                            </div>
+                            <h4 className="text-lg font-bold text-foreground">{service.name}</h4>
+                            <p className="text-sm text-muted-foreground">{service.description}</p>
+                          </CardHeader>
+                          <CardContent className="text-center">
+                            <div className="mb-4">
+                              <span className="text-2xl font-bold text-primary">{service.startPrice}</span>
+                              <span className="text-sm text-muted-foreground ml-1">-dan başlayır</span>
+                            </div>
+                            <Button 
+                              onClick={handleOrderClick}
+                              className="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 transition-all duration-300"
+                            >
+                              Sifariş Ver
+                              <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
+        </section>
 
-          {/* Platform-specific features */}
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-4">Platforma Üzrə Xidmətlər</h2>
-            <p className="text-muted-foreground">Hər bir sosial media platformu üçün xüsusi xidmətlər və alətlər</p>
-          </div>
+        {/* Benefits Section */}
+        <section className="py-20">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+                Niyə HitLoyal?
+              </h2>
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+                Bizim üstünlüklərimiz və sizə təqdim etdiyimiz dəyər
+              </p>
+            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {['Instagram', 'TikTok', 'YouTube', 'Facebook'].map((platform) => (
-              <Card key={platform} className="hover:shadow-lg transition-all duration-300 hover:scale-105">
-                <CardHeader className="text-center">
-                  <div className={`w-16 h-16 ${getPlatformColor(platform.toLowerCase())} rounded-2xl mx-auto mb-4 flex items-center justify-center text-white text-2xl`}>
-                    {platform === 'Instagram' && '📸'}
-                    {platform === 'TikTok' && '🎵'}
-                    {platform === 'YouTube' && '📺'}
-                    {platform === 'Facebook' && '👥'}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[
+                {
+                  title: 'Real və Aktiv İstifadəçilər',
+                  description: 'Yalnız real və aktiv sosial media istifadəçiləri ilə işləyirik. Heç bir bot və ya saxta hesab yoxdur.',
+                  icon: <CheckCircle className="h-6 w-6 text-green-500" />
+                },
+                {
+                  title: 'Sürətli Çatdırılma',
+                  description: 'Sifarişləriniz maksimum 24 saat ərzində başlayır və qısa müddətdə tamamlanır.',
+                  icon: <CheckCircle className="h-6 w-6 text-green-500" />
+                },
+                {
+                  title: 'Gizlilik və Təhlükəsizlik',
+                  description: 'Şifrənizi və ya giriş məlumatlarınızı heç vaxt tələb etmirik. Tam təhlükəsizlik zəmanəti.',
+                  icon: <CheckCircle className="h-6 w-6 text-green-500" />
+                },
+                {
+                  title: '24/7 Müştəri Dəstəyi',
+                  description: 'Peşəkar müştəri dəstəyi komandamız həftənin 7 günü sizin xidmətinizdədir.',
+                  icon: <CheckCircle className="h-6 w-6 text-green-500" />
+                },
+                {
+                  title: 'Geri Qaytarma Zəmanəti',
+                  description: 'Xidmət təqdim edilməyibsə və ya keyfiyyət aşağıdırsa, 30 gün ərzində tam geri qaytarma.',
+                  icon: <CheckCircle className="h-6 w-6 text-green-500" />
+                },
+                {
+                  title: 'Münasib Qiymətlər',
+                  description: 'Bazardakı ən münasib qiymətlərlə yüksək keyfiyyətli xidmətlər təqdim edirik.',
+                  icon: <CheckCircle className="h-6 w-6 text-green-500" />
+                }
+              ].map((benefit, index) => (
+                <Card key={index} className="p-6 hover:shadow-lg transition-all duration-300 hover:scale-105 bg-white/90 backdrop-blur-sm">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 mt-1">
+                      {benefit.icon}
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-foreground mb-2">{benefit.title}</h3>
+                      <p className="text-muted-foreground text-sm leading-relaxed">{benefit.description}</p>
+                    </div>
                   </div>
-                  <CardTitle className="text-xl">{platform}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 mb-4">
-                    <div className="text-sm text-muted-foreground">✓ Real izləyicilər və bəyənmələr</div>
-                    <div className="text-sm text-muted-foreground">✓ Sürətli çatdırılma</div>
-                    <div className="text-sm text-muted-foreground">✓ 24/7 dəstək xidməti</div>
-                  </div>
-                  <Button className="w-full" variant="outline" onClick={() => setIsAuthDialogOpen(true)}>
-                    {platform} Xidmətləri
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+                </Card>
+              ))}
+            </div>
           </div>
-        </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="py-20 bg-gradient-to-r from-primary to-purple-600">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div className="max-w-3xl mx-auto">
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+                Sosial Media Uğurunuza İndi Başlayın
+              </h2>
+              <p className="text-xl text-white/90 mb-8">
+                Minlərlə məmnun müştərimizə qoşulun və sosial media hesablarınızı növbəti səviyyəyə çıxarın
+              </p>
+              <Button 
+                onClick={handleOrderClick}
+                size="lg" 
+                className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-4 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              >
+                İndi Başla
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </div>
+          </div>
+        </section>
 
         <Footer />
       </div>

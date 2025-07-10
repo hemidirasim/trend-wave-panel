@@ -12,7 +12,7 @@ const Privacy = () => {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">Məxfilik Siyasəti</h1>
           <p className="text-muted-foreground text-lg">
-            Məxfiliyiniz bizim üçün vacibdir. Bu siyasət SocialBoost-un məlumatlarınızı necə topladığını, istifadə etdiyini və qoruduğunu izah edir.
+            Məxfiliyiniz bizim üçün vacibdir. Bu siyasət HitLoyal-un məlumatlarınızı necə topladığını, istifadə etdiyini və qoruduğunu izah edir.
           </p>
         </div>
 
@@ -216,8 +216,8 @@ const Privacy = () => {
                 Bu Məxfilik Siyasəti və ya məlumatlarınızı necə idarə etdiyimiz haqqında suallarınız varsa, bizimlə əlaqə saxlayın:
               </p>
               <p>
-                <strong>Email:</strong> info@socialboost.az<br />
-                <strong>Ünvan:</strong> SocialBoost Məxfilik Komandası<br />
+                <strong>Email:</strong> info@hitloyal.com<br />
+                <strong>Ünvan:</strong> HitLoyal Məxfilik Komandası<br />
                 <strong>Son Yenilənmə:</strong> Yanvar 2024
               </p>
             </CardContent>
