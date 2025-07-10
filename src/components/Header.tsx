@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Menu, X, Globe, ChevronDown } from 'lucide-react';
+import { Menu, X, Globe } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
@@ -94,7 +94,9 @@ export const Header = () => {
       <nav className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">
         <div className="flex lg:flex-1">
           <Link to="/" className="-m-1.5 p-1.5">
-            <span className="text-2xl font-bold text-primary">hitloyal</span>
+            <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              HitLoyal
+            </span>
           </Link>
         </div>
         
@@ -181,7 +183,8 @@ export const Header = () => {
           </NavigationMenu>
         </div>
         
-        <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center lg:gap-4">{user ? (
+        <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center lg:gap-4">
+          {user ? (
             <div className="flex items-center gap-4">
               <Link to="/dashboard">
                 <Button variant="outline" size="sm">
@@ -217,7 +220,9 @@ export const Header = () => {
           <div className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-background px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
             <div className="flex items-center justify-between">
               <Link to="/" className="-m-1.5 p-1.5">
-                <span className="text-xl font-bold text-primary">hitloyal</span>
+                <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  HitLoyal
+                </span>
               </Link>
               <button
                 type="button"
