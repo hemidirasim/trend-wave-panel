@@ -96,10 +96,10 @@ const Order = () => {
         return allowedPlatforms.includes(service.platform.toLowerCase());
       });
       
-      // Qiymətə görə sırala (avtomatik olaraq ucuzdan bahaya)
+      // Qiymətə görə sırala (avtomatik olaraq ucuzdan bahaya) - xidmət haqqı ilə birlikdə
       const sortedData = [...filteredData].sort((a, b) => {
-        const priceA = parseFloat(a.prices[0]?.price || '0');
-        const priceB = parseFloat(b.prices[0]?.price || '0');
+        const priceA = apiService.calculatePrice(a, 1000, settings.service_fee);
+        const priceB = apiService.calculatePrice(b, 1000, settings.service_fee);
         return priceA - priceB;
       });
       
@@ -396,9 +396,9 @@ const Order = () => {
   };
 
   // Helper function to get service price with service fee
-  const getServicePriceWithCommission = (service: Service) => {
-    const basePrice = parseFloat(service.prices[0]?.price || '0');
-    return apiService.calculatePrice(service, parseInt(service.prices[0]?.pricing_per || '1000'), settings.service_fee) / parseInt(service.prices[0]?.pricing_per || '1000');
+  const getServicePriceWithFee = (service: Service) => {
+    const basePricePer = parseInt(service.prices[0]?.pricing_per || '1000');
+    return apiService.calculatePrice(service, basePricePer, settings.service_fee) / basePricePer;
   };
 
   if (loading) {
@@ -541,7 +541,7 @@ const Order = () => {
                                           <div className="flex items-center space-x-2">
                                             <span>{service.public_name}</span>
                                             <Badge variant="secondary" className="ml-2">
-                                              ${apiService.formatPrice(getServicePriceWithCommission(service).toString())}/{service.prices[0]?.pricing_per || '1K'}
+                                              ${apiService.formatPrice(getServicePriceWithFee(service).toString())}/{service.prices[0]?.pricing_per || '1K'}
                                             </Badge>
                                           </div>
                                         </SelectItem>
@@ -769,7 +769,7 @@ const Order = () => {
                         </div>
                         <div className="flex justify-between text-sm">
                           <span>{selectedService.prices[0]?.pricing_per || '1000'} üçün qiymət:</span>
-                          <span>${apiService.formatPrice(getServicePriceWithCommission(selectedService).toString())}</span>
+                          <span>${apiService.formatPrice(getServicePriceWithFee(selectedService).toString())}</span>
                         </div>
                         {settings.service_fee > 0 && (
                           <div className="flex justify-between text-xs text-muted-foreground">
