@@ -37,92 +37,93 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <LanguageProvider>
-          <SettingsProvider>
-            <Router>
-              <div className="min-h-screen bg-background text-foreground">
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/services" element={<Services />} />
-                  <Route path="/service/:id" element={<ServiceDetail />} />
-                  <Route path="/order" element={<Order />} />
-                  <Route path="/track" element={<Track />} />
-                  <Route path="/blog" element={<Blog />} />
-                  <Route path="/faq" element={<FAQ />} />
-                  <Route path="/terms" element={<Terms />} />
-                  <Route path="/privacy" element={<Privacy />} />
+      <NotificationProvider>
+        <AuthProvider>
+          <LanguageProvider>
+            <SettingsProvider>
+              <Router>
+                <div className="min-h-screen bg-background text-foreground">
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/auth" element={<Auth />} />
+                    <Route path="/services" element={<Services />} />
+                    <Route path="/service/:id" element={<ServiceDetail />} />
+                    <Route path="/order" element={<Order />} />
+                    <Route path="/track" element={<Track />} />
+                    <Route path="/blog" element={<Blog />} />
+                    <Route path="/faq" element={<FAQ />} />
+                    <Route path="/terms" element={<Terms />} />
+                    <Route path="/privacy" element={<Privacy />} />
+                    
+                    <Route 
+                      path="/dashboard" 
+                      element={
+                        <ProtectedRoute>
+                          <Dashboard />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    
+                    {/* Admin Routes */}
+                    <Route 
+                      path="/admin" 
+                      element={
+                        <ProtectedAdminRoute>
+                          <Admin />
+                        </ProtectedAdminRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/users" 
+                      element={
+                        <ProtectedAdminRoute>
+                          <AdminUsers />
+                        </ProtectedAdminRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/services" 
+                      element={
+                        <ProtectedAdminRoute>
+                          <AdminServices />
+                        </ProtectedAdminRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/settings" 
+                      element={
+                        <ProtectedAdminRoute>
+                          <AdminSettings />
+                        </ProtectedAdminRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/blog" 
+                      element={
+                        <ProtectedAdminRoute>
+                          <AdminBlog />
+                        </ProtectedAdminRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/faq" 
+                      element={
+                        <ProtectedAdminRoute>
+                          <AdminFAQ />
+                        </ProtectedAdminRoute>
+                      } 
+                    />
+                    
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
                   
-                  <Route 
-                    path="/dashboard" 
-                    element={
-                      <ProtectedRoute>
-                        <Dashboard />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  
-                  {/* Admin Routes */}
-                  <Route 
-                    path="/admin" 
-                    element={
-                      <ProtectedAdminRoute>
-                        <Admin />
-                      </ProtectedAdminRoute>
-                    } 
-                  />
-                  <Route 
-                    path="/admin/users" 
-                    element={
-                      <ProtectedAdminRoute>
-                        <AdminUsers />
-                      </ProtectedAdminRoute>
-                    } 
-                  />
-                  <Route 
-                    path="/admin/services" 
-                    element={
-                      <ProtectedAdminRoute>
-                        <AdminServices />
-                      </ProtectedAdminRoute>
-                    } 
-                  />
-                  <Route 
-                    path="/admin/settings" 
-                    element={
-                      <ProtectedAdminRoute>
-                        <AdminSettings />
-                      </ProtectedAdminRoute>
-                    } 
-                  />
-                  <Route 
-                    path="/admin/blog" 
-                    element={
-                      <ProtectedAdminRoute>
-                        <AdminBlog />
-                      </ProtectedAdminRoute>
-                    } 
-                  />
-                  <Route 
-                    path="/admin/faq" 
-                    element={
-                      <ProtectedAdminRoute>
-                        <AdminFAQ />
-                      </ProtectedAdminRoute>
-                    } 
-                  />
-                  
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-                
-                <NotificationProvider />
-                <Toaster />
-              </div>
-            </Router>
-          </SettingsProvider>
-        </LanguageProvider>
-      </AuthProvider>
+                  <Toaster />
+                </div>
+              </Router>
+            </SettingsProvider>
+          </LanguageProvider>
+        </AuthProvider>
+      </NotificationProvider>
     </QueryClientProvider>
   );
 }
