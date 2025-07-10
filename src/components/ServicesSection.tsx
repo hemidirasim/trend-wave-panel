@@ -55,23 +55,20 @@ export const ServicesSection = () => {
       if (!response.ok) throw new Error('API xətası');
       
       const data = await response.json();
-      console.log('API-dən gələn məlumatlar:', data);
+      console.log('🔍 API-dən gələn bütün məlumatlar:', data);
+      console.log('🔍 İlk xidmətin platforması:', data?.[0]?.platform);
+      console.log('🔍 İlk xidmətin adı:', data?.[0]?.public_name);
       
-      // Sosial media like, view, followers xidmətlərini filtrləyirik
-      const socialMediaServices = (data || []).filter((service: ApiService) => {
-        const platform = service.platform?.toLowerCase();
-        const serviceName = service.public_name?.toLowerCase();
-        
-        // Sosial media platformaları və populyar xidmət növləri
-        const socialPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook', 'twitter'];
-        const serviceTypes = ['likes', 'followers', 'views', 'subscribers'];
-        
-        return socialPlatforms.includes(platform || '') && 
-               serviceTypes.some(type => serviceName?.includes(type));
-      });
+      if (!data || !Array.isArray(data)) {
+        console.log('❌ API cavabı yanlışdır:', data);
+        setApiServices([]);
+        return;
+      }
       
-      console.log('Filtrləndikdən sonra:', socialMediaServices);
-      setApiServices(socialMediaServices.slice(0, 8)); // İlk 8 sosial media xidməti
+      // Hər hansı sosial media xidmətlərini göstər, filtrləmə olmadan
+      const allServices = data.slice(0, 12);
+      console.log('✅ Göstəriləcək xidmətlər:', allServices);
+      setApiServices(allServices);
     } catch (error) {
       console.error('Error fetching API services:', error);
       setApiServices([]); // Xəta olduqda boş array
