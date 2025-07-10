@@ -15,7 +15,7 @@ interface Service {
   name: string;
   description: string | null;
   price: number | null;
-  category: 'standard' | 'social_media';
+  category: string;
   platform: string | null;
   icon: string | null;
   active: boolean;
@@ -56,12 +56,8 @@ const Services = () => {
     }
   };
 
-  const handleOrderClick = () => {
-    if (user) {
-      navigate('/order');
-    } else {
-      setIsAuthDialogOpen(true);
-    }
+  const handleContactClick = () => {
+    navigate('/faq');
   };
 
   // Əsas Xidmətlər
@@ -354,10 +350,10 @@ const Services = () => {
                         )}
                       </div>
                       <Button 
-                        onClick={handleOrderClick}
+                        onClick={handleContactClick}
                         className="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 transition-all duration-300"
                       >
-                        Sifariş Ver
+                        Məsləhət Alın
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     </CardContent>
@@ -419,12 +415,12 @@ const Services = () => {
                               )}
                             </div>
                             <Button 
-                              onClick={handleOrderClick}
+                              onClick={handleContactClick}
                               size="sm"
                               variant="outline"
                               className="w-full border-primary text-primary hover:bg-primary hover:text-white transition-all duration-300"
                             >
-                              Sifariş Ver
+                              Məsləhət Alın
                             </Button>
                           </CardContent>
                         </Card>
@@ -464,12 +460,12 @@ const Services = () => {
                               <span className="text-sm text-muted-foreground ml-1">-dan başlayır</span>
                             </div>
                             <Button 
-                              onClick={handleOrderClick}
+                              onClick={handleContactClick}
                               size="sm"
                               variant="outline"
                               className="w-full border-primary text-primary hover:bg-primary hover:text-white transition-all duration-300"
                             >
-                              Sifariş Ver
+                              Məsləhət Alın
                             </Button>
                           </CardContent>
                         </Card>
@@ -493,7 +489,7 @@ const Services = () => {
                 Peşəkar komandamızla birlikdə biznesinizi növbəti səviyyəyə çıxarın və rəqabətdə qabaqlayın
               </p>
               <Button 
-                onClick={handleOrderClick}
+                onClick={handleContactClick}
                 size="lg" 
                 className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-4 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               >

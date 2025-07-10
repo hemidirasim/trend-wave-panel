@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -276,30 +277,38 @@ export const Header = () => {
                 
                 <div className="space-y-2">
                   <h4 className="font-semibold text-foreground">Əsas Xidmətlər</h4>
-                  {standardServices.map((service) => (
-                    <Link 
-                      key={service.id}
-                      to={`/service/${service.id}`}
-                      className="block text-sm text-muted-foreground hover:text-primary transition-colors py-1 pl-4"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      {service.name}
-                    </Link>
-                  ))}
+                  {standardServices.length > 0 ? (
+                    standardServices.map((service) => (
+                      <Link 
+                        key={service.id}
+                        to={`/service/${service.id}`}
+                        className="block text-sm text-muted-foreground hover:text-primary transition-colors py-1 pl-4"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {service.name}
+                      </Link>
+                    ))
+                  ) : (
+                    <div className="text-sm text-muted-foreground pl-4">Yüklənir...</div>
+                  )}
                 </div>
 
                 <div className="space-y-2">
                   <h4 className="font-semibold text-foreground">Sosial Media</h4>
-                  {socialMediaServices.map((service) => (
-                    <Link 
-                      key={service.id_service}
-                      to={`/order?platform=${service.platform.toLowerCase()}`}
-                      className="block text-sm text-muted-foreground hover:text-primary transition-colors py-1 pl-4 capitalize"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      {service.platform}
-                    </Link>
-                  ))}
+                  {socialMediaServices.length > 0 ? (
+                    socialMediaServices.map((service) => (
+                      <Link 
+                        key={service.id_service}
+                        to={`/order?platform=${service.platform.toLowerCase()}`}
+                        className="block text-sm text-muted-foreground hover:text-primary transition-colors py-1 pl-4 capitalize"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {service.platform}
+                      </Link>
+                    ))
+                  ) : (
+                    <div className="text-sm text-muted-foreground pl-4">Yüklənir...</div>
+                  )}
                 </div>
 
                 <Link 
