@@ -5,10 +5,12 @@ import { Languages } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const languages = [
-  { code: 'az', name: 'Azərbaycan', flag: '🇦🇿' },
-  { code: 'en', name: 'English', flag: '🇺🇸' },
-  { code: 'tr', name: 'Türkçe', flag: '🇹🇷' },
-  { code: 'ru', name: 'Русский', flag: '🇷🇺' }
+  { code: 'az', name: 'Azərbaycan', flag: '🇦🇿' }
+  
+  // ,
+  // { code: 'en', name: 'English', flag: '🇺🇸' },
+  // { code: 'tr', name: 'Türkçe', flag: '🇹🇷' },
+  // { code: 'ru', name: 'Русский', flag: '🇷🇺' }
 ];
 
 export const LanguageSelector = () => {
