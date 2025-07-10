@@ -118,10 +118,6 @@ const Index = () => {
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
                   </Button>
-                  <Button variant="outline" size="lg" className="text-lg px-8 py-4 bg-white/80 backdrop-blur-sm border-2 hover:bg-white/90 transition-all duration-300" onClick={() => setIsAuthDialogOpen(true)}>
-                    <Globe className="mr-2 h-5 w-5" />
-                    Join HitLoyal
-                  </Button>
                 </div>
               </div>
             </div>
