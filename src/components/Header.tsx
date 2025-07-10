@@ -3,12 +3,13 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Menu, X, Star, Zap, User, LogOut, ChevronDown, Users, Search, TrendingUp, Palette, Globe, Tv, Facebook, Heart, UserPlus, Eye } from 'lucide-react';
+import { Menu, X, Star, Zap, User, LogOut, ChevronDown, Users, Search, TrendingUp, Palette, Globe, Tv, Facebook, Heart, UserPlus, Eye, Instagram, Youtube } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import AuthDialog from './AuthDialog';
 import { LanguageSelector } from './LanguageSelector';
+import { apiService } from '@/components/ApiService';
 
 interface Service {
   id: string;
@@ -21,21 +22,29 @@ interface Service {
   order_index: number;
 }
 
+interface ApiService {
+  id_service: string;
+  public_name: string;
+  platform: string;
+  type_name: string;
+}
+
 const iconMap: Record<string, any> = {
-  Users, Search, TrendingUp, Palette, Globe, Tv, Facebook, Heart, UserPlus, Eye
+  Users, Search, TrendingUp, Palette, Globe, Tv, Facebook, Heart, UserPlus, Eye, Instagram, Youtube
 };
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
   const [standardServices, setStandardServices] = useState<Service[]>([]);
-  const [socialMediaServices, setSocialMediaServices] = useState<Service[]>([]);
+  const [socialMediaServices, setSocialMediaServices] = useState<ApiService[]>([]);
   const { user, signOut } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchServices();
+    fetchSocialMediaServices();
   }, []);
 
   const fetchServices = async () => {
@@ -44,16 +53,35 @@ export const Header = () => {
         .from('services')
         .select('*')
         .eq('active', true)
-        .order('category', { ascending: true })
+        .eq('category', 'standard')
         .order('order_index', { ascending: true });
 
       if (error) throw error;
-      
-      const services = (data || []) as Service[];
-      setStandardServices(services.filter(s => s.category === 'standard'));
-      setSocialMediaServices(services.filter(s => s.category === 'social_media'));
+      setStandardServices(data || []);
     } catch (error) {
       console.error('Error fetching services:', error);
+    }
+  };
+
+  const fetchSocialMediaServices = async () => {
+    try {
+      const services = await apiService.getServices();
+      // Yalnız icazə verilən platformları göstər
+      const allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook'];
+      const filteredServices = services.filter(service => 
+        allowedPlatforms.includes(service.platform.toLowerCase())
+      );
+      
+      // Hər platform üçün unikal xidmətlər al
+      const uniquePlatforms = [...new Set(filteredServices.map(s => s.platform.toLowerCase()))];
+      const platformServices = uniquePlatforms.map(platform => {
+        const service = filteredServices.find(s => s.platform.toLowerCase() === platform);
+        return service;
+      }).filter(Boolean) as ApiService[];
+      
+      setSocialMediaServices(platformServices);
+    } catch (error) {
+      console.error('Error fetching social media services:', error);
     }
   };
 
@@ -72,6 +100,16 @@ export const Header = () => {
     } else {
       setIsAuthDialogOpen(true);
     }
+  };
+
+  const getPlatformIcon = (platform: string) => {
+    const icons: Record<string, any> = {
+      instagram: Instagram,
+      youtube: Youtube,
+      facebook: Facebook,
+      tiktok: () => <div className="w-4 h-4 bg-current rounded-sm" />,
+    };
+    return icons[platform.toLowerCase()] || Heart;
   };
 
   return (
@@ -99,50 +137,59 @@ export const Header = () => {
                 {t('header.home')}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
               </Link>
+              
+              {/* Əsas Xidmətlər */}
               <div className="relative group">
                 <button className="text-foreground/80 hover:text-primary transition-colors duration-200 font-medium relative flex items-center">
                   Əsas Xidmətlər
                   <ChevronDown className="ml-1 h-4 w-4" />
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
                 </button>
-                <div className="absolute top-full left-0 mt-2 w-72 bg-background border border-border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="absolute top-full left-0 mt-2 w-64 bg-background border border-border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                   <div className="p-3">
-                    <div className="mb-2">
-                      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Əsas Xidmətlər</h3>
-                      {standardServices.map((service) => {
-                        const IconComponent = iconMap[service.icon || 'Users'];
-                        return (
-                          <Link 
-                            key={service.id}
-                            to={`/services#${service.id}`} 
-                            className="flex items-center px-3 py-2 text-sm hover:bg-muted rounded transition-colors"
-                          >
-                            {IconComponent && <IconComponent className="h-4 w-4 mr-3 text-primary" />}
-                            <span>{service.name}</span>
-                          </Link>
-                        );
-                      })}
-                    </div>
-                    <hr className="my-2" />
-                    <div>
-                      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Sosial Media</h3>
-                      {socialMediaServices.map((service) => {
-                        const IconComponent = iconMap[service.icon || 'Heart'];
-                        return (
-                          <Link 
-                            key={service.id}
-                            to={`/services#${service.id}`} 
-                            className="flex items-center px-3 py-2 text-sm hover:bg-muted rounded transition-colors"
-                          >
-                            {IconComponent && <IconComponent className="h-4 w-4 mr-3 text-primary" />}
-                            <span>{service.name}</span>
-                          </Link>
-                        );
-                      })}
-                    </div>
+                    {standardServices.map((service) => {
+                      const IconComponent = iconMap[service.icon || 'Users'];
+                      return (
+                        <Link 
+                          key={service.id}
+                          to={`/service/${service.id}`} 
+                          className="flex items-center px-3 py-2 text-sm hover:bg-muted rounded transition-colors"
+                        >
+                          {IconComponent && <IconComponent className="h-4 w-4 mr-3 text-primary" />}
+                          <span>{service.name}</span>
+                        </Link>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
+
+              {/* Sosial Media Xidmətləri */}
+              <div className="relative group">
+                <button className="text-foreground/80 hover:text-primary transition-colors duration-200 font-medium relative flex items-center">
+                  Sosial Media
+                  <ChevronDown className="ml-1 h-4 w-4" />
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+                </button>
+                <div className="absolute top-full left-0 mt-2 w-64 bg-background border border-border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <div className="p-3">
+                    {socialMediaServices.map((service) => {
+                      const IconComponent = getPlatformIcon(service.platform);
+                      return (
+                        <Link 
+                          key={service.id_service}
+                          to={`/order?platform=${service.platform.toLowerCase()}`}
+                          className="flex items-center px-3 py-2 text-sm hover:bg-muted rounded transition-colors"
+                        >
+                          <IconComponent className="h-4 w-4 mr-3 text-primary" />
+                          <span className="capitalize">{service.platform}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
               <Link 
                 to="/blog" 
                 className="text-foreground/80 hover:text-primary transition-colors duration-200 font-medium relative group"
@@ -227,30 +274,35 @@ export const Header = () => {
                 >
                   {t('header.home')}
                 </Link>
+                
                 <div className="space-y-2">
                   <h4 className="font-semibold text-foreground">Əsas Xidmətlər</h4>
-                  {standardServices.slice(0, 4).map((service) => (
+                  {standardServices.map((service) => (
                     <Link 
                       key={service.id}
-                      to={`/services#${service.id}`}
-                      className="block text-sm text-muted-foreground hover:text-primary transition-colors py-1"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      {service.name}
-                    </Link>
-                  ))}
-                  <h4 className="font-semibold text-foreground mt-3">Sosial Media</h4>
-                  {socialMediaServices.slice(0, 3).map((service) => (
-                    <Link 
-                      key={service.id}
-                      to={`/services#${service.id}`}
-                      className="block text-sm text-muted-foreground hover:text-primary transition-colors py-1"
+                      to={`/service/${service.id}`}
+                      className="block text-sm text-muted-foreground hover:text-primary transition-colors py-1 pl-4"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       {service.name}
                     </Link>
                   ))}
                 </div>
+
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-foreground">Sosial Media</h4>
+                  {socialMediaServices.map((service) => (
+                    <Link 
+                      key={service.id_service}
+                      to={`/order?platform=${service.platform.toLowerCase()}`}
+                      className="block text-sm text-muted-foreground hover:text-primary transition-colors py-1 pl-4 capitalize"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {service.platform}
+                    </Link>
+                  ))}
+                </div>
+
                 <Link 
                   to="/blog" 
                   className="text-foreground hover:text-primary transition-colors py-2 font-medium"
@@ -265,6 +317,7 @@ export const Header = () => {
                 >
                   {t('header.faq')}
                 </Link>
+                
                 <div className="pt-4 border-t border-border/50">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-2 text-sm text-muted-foreground">

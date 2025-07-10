@@ -38,12 +38,22 @@ const Order = () => {
   const [selectedPlatform, setSelectedPlatform] = useState<string>('');
   const [selectedServiceType, setSelectedServiceType] = useState<string>('');
 
+  // URL-dən platform parametrini oxu
+  const urlPlatform = searchParams.get('platform');
+
   // Yalnız bu 4 platformu göstər
   const allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook'];
 
   useEffect(() => {
     fetchServices();
   }, []);
+
+  useEffect(() => {
+    // URL-dən platform parametri varsa, onu seç
+    if (urlPlatform && allowedPlatforms.includes(urlPlatform.toLowerCase())) {
+      setSelectedPlatform(urlPlatform.toLowerCase());
+    }
+  }, [urlPlatform]);
 
   useEffect(() => {
     if (services.length > 0 && formData.serviceId) {
