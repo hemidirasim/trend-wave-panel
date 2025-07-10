@@ -1,206 +1,225 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { Separator } from '@/components/ui/separator';
-import { Shield, Eye, Database, Cookie, Mail } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const Privacy = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
       
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="max-w-4xl mx-auto">
-          {/* Header Section */}
-          <div className="text-center mb-12">
-            <div className="flex justify-center mb-4">
-              <div className="bg-primary/10 p-3 rounded-full">
-                <Shield className="h-8 w-8 text-primary" />
-              </div>
-            </div>
-            <h1 className="text-4xl font-bold text-foreground mb-4">
-              Privacy Policy
-            </h1>
-            <p className="text-xl text-muted-foreground">
-              Last updated: December 2024
-            </p>
-          </div>
+      <div className="container mx-auto px-4 py-16 max-w-4xl">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold mb-4">Privacy Policy</h1>
+          <p className="text-muted-foreground text-lg">
+            Your privacy is important to us. This policy explains how HitLoyal collects, uses, and protects your information.
+          </p>
+        </div>
 
-          <Card className="shadow-lg">
-            <CardContent className="p-8 space-y-8">
-              {/* Introduction */}
-              <section>
-                <h2 className="text-2xl font-semibold text-foreground mb-4 flex items-center">
-                  <Eye className="h-6 w-6 text-primary mr-2" />
-                  1. Introduction
-                </h2>
-                <p className="text-muted-foreground leading-relaxed">
-                  At SocialBoost, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our social media marketing services and website.
-                </p>
-              </section>
+        <div className="space-y-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>1. Information We Collect</CardTitle>
+            </CardHeader>
+            <CardContent className="prose prose-slate max-w-none">
+              <h4>Personal Information</h4>
+              <p>
+                We collect information you provide directly to us, such as when you create an account, subscribe to our services, or contact us for support:
+              </p>
+              <ul>
+                <li>Name and contact information (email address, phone number)</li>
+                <li>Account credentials and profile information</li>
+                <li>Payment information (processed securely through third-party providers)</li>
+                <li>Communication preferences and history</li>
+              </ul>
 
-              <Separator />
+              <h4>Usage Information</h4>
+              <p>
+                We automatically collect certain information about how you use our platform:
+              </p>
+              <ul>
+                <li>Login frequency and session duration</li>
+                <li>Features used and content accessed</li>
+                <li>Performance analytics and engagement metrics</li>
+                <li>Device information and technical specifications</li>
+              </ul>
+            </CardContent>
+          </Card>
 
-              {/* Information Collection */}
-              <section>
-                <h2 className="text-2xl font-semibold text-foreground mb-4 flex items-center">
-                  <Database className="h-6 w-6 text-primary mr-2" />
-                  2. Information We Collect
-                </h2>
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-semibold text-foreground mb-2">Personal Information</h3>
-                    <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-                      <li>Email address and contact information</li>
-                      <li>Account credentials and profile information</li>
-                      <li>Payment and billing information</li>
-                      <li>Social media account links and usernames</li>
-                    </ul>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-lg font-semibold text-foreground mb-2">Usage Information</h3>
-                    <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-                      <li>Service usage patterns and preferences</li>
-                      <li>Order history and transaction records</li>
-                      <li>Website interaction and navigation data</li>
-                      <li>Device information and IP addresses</li>
-                    </ul>
-                  </div>
-                </div>
-              </section>
+          <Card>
+            <CardHeader>
+              <CardTitle>2. How We Use Your Information</CardTitle>
+            </CardHeader>
+            <CardContent className="prose prose-slate max-w-none">
+              <p>We use the information we collect to:</p>
+              <ul>
+                <li>Provide, maintain, and improve our social media growth services</li>
+                <li>Develop personalized growth strategies and recommendations</li>
+                <li>Process payments and manage subscriptions</li>
+                <li>Send important updates, notifications, and marketing communications</li>
+                <li>Provide customer support and respond to inquiries</li>
+                <li>Analyze usage patterns to enhance user experience</li>
+                <li>Ensure platform security and prevent fraud</li>
+                <li>Comply with legal obligations and enforce our terms</li>
+              </ul>
+            </CardContent>
+          </Card>
 
-              <Separator />
+          <Card>
+            <CardHeader>
+              <CardTitle>3. Information Sharing and Disclosure</CardTitle>
+            </CardHeader>
+            <CardContent className="prose prose-slate max-w-none">
+              <p>
+                We do not sell, trade, or rent your personal information to third parties. We may share your information in the following circumstances:
+              </p>
+              <ul>
+                <li><strong>Service Providers:</strong> With trusted third-party vendors who assist in operating our platform</li>
+                <li><strong>Legal Requirements:</strong> When required by law or to protect our rights and safety</li>
+                <li><strong>Business Transfers:</strong> In connection with a merger, acquisition, or sale of assets</li>
+                <li><strong>Consent:</strong> With your explicit consent for specific purposes</li>
+              </ul>
+            </CardContent>
+          </Card>
 
-              {/* How We Use Information */}
-              <section>
-                <h2 className="text-2xl font-semibold text-foreground mb-4">
-                  3. How We Use Your Information
-                </h2>
-                <div className="space-y-4 text-muted-foreground">
-                  <p>We use collected information to:</p>
-                  <ul className="list-disc pl-6 space-y-2">
-                    <li>Provide and deliver our social media marketing services</li>
-                    <li>Process payments and manage your account</li>
-                    <li>Communicate with you about orders and support</li>
-                    <li>Improve our services and user experience</li>
-                    <li>Comply with legal obligations and prevent fraud</li>
-                    <li>Send promotional content (with your consent)</li>
-                  </ul>
-                </div>
-              </section>
+          <Card>
+            <CardHeader>
+              <CardTitle>4. Data Security</CardTitle>
+            </CardHeader>
+            <CardContent className="prose prose-slate max-w-none">
+              <p>
+                We implement robust security measures to protect your personal information:
+              </p>
+              <ul>
+                <li>Encryption of data in transit and at rest</li>
+                <li>Regular security audits and assessments</li>
+                <li>Access controls and authentication requirements</li>
+                <li>Secure payment processing through certified providers</li>
+                <li>Employee training on data protection best practices</li>
+              </ul>
+              <p>
+                However, no method of transmission over the internet is 100% secure. While we strive to protect your information, we cannot guarantee absolute security.
+              </p>
+            </CardContent>
+          </Card>
 
-              <Separator />
+          <Card>
+            <CardHeader>
+              <CardTitle>5. Data Retention</CardTitle>
+            </CardHeader>
+            <CardContent className="prose prose-slate max-w-none">
+              <p>
+                We retain your information for as long as necessary to provide our services and fulfill the purposes outlined in this policy. Specific retention periods include:
+              </p>
+              <ul>
+                <li>Account information: Until account deletion or as required by law</li>
+                <li>Usage analytics: Anonymized after 24 months</li>
+                <li>Communication records: 3 years for customer support purposes</li>
+                <li>Payment information: As required by financial regulations</li>
+              </ul>
+            </CardContent>
+          </Card>
 
-              {/* Information Sharing */}
-              <section>
-                <h2 className="text-2xl font-semibold text-foreground mb-4">
-                  4. Information Sharing and Disclosure
-                </h2>
-                <div className="space-y-4 text-muted-foreground">
-                  <p>We may share your information with:</p>
-                  <ul className="list-disc pl-6 space-y-2">
-                    <li><strong>Service Providers:</strong> Third-party companies that help us deliver services</li>
-                    <li><strong>Payment Processors:</strong> To process payments securely</li>
-                    <li><strong>Legal Authorities:</strong> When required by law or to protect our rights</li>
-                    <li><strong>Business Transfers:</strong> In case of merger, acquisition, or sale</li>
-                  </ul>
-                  <p className="mt-4">
-                    We never sell, rent, or trade your personal information to third parties for marketing purposes.
-                  </p>
-                </div>
-              </section>
+          <Card>
+            <CardHeader>
+              <CardTitle>6. Your Rights and Choices</CardTitle>
+            </CardHeader>
+            <CardContent className="prose prose-slate max-w-none">
+              <p>You have the right to:</p>
+              <ul>
+                <li>Access and review your personal information</li>
+                <li>Correct inaccurate or incomplete information</li>
+                <li>Delete your account and associated data</li>
+                <li>Opt-out of marketing communications</li>
+                <li>Request data portability in machine-readable format</li>
+                <li>Withdraw consent for specific data processing activities</li>
+              </ul>
+              <p>
+                To exercise these rights, please contact us at privacy@hitloyal.com.
+              </p>
+            </CardContent>
+          </Card>
 
-              <Separator />
+          <Card>
+            <CardHeader>
+              <CardTitle>7. Cookies and Tracking Technologies</CardTitle>
+            </CardHeader>
+            <CardContent className="prose prose-slate max-w-none">
+              <p>
+                We use cookies and similar technologies to enhance your experience:
+              </p>
+              <ul>
+                <li><strong>Essential Cookies:</strong> Required for basic platform functionality</li>
+                <li><strong>Analytics Cookies:</strong> Help us understand how you use our platform</li>
+                <li><strong>Preference Cookies:</strong> Remember your settings and preferences</li>
+                <li><strong>Marketing Cookies:</strong> Used to deliver relevant advertisements</li>
+              </ul>
+              <p>
+                You can control cookie preferences through your browser settings.
+              </p>
+            </CardContent>
+          </Card>
 
-              {/* Data Security */}
-              <section>
-                <h2 className="text-2xl font-semibold text-foreground mb-4">
-                  5. Data Security
-                </h2>
-                <div className="space-y-4 text-muted-foreground">
-                  <p>We implement appropriate security measures to protect your information:</p>
-                  <ul className="list-disc pl-6 space-y-2">
-                    <li>SSL encryption for data transmission</li>
-                    <li>Secure data storage and access controls</li>
-                    <li>Regular security audits and updates</li>
-                    <li>Employee training on data protection</li>
-                  </ul>
-                </div>
-              </section>
+          <Card>
+            <CardHeader>
+              <CardTitle>8. Third-Party Services</CardTitle>
+            </CardHeader>
+            <CardContent className="prose prose-slate max-w-none">
+              <p>
+                Our platform may integrate with third-party services for enhanced functionality. These services have their own privacy policies, and we encourage you to review them:
+              </p>
+              <ul>
+                <li>Social media platform APIs for analytics</li>
+                <li>Payment processors for subscription management</li>
+                <li>Analytics tools for performance measurement</li>
+                <li>Communication tools for customer support</li>
+              </ul>
+            </CardContent>
+          </Card>
 
-              <Separator />
+          <Card>
+            <CardHeader>
+              <CardTitle>9. International Data Transfers</CardTitle>
+            </CardHeader>
+            <CardContent className="prose prose-slate max-w-none">
+              <p>
+                Your information may be transferred to and processed in countries other than your own. We ensure appropriate safeguards are in place to protect your data during international transfers, including:
+              </p>
+              <ul>
+                <li>Standard contractual clauses approved by regulatory authorities</li>
+                <li>Adequacy decisions for specific countries</li>
+                <li>Certification under recognized privacy frameworks</li>
+              </ul>
+            </CardContent>
+          </Card>
 
-              {/* Cookies */}
-              <section>
-                <h2 className="text-2xl font-semibold text-foreground mb-4 flex items-center">
-                  <Cookie className="h-6 w-6 text-primary mr-2" />
-                  6. Cookies and Tracking
-                </h2>
-                <div className="space-y-4 text-muted-foreground">
-                  <p>We use cookies and similar technologies to:</p>
-                  <ul className="list-disc pl-6 space-y-2">
-                    <li>Remember your preferences and settings</li>
-                    <li>Analyze website traffic and usage patterns</li>
-                    <li>Provide personalized content and advertisements</li>
-                    <li>Improve website functionality and performance</li>
-                  </ul>
-                  <p>You can control cookie settings through your browser preferences.</p>
-                </div>
-              </section>
+          <Card>
+            <CardHeader>
+              <CardTitle>10. Changes to This Policy</CardTitle>
+            </CardHeader>
+            <CardContent className="prose prose-slate max-w-none">
+              <p>
+                We may update this Privacy Policy periodically to reflect changes in our practices or for legal and regulatory reasons. We will notify you of significant changes via email or platform notification.
+              </p>
+              <p>
+                Continued use of our services after policy updates constitutes acceptance of the revised terms.
+              </p>
+            </CardContent>
+          </Card>
 
-              <Separator />
-
-              {/* Your Rights */}
-              <section>
-                <h2 className="text-2xl font-semibold text-foreground mb-4">
-                  7. Your Privacy Rights
-                </h2>
-                <div className="space-y-4 text-muted-foreground">
-                  <p>You have the right to:</p>
-                  <ul className="list-disc pl-6 space-y-2">
-                    <li>Access and review your personal information</li>
-                    <li>Correct inaccurate or incomplete data</li>
-                    <li>Delete your account and personal information</li>
-                    <li>Opt-out of marketing communications</li>
-                    <li>Request data portability</li>
-                    <li>File complaints with regulatory authorities</li>
-                  </ul>
-                </div>
-              </section>
-
-              <Separator />
-
-              {/* International Transfers */}
-              <section>
-                <h2 className="text-2xl font-semibold text-foreground mb-4">
-                  8. International Data Transfers
-                </h2>
-                <p className="text-muted-foreground">
-                  Your information may be transferred to and processed in countries other than your own. We ensure appropriate safeguards are in place to protect your data in accordance with applicable privacy laws.
-                </p>
-              </section>
-
-              <Separator />
-
-              {/* Contact */}
-              <section>
-                <h2 className="text-2xl font-semibold text-foreground mb-4 flex items-center">
-                  <Mail className="h-6 w-6 text-primary mr-2" />
-                  9. Contact Us
-                </h2>
-                <div className="text-muted-foreground">
-                  <p className="mb-4">
-                    If you have any questions about this Privacy Policy or our data practices, please contact us:
-                  </p>
-                  <div className="bg-muted/50 p-4 rounded-lg">
-                    <p><strong>Email:</strong> privacy@socialboost.com</p>
-                    <p><strong>Support:</strong> Available 24/7 through our help center</p>
-                    <p><strong>Address:</strong> SocialBoost Privacy Team</p>
-                  </div>
-                </div>
-              </section>
+          <Card>
+            <CardHeader>
+              <CardTitle>11. Contact Us</CardTitle>
+            </CardHeader>
+            <CardContent className="prose prose-slate max-w-none">
+              <p>
+                If you have questions about this Privacy Policy or how we handle your information, please contact us:
+              </p>
+              <p>
+                <strong>Email:</strong> privacy@hitloyal.com<br />
+                <strong>Address:</strong> HitLoyal Privacy Team<br />
+                <strong>Last Updated:</strong> January 2024
+              </p>
             </CardContent>
           </Card>
         </div>

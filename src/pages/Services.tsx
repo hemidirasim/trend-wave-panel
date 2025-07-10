@@ -11,7 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import AuthDialog from '@/components/AuthDialog';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { apiService, Service } from '@/components/ApiService';
-import { Loader2, Zap, Star, Instagram, Youtube, Facebook, Heart, Users, Eye, Share, MessageCircle, Repeat, ArrowUpDown } from 'lucide-react';
+import { Loader2, Target, Star, Instagram, Youtube, Facebook, BookOpen, Users, BarChart3, ArrowUpDown, Lightbulb, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Services = () => {
@@ -25,9 +25,8 @@ const Services = () => {
   const [loading, setLoading] = useState(true);
   const [selectedPlatform, setSelectedPlatform] = useState(defaultPlatform);
   const [selectedServiceType, setSelectedServiceType] = useState<string>('');
-  const [priceSort, setPriceSort] = useState<string>('none'); // 'none' | 'asc' | 'desc'
+  const [priceSort, setPriceSort] = useState<string>('none');
 
-  // Yalnız bu 4 platformu göstər
   const allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook'];
 
   useEffect(() => {
@@ -37,26 +36,22 @@ const Services = () => {
   const fetchServices = async () => {
     try {
       setLoading(true);
-      console.log('Fetching services from API...');
+      console.log('Fetching growth services from API...');
       const data = await apiService.getServices();
       console.log('Raw API response:', data);
       
-      // API-dən gələn məlumatları filterlə
       const filteredData = data.filter(service => {
-        // Service mövcudluğunu yoxla
         if (!service || !service.platform || !service.id_service) {
           console.log('Skipping invalid service:', service);
           return false;
         }
         
-        // Platform yoxla
         const platformMatch = allowedPlatforms.includes(service.platform.toLowerCase());
         if (!platformMatch) {
-          console.log('Platform not allowed:', service.platform);
+          console.log('Platform not supported:', service.platform);
           return false;
         }
         
-        // Qiymət məlumatlarını yoxla
         if (!service.prices || service.prices.length === 0) {
           console.log('No pricing info for service:', service.id_service);
           return false;
@@ -65,21 +60,21 @@ const Services = () => {
         return true;
       });
       
-      console.log('Filtered services:', filteredData);
+      console.log('Filtered growth services:', filteredData);
       setServices(filteredData);
       
       if (filteredData.length === 0) {
-        toast.error('Seçilmiş platformlar üçün xidmət tapılmadı');
+        toast.error('Seçilmiş platformlar üçün growth xidməti tapılmadı');
       }
     } catch (error) {
-      console.error('Error fetching services:', error);
-      toast.error('Xidmətlər yüklənərkən xəta baş verdi');
+      console.error('Error fetching growth services:', error);
+      toast.error('Growth xidmətləri yüklənərkən xəta baş verdi');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleOrderClick = (serviceId: string) => {
+  const handleConsultationClick = (serviceId: string) => {
     if (user) {
       navigate(`/order?service=${serviceId}`);
     } else {
@@ -109,12 +104,12 @@ const Services = () => {
 
   const getServiceTypeIcon = (type: string) => {
     const icons: Record<string, any> = {
-      'Likes': Heart,
-      'Followers': Users,
-      'Views': Eye,
-      'Shares': Share,
-      'Comments': MessageCircle,
-      'Reposts': Repeat,
+      'Strategy': Target,
+      'Analytics': BarChart3,
+      'Content': BookOpen,
+      'Engagement': Users,
+      'Growth': TrendingUp,
+      'Consultation': Lightbulb,
       'Other': Star,
     };
     return icons[type] || Star;
@@ -223,7 +218,7 @@ const Services = () => {
         <div className="container mx-auto px-4 py-20">
           <div className="flex items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin" />
-            <span className="ml-2">Xidmətlər yüklənir...</span>
+            <span className="ml-2">Growth xidmətləri yüklənir...</span>
           </div>
         </div>
         <Footer />
@@ -239,167 +234,152 @@ const Services = () => {
         <div className="container mx-auto px-4 py-8">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold mb-4">
-              Sosial Media <span className="text-primary">Xidmətləri</span>
+              Sosial Media <span className="text-primary">Growth Strategies</span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Instagram, TikTok, YouTube və Facebook üçün keyfiyyətli SMM xidmətləri
+              Instagram, TikTok, YouTube və Facebook üçün professional growth consultancy və strategic guidance
             </p>
           </div>
 
-          <Tabs value={selectedPlatform} onValueChange={handlePlatformChange} className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-8">
-              {getUniquePlatforms().map((platform) => {
-                const IconComponent = getPlatformIcon(platform);
-                return (
-                  <TabsTrigger key={platform} value={platform} className="capitalize flex items-center gap-2">
-                    {IconComponent && <IconComponent className="w-4 h-4" />}
-                    {platform}
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
-
-            {getUniquePlatforms().map((platform) => (
-              <TabsContent key={platform} value={platform}>
-                {/* Xidmət növü seçimi - düymələrlə */}
-                {selectedPlatform && (
-                  <div className="mb-8">
-                    <h3 className="text-lg font-semibold mb-4">Xidmət növünü seçin:</h3>
-                    <ToggleGroup 
-                      type="single" 
-                      value={selectedServiceType} 
-                      onValueChange={(value) => setSelectedServiceType(value || '')}
-                      className="flex flex-wrap gap-3 justify-center"
-                    >
-                      {getUniqueServiceTypes(selectedPlatform).map((type) => {
-                        const IconComponent = getServiceTypeIcon(type);
-                        return (
-                          <ToggleGroupItem 
-                            key={type} 
-                            value={type}
-                            className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all hover:scale-105"
-                            variant="outline"
-                          >
-                            <IconComponent className="w-4 h-4" />
-                            {type}
-                          </ToggleGroupItem>
-                        );
-                      })}
-                    </ToggleGroup>
+          {/* Growth Services Content */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+            <Card className="hover:shadow-lg transition-shadow bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+              <CardHeader>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-blue-500 rounded-lg text-white">
+                    <Target className="h-6 w-6" />
                   </div>
-                )}
-
-                {/* Qiymət sıralaması filtri */}
-                {selectedPlatform && selectedServiceType && (
-                  <div className="mb-8 flex justify-center">
-                    <div className="flex items-center gap-4">
-                      <ArrowUpDown className="h-4 w-4" />
-                      <span className="text-sm font-medium">Qiymətə görə sırala:</span>
-                      <Select value={priceSort} onValueChange={setPriceSort}>
-                        <SelectTrigger className="w-48">
-                          <SelectValue placeholder="Sıralama seçin" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">Sıralama yoxdur</SelectItem>
-                          <SelectItem value="asc">Ucuzdan bahaya</SelectItem>
-                          <SelectItem value="desc">Bahadan ucuza</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                  <Badge className="bg-blue-500 text-white">Strategic Planning</Badge>
+                </div>
+                <CardTitle className="text-xl">Growth Strategy Development</CardTitle>
+                <CardDescription>
+                  Comprehensive growth strategies tailored to your brand and audience
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Star className="h-3 w-3 text-yellow-500" />
+                    Audience analysis and targeting
                   </div>
-                )}
-
-                {/* Xidmətlər - yalnız həm platform həm də növ seçildikdə göstər */}
-                {selectedPlatform && selectedServiceType && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {getFilteredServices().map((service) => {
-                      const IconComponent = getPlatformIcon(service.platform);
-                      const price = apiService.formatPrice(service.prices?.[0]?.price || '0');
-                      const pricingPer = service.prices?.[0]?.pricing_per || '1K';
-                      const maximum = service.prices?.[0]?.maximum || '0';
-                      const serviceType = service.type_name && service.type_name.trim() !== '' 
-                        ? service.type_name 
-                        : getServiceTypeFromName(service.public_name);
-
-                      return (
-                        <Card key={service.id_service} className="relative overflow-hidden hover:shadow-lg transition-shadow">
-                          <CardHeader>
-                            <div className="flex items-center justify-between">
-                              <Badge className={`${getPlatformColor(service.platform)} text-white flex items-center gap-1`}>
-                                {IconComponent && <IconComponent className="w-3 h-3" />}
-                                {service.platform}
-                              </Badge>
-                              <Badge variant="secondary">
-                                ${price}/{pricingPer}
-                              </Badge>
-                            </div>
-                            <CardTitle className="text-xl">{service.public_name || 'Xidmət'}</CardTitle>
-                            <CardDescription>{serviceType}</CardDescription>
-                          </CardHeader>
-                          
-                          <CardContent className="space-y-4">
-                            <div className="flex justify-between text-sm text-muted-foreground">
-                              <span>Min: {parseInt(service.amount_minimum || '0').toLocaleString()}</span>
-                              <span>Max: {parseInt(maximum).toLocaleString()}</span>
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2 text-sm">
-                                <Star className="h-3 w-3 text-yellow-500" />
-                                Keyfiyyətli xidmət
-                              </div>
-                              <div className="flex items-center gap-2 text-sm">
-                                <Star className="h-3 w-3 text-yellow-500" />
-                                Sürətli çatdırılma
-                              </div>
-                              <div className="flex items-center gap-2 text-sm">
-                                <Star className="h-3 w-3 text-yellow-500" />
-                                24/7 Dəstək
-                              </div>
-                            </div>
-                            
-                            <Button 
-                              className="w-full" 
-                              onClick={() => handleOrderClick(service.id_service.toString())}
-                            >
-                              <Zap className="h-4 w-4 mr-2" />
-                              Sifariş ver
-                            </Button>
-                          </CardContent>
-                        </Card>
-                      );
-                    })}
+                  <div className="flex items-center gap-2 text-sm">
+                    <Star className="h-3 w-3 text-yellow-500" />
+                    Content strategy planning
                   </div>
-                )}
-
-                {/* Mesajlar */}
-                {selectedPlatform && !selectedServiceType && (
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground text-lg">
-                      Xidmətləri görmək üçün yuxarıdan xidmət növünü seçin
-                    </p>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Star className="h-3 w-3 text-yellow-500" />
+                    Growth timeline and milestones
                   </div>
-                )}
+                </div>
+                <Button className="w-full bg-blue-500 hover:bg-blue-600" onClick={() => setIsAuthDialogOpen(true)}>
+                  <Target className="h-4 w-4 mr-2" />
+                  Get Strategy Consultation
+                </Button>
+              </CardContent>
+            </Card>
 
-                {selectedPlatform && selectedServiceType && getFilteredServices().length === 0 && (
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground text-lg">
-                      Seçilən növə uyğun xidmət tapılmadı
-                    </p>
+            <Card className="hover:shadow-lg transition-shadow bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+              <CardHeader>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-green-500 rounded-lg text-white">
+                    <BarChart3 className="h-6 w-6" />
                   </div>
-                )}
-              </TabsContent>
+                  <Badge className="bg-green-500 text-white">Analytics & Insights</Badge>
+                </div>
+                <CardTitle className="text-xl">Performance Analytics</CardTitle>
+                <CardDescription>
+                  Advanced analytics and performance tracking tools
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Star className="h-3 w-3 text-yellow-500" />
+                    Detailed performance reports
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Star className="h-3 w-3 text-yellow-500" />
+                    Competitor analysis
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Star className="h-3 w-3 text-yellow-500" />
+                    Growth optimization tips
+                  </div>
+                </div>
+                <Button className="w-full bg-green-500 hover:bg-green-600" onClick={() => setIsAuthDialogOpen(true)}>
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  Access Analytics Tools
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-lg transition-shadow bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+              <CardHeader>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-purple-500 rounded-lg text-white">
+                    <BookOpen className="h-6 w-6" />
+                  </div>
+                  <Badge className="bg-purple-500 text-white">Education</Badge>
+                </div>
+                <CardTitle className="text-xl">Expert Training</CardTitle>
+                <CardDescription>
+                  Learn from social media experts and industry professionals
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Star className="h-3 w-3 text-yellow-500" />
+                    Video tutorials and guides
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Star className="h-3 w-3 text-yellow-500" />
+                    One-on-one mentoring
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Star className="h-3 w-3 text-yellow-500" />
+                    Best practices and tips
+                  </div>
+                </div>
+                <Button className="w-full bg-purple-500 hover:bg-purple-600" onClick={() => setIsAuthDialogOpen(true)}>
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  Start Learning
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Platform-specific features */}
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold mb-4">Platform-Specific Growth Tools</h2>
+            <p className="text-muted-foreground">Specialized tools and strategies for each major social media platform</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {['Instagram', 'TikTok', 'YouTube', 'Facebook'].map((platform) => (
+              <Card key={platform} className="hover:shadow-lg transition-all duration-300 hover:scale-105">
+                <CardHeader className="text-center">
+                  <div className={`w-16 h-16 ${getPlatformColor(platform.toLowerCase())} rounded-2xl mx-auto mb-4 flex items-center justify-center text-white text-2xl`}>
+                    {platform === 'Instagram' && '📸'}
+                    {platform === 'TikTok' && '🎵'}
+                    {platform === 'YouTube' && '📺'}
+                    {platform === 'Facebook' && '👥'}
+                  </div>
+                  <CardTitle className="text-xl">{platform}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 mb-4">
+                    <div className="text-sm text-muted-foreground">✓ Growth strategy consultation</div>
+                    <div className="text-sm text-muted-foreground">✓ Performance analytics</div>
+                    <div className="text-sm text-muted-foreground">✓ Expert guidance</div>
+                  </div>
+                  <Button className="w-full" variant="outline" onClick={() => setIsAuthDialogOpen(true)}>
+                    Explore {platform} Tools
+                  </Button>
+                </CardContent>
+              </Card>
             ))}
-          </Tabs>
-
-          {/* Heç bir platform seçilməyibsə mesaj göstər */}
-          {!selectedPlatform && (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground text-lg">
-                Xidmətləri görmək üçün yuxarıdan sosial şəbəkə seçin
-              </p>
-            </div>
-          )}
+          </div>
         </div>
 
         <Footer />

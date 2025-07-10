@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import AuthDialog from '@/components/AuthDialog';
-import { ArrowRight, Star, Zap, Shield, Clock, Users, TrendingUp, Check, Sparkles, Rocket, Globe } from 'lucide-react';
+import { ArrowRight, Star, Zap, Shield, Clock, Users, TrendingUp, Check, Sparkles, Rocket, Globe, Target, BarChart3, BookOpen, Award } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -29,61 +29,61 @@ const Index = () => {
     { 
       name: 'Instagram', 
       color: 'from-pink-500 to-rose-500', 
-      services: ['Followers', 'Likes', 'Views'],
+      services: ['Growth Strategy', 'Analytics', 'Content Planning'],
       icon: '📸'
     },
     { 
       name: 'TikTok', 
       color: 'from-purple-500 to-indigo-500', 
-      services: ['Followers', 'Likes', 'Views'],
+      services: ['Trend Analysis', 'Audience Insights', 'Performance Tracking'],
       icon: '🎵'
     },
     { 
       name: 'YouTube', 
       color: 'from-red-500 to-orange-500', 
-      services: ['Subscribers', 'Views', 'Likes'],
+      services: ['Channel Growth', 'SEO Optimization', 'Analytics Dashboard'],
       icon: '📺'
     },
     { 
       name: 'Facebook', 
       color: 'from-blue-500 to-cyan-500', 
-      services: ['Likes', 'Followers', 'Shares'],
+      services: ['Page Management', 'Audience Building', 'Engagement Strategy'],
       icon: '👥'
     },
   ];
 
   const features = [
     {
-      icon: <Zap className="h-8 w-8 text-yellow-500" />,
-      title: t('features.fast'),
-      description: t('features.fastDesc'),
+      icon: <Target className="h-8 w-8 text-yellow-500" />,
+      title: 'Strategic Growth Planning',
+      description: 'Develop comprehensive social media strategies tailored to your brand and audience for sustainable growth.',
       gradient: 'from-yellow-100 to-amber-100'
     },
     {
-      icon: <Shield className="h-8 w-8 text-green-500" />,
-      title: t('features.secure'),
-      description: t('features.secureDesc'),
+      icon: <BarChart3 className="h-8 w-8 text-green-500" />,
+      title: 'Advanced Analytics',
+      description: 'Get detailed insights into your performance with comprehensive analytics and reporting tools.',
       gradient: 'from-green-100 to-emerald-100'
     },
     {
-      icon: <Clock className="h-8 w-8 text-blue-500" />,
-      title: t('features.support'),
-      description: t('features.supportDesc'),
+      icon: <BookOpen className="h-8 w-8 text-blue-500" />,
+      title: 'Educational Resources',
+      description: 'Access expert guides, tutorials, and best practices to master social media marketing.',
       gradient: 'from-blue-100 to-sky-100'
     },
     {
-      icon: <Users className="h-8 w-8 text-purple-500" />,
-      title: t('features.quality'),
-      description: t('features.qualityDesc'),
+      icon: <Award className="h-8 w-8 text-purple-500" />,
+      title: 'Expert Consultation',
+      description: 'Get personalized advice from social media experts to optimize your growth strategy.',
       gradient: 'from-purple-100 to-violet-100'
     }
   ];
 
   const stats = [
-    { number: "50K+", label: "Happy Customers", icon: <Users className="h-6 w-6" /> },
-    { number: "1M+", label: "Orders Completed", icon: <TrendingUp className="h-6 w-6" /> },
-    { number: "99.9%", label: "Customer Satisfaction", icon: <Star className="h-6 w-6" /> },
-    { number: "24/7", label: "Support Available", icon: <Clock className="h-6 w-6" /> }
+    { number: "10K+", label: "Successful Projects", icon: <TrendingUp className="h-6 w-6" /> },
+    { number: "500+", label: "Growth Strategies", icon: <Target className="h-6 w-6" /> },
+    { number: "95%", label: "Client Success Rate", icon: <Star className="h-6 w-6" /> },
+    { number: "24/7", label: "Expert Support", icon: <Clock className="h-6 w-6" /> }
   ];
 
   return (
@@ -102,19 +102,19 @@ const Index = () => {
               <div className="animate-fade-in">
                 <Badge variant="secondary" className="mb-6 px-4 py-2 text-sm font-medium bg-white/80 backdrop-blur-sm border border-primary/20">
                   <Sparkles className="h-4 w-4 mr-2" />
-                  #1 Social Media Growth Service
+                  #1 Social Media Growth Platform
                 </Badge>
                 <h1 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-primary via-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight">
-                  Grow Your Social Media with HitLoyal
+                  Master Your Social Media Growth with HitLoyal
                 </h1>
                 <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
-                  Professional social media marketing services for Instagram, TikTok, YouTube, and Facebook. Get real followers, likes, and engagement to boost your online presence.
+                  Professional social media growth platform offering strategic guidance, analytics, and expert consultation for Instagram, TikTok, YouTube, and Facebook. Build your authentic online presence with proven strategies.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
                   <Button asChild size="lg" className="text-lg px-8 py-4 bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                     <Link to="/services">
                       <Rocket className="mr-2 h-5 w-5" />
-                      Start Growing Now
+                      Start Your Journey
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
                   </Button>
@@ -153,10 +153,10 @@ const Index = () => {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center mb-20">
               <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-                {t('platforms.title')}
+                Platform Expertise
               </h2>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                {t('platforms.subtitle')}
+                Specialized growth strategies and tools for each major social media platform
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -179,7 +179,7 @@ const Index = () => {
                     </div>
                     <Button asChild className="w-full bg-gradient-to-r from-primary/90 to-purple-600/90 hover:from-primary hover:to-purple-600 transition-all duration-300" variant="default">
                       <Link to={`/services?platform=${platform.name.toLowerCase()}`}>
-                        {t('platforms.viewServices')}
+                        Explore Tools
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Link>
                     </Button>
@@ -195,10 +195,10 @@ const Index = () => {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-20">
               <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-                {t('features.title')}
+                Why Choose HitLoyal?
               </h2>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                {t('features.subtitle')}
+                Comprehensive social media growth platform with expert guidance and proven strategies
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -235,19 +235,19 @@ const Index = () => {
             <Card className="bg-white/10 backdrop-blur-xl border-white/20 shadow-2xl">
               <CardContent className="text-center py-20">
                 <div className="mb-8">
-                  <TrendingUp className="h-20 w-20 mx-auto text-white mb-6" />
+                  <Globe className="h-20 w-20 mx-auto text-white mb-6" />
                 </div>
                 <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">
-                  Ready to Go Viral?
+                  Ready to Transform Your Social Media Presence?
                 </h2>
                 <p className="text-xl mb-10 max-w-3xl mx-auto text-white/90 leading-relaxed">
-                  Join thousands of creators and businesses who trust HitLoyal to grow their social media presence. Start your journey to social media success today!
+                  Join thousands of creators and businesses who trust HitLoyal to guide their social media growth journey. Start building your authentic online presence today!
                 </p>
                 <div className="flex flex-col sm:flex-row gap-6 justify-center">
                   <Button asChild size="lg" variant="secondary" className="text-lg px-8 py-4 bg-white text-primary hover:bg-white/90 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
                     <Link to="/services">
-                      <Zap className="mr-2 h-5 w-5" />
-                      Order Now
+                      <Target className="mr-2 h-5 w-5" />
+                      Explore Services
                     </Link>
                   </Button>
                   <Button 
@@ -257,7 +257,7 @@ const Index = () => {
                     onClick={() => setIsAuthDialogOpen(true)}
                   >
                     <Users className="mr-2 h-5 w-5" />
-                    Create Account
+                    Get Started
                   </Button>
                 </div>
               </CardContent>
