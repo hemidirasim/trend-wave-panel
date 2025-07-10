@@ -64,7 +64,10 @@ export const Footer = () => {
             <ul className="space-y-3">
               {services.map((service) => (
                 <li key={service.id}>
-                  <Link to="/services" className="text-slate-300 hover:text-primary transition-colors duration-300 flex items-center">
+                  <Link 
+                    to={`/service/${service.id}`} 
+                    className="text-slate-300 hover:text-primary transition-colors duration-300 flex items-center"
+                  >
                     {service.name}
                   </Link>
                 </li>
