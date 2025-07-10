@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { apiService, Service } from '@/components/ApiService';
-import { Loader2, ShoppingCart, AlertCircle, CheckCircle, Calculator, Instagram, Youtube, Facebook, Heart, Users, Eye, Share, MessageCircle, Repeat, Star, Info } from 'lucide-react';
+import { Loader2, ShoppingCart, AlertCircle, CheckCircle, Calculator, Instagram, Youtube, Facebook, Heart, Users, Eye, Share, MessageCircle, Repeat, Star, Info, Filter, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Order = () => {
@@ -37,6 +38,7 @@ const Order = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [selectedPlatform, setSelectedPlatform] = useState<string>('');
   const [selectedServiceType, setSelectedServiceType] = useState<string>('');
+  const [priceFilter, setPriceFilter] = useState<'low-to-high' | 'high-to-low'>('low-to-high');
 
   // URL-dən platform parametrini oxu
   const urlPlatform = searchParams.get('platform');
@@ -85,7 +87,7 @@ const Order = () => {
       const data = await apiService.getServices();
       console.log('Services loaded:', data);
       
-      // API-dən gələn məlumatları filterlə - yalnız icazə verilən platformlar
+      // API-dən gələn məlumatları filterlə və qiymətə görə sırala
       const filteredData = data.filter(service => {
         if (!service || !service.platform || !service.id_service) {
           return false;
@@ -93,7 +95,14 @@ const Order = () => {
         return allowedPlatforms.includes(service.platform.toLowerCase());
       });
       
-      setServices(filteredData);
+      // Qiymətə görə sırala (avtomatik olaraq ucuzdan bahaya)
+      const sortedData = [...filteredData].sort((a, b) => {
+        const priceA = parseFloat(a.prices[0]?.price || '0');
+        const priceB = parseFloat(b.prices[0]?.price || '0');
+        return priceA - priceB;
+      });
+      
+      setServices(sortedData);
     } catch (error) {
       toast.error('Xidmətlər yüklənərkən xəta baş verdi');
       console.error('Error fetching services:', error);
@@ -329,7 +338,19 @@ const Order = () => {
       return serviceType === selectedServiceType;
     });
 
-    return filtered;
+    // Qiymət filtri tətbiq et
+    const sortedServices = [...filtered].sort((a, b) => {
+      const priceA = parseFloat(a.prices[0]?.price || '0');
+      const priceB = parseFloat(b.prices[0]?.price || '0');
+      
+      if (priceFilter === 'low-to-high') {
+        return priceA - priceB;
+      } else {
+        return priceB - priceA;
+      }
+    });
+
+    return sortedServices;
   };
 
   const handlePlatformChange = (platform: string) => {
@@ -468,30 +489,57 @@ const Order = () => {
                               </div>
                             )}
 
-                            {/* Konkret xidmət seçimi */}
+                            {/* Qiymət filtri və konkret xidmət seçimi */}
                             {selectedPlatform && selectedServiceType && (
-                              <div className="space-y-2">
-                                <Label>Xidmət seçin *</Label>
-                                <Select 
-                                  value={formData.serviceId} 
-                                  onValueChange={handleServiceSelect}
-                                >
-                                  <SelectTrigger className={errors.serviceId ? 'border-red-500' : ''}>
-                                    <SelectValue placeholder="Xidmət seçin" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {getFilteredServices().map(service => (
-                                      <SelectItem key={service.id_service} value={service.id_service.toString()}>
-                                        <div className="flex items-center space-x-2">
-                                          <span>{service.public_name}</span>
-                                          <Badge variant="secondary" className="ml-2">
-                                            ${apiService.formatPrice(service.prices[0]?.price || '0')}/{service.prices[0]?.pricing_per || '1K'}
-                                          </Badge>
-                                        </div>
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
+                              <div className="space-y-4">
+                                {/* Qiymət filtri */}
+                                <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg">
+                                  <Filter className="h-4 w-4 text-muted-foreground" />
+                                  <Label className="text-sm font-medium">Qiymətə görə sırala:</Label>
+                                  <Select value={priceFilter} onValueChange={(value: 'low-to-high' | 'high-to-low') => setPriceFilter(value)}>
+                                    <SelectTrigger className="w-auto">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="low-to-high">Ucuzdan bahaya</SelectItem>
+                                      <SelectItem value="high-to-low">Bahadan ucuza</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setPriceFilter('low-to-high')}
+                                    className="h-8 w-8 p-0"
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </Button>
+                                </div>
+
+                                {/* Konkret xidmət seçimi */}
+                                <div className="space-y-2">
+                                  <Label>Xidmət seçin *</Label>
+                                  <Select 
+                                    value={formData.serviceId} 
+                                    onValueChange={handleServiceSelect}
+                                  >
+                                    <SelectTrigger className={errors.serviceId ? 'border-red-500' : ''}>
+                                      <SelectValue placeholder="Xidmət seçin" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {getFilteredServices().map(service => (
+                                        <SelectItem key={service.id_service} value={service.id_service.toString()}>
+                                          <div className="flex items-center space-x-2">
+                                            <span>{service.public_name}</span>
+                                            <Badge variant="secondary" className="ml-2">
+                                              ${apiService.formatPrice(service.prices[0]?.price || '0')}/{service.prices[0]?.pricing_per || '1K'}
+                                            </Badge>
+                                          </div>
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
                               </div>
                             )}
                           </TabsContent>
