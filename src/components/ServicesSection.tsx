@@ -6,6 +6,11 @@ import { Target, Heart, UserPlus, Eye } from 'lucide-react';
 import { proxyApiService, Service } from './ProxyApiService';
 import { Link } from 'react-router-dom';
 
+interface Platform {
+  name: string;
+  displayName: string;
+}
+
 const platformIcons: Record<string, any> = {
   instagram: Heart,
   tiktok: UserPlus,
@@ -19,7 +24,7 @@ const platformIcons: Record<string, any> = {
 };
 
 export const ServicesSection = () => {
-  const [apiServices, setApiServices] = useState<Service[]>([]);
+  const [apiServices, setApiServices] = useState<Platform[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -30,17 +35,27 @@ export const ServicesSection = () => {
     setLoading(true);
     try {
       const services = await proxyApiService.getServices();
-      console.log('🔍 API-dən gələn bütün xidmətlər:', services);
+      console.log('🔍 API-dən gələn xidmətlər:', services);
       
-      // Sosial media platformaları filtrləyirik
-      const socialServices = services.filter(service => 
-        ['instagram', 'tiktok', 'youtube', 'facebook', 'twitter'].some(platform => 
-          service.platform?.toLowerCase().includes(platform)
+      // Yalnız unikal sosial media platformalarını alırıq
+      const platforms = [...new Set(services
+        .filter(service => 
+          ['instagram', 'tiktok', 'youtube', 'facebook', 'twitter'].some(platform => 
+            service.platform?.toLowerCase().includes(platform)
+          )
         )
-      );
+        .map(service => service.platform)
+        .filter(Boolean)
+      )];
       
-      console.log('✅ Sosial media xidmətləri:', socialServices);
-      setApiServices(socialServices.slice(0, 12)); // İlk 12 xidməti göstər
+      // Platform adlarını formatlayırıq
+      const formattedPlatforms = platforms.map(platform => ({
+        name: platform,
+        displayName: platform.charAt(0).toUpperCase() + platform.slice(1).toLowerCase()
+      }));
+      
+      console.log('✅ Sosial media platformaları:', formattedPlatforms);
+      setApiServices(formattedPlatforms);
     } catch (error) {
       console.error('Error fetching API services:', error);
       setApiServices([]);
@@ -79,9 +94,9 @@ export const ServicesSection = () => {
             <p className="text-muted-foreground">Hal-hazırda sosial media xidmətləri mövcud deyil.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {apiServices.map((service, index) => {
-              const platformKey = service.platform?.toLowerCase() || '';
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+            {apiServices.map((platform, index) => {
+              const platformKey = platform.name?.toLowerCase() || '';
               const IconComponent = platformIcons[platformKey] || Heart;
               const colors = [
                 'from-pink-500 to-rose-500',
@@ -89,39 +104,20 @@ export const ServicesSection = () => {
                 'from-red-500 to-orange-500',
                 'from-blue-500 to-purple-500',
                 'from-purple-500 to-pink-500',
-                'from-blue-500 to-teal-500',
-                'from-orange-500 to-red-500',
-                'from-blue-600 to-blue-800'
+                'from-blue-500 to-teal-500'
               ];
               const color = colors[index % colors.length];
               
               return (
-                <Link key={service.id_service} to={`/order?platform=${service.platform?.toLowerCase()}`}>
-                  <Card className="bg-white/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-500 cursor-pointer group border border-primary/10 hover:border-primary/20 hover:scale-105">
-                    <CardHeader className="text-center pb-4">
-                      <div className={`w-20 h-20 bg-gradient-to-br ${color} rounded-2xl mx-auto mb-4 flex items-center justify-center text-white group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}>
-                        <IconComponent className="h-8 w-8" />
-                      </div>
-                      <CardTitle className="text-lg font-bold text-foreground line-clamp-2">
-                        {service.public_name.replace(/\s*-\s*\[.*?\]\s*.*$/g, '')}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        <p className="text-sm text-muted-foreground capitalize">
-                          Platform: <span className="font-medium">{service.platform}</span>
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          Min: <span className="font-medium">{service.amount_minimum}</span>
-                        </p>
-                        {service.prices?.[0] && (
-                          <p className="text-sm font-semibold text-primary">
-                            ${service.prices[0].price}/1000
-                          </p>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
+                <Link key={platform.name} to={`/order?platform=${platform.name?.toLowerCase()}`}>
+                  <div className="group cursor-pointer">
+                    <div className={`w-20 h-20 bg-gradient-to-br ${color} rounded-2xl mx-auto mb-4 flex items-center justify-center text-white group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}>
+                      <IconComponent className="h-8 w-8" />
+                    </div>
+                    <h3 className="text-center text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
+                      {platform.displayName}
+                    </h3>
+                  </div>
                 </Link>
               );
             })}
