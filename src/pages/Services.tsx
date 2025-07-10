@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,12 +7,54 @@ import { Footer } from '@/components/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import AuthDialog from '@/components/AuthDialog';
 import { useNavigate } from 'react-router-dom';
-import { Star, Shield, Clock, Zap, Search, Youtube, TrendingUp, PenTool, Code, Tv, Facebook, Instagram, Users, Heart, Eye, MessageCircle, Share2, Play, ArrowRight, CheckCircle, Megaphone, Monitor, Briefcase, Globe, Video } from 'lucide-react';
+import { Star, Shield, Clock, Zap, Search, Youtube, TrendingUp, PenTool, Code, Tv, Facebook, Instagram, Users, Heart, Eye, MessageCircle, Share2, Play, ArrowRight, CheckCircle, Megaphone, Monitor, Briefcase, Globe, Video, UserPlus } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+
+interface Service {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number | null;
+  category: 'standard' | 'social_media';
+  platform: string | null;
+  icon: string | null;
+  active: boolean;
+  order_index: number;
+}
+
+const iconMap: Record<string, any> = {
+  Users, Search, TrendingUp, PenTool, Code, Tv, Facebook, Heart, UserPlus, Eye
+};
 
 const Services = () => {
   const { user } = useAuth();
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
+  const [standardServices, setStandardServices] = useState<Service[]>([]);
+  const [socialMediaServices, setSocialMediaServices] = useState<Service[]>([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const fetchServices = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('services')
+        .select('*')
+        .eq('active', true)
+        .order('category', { ascending: true })
+        .order('order_index', { ascending: true });
+
+      if (error) throw error;
+      
+      const services = (data || []) as Service[];
+      setStandardServices(services.filter(s => s.category === 'standard'));
+      setSocialMediaServices(services.filter(s => s.category === 'social_media'));
+    } catch (error) {
+      console.error('Error fetching services:', error);
+    }
+  };
 
   const handleOrderClick = () => {
     if (user) {
@@ -276,39 +318,52 @@ const Services = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {mainServices.map((service, index) => (
-                <Card key={index} id={service.id} className={`overflow-hidden bg-gradient-to-br ${service.gradient} ${service.borderColor} border-2 hover:shadow-2xl transition-all duration-500 group`}>
-                  <CardHeader className="text-center pb-6">
-                    <div className={`w-16 h-16 bg-gradient-to-br ${service.color} rounded-2xl mx-auto mb-4 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                      <service.icon className="h-8 w-8" />
-                    </div>
-                    <h3 className="text-xl font-bold text-foreground">{service.name}</h3>
-                    <p className="text-sm text-muted-foreground mt-2">{service.description}</p>
-                  </CardHeader>
-                  
-                  <CardContent>
-                    <div className="space-y-3 mb-6">
-                      {service.services.map((item, idx) => (
-                        <div key={idx} className="flex items-center text-sm">
-                          <CheckCircle className="h-4 w-4 text-green-500 mr-3 flex-shrink-0" />
-                          <span>{item}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="text-center mb-4">
-                      <span className="text-2xl font-bold text-primary">{service.startPrice}</span>
-                      <span className="text-sm text-muted-foreground ml-1">-dan başlayır</span>
-                    </div>
-                    <Button 
-                      onClick={handleOrderClick}
-                      className="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 transition-all duration-300"
-                    >
-                      Sifariş Ver
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+              {standardServices.map((service, index) => {
+                const IconComponent = iconMap[service.icon || 'Users'];
+                const colors = [
+                  { color: 'from-pink-500 to-rose-500', gradient: 'from-pink-50 to-rose-50', border: 'border-pink-200' },
+                  { color: 'from-green-500 to-blue-500', gradient: 'from-green-50 to-blue-50', border: 'border-green-200' },
+                  { color: 'from-red-500 to-orange-500', gradient: 'from-red-50 to-orange-50', border: 'border-red-200' },
+                  { color: 'from-blue-500 to-purple-500', gradient: 'from-blue-50 to-purple-50', border: 'border-blue-200' },
+                  { color: 'from-purple-500 to-pink-500', gradient: 'from-purple-50 to-pink-50', border: 'border-purple-200' },
+                  { color: 'from-blue-500 to-teal-500', gradient: 'from-blue-50 to-teal-50', border: 'border-blue-200' },
+                  { color: 'from-orange-500 to-red-500', gradient: 'from-orange-50 to-red-50', border: 'border-orange-200' },
+                  { color: 'from-blue-600 to-blue-800', gradient: 'from-blue-50 to-blue-100', border: 'border-blue-200' }
+                ];
+                const colorScheme = colors[index % colors.length];
+                
+                return (
+                  <Card key={service.id} id={service.id} className={`overflow-hidden bg-gradient-to-br ${colorScheme.gradient} ${colorScheme.border} border-2 hover:shadow-2xl transition-all duration-500 group`}>
+                    <CardHeader className="text-center pb-6">
+                      <div className={`w-16 h-16 bg-gradient-to-br ${colorScheme.color} rounded-2xl mx-auto mb-4 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                        {IconComponent && <IconComponent className="h-8 w-8" />}
+                      </div>
+                      <h3 className="text-xl font-bold text-foreground">{service.name}</h3>
+                      <p className="text-sm text-muted-foreground mt-2">{service.description}</p>
+                    </CardHeader>
+                    
+                    <CardContent>
+                      <div className="text-center mb-4">
+                        {service.price ? (
+                          <>
+                            <span className="text-2xl font-bold text-primary">₼{service.price}</span>
+                            <span className="text-sm text-muted-foreground ml-1">-dan başlayır</span>
+                          </>
+                        ) : (
+                          <span className="text-lg text-muted-foreground">Qiymət sorğu ilə</span>
+                        )}
+                      </div>
+                      <Button 
+                        onClick={handleOrderClick}
+                        className="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 transition-all duration-300"
+                      >
+                        Sifariş Ver
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -326,6 +381,58 @@ const Services = () => {
             </div>
 
             <div className="space-y-12">
+              <Card className="overflow-hidden bg-white/90 backdrop-blur-sm border-2 border-gray-200 hover:shadow-2xl transition-all duration-500">
+                <CardHeader className="text-center pb-8">
+                  <div className="flex items-center justify-center gap-4 mb-4">
+                    <div className="w-16 h-16 bg-gradient-to-br from-gray-600 to-gray-800 rounded-2xl flex items-center justify-center text-white shadow-lg">
+                      <Heart className="h-8 w-8" />
+                    </div>
+                    <div>
+                      <h3 className="text-3xl font-bold text-foreground">Sosial Media Engagement</h3>
+                      <p className="text-muted-foreground">Organik Böyümə Strategiyaları</p>
+                    </div>
+                  </div>
+                </CardHeader>
+                
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {socialMediaServices.map((service, serviceIndex) => {
+                      const IconComponent = iconMap[service.icon || 'Heart'];
+                      return (
+                        <Card key={service.id} className="bg-white/80 backdrop-blur-sm hover:bg-white/90 transition-all duration-300 hover:scale-105 border border-white/50">
+                          <CardHeader className="text-center pb-4">
+                            <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                              {IconComponent && <IconComponent className="h-6 w-6 text-gray-600" />}
+                            </div>
+                            <h4 className="text-lg font-bold text-foreground">{service.name}</h4>
+                            <p className="text-sm text-muted-foreground">{service.description}</p>
+                          </CardHeader>
+                          <CardContent className="text-center">
+                            <div className="mb-4">
+                              {service.price ? (
+                                <>
+                                  <span className="text-2xl font-bold text-primary">₼{service.price}</span>
+                                  <span className="text-sm text-muted-foreground ml-1">-dan başlayır</span>
+                                </>
+                              ) : (
+                                <span className="text-lg text-muted-foreground">Qiymət sorğu ilə</span>
+                              )}
+                            </div>
+                            <Button 
+                              onClick={handleOrderClick}
+                              size="sm"
+                              variant="outline"
+                              className="w-full border-primary text-primary hover:bg-primary hover:text-white transition-all duration-300"
+                            >
+                              Sifariş Ver
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
               {additionalServices.map((platform, platformIndex) => (
                 <Card key={platformIndex} className="overflow-hidden bg-white/90 backdrop-blur-sm border-2 border-gray-200 hover:shadow-2xl transition-all duration-500">
                   <CardHeader className="text-center pb-8">

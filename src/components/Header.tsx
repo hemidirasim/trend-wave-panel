@@ -1,20 +1,61 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Menu, X, Star, Zap, User, LogOut, ChevronDown } from 'lucide-react';
+import { Menu, X, Star, Zap, User, LogOut, ChevronDown, Users, Search, TrendingUp, Palette, Globe, Tv, Facebook, Heart, UserPlus, Eye } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { supabase } from '@/integrations/supabase/client';
 import AuthDialog from './AuthDialog';
 import { LanguageSelector } from './LanguageSelector';
+
+interface Service {
+  id: string;
+  name: string;
+  description: string | null;
+  category: 'standard' | 'social_media';
+  platform: string | null;
+  icon: string | null;
+  active: boolean;
+  order_index: number;
+}
+
+const iconMap: Record<string, any> = {
+  Users, Search, TrendingUp, Palette, Globe, Tv, Facebook, Heart, UserPlus, Eye
+};
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
+  const [standardServices, setStandardServices] = useState<Service[]>([]);
+  const [socialMediaServices, setSocialMediaServices] = useState<Service[]>([]);
   const { user, signOut } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const fetchServices = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('services')
+        .select('*')
+        .eq('active', true)
+        .order('category', { ascending: true })
+        .order('order_index', { ascending: true });
+
+      if (error) throw error;
+      
+      const services = (data || []) as Service[];
+      setStandardServices(services.filter(s => s.category === 'standard'));
+      setSocialMediaServices(services.filter(s => s.category === 'social_media'));
+    } catch (error) {
+      console.error('Error fetching services:', error);
+    }
+  };
 
   const handleSignOut = async () => {
     try {
@@ -60,24 +101,45 @@ export const Header = () => {
               </Link>
               <div className="relative group">
                 <button className="text-foreground/80 hover:text-primary transition-colors duration-200 font-medium relative flex items-center">
-                  {t('header.services')}
+                  Əsas Xidmətlər
                   <ChevronDown className="ml-1 h-4 w-4" />
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
                 </button>
-                <div className="absolute top-full left-0 mt-2 w-64 bg-background border border-border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                  <div className="p-2">
-                    <Link to="/services" className="block px-3 py-2 text-sm hover:bg-muted rounded transition-colors">
-                      Reklam və Marketinq
-                    </Link>
-                    <Link to="/services#web" className="block px-3 py-2 text-sm hover:bg-muted rounded transition-colors">
-                      Veb Dizayn
-                    </Link>
-                    <Link to="/services#brand" className="block px-3 py-2 text-sm hover:bg-muted rounded transition-colors">
-                      Brend Xidmətləri
-                    </Link>
-                    <Link to="/services#additional" className="block px-3 py-2 text-sm hover:bg-muted rounded transition-colors">
-                      Əlavə Xidmətlər
-                    </Link>
+                <div className="absolute top-full left-0 mt-2 w-72 bg-background border border-border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <div className="p-3">
+                    <div className="mb-2">
+                      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Əsas Xidmətlər</h3>
+                      {standardServices.map((service) => {
+                        const IconComponent = iconMap[service.icon || 'Users'];
+                        return (
+                          <Link 
+                            key={service.id}
+                            to={`/services#${service.id}`} 
+                            className="flex items-center px-3 py-2 text-sm hover:bg-muted rounded transition-colors"
+                          >
+                            {IconComponent && <IconComponent className="h-4 w-4 mr-3 text-primary" />}
+                            <span>{service.name}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                    <hr className="my-2" />
+                    <div>
+                      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Sosial Media</h3>
+                      {socialMediaServices.map((service) => {
+                        const IconComponent = iconMap[service.icon || 'Heart'];
+                        return (
+                          <Link 
+                            key={service.id}
+                            to={`/services#${service.id}`} 
+                            className="flex items-center px-3 py-2 text-sm hover:bg-muted rounded transition-colors"
+                          >
+                            {IconComponent && <IconComponent className="h-4 w-4 mr-3 text-primary" />}
+                            <span>{service.name}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -114,6 +176,14 @@ export const Header = () => {
                   >
                     <User className="h-4 w-4 mr-2" />
                     {t('header.dashboard')}
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => navigate('/admin')}
+                    className="border-primary/20 hover:bg-primary/10"
+                  >
+                    Admin
                   </Button>
                   <Button 
                     variant="outline" 
@@ -157,13 +227,30 @@ export const Header = () => {
                 >
                   {t('header.home')}
                 </Link>
-                <Link 
-                  to="/services" 
-                  className="text-foreground hover:text-primary transition-colors py-2 font-medium"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {t('header.services')}
-                </Link>
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-foreground">Əsas Xidmətlər</h4>
+                  {standardServices.slice(0, 4).map((service) => (
+                    <Link 
+                      key={service.id}
+                      to={`/services#${service.id}`}
+                      className="block text-sm text-muted-foreground hover:text-primary transition-colors py-1"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {service.name}
+                    </Link>
+                  ))}
+                  <h4 className="font-semibold text-foreground mt-3">Sosial Media</h4>
+                  {socialMediaServices.slice(0, 3).map((service) => (
+                    <Link 
+                      key={service.id}
+                      to={`/services#${service.id}`}
+                      className="block text-sm text-muted-foreground hover:text-primary transition-colors py-1"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {service.name}
+                    </Link>
+                  ))}
+                </div>
                 <Link 
                   to="/blog" 
                   className="text-foreground hover:text-primary transition-colors py-2 font-medium"

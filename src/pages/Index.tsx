@@ -7,14 +7,51 @@ import { Badge } from '@/components/ui/badge';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import AuthDialog from '@/components/AuthDialog';
-import { ArrowRight, Star, Zap, Shield, Clock, Users, TrendingUp, Check, Sparkles, Rocket, Globe, Target, BarChart3, BookOpen, Award, Megaphone, Search, Youtube, Lightbulb, PenTool, Code, Radio, Video, Facebook, Instagram, Monitor, Briefcase, Tv } from 'lucide-react';
+import { ArrowRight, Star, Zap, Shield, Clock, Users, TrendingUp, Check, Sparkles, Rocket, Globe, Target, BarChart3, BookOpen, Award, Megaphone, Search, Youtube, Lightbulb, PenTool, Code, Radio, Video, Facebook, Instagram, Monitor, Briefcase, Tv, Heart, UserPlus, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { supabase } from '@/integrations/supabase/client';
+
+interface Service {
+  id: string;
+  name: string;
+  description: string | null;
+  category: 'standard' | 'social_media';
+  platform: string | null;
+  icon: string | null;
+  active: boolean;
+  order_index: number;
+}
+
+const iconMap: Record<string, any> = {
+  Users, Search, TrendingUp, PenTool, Code, Tv, Facebook, Heart, UserPlus, Eye
+};
 
 const Index = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
+  const [dynamicServices, setDynamicServices] = useState<Service[]>([]);
   const { t } = useLanguage();
+
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const fetchServices = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('services')
+        .select('*')
+        .eq('active', true)
+        .eq('category', 'standard')
+        .order('order_index', { ascending: true });
+
+      if (error) throw error;
+      setDynamicServices((data || []) as Service[]);
+    } catch (error) {
+      console.error('Error fetching services:', error);
+    }
+  };
 
   useEffect(() => {
     // Əgər auth=required parametri varsa, AuthDialog-u aç
@@ -199,27 +236,42 @@ const Index = () => {
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {mainServices.map((service, index) => (
-                <Card key={index} className="bg-white/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-500 cursor-pointer group border border-primary/10 hover:border-primary/20 hover:scale-105">
-                  <CardHeader className="text-center pb-4">
-                    <div className={`w-20 h-20 bg-gradient-to-br ${service.color} rounded-2xl mx-auto mb-4 flex items-center justify-center text-white group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}>
-                      {service.icon}
-                    </div>
-                    <CardTitle className="text-xl font-bold text-foreground">{service.name}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground mb-6 text-center">
-                      {service.description}
-                    </p>
-                    <Button asChild className="w-full transition-all duration-300" variant="default">
-                      <Link to={service.link}>
-                        Ətraflı Məlumat
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+              {dynamicServices.map((service, index) => {
+                const IconComponent = iconMap[service.icon || 'Users'];
+                const colors = [
+                  'from-pink-500 to-rose-500',
+                  'from-green-500 to-blue-500', 
+                  'from-red-500 to-orange-500',
+                  'from-blue-500 to-purple-500',
+                  'from-purple-500 to-pink-500',
+                  'from-blue-500 to-teal-500',
+                  'from-orange-500 to-red-500',
+                  'from-blue-600 to-blue-800'
+                ];
+                const color = colors[index % colors.length];
+                
+                return (
+                  <Card key={service.id} className="bg-white/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-500 cursor-pointer group border border-primary/10 hover:border-primary/20 hover:scale-105">
+                    <CardHeader className="text-center pb-4">
+                      <div className={`w-20 h-20 bg-gradient-to-br ${color} rounded-2xl mx-auto mb-4 flex items-center justify-center text-white group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}>
+                        {IconComponent && <IconComponent className="h-8 w-8" />}
+                      </div>
+                      <CardTitle className="text-xl font-bold text-foreground">{service.name}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-muted-foreground mb-6 text-center">
+                        {service.description}
+                      </p>
+                      <Button asChild className="w-full transition-all duration-300" variant="default">
+                        <Link to={`/services#${service.id}`}>
+                          Ətraflı Məlumat
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </div>
         </section>
