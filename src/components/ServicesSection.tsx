@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Target, Instagram, Music, Youtube, Facebook } from 'lucide-react';
 import { proxyApiService, Service } from './ProxyApiService';
+import { useSettings } from '@/contexts/SettingsContext';
 import { Link } from 'react-router-dom';
 
 interface Platform {
@@ -19,6 +20,7 @@ const platformIcons: Record<string, any> = {
 };
 
 export const ServicesSection = () => {
+  const { settings } = useSettings();
   const [apiServices, setApiServices] = useState<Platform[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -31,6 +33,7 @@ export const ServicesSection = () => {
     try {
       const services = await proxyApiService.getServices();
       console.log('🔍 API-dən gələn xidmətlər:', services);
+      console.log('🔍 Cari xidmət haqqı:', settings.service_fee);
       
       // Twitter-siz sosial media platformalarını alırıq
       const platforms = [...new Set(services

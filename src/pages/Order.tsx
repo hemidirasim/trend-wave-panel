@@ -63,6 +63,7 @@ const Order = () => {
       const service = services.find(s => s.id_service.toString() === formData.serviceId);
       if (service) {
         console.log('Selected service found:', service);
+        console.log('Current service fee:', settings.service_fee);
         setSelectedService(service);
         setSelectedPlatform(service.platform.toLowerCase());
         
@@ -85,6 +86,7 @@ const Order = () => {
     try {
       setLoading(true);
       console.log('Fetching services from API...');
+      console.log('Current service fee from settings:', settings.service_fee);
       const data = await apiService.getServices();
       console.log('Services loaded:', data);
       
@@ -100,6 +102,13 @@ const Order = () => {
       const sortedData = [...filteredData].sort((a, b) => {
         const priceA = apiService.calculatePrice(a, 1000, settings.service_fee);
         const priceB = apiService.calculatePrice(b, 1000, settings.service_fee);
+        console.log('Sorting prices:', {
+          serviceA: a.public_name,
+          priceA,
+          serviceB: b.public_name,
+          priceB,
+          serviceFee: settings.service_fee
+        });
         return priceA - priceB;
       });
       
@@ -346,6 +355,15 @@ const Order = () => {
       const priceA = apiService.calculatePrice(a, 1000, settings.service_fee);
       const priceB = apiService.calculatePrice(b, 1000, settings.service_fee);
       
+      console.log('Filtering and sorting services:', {
+        serviceA: a.public_name,
+        priceA,
+        serviceB: b.public_name,
+        priceB,
+        serviceFee: settings.service_fee,
+        filter: priceFilter
+      });
+      
       if (priceFilter === 'low-to-high') {
         return priceA - priceB;
       } else {
@@ -398,7 +416,18 @@ const Order = () => {
   // Helper function to get service price with service fee
   const getServicePriceWithFee = (service: Service) => {
     const basePricePer = parseInt(service.prices[0]?.pricing_per || '1000');
-    return apiService.calculatePrice(service, basePricePer, settings.service_fee) / basePricePer;
+    const priceWithFee = apiService.calculatePrice(service, basePricePer, settings.service_fee);
+    const pricePerUnit = priceWithFee / basePricePer;
+    
+    console.log('Service price calculation:', {
+      serviceName: service.public_name,
+      basePricePer,
+      serviceFee: settings.service_fee,
+      priceWithFee,
+      pricePerUnit
+    });
+    
+    return pricePerUnit;
   };
 
   if (loading) {

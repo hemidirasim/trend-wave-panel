@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 const API_BASE_URL = 'https://www.qqtube.com/v1-api';
@@ -205,18 +206,34 @@ class ProxyApiService {
   }
 
   calculatePrice(service: Service, quantity: number, serviceFee: number = 0): number {
+    console.log('🔍 calculatePrice çağırıldı:', {
+      serviceName: service.public_name,
+      quantity,
+      serviceFee,
+      prices: service.prices
+    });
+
     const priceRange = service.prices.find(
       (price) =>
         quantity >= parseInt(price.minimum) && quantity <= parseInt(price.maximum)
     );
 
     if (!priceRange) {
+      console.log('❌ Uyğun qiymət aralığı tapılmadı');
       return 0;
     }
 
     const pricePer = parseInt(priceRange.pricing_per);
     const basePrice = parseFloat(priceRange.price);
     const baseCost = (quantity / pricePer) * basePrice;
+    
+    console.log('💰 Qiymət hesablaması:', {
+      pricePer,
+      basePrice,
+      baseCost,
+      serviceFee,
+      finalPrice: baseCost + serviceFee
+    });
     
     // Apply fixed service fee instead of percentage
     return baseCost + serviceFee;
