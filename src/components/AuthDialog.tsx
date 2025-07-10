@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'sonner';
+import { useNotification } from '@/components/NotificationProvider';
 import { Loader2, Zap } from 'lucide-react';
 
 interface AuthDialogProps {
@@ -23,6 +23,7 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
   const [signupPassword, setSignupPassword] = useState('');
   const [signupFullName, setSignupFullName] = useState('');
   const { signIn, signUp } = useAuth();
+  const { addNotification } = useNotification();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,24 +31,14 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
 
     try {
       const { error } = await signIn(loginEmail, loginPassword);
-      if (error) {
-        console.error('Login error:', error);
-        if (error.message?.includes('Invalid login credentials')) {
-          toast.error('Email və ya şifrə yanlışdır');
-        } else if (error.message?.includes('Email not confirmed')) {
-          toast.error('Email təsdiqləməni tamamlayın');
-        } else {
-          toast.error('Giriş zamanı xəta baş verdi: ' + (error.message || 'Bilinməyən xəta'));
-        }
-      } else {
-        toast.success('Uğurla daxil oldunuz!');
+      if (!error) {
         onOpenChange(false);
         // Clear form fields
         setLoginEmail('');
         setLoginPassword('');
       }
     } catch (error) {
-      toast.error('Giriş zamanı xəta baş verdi');
+      // Error notification is already handled in AuthContext
     } finally {
       setIsLoading(false);
     }
@@ -59,17 +50,7 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
 
     try {
       const { error } = await signUp(signupEmail, signupPassword, signupFullName);
-      if (error) {
-        console.error('Signup error:', error);
-        if (error.message?.includes('User already registered')) {
-          toast.error('Bu email artıq qeydiyyatdan keçib');
-        } else if (error.message?.includes('Password')) {
-          toast.error('Şifrə ən az 6 simvol olmalıdır');
-        } else {
-          toast.error('Qeydiyyat zamanı xəta baş verdi: ' + (error.message || 'Bilinməyən xəta'));
-        }
-      } else {
-        toast.success('Qeydiyyat uğurla tamamlandı! Email-inizi yoxlayın.');
+      if (!error) {
         onOpenChange(false);
         // Clear form fields
         setSignupEmail('');
@@ -77,7 +58,7 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
         setSignupFullName('');
       }
     } catch (error) {
-      toast.error('Qeydiyyat zamanı xəta baş verdi');
+      // Error notification is already handled in AuthContext
     } finally {
       setIsLoading(false);
     }

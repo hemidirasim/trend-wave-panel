@@ -2,6 +2,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { useNotification } from '@/components/NotificationProvider';
 
 interface AuthContextType {
   user: User | null;
@@ -26,14 +27,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const { addNotification } = useNotification();
 
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('Auth event:', event);
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+
+        // Add notifications for auth events
+        if (event === 'SIGNED_IN' && session?.user) {
+          addNotification({
+            type: 'success',
+            title: 'Uğurla daxil oldunuz!',
+            message: `Xoş gəlmisiniz, ${session.user.email}`,
+          });
+        } else if (event === 'SIGNED_OUT') {
+          addNotification({
+            type: 'info',
+            title: 'Hesabdan çıxdınız',
+            message: 'Təhlükəsiz şəkildə çıxış edildi',
+          });
+        }
       }
     );
 
@@ -45,7 +63,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [addNotification]);
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -57,13 +75,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         password,
       });
       
-      if (error) throw error;
+      if (error) {
+        addNotification({
+          type: 'error',
+          title: 'Giriş xətası',
+          message: error.message.includes('Invalid login credentials') 
+            ? 'Email və ya şifrə yanlışdır' 
+            : 'Giriş zamanı xəta baş verdi',
+        });
+        throw error;
+      }
       
       if (data.user) {
         // Force page reload to ensure clean state
         setTimeout(() => {
           window.location.href = '/dashboard';
-        }, 100);
+        }, 1000); // Wait for notification to show
       }
       
       return { error: null };
@@ -74,19 +101,44 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signUp = async (email: string, password: string, fullName?: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          full_name: fullName || '',
+    try {
+      const redirectUrl = `${window.location.origin}/`;
+      
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            full_name: fullName || '',
+          }
         }
+      });
+
+      if (error) {
+        addNotification({
+          type: 'error',
+          title: 'Qeydiyyat xətası',
+          message: error.message.includes('User already registered')
+            ? 'Bu email artıq qeydiyyatdan keçib'
+            : 'Qeydiyyat zamanı xəta baş verdi',
+        });
+        throw error;
       }
-    });
-    return { error };
+
+      if (data.user) {
+        addNotification({
+          type: 'success',
+          title: 'Qeydiyyat uğurla tamamlandı!',
+          message: 'Email təsdiqləməsi üçün poçtunuzu yoxlayın',
+          duration: 7000,
+        });
+      }
+
+      return { error: null };
+    } catch (error) {
+      return { error };
+    }
   };
 
   const signOut = async () => {
@@ -102,11 +154,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       await supabase.auth.signOut({ scope: 'global' });
       
       // Force page reload for clean state
-      window.location.href = '/';
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 1000); // Wait for notification to show
     } catch (error) {
       console.error('Sign out error:', error);
+      addNotification({
+        type: 'error',
+        title: 'Çıxış xətası',
+        message: 'Çıxış zamanı xəta baş verdi',
+      });
       // Force page reload even if sign out fails
-      window.location.href = '/';
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 1000);
     }
   };
 

@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'sonner';
 import { Loader2, Zap } from 'lucide-react';
 import { useEffect } from 'react';
 
@@ -33,18 +32,11 @@ const Auth = () => {
 
     try {
       const { error } = await signIn(loginEmail, loginPassword);
-      if (error) {
-        if (error.message.includes('Invalid login credentials')) {
-          toast.error('Email və ya şifrə yanlışdır');
-        } else {
-          toast.error('Giriş zamanı xəta baş verdi');
-        }
-      } else {
-        toast.success('Uğurla daxil oldunuz!');
+      if (!error) {
         navigate('/dashboard');
       }
     } catch (error) {
-      toast.error('Giriş zamanı xəta baş verdi');
+      // Error notification is already handled in AuthContext
     } finally {
       setIsLoading(false);
     }
@@ -56,17 +48,9 @@ const Auth = () => {
 
     try {
       const { error } = await signUp(signupEmail, signupPassword, signupFullName);
-      if (error) {
-        if (error.message.includes('User already registered')) {
-          toast.error('Bu email artıq qeydiyyatdan keçib');
-        } else {
-          toast.error('Qeydiyyat zamanı xəta baş verdi');
-        }
-      } else {
-        toast.success('Qeydiyyat uğurla tamamlandı! Email-inizi yoxlayın.');
-      }
+      // Success notification is already handled in AuthContext
     } catch (error) {
-      toast.error('Qeydiyyat zamanı xəta baş verdi');
+      // Error notification is already handled in AuthContext
     } finally {
       setIsLoading(false);
     }

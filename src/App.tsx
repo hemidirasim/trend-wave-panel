@@ -4,6 +4,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
+import { NotificationProvider } from '@/components/NotificationProvider';
 import Index from '@/pages/Index';
 import Services from '@/pages/Services';
 import ServiceDetail from '@/pages/ServiceDetail';
@@ -28,76 +29,78 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
-        <AuthProvider>
-          <Router>
-            <div className="min-h-screen bg-background">
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/services" element={<Services />} />
-                <Route path="/service/:id" element={<ServiceDetail />} />
-                <Route path="/blog" element={<Blog />} />
-                <Route path="/faq" element={<FAQ />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/terms" element={<Terms />} />
-                <Route path="/privacy" element={<Privacy />} />
-                <Route 
-                  path="/dashboard" 
-                  element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/order" 
-                  element={<Order />} 
-                />
-                <Route 
-                  path="/order/:serviceId" 
-                  element={
-                    <ProtectedRoute>
-                      <Order />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/track" 
-                  element={
-                    <ProtectedRoute>
-                      <Track />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/admin" 
-                  element={
-                    <ProtectedAdminRoute>
-                      <Admin />
-                    </ProtectedAdminRoute>
-                  } 
-                />
-                <Route 
-                  path="/admin/blog" 
-                  element={
-                    <ProtectedAdminRoute>
-                      <AdminBlog />
-                    </ProtectedAdminRoute>
-                  } 
-                />
-                <Route 
-                  path="/admin/faq" 
-                  element={
-                    <ProtectedAdminRoute>
-                      <AdminFAQ />
-                    </ProtectedAdminRoute>
-                  } 
-                />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-              <Toaster />
-            </div>
-          </Router>
-        </AuthProvider>
+        <NotificationProvider>
+          <AuthProvider>
+            <Router>
+              <div className="min-h-screen bg-background">
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/services" element={<Services />} />
+                  <Route path="/service/:id" element={<ServiceDetail />} />
+                  <Route path="/blog" element={<Blog />} />
+                  <Route path="/faq" element={<FAQ />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/terms" element={<Terms />} />
+                  <Route path="/privacy" element={<Privacy />} />
+                  <Route 
+                    path="/dashboard" 
+                    element={
+                      <ProtectedRoute>
+                        <Dashboard />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/order" 
+                    element={<Order />} 
+                  />
+                  <Route 
+                    path="/order/:serviceId" 
+                    element={
+                      <ProtectedRoute>
+                        <Order />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/track" 
+                    element={
+                      <ProtectedRoute>
+                        <Track />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/admin" 
+                    element={
+                      <ProtectedAdminRoute>
+                        <Admin />
+                      </ProtectedAdminRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/admin/blog" 
+                    element={
+                      <ProtectedAdminRoute>
+                        <AdminBlog />
+                      </ProtectedAdminRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/admin/faq" 
+                    element={
+                      <ProtectedAdminRoute>
+                        <AdminFAQ />
+                      </ProtectedAdminRoute>
+                    } 
+                  />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+                <Toaster />
+              </div>
+            </Router>
+          </AuthProvider>
+        </NotificationProvider>
       </LanguageProvider>
     </QueryClientProvider>
   );
