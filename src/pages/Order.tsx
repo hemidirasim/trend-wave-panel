@@ -1,19 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { AlertCircle, Loader2, ShoppingCart } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { ServiceFilters } from '@/components/order/ServiceFilters';
+import { ServiceSelector } from '@/components/order/ServiceSelector';
+import { ServiceInfo } from '@/components/order/ServiceInfo';
+import { OrderForm } from '@/components/order/OrderForm';
+import { OrderSummary } from '@/components/order/OrderSummary';
 import { proxyApiService, Service } from '@/components/ProxyApiService';
 import { useSettings } from '@/contexts/SettingsContext';
-import { Loader2, ShoppingCart, AlertCircle, CheckCircle, Calculator, Instagram, Youtube, Facebook, Heart, Users, Eye, Share, MessageCircle, Repeat, Star, Info, Filter, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Order = () => {
@@ -41,22 +38,17 @@ const Order = () => {
   const [selectedServiceType, setSelectedServiceType] = useState<string>('');
   const [priceFilter, setPriceFilter] = useState<'low-to-high' | 'high-to-low'>('low-to-high');
 
-  // URL-dən platform parametrini oxu
   const urlPlatform = searchParams.get('platform');
-
-  // Yalnız bu 4 platformu göstər
   const allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook'];
 
   useEffect(() => {
-    // Wait for settings to load before fetching services
     if (!settingsLoading) {
       console.log('🔥 Order: Settings loaded, service_fee:', settings.service_fee);
       fetchServices();
     }
-  }, [settingsLoading, settings.service_fee]); // Wait for settings to load first
+  }, [settingsLoading, settings.service_fee]);
 
   useEffect(() => {
-    // URL-dən platform parametri varsa, onu seç
     if (urlPlatform && allowedPlatforms.includes(urlPlatform.toLowerCase())) {
       setSelectedPlatform(urlPlatform.toLowerCase());
     }
@@ -66,21 +58,13 @@ const Order = () => {
     if (services.length > 0 && formData.serviceId) {
       const service = services.find(s => s.id_service.toString() === formData.serviceId);
       if (service) {
-        console.log('🔥 Selected service found:', service);
-        console.log('🔥 Current service fee for calculation:', settings.service_fee);
         setSelectedService(service);
         setSelectedPlatform(service.platform.toLowerCase());
-        
-        // Set service type based on the selected service
         const serviceType = service.type_name && service.type_name.trim() !== '' 
           ? service.type_name 
           : getServiceTypeFromName(service.public_name);
         setSelectedServiceType(serviceType);
-        
         calculatePrice(service, parseInt(formData.quantity) || 0);
-        
-        // Fetch detailed service information
-        console.log('Fetching detailed service information...');
         fetchServiceDetails(formData.serviceId);
       }
     }
@@ -89,39 +73,22 @@ const Order = () => {
   const fetchServices = async () => {
     try {
       setLoading(true);
-      console.log('🔥 fetchServices çağırıldı - Admin Panel xidmət haqqı:', settings.service_fee);
       const data = await proxyApiService.getServices();
-      console.log('🔥 API-dən gələn xidmətlər sayı:', data.length);
-      
-      // API-dən gələn məlumatları filterlə və qiymətə görə sırala
       const filteredData = data.filter(service => {
-        if (!service || !service.platform || !service.id_service) {
-          return false;
-        }
+        if (!service || !service.platform || !service.id_service) return false;
         return allowedPlatforms.includes(service.platform.toLowerCase());
       });
       
-      console.log('🔥 Filterlənmiş xidmətlər sayı:', filteredData.length);
-      
-      // Qiymətə görə sırala (avtomatik olaraq ucuzdan bahaya) - xidmət haqqı ilə birlikdə
       const sortedData = [...filteredData].sort((a, b) => {
         const priceA = proxyApiService.calculatePrice(a, 1000, settings.service_fee);
         const priceB = proxyApiService.calculatePrice(b, 1000, settings.service_fee);
-        console.log('🔥 Xidmət qiymət müqayisəsi:', {
-          serviceA: a.public_name,
-          priceA,
-          serviceB: b.public_name,
-          priceB,
-          appliedServiceFee: settings.service_fee
-        });
         return priceA - priceB;
       });
       
       setServices(sortedData);
-      console.log('🔥 Sıralanmış xidmətlər yadda saxlanıldı');
     } catch (error) {
-      toast.error('Xidmətlər yüklənərkən xəta baş verdi');
       console.error('Error fetching services:', error);
+      toast.error('Xidmətlər yüklənmədi');
     } finally {
       setLoading(false);
     }
@@ -130,20 +97,8 @@ const Order = () => {
   const fetchServiceDetails = async (serviceId: string) => {
     try {
       setLoadingServiceDetails(true);
-      console.log('Fetching service details for ID:', serviceId);
       const details = await proxyApiService.getServiceDetails(serviceId);
-      console.log('Service details response:', details);
-      
-      if (details) {
-        setServiceDetails(details);
-        console.log('Service details set:', {
-          hasDescription: !!details.description,
-          description: details.description
-        });
-      } else {
-        console.log('No service details received');
-        setServiceDetails(null);
-      }
+      setServiceDetails(details);
     } catch (error) {
       console.error('Error fetching service details:', error);
       setServiceDetails(null);
@@ -157,240 +112,60 @@ const Order = () => {
       setCalculatedPrice(0);
       return;
     }
-    
-    console.log('🔥 calculatePrice - Tətbiq edilən xidmət haqqı:', settings.service_fee);
     const price = proxyApiService.calculatePrice(service, quantity, settings.service_fee);
-    console.log('🔥 Yekun hesablanan qiymət:', price);
     setCalculatedPrice(price);
   };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-
-    if (!formData.serviceId) {
-      newErrors.serviceId = 'Xidmət seçin';
-    }
-
-    if (!formData.url.trim()) {
-      newErrors.url = 'URL tələb olunur';
-    } else if (selectedService && !proxyApiService.validateUrl(selectedService.platform, formData.url)) {
-      newErrors.url = `Yanlış ${selectedService.platform} URL formatı`;
-    }
-
-    if (!formData.quantity) {
-      newErrors.quantity = 'Miqdar tələb olunur';
-    } else {
-      const quantity = parseInt(formData.quantity);
-      if (selectedService) {
-        const minQuantity = parseInt(selectedService.amount_minimum);
-        const increment = parseInt(selectedService.amount_increment);
-        
-        if (quantity < minQuantity) {
-          newErrors.quantity = `Minimum miqdar ${minQuantity.toLocaleString()}`;
-        } else if (increment > 1 && quantity % increment !== 0) {
-          newErrors.quantity = `Miqdar ${increment.toLocaleString()} artımı ilə olmalıdır`;
-        }
-      }
-    }
-
-    // Validate additional parameters
-    if (selectedService && selectedService.params) {
-      selectedService.params.forEach(param => {
-        if (param.field_validators.includes('required') && !formData.additionalParams[param.field_name]) {
-          newErrors[param.field_name] = `${param.field_label} tələb olunur`;
-        }
-      });
-    }
-
+    if (!formData.serviceId) newErrors.serviceId = 'Xidmət seçmək vacibdir';
+    if (!formData.url.trim()) newErrors.url = 'URL daxil etmək vacibdir';
+    else if (!proxyApiService.validateUrl(formData.url)) newErrors.url = 'Düzgün URL formatı daxil edin';
+    if (!formData.quantity.trim()) newErrors.quantity = 'Miqdar daxil etmək vacibdir';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      toast.error('Zəhmət olmasa form xətalarını düzəldin');
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
       setPlacing(true);
       const response = await proxyApiService.placeOrder(
-        formData.serviceId,
-        formData.url,
-        parseInt(formData.quantity),
-        formData.additionalParams
+        formData.serviceId, formData.url, parseInt(formData.quantity), formData.additionalParams
       );
-
       if (response.status === 'success' && response.id_service_submission) {
         toast.success('Sifariş uğurla verildi!');
         navigate(`/track?order=${response.id_service_submission}`);
-      } else if (response.message && response.message.length > 0) {
-        const errorMessages = response.message.map(msg => msg.message).join(', ');
-        toast.error(`Sifariş uğursuz: ${errorMessages}`);
-      } else {
-        toast.error('Sifariş verilmədi. Zəhmət olmasa yenidən cəhd edin.');
       }
     } catch (error) {
-      toast.error('Sifariş verilmədi. Zəhmət olmasa yenidən cəhd edin.');
-      console.error('Error placing order:', error);
+      toast.error('Sifariş verilmədi.');
     } finally {
       setPlacing(false);
     }
   };
 
   const updateFormData = (field: string, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const updateAdditionalParam = (paramName: string, value: any) => {
     setFormData(prev => ({
       ...prev,
-      additionalParams: {
-        ...prev.additionalParams,
-        [paramName]: value
-      }
+      additionalParams: { ...prev.additionalParams, [paramName]: value }
     }));
-  };
-
-  const getPlatformColor = (platform: string) => {
-    const colors: Record<string, string> = {
-      youtube: 'bg-red-500',
-      instagram: 'bg-pink-500',
-      tiktok: 'bg-purple-500',
-      facebook: 'bg-blue-500',
-      twitter: 'bg-sky-500',
-      telegram: 'bg-blue-400',
-    };
-    return colors[platform.toLowerCase()] || 'bg-gray-500';
-  };
-
-  const getPlatformIcon = (platform: string) => {
-    const icons: Record<string, any> = {
-      instagram: Instagram,
-      youtube: Youtube,
-      facebook: Facebook,
-      tiktok: () => <div className="w-4 h-4 bg-current rounded-sm" />,
-    };
-    return icons[platform.toLowerCase()] || null;
-  };
-
-  const getServiceTypeIcon = (type: string) => {
-    const icons: Record<string, any> = {
-      'Likes': Heart,
-      'Followers': Users,
-      'Views': Eye,
-      'Shares': Share,
-      'Comments': MessageCircle,
-      'Reposts': Repeat,
-      'Other': Star,
-    };
-    return icons[type] || Star;
-  };
-
-  const getUniquePlatforms = () => {
-    const platforms = services
-      .map(service => service.platform.toLowerCase())
-      .filter(platform => allowedPlatforms.includes(platform));
-    return [...new Set(platforms)];
-  };
-
-  const getUniqueServiceTypes = (platform: string) => {
-    const platformServices = services.filter(service => 
-      service.platform.toLowerCase() === platform.toLowerCase()
-    );
-    
-    // type_name-dən service növlərini çıxar
-    const types = platformServices
-      .map(service => {
-        if (service.type_name && service.type_name.trim() !== '') {
-          return service.type_name;
-        }
-        // Əgər type_name yoxdursa, public_name-dən çıxarmağa çalış
-        return getServiceTypeFromName(service.public_name);
-      })
-      .filter(type => type && type.trim() !== '');
-    
-    const uniqueTypes = [...new Set(types)];
-    
-    // "Other"i siyahıdan çıxar və sonuna əlavə et
-    const otherIndex = uniqueTypes.indexOf('Other');
-    if (otherIndex > -1) {
-      uniqueTypes.splice(otherIndex, 1);
-      uniqueTypes.push('Other');
-    }
-    
-    return uniqueTypes;
-  };
-
-  const getServiceTypeFromName = (publicName: string) => {
-    if (!publicName) return 'Other';
-    const name = publicName.toLowerCase();
-    if (name.includes('like')) return 'Likes';
-    if (name.includes('follow')) return 'Followers';
-    if (name.includes('view')) return 'Views';
-    if (name.includes('share')) return 'Shares';
-    if (name.includes('comment')) return 'Comments';
-    if (name.includes('repost')) return 'Reposts';
-    return 'Other';
-  };
-
-  const getFilteredServices = () => {
-    if (!selectedPlatform || !selectedServiceType) {
-      return [];
-    }
-
-    let filtered = services.filter(service => 
-      service.platform.toLowerCase() === selectedPlatform.toLowerCase()
-    );
-
-    // Xidmət növü filteri
-    filtered = filtered.filter(service => {
-      const serviceType = service.type_name && service.type_name.trim() !== '' 
-        ? service.type_name 
-        : getServiceTypeFromName(service.public_name);
-      return serviceType === selectedServiceType;
-    });
-
-    // Qiymət filtri tətbiq et - xidmət haqqı ilə birlikdə
-    const sortedServices = [...filtered].sort((a, b) => {
-      const priceA = proxyApiService.calculatePrice(a, 1000, settings.service_fee);
-      const priceB = proxyApiService.calculatePrice(b, 1000, settings.service_fee);
-      
-      console.log('🔥 Filterlənmiş xidmətlərin qiymət sıralaması:', {
-        serviceA: a.public_name,
-        priceA,
-        serviceB: b.public_name,
-        priceB,
-        appliedServiceFee: settings.service_fee,
-        filter: priceFilter
-      });
-      
-      if (priceFilter === 'low-to-high') {
-        return priceA - priceB;
-      } else {
-        return priceB - priceA;
-      }
-    });
-
-    return sortedServices;
   };
 
   const handlePlatformChange = (platform: string) => {
     setSelectedPlatform(platform);
-    setSelectedServiceType(''); // Reset service type when platform changes
-    setFormData(prev => ({ ...prev, serviceId: '' })); // Reset selected service
+    setSelectedServiceType('');
     setSelectedService(null);
     setServiceDetails(null);
   };
 
   const handleServiceTypeChange = (serviceType: string) => {
     setSelectedServiceType(serviceType);
-    setFormData(prev => ({ ...prev, serviceId: '' })); // Reset selected service
     setSelectedService(null);
     setServiceDetails(null);
   };
@@ -406,34 +181,17 @@ const Order = () => {
   };
 
   const getServiceDescription = () => {
-    // İlk öncə detallı məlumatlardan description almağa çalış
-    if (serviceDetails?.description && serviceDetails.description.trim()) {
-      return serviceDetails.description;
-    }
-    
-    // Əgər detallı məlumatlar yoxdursa, əsas xidmətdən almağa çalış
-    if (selectedService?.description && selectedService.description.trim()) {
-      return selectedService.description;
-    }
-    
+    if (serviceDetails?.description && serviceDetails.description.trim()) return serviceDetails.description;
+    if (selectedService?.description && selectedService.description.trim()) return selectedService.description;
     return null;
   };
 
-  // Helper function to get service price with service fee
-  const getServicePriceWithFee = (service: Service) => {
-    const basePricePer = parseInt(service.prices[0]?.pricing_per || '1000');
-    const priceWithFee = proxyApiService.calculatePrice(service, basePricePer, settings.service_fee);
-    const pricePerUnit = priceWithFee / basePricePer;
-    
-    console.log('🔥 Xidmətin vahid qiyməti (xidmət haqqı ilə):', {
-      serviceName: service.public_name,
-      basePricePer,
-      appliedServiceFee: settings.service_fee,
-      priceWithFee,
-      pricePerUnit
-    });
-    
-    return pricePerUnit;
+  const getServiceTypeFromName = (serviceName: string): string => {
+    const name = serviceName.toLowerCase();
+    if (name.includes('like') || name.includes('bəyən')) return 'Likes';
+    if (name.includes('follow') || name.includes('izləyici')) return 'Followers';
+    if (name.includes('view') || name.includes('baxış')) return 'Views';
+    return 'Other';
   };
 
   if (loading) {
@@ -455,16 +213,11 @@ const Order = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      {/* Hero Section */}
       <section className="bg-gradient-to-br from-primary/5 to-secondary/5 py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              Sifarişinizi Verin
-            </h1>
-            <p className="text-xl text-muted-foreground mb-8">
-              Xidmət seçin və məlumatlarınızı daxil edin
-            </p>
+            <h1 className="text-4xl md:text-5xl font-bold mb-6">Sifarişinizi Verin</h1>
+            <p className="text-xl text-muted-foreground mb-8">Xidmət seçin və məlumatlarınızı daxil edin</p>
           </div>
         </div>
       </section>
@@ -472,7 +225,6 @@ const Order = () => {
       <section className="py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Order Form - Now takes 3 columns */}
             <div className="lg:col-span-3">
               <Card>
                 <CardHeader>
@@ -480,366 +232,77 @@ const Order = () => {
                     <ShoppingCart className="h-5 w-5 mr-2" />
                     Sifariş Təfərrüatları
                   </CardTitle>
-                  <CardDescription>
-                    Sifarişinizi vermək üçün aşağıdakı məlumatları doldurun
-                  </CardDescription>
+                  <CardDescription>Sifarişinizi vermək üçün aşağıdakı məlumatları doldurun</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Service Selection with Tabs */}
-                    <div className="space-y-4">
-                      <Label>Platform Seçin *</Label>
-                      
-                      <Tabs value={selectedPlatform} onValueChange={handlePlatformChange} className="w-full">
-                        <TabsList className="grid w-full grid-cols-4 mb-6">
-                          {getUniquePlatforms().map((platform) => {
-                            const IconComponent = getPlatformIcon(platform);
-                            return (
-                              <TabsTrigger key={platform} value={platform} className="capitalize flex items-center gap-2">
-                                {IconComponent && <IconComponent className="w-4 h-4" />}
-                                {platform}
-                              </TabsTrigger>
-                            );
-                          })}
-                        </TabsList>
-
-                        {getUniquePlatforms().map((platform) => (
-                          <TabsContent key={platform} value={platform}>
-                            {/* Xidmət növü seçimi */}
-                            {selectedPlatform && (
-                              <div className="mb-6">
-                                <Label className="text-base font-medium mb-3 block">Xidmət növünü seçin *</Label>
-                                <ToggleGroup 
-                                  type="single" 
-                                  value={selectedServiceType} 
-                                  onValueChange={(value) => handleServiceTypeChange(value || '')}
-                                  className="flex flex-wrap gap-2 justify-start"
-                                >
-                                  {getUniqueServiceTypes(selectedPlatform).map((type) => {
-                                    const IconComponent = getServiceTypeIcon(type);
-                                    return (
-                                      <ToggleGroupItem 
-                                        key={type} 
-                                        value={type}
-                                        className="flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-all"
-                                        variant="outline"
-                                      >
-                                        <IconComponent className="w-4 h-4" />
-                                        {type}
-                                      </ToggleGroupItem>
-                                    );
-                                  })}
-                                </ToggleGroup>
-                              </div>
-                            )}
-
-                            {/* Qiymət filtri və konkret xidmət seçimi */}
-                            {selectedPlatform && selectedServiceType && (
-                              <div className="space-y-4">
-                                {/* Qiymət filtri */}
-                                <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg">
-                                  <Filter className="h-4 w-4 text-muted-foreground" />
-                                  <Label className="text-sm font-medium">Qiymətə görə sırala:</Label>
-                                  <Select value={priceFilter} onValueChange={(value: 'low-to-high' | 'high-to-low') => setPriceFilter(value)}>
-                                    <SelectTrigger className="w-auto">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="low-to-high">Ucuzdan bahaya</SelectItem>
-                                      <SelectItem value="high-to-low">Bahadan ucuza</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => setPriceFilter('low-to-high')}
-                                    className="h-8 w-8 p-0"
-                                  >
-                                    <X className="h-4 w-4" />
-                                  </Button>
-                                </div>
-
-                                {/* Konkret xidmət seçimi */}
-                                <div className="space-y-2">
-                                  <Label>Xidmət seçin *</Label>
-                                  <Select 
-                                    value={formData.serviceId} 
-                                    onValueChange={handleServiceSelect}
-                                  >
-                                    <SelectTrigger className={errors.serviceId ? 'border-red-500' : ''}>
-                                      <SelectValue placeholder="Xidmət seçin" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      {getFilteredServices().map(service => (
-                                        <SelectItem key={service.id_service} value={service.id_service.toString()}>
-                                          <div className="flex items-center space-x-2">
-                                            <span>{service.public_name}</span>
-                                            <Badge variant="secondary" className="ml-2">
-                                              ${proxyApiService.formatPrice(getServicePriceWithFee(service).toString())}/{service.prices[0]?.pricing_per || '1K'}
-                                            </Badge>
-                                          </div>
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                              </div>
-                            )}
-                          </TabsContent>
-                        ))}
-                      </Tabs>
-                      
-                      {errors.serviceId && (
-                        <p className="text-sm text-red-500 flex items-center">
-                          <AlertCircle className="h-4 w-4 mr-1" />
-                          {errors.serviceId}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Xidmət təsviri - seçilmiş xidmət varsa göstər */}
-                    {selectedService && (
-                      <div className="space-y-2">
-                        <Label className="flex items-center text-base font-medium">
-                          <Info className="h-4 w-4 mr-2" />
-                          Xidmət Haqqında
-                          {loadingServiceDetails && (
-                            <Loader2 className="h-4 w-4 ml-2 animate-spin" />
-                          )}
-                        </Label>
-                        <Card className="border-l-4 border-l-blue-500">
-                          <CardContent className="pt-4">
-                            <div className="text-sm text-muted-foreground max-h-32 overflow-y-auto">
-                              {loadingServiceDetails ? (
-                                <div className="flex items-center justify-center py-4">
-                                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                                  Məlumat yüklənir...
-                                </div>
-                              ) : getServiceDescription() ? (
-                                <div className="whitespace-pre-line">
-                                  {getServiceDescription()}
-                                </div>
-                              ) : (
-                                <span className="italic text-muted-foreground">
-                                  Bu xidmət üçün ətraflı məlumat mövcud deyil
-                                </span>
-                              )}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </div>
+                    <ServiceFilters
+                      services={services}
+                      selectedPlatform={selectedPlatform}
+                      selectedServiceType={selectedServiceType}
+                      onPlatformChange={handlePlatformChange}
+                      onServiceTypeChange={handleServiceTypeChange}
+                      allowedPlatforms={allowedPlatforms}
+                    />
+                    
+                    {errors.serviceId && (
+                      <p className="text-sm text-red-500 flex items-center">
+                        <AlertCircle className="h-4 w-4 mr-1" />
+                        {errors.serviceId}
+                      </p>
                     )}
 
-                    {/* Mesajlar */}
+                    <ServiceSelector
+                      services={services}
+                      selectedPlatform={selectedPlatform}
+                      selectedServiceType={selectedServiceType}
+                      selectedServiceId={formData.serviceId}
+                      priceFilter={priceFilter}
+                      serviceFee={settings.service_fee}
+                      onServiceSelect={handleServiceSelect}
+                      onPriceFilterChange={setPriceFilter}
+                      error={errors.serviceId}
+                    />
+
+                    {selectedService && (
+                      <ServiceInfo
+                        serviceDescription={getServiceDescription()}
+                        loading={loadingServiceDetails}
+                      />
+                    )}
+
                     {!selectedPlatform && (
-                      <div className="text-center py-6 text-muted-foreground">
-                        Platform seçin
-                      </div>
+                      <div className="text-center py-6 text-muted-foreground">Platform seçin</div>
                     )}
 
                     {selectedPlatform && !selectedServiceType && (
-                      <div className="text-center py-6 text-muted-foreground">
-                        Xidmət növünü seçin
-                      </div>
+                      <div className="text-center py-6 text-muted-foreground">Xidmət növünü seçin</div>
                     )}
 
-                    {selectedPlatform && selectedServiceType && getFilteredServices().length === 0 && (
-                      <div className="text-center py-6 text-muted-foreground">
-                        Bu növə uyğun xidmət tapılmadı
-                      </div>
-                    )}
-
-                    {/* URL və Quantity inputları yalnız xidmət seçildikdə göstər */}
                     {selectedService && (
-                      <>
-                        {/* URL Input */}
-                        <div className="space-y-2">
-                          <Label htmlFor="url">Məqsəd URL *</Label>
-                          <Input
-                            id="url"
-                            type="url"
-                            placeholder={selectedService.example || "https://..."}
-                            value={formData.url}
-                            onChange={(e) => updateFormData('url', e.target.value)}
-                            className={errors.url ? 'border-red-500' : ''}
-                          />
-                          {errors.url && (
-                            <p className="text-sm text-red-500 flex items-center">
-                              <AlertCircle className="h-4 w-4 mr-1" />
-                              {errors.url}
-                            </p>
-                          )}
-                          {selectedService.example && (
-                            <p className="text-sm text-muted-foreground">
-                              Nümunə: {selectedService.example}
-                            </p>
-                          )}
-                        </div>
-
-                        {/* Quantity Input */}
-                        <div className="space-y-2">
-                          <Label htmlFor="quantity">Miqdar *</Label>
-                          <Input
-                            id="quantity"
-                            type="number"
-                            placeholder="1000"
-                            value={formData.quantity}
-                            onChange={(e) => updateFormData('quantity', e.target.value)}
-                            className={errors.quantity ? 'border-red-500' : ''}
-                            min={selectedService.amount_minimum}
-                            step={selectedService.amount_increment}
-                          />
-                          {errors.quantity && (
-                            <p className="text-sm text-red-500 flex items-center">
-                              <AlertCircle className="h-4 w-4 mr-1" />
-                              {errors.quantity}
-                            </p>
-                          )}
-                          <div className="text-sm text-muted-foreground space-y-1">
-                            <p>Minimum: {parseInt(selectedService.amount_minimum).toLocaleString()}</p>
-                            <p>Artım: {parseInt(selectedService.amount_increment).toLocaleString()}</p>
-                          </div>
-                        </div>
-
-                        {/* Additional Parameters */}
-                        {selectedService.params && selectedService.params.map(param => (
-                          <div key={param.field_name} className="space-y-2">
-                            <Label htmlFor={param.field_name}>
-                              {param.field_label}
-                              {param.field_validators.includes('required') && ' *'}
-                            </Label>
-                            
-                            {param.options && param.options.length > 0 ? (
-                              <Select 
-                                value={formData.additionalParams[param.field_name] || ''} 
-                                onValueChange={(value) => updateAdditionalParam(param.field_name, value)}
-                              >
-                                <SelectTrigger className={errors[param.field_name] ? 'border-red-500' : ''}>
-                                  <SelectValue placeholder={param.field_placeholder || `${param.field_label} seçin`} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {param.options.filter(opt => opt.error_selection !== '1').map(option => (
-                                    <SelectItem key={option.value} value={option.value}>
-                                      {option.name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            ) : (
-                              <Textarea
-                                id={param.field_name}
-                                placeholder={param.field_placeholder}
-                                value={formData.additionalParams[param.field_name] || ''}
-                                onChange={(e) => updateAdditionalParam(param.field_name, e.target.value)}
-                                className={errors[param.field_name] ? 'border-red-500' : ''}
-                              />
-                            )}
-                            
-                            {param.field_descr && (
-                              <p className="text-sm text-muted-foreground">{param.field_descr}</p>
-                            )}
-                            
-                            {errors[param.field_name] && (
-                              <p className="text-sm text-red-500 flex items-center">
-                                <AlertCircle className="h-4 w-4 mr-1" />
-                                {errors[param.field_name]}
-                              </p>
-                            )}
-                          </div>
-                        ))}
-
-                        <Button 
-                          type="submit" 
-                          className="w-full" 
-                          size="lg"
-                          disabled={placing}
-                        >
-                          {placing ? (
-                            <>
-                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                              Sifariş verilir...
-                            </>
-                          ) : (
-                            <>
-                              <ShoppingCart className="h-4 w-4 mr-2" />
-                              Sifariş Ver - ${proxyApiService.formatPrice(calculatedPrice.toFixed(2))}
-                            </>
-                          )}
-                        </Button>
-                      </>
+                      <OrderForm
+                        selectedService={selectedService}
+                        formData={formData}
+                        errors={errors}
+                        calculatedPrice={calculatedPrice}
+                        placing={placing}
+                        onUpdateFormData={updateFormData}
+                        onUpdateAdditionalParam={updateAdditionalParam}
+                        onSubmit={handleSubmit}
+                      />
                     )}
                   </form>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Order Summary - Now takes 1 column */}
             <div className="lg:col-span-1">
-              <Card className="sticky top-4">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Calculator className="h-5 w-5 mr-2" />
-                    Sifariş Xülasəsi
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {selectedService ? (
-                    <>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">Xidmət:</span>
-                          <Badge className={`${getPlatformColor(selectedService.platform)} text-white`}>
-                            {selectedService.platform}
-                          </Badge>
-                        </div>
-                        <h3 className="font-medium text-sm">{selectedService.public_name}</h3>
-                        <p className="text-xs text-muted-foreground">{selectedService.type_name || 'Xidmət'}</p>
-                      </div>
-
-                      <div className="border-t pt-4 space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span>Miqdar:</span>
-                          <span>{formData.quantity || '0'}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span>{selectedService.prices[0]?.pricing_per || '1000'} üçün qiymət:</span>
-                          <span>${proxyApiService.formatPrice(getServicePriceWithFee(selectedService).toString())}</span>
-                        </div>
-                        {settings.service_fee > 0 && (
-                          <div className="flex justify-between text-xs text-muted-foreground">
-                            <span>Xidmət haqqı (+${settings.service_fee}):</span>
-                            <span>Daxildir</span>
-                          </div>
-                        )}
-                        <div className="flex justify-between font-semibold border-t pt-2">
-                          <span>Cəmi:</span>
-                          <span>${proxyApiService.formatPrice(calculatedPrice.toFixed(2))}</span>
-                        </div>
-                      </div>
-
-                      <div className="border-t pt-4 space-y-2">
-                        <div className="flex items-center space-x-2 text-sm text-green-600">
-                          <CheckCircle className="h-4 w-4" />
-                          <span>Təhlükəsiz</span>
-                        </div>
-                        <div className="flex items-center space-x-2 text-sm text-blue-600">
-                          <CheckCircle className="h-4 w-4" />
-                          <span>Sürətli Çatdırılma</span>
-                        </div>
-                        <div className="flex items-center space-x-2 text-sm text-purple-600">
-                          <CheckCircle className="h-4 w-4" />
-                          <span>24/7 Dəstək</span>
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <p className="text-muted-foreground text-center py-8 text-sm">
-                      Sifariş xülasəsini görmək üçün xidmət seçin
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
+              <OrderSummary
+                selectedService={selectedService}
+                quantity={formData.quantity}
+                calculatedPrice={calculatedPrice}
+                serviceFee={settings.service_fee}
+              />
             </div>
           </div>
         </div>
