@@ -48,6 +48,7 @@ const Order = () => {
   const allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook'];
 
   useEffect(() => {
+    console.log('🔥 Order: Settings changed, service_fee:', settings.service_fee);
     fetchServices();
   }, [settings.service_fee]); // Xidmət haqqı dəyişəndə yenidən yüklə
 

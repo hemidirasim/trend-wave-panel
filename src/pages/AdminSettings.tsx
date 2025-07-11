@@ -105,15 +105,22 @@ export default function AdminSettings() {
   const handleSave = async () => {
     setSaving(true);
     try {
+      console.log('🔥 AdminSettings: Saving settings:', settings);
+      
       // Save settings to localStorage and context
       localStorage.setItem('admin_settings', JSON.stringify(settings));
+      console.log('🔥 AdminSettings: Saved to localStorage');
+      
+      // Update the context with new settings
       updateSettings({ service_fee: settings.service_fee });
+      console.log('🔥 AdminSettings: Updated context with service_fee:', settings.service_fee);
       
       toast({
         title: "Uğurlu",
         description: "Parametrlər yadda saxlanıldı"
       });
     } catch (error) {
+      console.error('🔥 AdminSettings: Error saving settings:', error);
       toast({
         title: "Xəta",
         description: "Parametrlər yadda saxlanılmadı",
