@@ -19,7 +19,7 @@ import { toast } from 'sonner';
 const Order = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { settings } = useSettings();
+  const { settings, loading: settingsLoading } = useSettings();
   const [services, setServices] = useState<Service[]>([]);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [serviceDetails, setServiceDetails] = useState<Service | null>(null);
@@ -48,9 +48,12 @@ const Order = () => {
   const allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook'];
 
   useEffect(() => {
-    console.log('🔥 Order: Settings changed, service_fee:', settings.service_fee);
-    fetchServices();
-  }, [settings.service_fee]); // Xidmət haqqı dəyişəndə yenidən yüklə
+    // Wait for settings to load before fetching services
+    if (!settingsLoading) {
+      console.log('🔥 Order: Settings loaded, service_fee:', settings.service_fee);
+      fetchServices();
+    }
+  }, [settingsLoading, settings.service_fee]); // Wait for settings to load first
 
   useEffect(() => {
     // URL-dən platform parametri varsa, onu seç
