@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 const API_BASE_URL = 'https://www.qqtube.com/v1-api';
@@ -206,10 +205,10 @@ class ProxyApiService {
   }
 
   calculatePrice(service: Service, quantity: number, serviceFee: number = 0): number {
-    console.log('🔍 calculatePrice çağırıldı:', {
+    console.log('🔥 calculatePrice metoduna giriş:', {
       serviceName: service.public_name,
       quantity,
-      serviceFee,
+      serviceFee: serviceFee, // Bu dəyər düzgün gəlir
       prices: service.prices
     });
 
@@ -227,19 +226,22 @@ class ProxyApiService {
     const basePrice = parseFloat(priceRange.price);
     const baseCost = (quantity / pricePer) * basePrice;
     
-    console.log('💰 Qiymət hesablaması:', {
-      pricePer,
-      basePrice,
-      baseCost,
-      serviceFee,
-      finalPrice: baseCost + serviceFee
+    // DÜZƏLIŞ: serviceFee-ni baseCost-a əlavə edirik
+    const finalPrice = baseCost + serviceFee;
+    
+    console.log('💰 Service price calculation:', {
+      serviceName: service.public_name,
+      basePricePer: pricePer,
+      basePrice: basePrice,
+      baseCost: baseCost,
+      serviceFee: serviceFee, // Bu artıq 55 olmalıdır
+      priceWithFee: finalPrice,
+      pricePerUnit: finalPrice / quantity
     });
     
-    // Apply fixed service fee instead of percentage
-    return baseCost + serviceFee;
+    return finalPrice;
   }
 
-  // New method to format prices properly
   formatPrice(price: string | number): string {
     const numPrice = typeof price === 'string' ? parseFloat(price) : price;
     
