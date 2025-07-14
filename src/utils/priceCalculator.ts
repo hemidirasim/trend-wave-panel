@@ -23,14 +23,17 @@ export const calculatePrice = (service: Service, quantity: number, serviceFee: n
   const basePrice = parseFloat(priceRange.price);
   const baseCost = (quantity / pricePer) * basePrice;
   
-  const finalPrice = baseCost + serviceFee;
+  // Service fee-ni faiz olaraq tətbiq et (məsələn: 10 = 10%)
+  const feeMultiplier = 1 + (serviceFee / 100);
+  const finalPrice = baseCost * feeMultiplier;
   
   console.log('💰 Service price calculation:', {
     serviceName: service.public_name,
     basePricePer: pricePer,
     basePrice: basePrice,
     baseCost: baseCost,
-    serviceFee: serviceFee,
+    serviceFeePercent: serviceFee,
+    feeMultiplier: feeMultiplier,
     priceWithFee: finalPrice,
     pricePerUnit: finalPrice / quantity
   });
