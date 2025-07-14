@@ -120,7 +120,7 @@ const Order = () => {
     const newErrors: Record<string, string> = {};
     if (!formData.serviceId) newErrors.serviceId = 'Xidmət seçmək vacibdir';
     if (!formData.url.trim()) newErrors.url = 'URL daxil etmək vacibdir';
-    else if (!proxyApiService.validateUrl(formData.url)) newErrors.url = 'Düzgün URL formatı daxil edin';
+    else if (!proxyApiService.validateUrl(selectedPlatform, formData.url)) newErrors.url = 'Düzgün URL formatı daxil edin';
     if (!formData.quantity.trim()) newErrors.quantity = 'Miqdar daxil etmək vacibdir';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
