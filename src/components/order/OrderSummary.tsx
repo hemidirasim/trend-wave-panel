@@ -25,31 +25,6 @@ export function OrderSummary({ selectedService, quantity, calculatedPrice, servi
     return colors[platform.toLowerCase()] || 'bg-gray-500';
   };
 
-  const getPriceBreakdown = (service: Service) => {
-    if (!service || !service.prices || service.prices.length === 0) {
-      return null;
-    }
-
-    const apiPrice = parseFloat(service.prices[0].price);
-    const pricingPer = service.prices[0].pricing_per || '1000';
-    const totalPricePerUnit = apiPrice + serviceFee;
-    
-    console.log('🔥 OrderSummary price breakdown:', {
-      serviceName: service.public_name,
-      apiPrice,
-      serviceFee,
-      totalPricePerUnit,
-      pricingPer
-    });
-    
-    return {
-      apiPrice,
-      serviceFee,
-      totalPricePerUnit,
-      pricingPer
-    };
-  };
-
   return (
     <Card className="sticky top-4">
       <CardHeader>
@@ -76,32 +51,6 @@ export function OrderSummary({ selectedService, quantity, calculatedPrice, servi
               <div className="flex justify-between text-sm">
                 <span>Miqdar:</span>
                 <span>{quantity || '0'}</span>
-              </div>
-              
-              {(() => {
-                const priceInfo = getPriceBreakdown(selectedService);
-                if (!priceInfo) return null;
-                
-                return (
-                  <>
-                    <div className="flex justify-between text-sm">
-                      <span>{priceInfo.pricingPer} üçün qiymət:</span>
-                      <span>${priceInfo.totalPricePerUnit.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>Əsas qiymət ({priceInfo.pricingPer}):</span>
-                      <span>${priceInfo.apiPrice.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-xs text-green-600">
-                      <span>Xidmət haqqı ({priceInfo.pricingPer}):</span>
-                      <span>${priceInfo.serviceFee.toFixed(2)}</span>
-                    </div>
-                  </>
-                );
-              })()}
-              
-              <div className="text-xs text-muted-foreground mt-2 p-2 bg-muted/50 rounded">
-                * Göstərilən qiymətlər xidmət haqqı daxil olmaqla
               </div>
               
               <div className="flex justify-between font-semibold border-t pt-2">
