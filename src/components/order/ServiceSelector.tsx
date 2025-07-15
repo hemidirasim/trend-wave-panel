@@ -119,14 +119,14 @@ export const ServiceSelector = ({
       </CardHeader>
       <CardContent className="pt-0">
         <Select value={selectedServiceId} onValueChange={onServiceSelect}>
-          <SelectTrigger className="w-full h-12 bg-background border-input hover:bg-accent/50 transition-colors">
+          <SelectTrigger className="w-full h-14 bg-background border-input hover:bg-accent/5 transition-colors text-left">
             <SelectValue 
               placeholder={t('service.selectServicePlaceholder')}
               className="text-sm text-muted-foreground"
             />
           </SelectTrigger>
-          <SelectContent className="max-h-80 bg-popover border-border shadow-lg">
-            <div className="max-h-72 overflow-y-auto">
+          <SelectContent className="max-h-96 bg-popover border-border shadow-lg z-50">
+            <div className="max-h-80 overflow-y-auto">
               {sortedServices.map((service) => (
                 <ServiceItem
                   key={service.id_service}
