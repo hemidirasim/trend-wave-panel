@@ -7,6 +7,7 @@ import { HeroSection } from '@/components/HeroSection';
 import { StatsSection } from '@/components/StatsSection';
 import { ServicesSection } from '@/components/ServicesSection';
 import { FeaturesSection } from '@/components/FeaturesSection';
+import GuaranteesSection from '@/components/GuaranteesSection';
 import AuthDialog from '@/components/AuthDialog';
 
 const Index = () => {
@@ -29,6 +30,7 @@ const Index = () => {
         <HeroSection />
         <StatsSection />
         <ServicesSection />
+        <GuaranteesSection />
         <FeaturesSection />
         <Footer />
       </div>
