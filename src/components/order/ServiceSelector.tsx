@@ -1,11 +1,8 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ArrowUpDown } from 'lucide-react';
 import { Service } from '@/types/api';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { ServiceItem } from './ServiceItem';
-import { ServiceSortDropdown } from './ServiceSortDropdown';
 
 interface ServiceSelectorProps {
   services: Service[];
@@ -32,8 +29,6 @@ export const ServiceSelector = ({
   onPriceFilterChange,
   error 
 }: ServiceSelectorProps) => {
-  const { t } = useLanguage();
-
   // Filter services based on platform and service type
   const filteredServices = services.filter(service => {
     const platformMatch = selectedPlatform ? service.platform?.toLowerCase() === selectedPlatform.toLowerCase() : true;
@@ -68,86 +63,163 @@ export const ServiceSelector = ({
     return finalPrice.toFixed(2);
   };
 
+  const formatStartTime = (startTime?: string) => {
+    if (!startTime) return '';
+    
+    const lowerTime = startTime.toLowerCase();
+    
+    // Instant/immediate start
+    if (lowerTime.includes('instant') || lowerTime.includes('immediate') || lowerTime === '0') {
+      return 'Dərhal başlanır';
+    }
+    
+    // Hours
+    if (lowerTime.includes('hour')) {
+      const match = lowerTime.match(/(\d+)\s*hour/);
+      if (match) {
+        const hours = parseInt(match[1]);
+        return `${hours} saat ərzində`;
+      }
+    }
+    
+    // Days
+    if (lowerTime.includes('day')) {
+      const match = lowerTime.match(/(\d+)\s*day/);
+      if (match) {
+        const days = parseInt(match[1]);
+        return `${days} gün ərzində`;
+      }
+    }
+    
+    // Minutes
+    if (lowerTime.includes('minute') || lowerTime.includes('min')) {
+      const match = lowerTime.match(/(\d+)\s*(minute|min)/);
+      if (match) {
+        const minutes = parseInt(match[1]);
+        return `${minutes} dəqiqə ərzində`;
+      }
+    }
+    
+    return startTime;
+  };
+
+  const formatSpeed = (speed?: string) => {
+    if (!speed) return '';
+    
+    const lowerSpeed = speed.toLowerCase();
+    
+    // Per day
+    if (lowerSpeed.includes('day')) {
+      const match = lowerSpeed.match(/(\d+[,\s]*\d*)\s*(?:per\s*)?day/);
+      if (match) {
+        const amount = match[1].replace(/,/g, '');
+        return `gündə ${parseInt(amount).toLocaleString()}`;
+      }
+    }
+    
+    // Per hour
+    if (lowerSpeed.includes('hour')) {
+      const match = lowerSpeed.match(/(\d+[,\s]*\d*)\s*(?:per\s*)?hour/);
+      if (match) {
+        const amount = match[1].replace(/,/g, '');
+        return `saatda ${parseInt(amount).toLocaleString()}`;
+      }
+    }
+    
+    return speed;
+  };
+
   if (!selectedPlatform) {
     return (
-      <Card className="border-border bg-card">
-        <CardContent className="pt-6">
-          <div className="text-center py-12 text-muted-foreground">
-            <div className="text-4xl mb-4">📱</div>
-            <p className="text-base font-medium">{t('service.selectPlatform')}</p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="text-center py-8 text-muted-foreground">
+        Platform seçin
+      </div>
     );
   }
 
   if (!selectedServiceType) {
     return (
-      <Card className="border-border bg-card">
-        <CardContent className="pt-6">
-          <div className="text-center py-12 text-muted-foreground">
-            <div className="text-4xl mb-4">⚙️</div>
-            <p className="text-base font-medium">{t('service.selectServiceType')}</p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="text-center py-8 text-muted-foreground">
+        Xidmət növünü seçin
+      </div>
     );
   }
 
   if (sortedServices.length === 0) {
     return (
-      <Card className="border-border bg-card">
-        <CardContent className="pt-6">
-          <div className="text-center py-12 text-muted-foreground">
-            <div className="text-4xl mb-4">🔍</div>
-            <p className="text-base font-medium">{t('service.noServicesFound')}</p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="text-center py-8 text-muted-foreground">
+        Seçilmiş kriterlərə uyğun xidmət tapılmadı
+      </div>
     );
   }
 
   return (
-    <Card className="border-border bg-card">
-      <CardHeader className="pb-4">
-        <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <span className="text-lg font-semibold text-card-foreground">
-            {t('service.selectService')} *
-          </span>
-          <ServiceSortDropdown 
-            priceFilter={priceFilter}
-            onPriceFilterChange={onPriceFilterChange}
-          />
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between">
+          <span>Xidmət seçin *</span>
+          <div className="flex items-center gap-2">
+            <ArrowUpDown className="h-4 w-4" />
+            <Select value={priceFilter} onValueChange={onPriceFilterChange}>
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="low-to-high">Qiymət: Azdan Çoxa</SelectItem>
+                <SelectItem value="high-to-low">Qiymət: Çoxdan Aza</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </CardTitle>
       </CardHeader>
-      <CardContent className="pt-0">
+      <CardContent>
         <Select value={selectedServiceId} onValueChange={onServiceSelect}>
-          <SelectTrigger className="w-full h-16 bg-background border-input hover:bg-accent/5 transition-colors text-left">
-            <SelectValue 
-              placeholder={t('service.selectServicePlaceholder')}
-              className="text-sm text-muted-foreground"
-            />
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Xidmət seçin..." />
           </SelectTrigger>
-          <SelectContent className="max-h-[28rem] bg-popover border-border shadow-xl z-50">
-            <div className="max-h-96 overflow-y-auto">
-              {sortedServices.map((service) => (
-                <ServiceItem
-                  key={service.id_service}
-                  service={service}
-                  calculateDisplayPrice={calculateDisplayPrice}
-                />
-              ))}
-            </div>
+          <SelectContent className="max-h-80">
+            {sortedServices.map((service) => (
+              <SelectItem 
+                key={service.id_service} 
+                value={service.id_service.toString()}
+                className="py-4"
+              >
+                <div className="flex flex-col w-full">
+                  <div className="flex items-center justify-between w-full mb-1">
+                    <span className="font-medium text-sm">{service.public_name}</span>
+                    <span className="font-bold text-primary text-lg ml-4">
+                      ${calculateDisplayPrice(service)}
+                    </span>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                    <span>1000 ədəd üçün</span>
+                    {service.amount_minimum && (
+                      <span>• Minimum sifariş: {parseInt(service.amount_minimum).toLocaleString()}</span>
+                    )}
+                    {service.start_time && (
+                      <span>• {formatStartTime(service.start_time)}</span>
+                    )}
+                    {service.speed && (
+                      <span>• Sürət: {formatSpeed(service.speed)}</span>
+                    )}
+                  </div>
+                  
+                  {service.description && (
+                    <span className="text-xs text-muted-foreground mt-1 line-clamp-2 max-w-full">
+                      {service.description}
+                    </span>
+                  )}
+                </div>
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         
         {error && (
-          <div className="mt-3 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-            <p className="text-sm text-destructive flex items-center">
-              <span className="mr-2">⚠</span>
-              {error}
-            </p>
-          </div>
+          <p className="text-sm text-red-500 mt-2">
+            {error}
+          </p>
         )}
       </CardContent>
     </Card>
