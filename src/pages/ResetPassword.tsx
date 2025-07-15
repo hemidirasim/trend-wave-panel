@@ -23,14 +23,46 @@ const ResetPassword = () => {
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    // URL-də access_token varsa, şifrə yeniləmə addımına keç
+    // URL-də access_token, refresh_token və ya type parametrlərini yoxla
     const accessToken = searchParams.get('access_token');
+    const refreshToken = searchParams.get('refresh_token');
     const type = searchParams.get('type');
-    
-    if (accessToken && type === 'recovery') {
-      setStep('password');
+    const tokenHash = searchParams.get('token_hash');
+    const token = searchParams.get('token');
+
+    console.log('URL parametrləri:', { accessToken, refreshToken, type, tokenHash, token });
+
+    // Əgər recovery linki parametrləri varsa
+    if ((accessToken && refreshToken && type === 'recovery') || 
+        (tokenHash && type === 'recovery') || 
+        (token && type === 'recovery')) {
+      
+      console.log('Şifrə yeniləmə linki tapıldı, password mərhələsinə keçirik');
+      
+      // Session-u yenilə
+      if (accessToken && refreshToken) {
+        supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken
+        }).then(({ data, error }) => {
+          if (error) {
+            console.error('Session təyin edilmədi:', error);
+            addNotification({
+              type: 'error',
+              title: 'Xəta',
+              message: 'Link etibarsızdır və ya müddəti bitib',
+            });
+          } else {
+            console.log('Session təyin edildi:', data);
+            setStep('password');
+          }
+        });
+      } else {
+        // Digər recovery parametrləri varsa birbaşa password mərhələsinə keç
+        setStep('password');
+      }
     }
-  }, [searchParams]);
+  }, [searchParams, addNotification]);
 
   const handleSendResetEmail = async (e: React.FormEvent) => {
     e.preventDefault();
