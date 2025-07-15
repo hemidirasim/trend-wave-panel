@@ -1,4 +1,5 @@
 
+
 import { Service } from "@/types/api";
 
 export const calculatePrice = (service: Service, quantity: number, serviceFee: number = 0): number => {
@@ -98,15 +99,17 @@ export const formatPrice = (price: string | number): string => {
     return result;
   }
   
-  // For decimal numbers, use toFixed(2) first, then remove trailing zeros
-  const fixed = numPrice.toFixed(2);
-  const result = fixed.replace(/\.?0+$/, '');
+  // For decimal numbers, use more precise formatting
+  // First determine how many decimal places we need (max 4, but remove trailing zeros)
+  let result = numPrice.toFixed(4);
+  result = result.replace(/\.?0+$/, '');
   
   console.log('🔥 formatPrice: Decimal number processing:', {
     original: numPrice,
-    fixed: fixed,
+    fixed: numPrice.toFixed(4),
     result: result
   });
   
   return result;
 };
+
