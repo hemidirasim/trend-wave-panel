@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -23,8 +22,14 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   });
   const [loading, setLoading] = useState(true);
 
+  // Load settings on component mount and set up real-time refresh
   useEffect(() => {
     loadSettings();
+    
+    // Set up interval to refresh settings every 30 seconds to ensure fresh data
+    const interval = setInterval(loadSettings, 30000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   const loadSettings = async () => {
@@ -37,11 +42,13 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
       if (error && error.code !== 'PGRST116') {
         console.error('🔥 SettingsContext: Error loading settings:', error);
+        // Even if there's an error, continue with defaults to prevent blocking
+        setLoading(false);
         return;
       }
 
       if (data && data.length > 0) {
-        const newSettings = { ...settings };
+        const newSettings = { service_fee: 0, base_fee: 0 };
         
         data.forEach((item) => {
           const key = item.setting_key as keyof Settings;
@@ -60,9 +67,11 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setSettings(newSettings);
       } else {
         console.log('🔥 SettingsContext: No settings found in database, using defaults');
+        // Keep default values (0, 0)
       }
     } catch (error) {
       console.error('🔥 SettingsContext: Error loading settings:', error);
+      // Keep default values and continue
     } finally {
       setLoading(false);
     }
