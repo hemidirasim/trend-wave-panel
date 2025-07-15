@@ -54,7 +54,7 @@ const ResetPassword = () => {
             <div className="bg-primary text-primary-foreground p-2 rounded-lg">
               <Zap className="h-6 w-6" />
             </div>
-            <span className="text-2xl font-bold">SocialBoost</span>
+            <span className="text-2xl font-bold">HitLoyal</span>
           </div>
           <p className="text-muted-foreground">Şifrənizi unutmusunuz?</p>
         </div>

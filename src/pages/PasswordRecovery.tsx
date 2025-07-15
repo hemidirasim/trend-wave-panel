@@ -24,10 +24,8 @@ const PasswordRecovery = () => {
     const accessToken = searchParams.get('access_token');
     const refreshToken = searchParams.get('refresh_token');
     const type = searchParams.get('type');
-    const tokenHash = searchParams.get('token_hash');
-    const token = searchParams.get('token');
 
-    console.log('Recovery səhifəsində URL parametrləri:', { accessToken, refreshToken, type, tokenHash, token });
+    console.log('Recovery səhifəsində URL parametrləri:', { accessToken, refreshToken, type });
 
     // Əgər recovery parametrləri varsa session-u təyin et
     if (accessToken && refreshToken && type === 'recovery') {
@@ -47,14 +45,9 @@ const PasswordRecovery = () => {
           console.log('Recovery səhifəsində session təyin edildi:', data);
         }
       });
-    } else if (!accessToken && !tokenHash && !token) {
-      // Əgər heç bir recovery parametri yoxdursa reset-password səhifəsinə yönlət
-      addNotification({
-        type: 'error',
-        title: 'Xəta',
-        message: 'Etibarsız recovery linki',
-      });
-      navigate('/reset-password');
+    } else {
+      // Parametrlərin olmaması normal haldır, sadəcə log et
+      console.log('Recovery parametrləri tapılmadı, manuel giriş gözlənilir');
     }
   }, [searchParams, addNotification, navigate]);
 
