@@ -1,15 +1,14 @@
+
 import { useState, useEffect } from 'react';
 import { Menu, X, Globe } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from '@/components/ui/navigation-menu';
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { proxyApiService, Service } from './ProxyApiService';
@@ -102,36 +101,30 @@ export const Header = () => {
             </Link>
           ))}
           
-          <NavigationMenu>
-            <NavigationMenuList className="gap-2">
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="text-sm font-semibold leading-6 text-foreground hover:text-primary bg-transparent border-none shadow-none">
-                  Sosial Media
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="w-[300px] p-4 bg-popover border border-border shadow-lg rounded-md">
-                    <h3 className="mb-2 text-sm font-medium leading-none text-muted-foreground">
-                      Sosial Şəbəkələr
-                    </h3>
-                    <ul className="space-y-1">
-                      {socialPlatforms.map((platform) => (
-                        <li key={platform}>
-                          <NavigationMenuLink asChild>
-                            <Link
-                              to={`/order?platform=${platform.toLowerCase()}`}
-                              className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                            >
-                              <div className="text-sm font-medium leading-none capitalize">{platform}</div>
-                            </Link>
-                          </NavigationMenuLink>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="text-sm font-semibold leading-6 text-foreground hover:text-primary">
+                Sosial Media
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56 bg-background border border-border shadow-lg">
+              <div className="p-2">
+                <h3 className="mb-2 text-sm font-medium leading-none text-muted-foreground">
+                  Sosial Şəbəkələr
+                </h3>
+                {socialPlatforms.map((platform) => (
+                  <DropdownMenuItem key={platform} asChild>
+                    <Link
+                      to={`/order?platform=${platform.toLowerCase()}`}
+                      className="block w-full text-left px-2 py-1.5 text-sm capitalize cursor-pointer hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                    >
+                      {platform}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         
         <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center lg:gap-4">
