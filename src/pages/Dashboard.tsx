@@ -9,11 +9,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Loader2, Package, Clock, CheckCircle, XCircle, Wallet, LifeBuoy, Settings, CreditCard } from 'lucide-react';
+import { Loader2, Package, Clock, CheckCircle, XCircle, Wallet, LifeBuoy, Settings } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import Support from '@/components/Support';
 import AccountSettings from '@/components/AccountSettings';
+import { BalanceTopUpDialog } from '@/components/payment/BalanceTopUpDialog';
 
 interface Order {
   id: string;
@@ -92,6 +93,16 @@ const Dashboard = () => {
     }
   };
 
+  const handlePaymentSuccess = async (transactionId: string) => {
+    toast.success('Ödəniş uğurla tamamlandı!');
+    // Refresh user data to get updated balance
+    await fetchUserData();
+  };
+
+  const handlePaymentError = (error: string) => {
+    toast.error(`Ödəniş xətası: ${error}`);
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
@@ -168,10 +179,12 @@ const Dashboard = () => {
                       ${profile?.balance?.toFixed(2) || '0.00'}
                     </p>
                   </div>
-                  <Button size="sm" variant="outline" className="border-green-200 text-green-700 hover:bg-green-50">
-                    <CreditCard className="h-4 w-4 mr-1" />
-                    Artır
-                  </Button>
+                  <BalanceTopUpDialog
+                    customerEmail={user?.email}
+                    customerName={profile?.full_name}
+                    onSuccess={handlePaymentSuccess}
+                    onError={handlePaymentError}
+                  />
                 </div>
               </CardContent>
             </Card>
