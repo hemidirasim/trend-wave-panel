@@ -1,3 +1,4 @@
+
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,7 @@ interface ServiceSelectorProps {
   selectedServiceId: string;
   priceFilter: 'low-to-high' | 'high-to-low';
   serviceFeePercentage: number;
+  baseFee: number;
   onServiceSelect: (serviceId: string) => void;
   onPriceFilterChange: (filter: 'low-to-high' | 'high-to-low') => void;
   error?: string;
@@ -25,6 +27,7 @@ export function ServiceSelector({
   selectedServiceId,
   priceFilter,
   serviceFeePercentage,
+  baseFee,
   onServiceSelect,
   onPriceFilterChange,
   error
@@ -54,8 +57,8 @@ export function ServiceSelector({
 
     // Sort services by calculated final price (including percentage fee and base fee)
     const sortedServices = [...filtered].sort((a, b) => {
-      const priceA = proxyApiService.calculatePrice(a, 1000, serviceFeePercentage, 0); // Base fee will be added in context
-      const priceB = proxyApiService.calculatePrice(b, 1000, serviceFeePercentage, 0);
+      const priceA = proxyApiService.calculatePrice(a, 1000, serviceFeePercentage, baseFee);
+      const priceB = proxyApiService.calculatePrice(b, 1000, serviceFeePercentage, baseFee);
       
       return priceFilter === 'low-to-high' ? priceA - priceB : priceB - priceA;
     });
@@ -70,14 +73,23 @@ export function ServiceSelector({
     }
 
     // Use a standard quantity of 1000 for price comparison
-    const totalPrice = proxyApiService.calculatePrice(service, 1000, serviceFeePercentage, 0); // Base fee handled in context
+    const totalPrice = proxyApiService.calculatePrice(service, 1000, serviceFeePercentage, baseFee);
     const pricingPer = service.prices[0]?.pricing_per || '1000';
+
+    console.log('🔥 ServiceSelector formatPriceDisplay:', {
+      serviceName: service.public_name,
+      serviceFeePercentage,
+      baseFee,
+      totalPrice,
+      pricingPer
+    });
 
     if (totalPrice === 0) {
       // Fallback to showing the raw price if calculation fails
       const rawPrice = parseFloat(service.prices[0]?.price || '0');
       if (rawPrice > 0) {
-        const fallbackPrice = rawPrice + (rawPrice * serviceFeePercentage / 100);
+        const priceWithBaseFee = rawPrice + baseFee;
+        const fallbackPrice = priceWithBaseFee + (priceWithBaseFee * serviceFeePercentage / 100);
         return `$${fallbackPrice.toFixed(2)}/${pricingPer}`;
       }
       return 'Qiymət hesablanmadı';

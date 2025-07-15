@@ -334,6 +334,7 @@ const Order = () => {
                       selectedServiceId={formData.serviceId}
                       priceFilter={priceFilter}
                       serviceFeePercentage={settings.service_fee}
+                      baseFee={settings.base_fee}
                       onServiceSelect={handleServiceSelect}
                       onPriceFilterChange={setPriceFilter}
                       error={errors.serviceId}
@@ -377,6 +378,7 @@ const Order = () => {
                 quantity={formData.quantity}
                 calculatedPrice={calculatedPrice}
                 serviceFeePercentage={settings.service_fee}
+                baseFee={settings.base_fee}
               />
             </div>
           </div>
