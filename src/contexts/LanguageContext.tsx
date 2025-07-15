@@ -22,6 +22,22 @@ const translations: Record<string, Language> = {
     'nav.dashboard': 'Dashboard',
     'nav.signIn': 'Daxil ol',
     'nav.signOut': 'Çıxış',
+    'service.selectPlatform': 'Platform seçin',
+    'service.selectServiceType': 'Xidmət növünü seçin',
+    'service.noServicesFound': 'Seçilmiş kriterlərə uyğun xidmət tapılmadı',
+    'service.selectService': 'Xidmət seçin',
+    'service.selectServicePlaceholder': 'Xidmət seçin...',
+    'service.priceFor': 'ədəd üçün',
+    'service.minimumOrder': 'Minimum sifariş',
+    'service.speed': 'Sürət',
+    'service.instantStart': 'Dərhal başlanır',
+    'service.withinHours': 'saat ərzində',
+    'service.withinDays': 'gün ərzində',
+    'service.withinMinutes': 'dəqiqə ərzində',
+    'service.perDay': 'gündə',
+    'service.perHour': 'saatda',
+    'service.sortLowToHigh': 'Qiymət: Azdan Çoxa',
+    'service.sortHighToLow': 'Qiymət: Çoxdan Aza'
   }
 };
 

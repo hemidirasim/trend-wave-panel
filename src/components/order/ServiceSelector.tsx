@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowUpDown } from 'lucide-react';
 import { Service } from '@/types/api';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ServiceSelectorProps {
   services: Service[];
@@ -29,6 +30,8 @@ export const ServiceSelector = ({
   onPriceFilterChange,
   error 
 }: ServiceSelectorProps) => {
+  const { t } = useLanguage();
+
   // Filter services based on platform and service type
   const filteredServices = services.filter(service => {
     const platformMatch = selectedPlatform ? service.platform?.toLowerCase() === selectedPlatform.toLowerCase() : true;
@@ -70,7 +73,7 @@ export const ServiceSelector = ({
     
     // Instant/immediate start
     if (lowerTime.includes('instant') || lowerTime.includes('immediate') || lowerTime === '0') {
-      return 'Dərhal başlanır';
+      return t('service.instantStart');
     }
     
     // Hours
@@ -78,7 +81,7 @@ export const ServiceSelector = ({
       const match = lowerTime.match(/(\d+)\s*hour/);
       if (match) {
         const hours = parseInt(match[1]);
-        return `${hours} saat ərzində`;
+        return `${hours} ${t('service.withinHours')}`;
       }
     }
     
@@ -87,7 +90,7 @@ export const ServiceSelector = ({
       const match = lowerTime.match(/(\d+)\s*day/);
       if (match) {
         const days = parseInt(match[1]);
-        return `${days} gün ərzində`;
+        return `${days} ${t('service.withinDays')}`;
       }
     }
     
@@ -96,7 +99,7 @@ export const ServiceSelector = ({
       const match = lowerTime.match(/(\d+)\s*(minute|min)/);
       if (match) {
         const minutes = parseInt(match[1]);
-        return `${minutes} dəqiqə ərzində`;
+        return `${minutes} ${t('service.withinMinutes')}`;
       }
     }
     
@@ -113,7 +116,7 @@ export const ServiceSelector = ({
       const match = lowerSpeed.match(/(\d+[,\s]*\d*)\s*(?:per\s*)?day/);
       if (match) {
         const amount = match[1].replace(/,/g, '');
-        return `gündə ${parseInt(amount).toLocaleString()}`;
+        return `${t('service.perDay')} ${parseInt(amount).toLocaleString()}`;
       }
     }
     
@@ -122,7 +125,7 @@ export const ServiceSelector = ({
       const match = lowerSpeed.match(/(\d+[,\s]*\d*)\s*(?:per\s*)?hour/);
       if (match) {
         const amount = match[1].replace(/,/g, '');
-        return `saatda ${parseInt(amount).toLocaleString()}`;
+        return `${t('service.perHour')} ${parseInt(amount).toLocaleString()}`;
       }
     }
     
@@ -132,7 +135,7 @@ export const ServiceSelector = ({
   if (!selectedPlatform) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        Platform seçin
+        {t('service.selectPlatform')}
       </div>
     );
   }
@@ -140,7 +143,7 @@ export const ServiceSelector = ({
   if (!selectedServiceType) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        Xidmət növünü seçin
+        {t('service.selectServiceType')}
       </div>
     );
   }
@@ -148,7 +151,7 @@ export const ServiceSelector = ({
   if (sortedServices.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        Seçilmiş kriterlərə uyğun xidmət tapılmadı
+        {t('service.noServicesFound')}
       </div>
     );
   }
@@ -157,7 +160,7 @@ export const ServiceSelector = ({
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <span>Xidmət seçin *</span>
+          <span>{t('service.selectService')} *</span>
           <div className="flex items-center gap-2">
             <ArrowUpDown className="h-4 w-4" />
             <Select value={priceFilter} onValueChange={onPriceFilterChange}>
@@ -165,8 +168,8 @@ export const ServiceSelector = ({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="low-to-high">Qiymət: Azdan Çoxa</SelectItem>
-                <SelectItem value="high-to-low">Qiymət: Çoxdan Aza</SelectItem>
+                <SelectItem value="low-to-high">{t('service.sortLowToHigh')}</SelectItem>
+                <SelectItem value="high-to-low">{t('service.sortHighToLow')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -175,7 +178,7 @@ export const ServiceSelector = ({
       <CardContent>
         <Select value={selectedServiceId} onValueChange={onServiceSelect}>
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Xidmət seçin..." />
+            <SelectValue placeholder={t('service.selectServicePlaceholder')} />
           </SelectTrigger>
           <SelectContent className="max-h-80">
             {sortedServices.map((service) => (
@@ -185,23 +188,27 @@ export const ServiceSelector = ({
                 className="py-4"
               >
                 <div className="flex flex-col w-full">
-                  <div className="flex items-center justify-between w-full mb-1">
+                  <div className="flex items-center justify-between w-full mb-2">
                     <span className="font-medium text-sm">{service.public_name}</span>
-                    <span className="font-bold text-primary text-lg ml-4">
-                      ${calculateDisplayPrice(service)}
-                    </span>
+                    <div className="text-right ml-4">
+                      <div className="font-bold text-primary text-lg">
+                        ${calculateDisplayPrice(service)}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        1000 {t('service.priceFor')}
+                      </div>
+                    </div>
                   </div>
                   
                   <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                    <span>1000 ədəd üçün</span>
                     {service.amount_minimum && (
-                      <span>• Minimum sifariş: {parseInt(service.amount_minimum).toLocaleString()}</span>
+                      <span>• {t('service.minimumOrder')}: {parseInt(service.amount_minimum).toLocaleString()} ədəd</span>
                     )}
                     {service.start_time && (
                       <span>• {formatStartTime(service.start_time)}</span>
                     )}
                     {service.speed && (
-                      <span>• Sürət: {formatSpeed(service.speed)}</span>
+                      <span>• {t('service.speed')}: {formatSpeed(service.speed)}</span>
                     )}
                   </div>
                   
