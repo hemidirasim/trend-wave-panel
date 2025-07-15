@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -82,9 +81,16 @@ const Order = () => {
 
   // Calculate price when quantity changes
   useEffect(() => {
-    if (selectedService && formData.quantity) {
+    if (selectedService && formData.quantity && !settingsLoading) {
       const quantity = parseInt(formData.quantity);
       if (!isNaN(quantity) && quantity > 0) {
+        console.log('🔥 Order: Calculating price with settings:', {
+          serviceFee: settings.service_fee,
+          baseFee: settings.base_fee,
+          quantity,
+          serviceName: selectedService.public_name
+        });
+        
         const price = proxyApiService.calculatePrice(
           selectedService, 
           quantity, 
@@ -96,7 +102,7 @@ const Order = () => {
         setCalculatedPrice(0);
       }
     }
-  }, [selectedService, formData.quantity, settings.service_fee, settings.base_fee]);
+  }, [selectedService, formData.quantity, settings.service_fee, settings.base_fee, settingsLoading]);
 
   const fetchServices = async () => {
     try {
@@ -290,7 +296,7 @@ const Order = () => {
     return null;
   };
 
-  if (loading) {
+  if (loading || settingsLoading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -298,7 +304,7 @@ const Order = () => {
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center">
               <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-              <span className="text-lg">Xidmətlər yüklənir...</span>
+              <span className="text-lg">Xidmətlər və parametrlər yüklənir...</span>
             </div>
           </div>
         </div>

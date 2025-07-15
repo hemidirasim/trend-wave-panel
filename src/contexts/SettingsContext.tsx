@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -22,27 +23,22 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   });
   const [loading, setLoading] = useState(true);
 
-  // Load settings on component mount and set up real-time refresh
+  // Load settings on component mount
   useEffect(() => {
     loadSettings();
-    
-    // Set up interval to refresh settings every 30 seconds to ensure fresh data
-    const interval = setInterval(loadSettings, 30000);
-    
-    return () => clearInterval(interval);
   }, []);
 
   const loadSettings = async () => {
     console.log('🔥 SettingsContext: Loading settings from database');
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from('admin_settings')
         .select('setting_key, setting_value')
         .in('setting_key', ['service_fee', 'base_fee']);
 
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         console.error('🔥 SettingsContext: Error loading settings:', error);
-        // Even if there's an error, continue with defaults to prevent blocking
         setLoading(false);
         return;
       }
@@ -54,12 +50,15 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           const key = item.setting_key as keyof Settings;
           let value = item.setting_value;
           
+          // Parse the value correctly
           if (typeof value === 'number') {
             newSettings[key] = value;
           } else if (typeof value === 'string') {
-            newSettings[key] = parseFloat(value) || 0;
+            const numValue = parseFloat(value);
+            newSettings[key] = isNaN(numValue) ? 0 : numValue;
           } else {
-            newSettings[key] = parseFloat(String(value)) || 0;
+            const numValue = parseFloat(String(value));
+            newSettings[key] = isNaN(numValue) ? 0 : numValue;
           }
         });
         
@@ -67,11 +66,9 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setSettings(newSettings);
       } else {
         console.log('🔥 SettingsContext: No settings found in database, using defaults');
-        // Keep default values (0, 0)
       }
     } catch (error) {
       console.error('🔥 SettingsContext: Error loading settings:', error);
-      // Keep default values and continue
     } finally {
       setLoading(false);
     }
@@ -104,6 +101,9 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         console.log('🔥 SettingsContext: Updated local state:', updated);
         return updated;
       });
+
+      // Reload settings to ensure consistency
+      await loadSettings();
     } catch (error) {
       console.error('🔥 SettingsContext: Error in updateSettings:', error);
     }

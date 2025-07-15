@@ -1,11 +1,12 @@
 
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Filter, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AlertCircle, ArrowUpDown, Star } from 'lucide-react';
 import { Service } from '@/types/api';
-import { proxyApiService } from '@/components/ProxyApiService';
+import { calculatePrice } from '@/utils/priceCalculator';
 
 interface ServiceSelectorProps {
   services: Service[];
@@ -32,6 +33,37 @@ export function ServiceSelector({
   onPriceFilterChange,
   error
 }: ServiceSelectorProps) {
+  const [expandedService, setExpandedService] = useState<string | null>(null);
+
+  // Filter services based on selected platform and service type
+  const filteredServices = services.filter(service => {
+    if (!selectedPlatform) return false;
+    
+    const platformMatch = service.platform.toLowerCase() === selectedPlatform.toLowerCase();
+    
+    if (!selectedServiceType) return platformMatch;
+    
+    const serviceTypeFromName = getServiceTypeFromName(service.public_name);
+    const typeMatch = service.type_name 
+      ? service.type_name === selectedServiceType
+      : serviceTypeFromName === selectedServiceType;
+    
+    return platformMatch && typeMatch;
+  });
+
+  // Sort services based on price filter
+  const sortedServices = [...filteredServices].sort((a, b) => {
+    if (!a.prices || !b.prices || a.prices.length === 0 || b.prices.length === 0) {
+      return 0;
+    }
+    
+    // Calculate price with fees for sorting
+    const priceA = calculatePrice(a, parseInt(a.amount_minimum), serviceFeePercentage, baseFee);
+    const priceB = calculatePrice(b, parseInt(b.amount_minimum), serviceFeePercentage, baseFee);
+    
+    return priceFilter === 'low-to-high' ? priceA - priceB : priceB - priceA;
+  });
+
   const getServiceTypeFromName = (serviceName: string): string => {
     const name = serviceName.toLowerCase();
     if (name.includes('like') || name.includes('bəyən')) return 'Likes';
@@ -39,133 +71,136 @@ export function ServiceSelector({
     if (name.includes('view') || name.includes('baxış')) return 'Views';
     if (name.includes('share') || name.includes('paylaş')) return 'Shares';
     if (name.includes('comment') || name.includes('şərh')) return 'Comments';
-    if (name.includes('repost') || name.includes('retweet')) return 'Reposts';
     return 'Other';
   };
 
-  const getFilteredServices = () => {
-    let filtered = services.filter(service => {
-      if (!service.platform || service.platform.toLowerCase() !== selectedPlatform) {
-        return false;
-      }
-      
-      const serviceType = service.type_name && service.type_name.trim() !== '' 
-        ? service.type_name 
-        : getServiceTypeFromName(service.public_name);
-      return serviceType === selectedServiceType;
-    });
-
-    // Sort services by calculated final price (including percentage fee and base fee)
-    const sortedServices = [...filtered].sort((a, b) => {
-      const priceA = proxyApiService.calculatePrice(a, 1000, serviceFeePercentage, baseFee);
-      const priceB = proxyApiService.calculatePrice(b, 1000, serviceFeePercentage, baseFee);
-      
-      // Handle cases where price calculation returns 0 (invalid services)
-      if (priceA === 0 && priceB === 0) return 0;
-      if (priceA === 0) return 1; // Put invalid services at the end
-      if (priceB === 0) return -1; // Put invalid services at the end
-      
-      return priceFilter === 'low-to-high' ? priceA - priceB : priceB - priceA;
-    });
-
-    console.log('🔥 ServiceSelector sorting:', {
-      priceFilter,
-      sortedServices: sortedServices.map(s => ({
-        name: s.public_name,
-        price: proxyApiService.calculatePrice(s, 1000, serviceFeePercentage, baseFee)
-      }))
-    });
-
-    return sortedServices;
-  };
-
-  const formatPriceDisplay = (service: Service) => {
-    // Check if service has valid price data
-    if (!service.prices || service.prices.length === 0) {
-      return 'Qiymət yoxdur';
-    }
-
-    const totalPrice = proxyApiService.calculatePrice(service, 1000, serviceFeePercentage, baseFee);
-    const pricingPer = service.prices[0]?.pricing_per || '1000';
-
-    console.log('🔥 ServiceSelector formatPriceDisplay:', {
-      serviceName: service.public_name,
-      serviceFeePercentage,
-      baseFee,
-      totalPrice,
-      pricingPer
-    });
-
-    if (totalPrice === 0) {
-      const rawPrice = parseFloat(service.prices[0]?.price || '0');
-      if (rawPrice > 0) {
-        const priceWithBaseFee = rawPrice + baseFee;
-        const fallbackPrice = priceWithBaseFee + (priceWithBaseFee * serviceFeePercentage / 100);
-        return `$${fallbackPrice.toFixed(2)}/${pricingPer}`;
-      }
-      return 'Qiymət hesablanmadı';
-    }
-    
-    return `$${totalPrice.toFixed(2)}/${pricingPer}`;
+  const getPlatformColor = (platform: string) => {
+    const colors: Record<string, string> = {
+      youtube: 'bg-red-500',
+      instagram: 'bg-pink-500',
+      tiktok: 'bg-purple-500',
+      facebook: 'bg-blue-500',
+      twitter: 'bg-sky-500',
+      telegram: 'bg-blue-400',
+      vimeo: 'bg-blue-600',
+    };
+    return colors[platform.toLowerCase()] || 'bg-gray-500';
   };
 
   if (!selectedPlatform || !selectedServiceType) {
     return null;
   }
 
+  if (sortedServices.length === 0) {
+    return (
+      <Card>
+        <CardContent className="text-center py-8">
+          <p className="text-muted-foreground">Bu kateqoriya üçün xidmət tapılmadı.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
-    <div className="space-y-4">
-      {/* Price filter */}
-      <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg">
-        <Filter className="h-4 w-4 text-muted-foreground" />
-        <Label className="text-sm font-medium">Qiymətə görə sırala:</Label>
-        <Select value={priceFilter} onValueChange={onPriceFilterChange}>
-          <SelectTrigger className="w-auto">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="low-to-high">Ucuzdan bahaya</SelectItem>
-            <SelectItem value="high-to-low">Bahadan ucuza</SelectItem>
-          </SelectContent>
-        </Select>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => onPriceFilterChange('low-to-high')}
-          className="h-8 w-8 p-0"
-        >
-          <X className="h-4 w-4" />
-        </Button>
-      </div>
-
-      {/* Service selection */}
-      <div className="space-y-2">
-        <Label>Xidmət seçin *</Label>
-        <Select value={selectedServiceId} onValueChange={onServiceSelect}>
-          <SelectTrigger className={error ? 'border-red-500' : ''}>
-            <SelectValue placeholder="Xidmət seçin" />
-          </SelectTrigger>
-          <SelectContent>
-            {getFilteredServices().map(service => (
-              <SelectItem key={service.id_service} value={service.id_service.toString()}>
-                <div className="flex items-center justify-between w-full">
-                  <span className="flex-1">{service.public_name}</span>
-                  <Badge variant="secondary" className="ml-2 shrink-0">
-                    {formatPriceDisplay(service)}
-                  </Badge>
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {getFilteredServices().length === 0 && (
-        <div className="text-center py-6 text-muted-foreground">
-          Bu növə uyğun xidmət tapılmadı
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Xidmət Seçimi</CardTitle>
+            <CardDescription>
+              {selectedPlatform.charAt(0).toUpperCase() + selectedPlatform.slice(1)} - {selectedServiceType}
+            </CardDescription>
+          </div>
+          
+          <Select value={priceFilter} onValueChange={onPriceFilterChange}>
+            <SelectTrigger className="w-48">
+              <ArrowUpDown className="h-4 w-4 mr-2" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="low-to-high">Qiymət: Aşağıdan Yuxarı</SelectItem>
+              <SelectItem value="high-to-low">Qiymət: Yuxarıdan Aşağı</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-      )}
-    </div>
+      </CardHeader>
+      <CardContent>
+        <div className="grid gap-4">
+          {sortedServices.map((service) => {
+            const isSelected = selectedServiceId === service.id_service.toString();
+            const minAmount = parseInt(service.amount_minimum);
+            
+            // Calculate price with current fees
+            const priceWithFees = calculatePrice(service, minAmount, serviceFeePercentage, baseFee);
+            
+            console.log('🔥 ServiceSelector: Displaying service with fees:', {
+              serviceName: service.public_name,
+              minAmount,
+              serviceFee: serviceFeePercentage,
+              baseFee,
+              priceWithFees
+            });
+            
+            return (
+              <Card
+                key={service.id_service}
+                className={`cursor-pointer transition-all hover:shadow-md ${
+                  isSelected ? 'ring-2 ring-primary' : ''
+                }`}
+                onClick={() => onServiceSelect(service.id_service.toString())}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge className={`${getPlatformColor(service.platform)} text-white`}>
+                          {service.platform}
+                        </Badge>
+                        {service.quality && (
+                          <Badge variant="outline" className="text-yellow-600 border-yellow-600">
+                            <Star className="h-3 w-3 mr-1" />
+                            {service.quality}
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      <h3 className="font-medium text-sm mb-1">{service.public_name}</h3>
+                      <p className="text-xs text-muted-foreground mb-2">
+                        Min: {minAmount.toLocaleString()} | 
+                        Max: {service.prices && service.prices[0] ? parseInt(service.prices[0].maximum).toLocaleString() : 'N/A'}
+                      </p>
+                    </div>
+                    
+                    <div className="text-right">
+                      <div className="text-lg font-bold text-primary">
+                        ${priceWithFees.toFixed(2)}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {minAmount.toLocaleString()} üçün
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {isSelected && (
+                    <div className="mt-3 pt-3 border-t">
+                      <Button className="w-full" size="sm">
+                        Seçildi ✓
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+        
+        {error && (
+          <p className="text-sm text-red-500 flex items-center mt-4">
+            <AlertCircle className="h-4 w-4 mr-1" />
+            {error}
+          </p>
+        )}
+      </CardContent>
+    </Card>
   );
 }

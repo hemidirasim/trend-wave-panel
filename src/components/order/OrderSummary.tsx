@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calculator, CheckCircle } from 'lucide-react';
 import { Service } from '@/types/api';
+import { calculatePrice } from '@/utils/priceCalculator';
 
 interface OrderSummaryProps {
   selectedService: Service | null;
@@ -32,6 +33,34 @@ export function OrderSummary({
     return colors[platform.toLowerCase()] || 'bg-gray-500';
   };
 
+  // Calculate breakdown for display
+  const quantityNum = parseInt(quantity) || 0;
+  let basePrice = 0;
+  let priceWithBaseFee = 0;
+  let feeAmount = 0;
+
+  if (selectedService && quantityNum > 0) {
+    // Calculate base price without fees
+    if (selectedService.prices && selectedService.prices.length > 0) {
+      const priceRange = selectedService.prices.find(
+        (price) => quantityNum >= parseInt(price.minimum) && quantityNum <= parseInt(price.maximum)
+      );
+      
+      if (priceRange) {
+        const pricingPer = parseInt(priceRange.pricing_per);
+        const priceForPricingPer = parseFloat(priceRange.price);
+        const costPerUnit = priceForPricingPer / pricingPer;
+        basePrice = costPerUnit * quantityNum;
+        
+        // Apply base fee
+        priceWithBaseFee = basePrice + baseFee;
+        
+        // Calculate service fee
+        feeAmount = (priceWithBaseFee * serviceFeePercentage) / 100;
+      }
+    }
+  }
+
   return (
     <Card className="sticky top-4">
       <CardHeader>
@@ -59,6 +88,29 @@ export function OrderSummary({
                 <span>Miqdar:</span>
                 <span>{quantity || '0'}</span>
               </div>
+              
+              {quantityNum > 0 && basePrice > 0 && (
+                <>
+                  <div className="flex justify-between text-sm text-muted-foreground">
+                    <span>Əsas qiymət:</span>
+                    <span>${basePrice.toFixed(2)}</span>
+                  </div>
+                  
+                  {baseFee > 0 && (
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <span>Standart haqqı:</span>
+                      <span>+${baseFee.toFixed(2)}</span>
+                    </div>
+                  )}
+                  
+                  {serviceFeePercentage > 0 && (
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <span>Xidmət haqqı ({serviceFeePercentage}%):</span>
+                      <span>+${feeAmount.toFixed(2)}</span>
+                    </div>
+                  )}
+                </>
+              )}
               
               <div className="flex justify-between font-semibold border-t pt-2">
                 <span>Cəmi:</span>
