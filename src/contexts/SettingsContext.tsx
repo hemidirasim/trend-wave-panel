@@ -42,13 +42,13 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (data) {
         // setting_value is stored as JSONB, so we need to extract the numeric value
         let serviceFee = 0;
-        if (typeof data.setting_value === 'string') {
-          serviceFee = parseFloat(data.setting_value) || 0;
-        } else if (typeof data.setting_value === 'number') {
+        if (typeof data.setting_value === 'number') {
           serviceFee = data.setting_value;
+        } else if (typeof data.setting_value === 'string') {
+          serviceFee = parseFloat(data.setting_value) || 0;
         } else {
-          // If it's stored as quoted string in JSONB
-          serviceFee = parseFloat(String(data.setting_value).replace(/"/g, '')) || 0;
+          // If it's stored as quoted string in JSONB or any other format
+          serviceFee = parseFloat(String(data.setting_value)) || 0;
         }
         
         console.log('🔥 SettingsContext: Loaded service_fee from database:', {
@@ -81,7 +81,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           .from('admin_settings')
           .upsert({
             setting_key: 'service_fee',
-            setting_value: newSettings.service_fee.toString()
+            setting_value: newSettings.service_fee
           }, { onConflict: 'setting_key' });
 
         if (error) {

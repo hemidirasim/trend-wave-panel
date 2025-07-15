@@ -142,7 +142,7 @@ export default function AdminSettings() {
       // Save all settings to database
       const settingsArray = Object.entries(settings).map(([key, value]) => ({
         setting_key: key,
-        setting_value: typeof value === 'string' ? JSON.stringify(value) : value.toString()
+        setting_value: value
       }));
 
       const { error } = await supabase
