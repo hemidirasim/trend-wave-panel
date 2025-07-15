@@ -168,6 +168,14 @@ const Order = () => {
         if (quantity < minAmount) {
           newErrors.quantity = `Minimum miqdar: ${minAmount}`;
         }
+        
+        // Add maximum amount validation
+        if (selectedService.prices && selectedService.prices.length > 0) {
+          const maxAmount = parseInt(selectedService.prices[0].maximum);
+          if (quantity > maxAmount) {
+            newErrors.quantity = `Maksimum miqdar: ${maxAmount.toLocaleString()}`;
+          }
+        }
       }
     }
     

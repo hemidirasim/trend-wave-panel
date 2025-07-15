@@ -32,6 +32,15 @@ export function OrderForm({
   onUpdateAdditionalParam,
   onSubmit
 }: OrderFormProps) {
+  const getMaximumAmount = () => {
+    if (selectedService.prices && selectedService.prices.length > 0) {
+      return parseInt(selectedService.prices[0].maximum);
+    }
+    return null;
+  };
+
+  const maximumAmount = getMaximumAmount();
+
   return (
     <>
       {/* URL Input */}
@@ -69,6 +78,7 @@ export function OrderForm({
           onChange={(e) => onUpdateFormData('quantity', e.target.value)}
           className={errors.quantity ? 'border-red-500' : ''}
           min={selectedService.amount_minimum}
+          max={maximumAmount || undefined}
           step={selectedService.amount_increment}
         />
         {errors.quantity && (
@@ -79,6 +89,9 @@ export function OrderForm({
         )}
         <div className="text-sm text-muted-foreground space-y-1">
           <p>Minimum: {parseInt(selectedService.amount_minimum).toLocaleString()}</p>
+          {maximumAmount && (
+            <p>Maksimum: {maximumAmount.toLocaleString()}</p>
+          )}
           <p>Artım: {parseInt(selectedService.amount_increment).toLocaleString()}</p>
         </div>
       </div>
