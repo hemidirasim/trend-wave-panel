@@ -80,9 +80,15 @@ export const formatPrice = (price: string | number): string => {
   
   console.log('🔥 formatPrice giriş:', { input: price, numPrice, type: typeof price });
   
-  // Handle invalid numbers
-  if (isNaN(numPrice) || numPrice < 0) {
-    console.log('🔥 formatPrice: Invalid number, returning 0');
+  // Handle invalid numbers or NaN
+  if (isNaN(numPrice)) {
+    console.log('🔥 formatPrice: NaN detected, returning 0');
+    return '0';
+  }
+  
+  // Handle negative numbers
+  if (numPrice < 0) {
+    console.log('🔥 formatPrice: Negative number, returning 0');
     return '0';
   }
   
@@ -92,22 +98,24 @@ export const formatPrice = (price: string | number): string => {
     return '0';
   }
   
-  // If it's a whole number, return as string without decimals
-  if (numPrice % 1 === 0) {
-    const result = numPrice.toString();
-    console.log('🔥 formatPrice: Whole number result:', result);
-    return result;
+  // Convert to string with appropriate precision
+  let result;
+  
+  // If it's a very small number (less than 0.01), use more decimal places
+  if (numPrice < 0.01) {
+    result = numPrice.toFixed(6);
+  } else if (numPrice < 1) {
+    result = numPrice.toFixed(4);
+  } else {
+    result = numPrice.toFixed(2);
   }
   
-  // For decimal numbers, use more precise formatting
-  // First determine how many decimal places we need (max 4, but remove trailing zeros)
-  let result = numPrice.toFixed(4);
+  // Remove trailing zeros and unnecessary decimal point
   result = result.replace(/\.?0+$/, '');
   
-  console.log('🔥 formatPrice: Decimal number processing:', {
+  console.log('🔥 formatPrice: Final result:', {
     original: numPrice,
-    fixed: numPrice.toFixed(4),
-    result: result
+    formatted: result
   });
   
   return result;
