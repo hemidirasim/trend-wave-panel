@@ -1,0 +1,1 @@
+UPDATE admin_settings SET setting_value = 100 WHERE setting_key = 'service_fee';
