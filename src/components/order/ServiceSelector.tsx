@@ -92,6 +92,7 @@ export function ServiceSelector({
       serviceFeeIncluded: serviceFee
     });
     
+    // Return the price as it comes from API calculation, no formatting
     return totalPriceForPricingPer;
   };
 
