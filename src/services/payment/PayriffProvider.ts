@@ -22,7 +22,7 @@ interface PayriffStatusData {
 }
 
 export class PayriffProvider implements PaymentProviderInterface {
-  private readonly baseUrl = 'https://api.payriff.com/api/v3';
+  private readonly baseUrl = 'https://checkout.payriff.com';
   private readonly merchantId: string;
   private readonly secretKey: string;
 
@@ -55,10 +55,10 @@ export class PayriffProvider implements PaymentProviderInterface {
       const signature = this.generateSignature(paymentData);
       paymentData.signature = signature;
 
-      console.log('Sending payment request to:', `${this.baseUrl}/payment/create`);
+      console.log('Sending payment request to:', `${this.baseUrl}/api/v3/payment`);
       console.log('Payment data:', paymentData);
 
-      const response = await fetch(`${this.baseUrl}/payment/create`, {
+      const response = await fetch(`${this.baseUrl}/api/v3/payment`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -118,7 +118,7 @@ export class PayriffProvider implements PaymentProviderInterface {
       const signature = this.generateSignature(statusData);
       statusData.signature = signature;
 
-      const response = await fetch(`${this.baseUrl}/payment/status`, {
+      const response = await fetch(`${this.baseUrl}/api/v3/status`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
