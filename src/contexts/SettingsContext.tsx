@@ -26,6 +26,18 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // Load settings on component mount
   useEffect(() => {
     loadSettings();
+    
+    // Listen for settings updates from admin panel
+    const handleSettingsUpdate = (event: CustomEvent) => {
+      console.log('🔥 SettingsContext: Received settings update event:', event.detail);
+      setSettings(prev => ({ ...prev, ...event.detail }));
+    };
+    
+    window.addEventListener('settingsUpdated', handleSettingsUpdate as EventListener);
+    
+    return () => {
+      window.removeEventListener('settingsUpdated', handleSettingsUpdate as EventListener);
+    };
   }, []);
 
   const loadSettings = async () => {

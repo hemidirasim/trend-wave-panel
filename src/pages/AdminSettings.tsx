@@ -9,7 +9,6 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { Save, Database, Settings, Globe } from 'lucide-react';
 import { AdminLayout } from '@/components/AdminLayout';
-import { useSettings } from '@/contexts/SettingsContext';
 
 interface Settings {
   site_name: string;
@@ -26,7 +25,6 @@ interface Settings {
 
 export default function AdminSettings() {
   const { toast } = useToast();
-  const { updateSettings } = useSettings();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   
@@ -152,14 +150,13 @@ export default function AdminSettings() {
         throw error;
       }
 
-      updateSettings({ 
-        service_fee: settings.service_fee,
-        base_fee: settings.base_fee 
-      });
-      console.log('🔥 AdminSettings: Updated context with fees:', {
-        service_fee: settings.service_fee,
-        base_fee: settings.base_fee
-      });
+      // Trigger a storage event to notify other components
+      window.dispatchEvent(new CustomEvent('settingsUpdated', {
+        detail: { 
+          service_fee: settings.service_fee,
+          base_fee: settings.base_fee 
+        }
+      }));
       
       toast({
         title: "Uğurlu",
