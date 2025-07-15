@@ -1,11 +1,11 @@
 
 import { Service } from "@/types/api";
 
-export const calculatePrice = (service: Service, quantity: number, serviceFee: number = 0): number => {
+export const calculatePrice = (service: Service, quantity: number, serviceFeePercentage: number = 0): number => {
   console.log('🔥 calculatePrice metoduna giriş:', {
     serviceName: service.public_name,
     quantity,
-    serviceFee: serviceFee,
+    serviceFeePercentage: serviceFeePercentage,
     prices: service.prices
   });
 
@@ -50,15 +50,13 @@ export const calculatePrice = (service: Service, quantity: number, serviceFee: n
     return 0;
   }
 
-  // Calculate the cost for the requested quantity
-  // priceForPricingPer is the cost for pricingPer units
-  // So the cost per unit is: priceForPricingPer / pricingPer
-  // And the total cost for quantity units is: (priceForPricingPer / pricingPer) * quantity
+  // Calculate the base cost for the requested quantity
   const costPerUnit = priceForPricingPer / pricingPer;
-  const totalCost = costPerUnit * quantity;
+  const baseCost = costPerUnit * quantity;
   
-  // Apply service fee as fixed amount (not percentage)
-  const finalPrice = totalCost + serviceFee;
+  // Apply service fee as percentage
+  const feeAmount = (baseCost * serviceFeePercentage) / 100;
+  const finalPrice = baseCost + feeAmount;
   
   console.log('💰 Service price calculation:', {
     serviceName: service.public_name,
@@ -66,8 +64,9 @@ export const calculatePrice = (service: Service, quantity: number, serviceFee: n
     priceForPricingPer: priceForPricingPer,
     costPerUnit: costPerUnit,
     quantity: quantity,
-    totalCost: totalCost,
-    serviceFeeUSD: serviceFee,
+    baseCost: baseCost,
+    serviceFeePercentage: serviceFeePercentage,
+    feeAmount: feeAmount,
     finalPrice: finalPrice
   });
   

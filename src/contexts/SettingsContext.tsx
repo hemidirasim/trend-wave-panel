@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Settings {
-  service_fee: number;
+  service_fee: number; // Now represents percentage (e.g., 10 for 10%)
 }
 
 interface SettingsContextType {
@@ -103,11 +103,13 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const applyServiceFee = (basePrice: number): number => {
-    // Service fee is now a fixed amount in USD, not a percentage
-    const result = basePrice + settings.service_fee;
+    // Service fee is now a percentage (e.g., 10 for 10%)
+    const feeAmount = (basePrice * settings.service_fee) / 100;
+    const result = basePrice + feeAmount;
     console.log('🔥 SettingsContext: applyServiceFee called:', {
       basePrice,
-      serviceFeeUSD: settings.service_fee,
+      serviceFeePercentage: settings.service_fee,
+      feeAmount,
       result
     });
     return result;

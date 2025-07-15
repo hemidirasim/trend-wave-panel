@@ -344,17 +344,18 @@ export default function AdminSettings() {
               </div>
 
               <div>
-                <Label htmlFor="service_fee">Xidmət Haqqı (USD)</Label>
+                <Label htmlFor="service_fee">Xidmət Haqqı (%)</Label>
                 <Input
                   id="service_fee"
                   type="number"
-                  step="0.01"
+                  step="0.1"
                   min="0"
+                  max="100"
                   value={settings.service_fee}
                   onChange={(e) => handleInputChange('service_fee', parseFloat(e.target.value) || 0)}
                 />
                 <p className="text-sm text-muted-foreground mt-1">
-                  Hər sifarişə əlavə olunacaq sabit məbləğ (USD). Məsələn: 100 USD əlavə haqqı
+                  Hər sifarişin əsas qiymətinə əlavə olunacaq faiz. Məsələn: 10% əlavə haqqı
                 </p>
               </div>
             </CardContent>

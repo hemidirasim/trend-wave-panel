@@ -12,6 +12,7 @@ import { OrderForm } from '@/components/order/OrderForm';
 import { OrderSummary } from '@/components/order/OrderSummary';
 import { proxyApiService, Service } from '@/components/ProxyApiService';
 import { useSettings } from '@/contexts/SettingsContext';
+import { calculatePrice } from '@/utils/priceCalculator';
 import { toast } from 'sonner';
 
 const Order = () => {
@@ -73,7 +74,7 @@ const Order = () => {
     if (selectedService && formData.quantity) {
       const quantity = parseInt(formData.quantity);
       if (!isNaN(quantity) && quantity > 0) {
-        const price = proxyApiService.calculatePrice(selectedService, quantity, settings.service_fee);
+        const price = calculatePrice(selectedService, quantity, settings.service_fee);
         setCalculatedPrice(price);
       } else {
         setCalculatedPrice(0);
@@ -94,10 +95,10 @@ const Order = () => {
                allowedPlatforms.includes(service.platform.toLowerCase());
       });
       
-      // Sort by price (low to high by default)
+      // Sort by calculated price (low to high by default)
       const sortedData = [...filteredData].sort((a, b) => {
-        const priceA = proxyApiService.calculatePrice(a, 1000, settings.service_fee);
-        const priceB = proxyApiService.calculatePrice(b, 1000, settings.service_fee);
+        const priceA = calculatePrice(a, 1000, settings.service_fee);
+        const priceB = calculatePrice(b, 1000, settings.service_fee);
         return priceA - priceB;
       });
       
@@ -336,7 +337,7 @@ const Order = () => {
                       selectedServiceType={selectedServiceType}
                       selectedServiceId={formData.serviceId}
                       priceFilter={priceFilter}
-                      serviceFee={settings.service_fee}
+                      serviceFeePercentage={settings.service_fee}
                       onServiceSelect={handleServiceSelect}
                       onPriceFilterChange={setPriceFilter}
                       error={errors.serviceId}
@@ -379,7 +380,7 @@ const Order = () => {
                 selectedService={selectedService}
                 quantity={formData.quantity}
                 calculatedPrice={calculatedPrice}
-                serviceFee={settings.service_fee}
+                serviceFeePercentage={settings.service_fee}
               />
             </div>
           </div>

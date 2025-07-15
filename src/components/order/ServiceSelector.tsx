@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Filter, X } from 'lucide-react';
 import { Service } from '@/types/api';
+import { calculatePrice } from '@/utils/priceCalculator';
 
 interface ServiceSelectorProps {
   services: Service[];
@@ -12,7 +13,7 @@ interface ServiceSelectorProps {
   selectedServiceType: string;
   selectedServiceId: string;
   priceFilter: 'low-to-high' | 'high-to-low';
-  serviceFee: number;
+  serviceFeePercentage: number;
   onServiceSelect: (serviceId: string) => void;
   onPriceFilterChange: (filter: 'low-to-high' | 'high-to-low') => void;
   error?: string;
@@ -24,7 +25,7 @@ export function ServiceSelector({
   selectedServiceType,
   selectedServiceId,
   priceFilter,
-  serviceFee,
+  serviceFeePercentage,
   onServiceSelect,
   onPriceFilterChange,
   error
@@ -52,12 +53,12 @@ export function ServiceSelector({
       return serviceType === selectedServiceType;
     });
 
-    // Sort services by price from API data
+    // Sort services by calculated final price (including percentage fee)
     const sortedServices = [...filtered].sort((a, b) => {
-      const priceA = parseFloat(a.prices[0]?.price || '0');
-      const priceB = parseFloat(b.prices[0]?.price || '0');
+      const priceA = calculatePrice(a, 1000, serviceFeePercentage);
+      const priceB = calculatePrice(b, 1000, serviceFeePercentage);
       
-      console.log('🔥 Sorting services by API price:', {
+      console.log('🔥 Sorting services by calculated price:', {
         serviceA: a.public_name,
         priceA,
         serviceB: b.public_name,
@@ -72,19 +73,15 @@ export function ServiceSelector({
   };
 
   const formatPriceDisplay = (service: Service) => {
-    // Get the raw price from API
-    const apiPrice = parseFloat(service.prices[0]?.price || '0');
+    // Use the calculatePrice function which now includes percentage fee
+    const totalPrice = calculatePrice(service, 1000, serviceFeePercentage);
     const pricingPer = service.prices[0]?.pricing_per || '1000';
-    
-    // Add service fee to the API price
-    const totalPrice = apiPrice + serviceFee;
     
     console.log('🔥 Price display in dropdown:', {
       serviceName: service.public_name,
-      apiPrice,
-      serviceFee,
       totalPrice,
-      pricingPer
+      pricingPer,
+      serviceFeePercentage
     });
     
     return `$${totalPrice.toFixed(2)}/${pricingPer}`;

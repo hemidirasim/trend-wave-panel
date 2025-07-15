@@ -8,10 +8,10 @@ interface OrderSummaryProps {
   selectedService: Service | null;
   quantity: string;
   calculatedPrice: number;
-  serviceFee: number;
+  serviceFeePercentage: number;
 }
 
-export function OrderSummary({ selectedService, quantity, calculatedPrice, serviceFee }: OrderSummaryProps) {
+export function OrderSummary({ selectedService, quantity, calculatedPrice, serviceFeePercentage }: OrderSummaryProps) {
   const getPlatformColor = (platform: string) => {
     const colors: Record<string, string> = {
       youtube: 'bg-red-500',
