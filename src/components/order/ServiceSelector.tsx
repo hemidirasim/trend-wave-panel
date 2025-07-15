@@ -64,10 +64,70 @@ export const ServiceSelector = ({
     return finalPrice.toFixed(2);
   };
 
-  const formatServiceOption = (service: Service) => {
-    const price = calculateDisplayPrice(service);
-    const minAmount = service.amount_minimum ? parseInt(service.amount_minimum).toLocaleString() : '';
-    return `${service.public_name} - $${price} (1000 ədəd üçün)${minAmount ? ` - Minimum sifariş: ${minAmount}` : ''}`;
+  const formatStartTime = (startTime: string) => {
+    if (!startTime) return '';
+    
+    const lowerTime = startTime.toLowerCase();
+    
+    // Instant/immediate start
+    if (lowerTime.includes('instant') || lowerTime.includes('immediate') || lowerTime === '0') {
+      return 'Dərhal başlanır';
+    }
+    
+    // Hours
+    if (lowerTime.includes('hour')) {
+      const match = lowerTime.match(/(\d+)\s*hour/);
+      if (match) {
+        const hours = parseInt(match[1]);
+        return `${hours} saat ərzində`;
+      }
+    }
+    
+    // Days
+    if (lowerTime.includes('day')) {
+      const match = lowerTime.match(/(\d+)\s*day/);
+      if (match) {
+        const days = parseInt(match[1]);
+        return `${days} gün ərzində`;
+      }
+    }
+    
+    // Minutes
+    if (lowerTime.includes('minute') || lowerTime.includes('min')) {
+      const match = lowerTime.match(/(\d+)\s*(minute|min)/);
+      if (match) {
+        const minutes = parseInt(match[1]);
+        return `${minutes} dəqiqə ərzində`;
+      }
+    }
+    
+    return startTime;
+  };
+
+  const formatSpeed = (speed: string) => {
+    if (!speed) return '';
+    
+    const lowerSpeed = speed.toLowerCase();
+    
+    // Per day
+    if (lowerSpeed.includes('day')) {
+      const match = lowerSpeed.match(/(\d+[,\s]*\d*)\s*(?:per\s*)?day/);
+      if (match) {
+        const amount = match[1].replace(/,/g, '');
+        return `gündə ${parseInt(amount).toLocaleString()}`;
+      }
+    }
+    
+    // Per hour
+    if (lowerSpeed.includes('hour')) {
+      const match = lowerSpeed.match(/(\d+[,\s]*\d*)\s*(?:per\s*)?hour/);
+      if (match) {
+        const amount = match[1].replace(/,/g, '');
+        return `saatda ${parseInt(amount).toLocaleString()}`;
+      }
+    }
+    
+    return speed;
   };
 
   if (!selectedPlatform) {
@@ -123,20 +183,31 @@ export const ServiceSelector = ({
               <SelectItem 
                 key={service.id_service} 
                 value={service.id_service.toString()}
-                className="py-3"
+                className="py-4"
               >
-                <div className="flex flex-col">
-                  <span className="font-medium">{service.public_name}</span>
-                  <span className="text-sm text-muted-foreground">
-                    ${calculateDisplayPrice(service)} (1000 ədəd üçün)
+                <div className="flex flex-col w-full">
+                  <div className="flex items-center justify-between w-full mb-1">
+                    <span className="font-medium text-sm">{service.public_name}</span>
+                    <span className="font-bold text-primary text-lg ml-4">
+                      ${calculateDisplayPrice(service)}
+                    </span>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                    <span>1000 ədəd üçün</span>
                     {service.amount_minimum && (
-                      <span className="ml-2">
-                        • Minimum sifariş: {parseInt(service.amount_minimum).toLocaleString()}
-                      </span>
+                      <span>• Minimum sifariş: {parseInt(service.amount_minimum).toLocaleString()}</span>
                     )}
-                  </span>
+                    {service.start_time && (
+                      <span>• {formatStartTime(service.start_time)}</span>
+                    )}
+                    {service.speed && (
+                      <span>• Sürət: {formatSpeed(service.speed)}</span>
+                    )}
+                  </div>
+                  
                   {service.description && (
-                    <span className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                    <span className="text-xs text-muted-foreground mt-1 line-clamp-2 max-w-full">
                       {service.description}
                     </span>
                   )}
