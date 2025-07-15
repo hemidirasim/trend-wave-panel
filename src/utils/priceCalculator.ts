@@ -1,4 +1,3 @@
-
 import { Service } from "@/types/api";
 
 export const calculatePrice = (service: Service, quantity: number, serviceFee: number = 0): number => {
@@ -82,9 +81,17 @@ export const formatPrice = (price: string | number): string => {
     return '0';
   }
   
+  // If the price is exactly 0, return '0'
+  if (numPrice === 0) {
+    return '0';
+  }
+  
+  // If it's a whole number, return as string without decimals
   if (numPrice % 1 === 0) {
     return numPrice.toString();
   }
   
+  // For decimal numbers, format to remove unnecessary trailing zeros
+  // but keep at least one decimal place if the original had decimals
   return numPrice.toFixed(10).replace(/\.?0+$/, '');
 };
