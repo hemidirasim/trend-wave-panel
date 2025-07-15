@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calculator, CheckCircle } from 'lucide-react';
 import { Service } from '@/types/api';
-import { calculatePrice, formatPrice } from '@/utils/priceCalculator';
+import { calculatePrice } from '@/utils/priceCalculator';
 
 interface OrderSummaryProps {
   selectedService: Service | null;
@@ -86,15 +86,15 @@ export function OrderSummary({ selectedService, quantity, calculatedPrice, servi
                   <>
                     <div className="flex justify-between text-sm">
                       <span>{priceDetails.pricingPer} üçün qiymət:</span>
-                      <span>${formatPrice(priceDetails.totalCostForPricingPer.toString())}</span>
+                      <span>${priceDetails.totalCostForPricingPer}</span>
                     </div>
                     <div className="flex justify-between text-xs text-muted-foreground">
                       <span>Əsas qiymət ({priceDetails.pricingPer}):</span>
-                      <span>${formatPrice(priceDetails.baseCostForPricingPer.toString())}</span>
+                      <span>${priceDetails.baseCostForPricingPer}</span>
                     </div>
                     <div className="flex justify-between text-xs text-green-600">
                       <span>Xidmət haqqı ({priceDetails.pricingPer}):</span>
-                      <span>${formatPrice(priceDetails.serviceFeeUSD.toString())}</span>
+                      <span>${priceDetails.serviceFeeUSD}</span>
                     </div>
                     <div className="text-xs text-muted-foreground mt-2 p-2 bg-muted/50 rounded">
                       * Göstərilən qiymətlər xidmət haqqı daxil olmaqla
@@ -104,7 +104,7 @@ export function OrderSummary({ selectedService, quantity, calculatedPrice, servi
               })()}
               <div className="flex justify-between font-semibold border-t pt-2">
                 <span>Cəmi:</span>
-                <span>${formatPrice(calculatedPrice.toFixed(2))}</span>
+                <span>${calculatedPrice}</span>
               </div>
             </div>
 

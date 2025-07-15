@@ -1,6 +1,6 @@
 
 import { apiClient } from "@/utils/apiClient";
-import { calculatePrice, formatPrice } from "@/utils/priceCalculator";
+import { calculatePrice } from "@/utils/priceCalculator";
 import { validateUrl } from "@/utils/urlValidator";
 
 // Re-export types for backward compatibility
@@ -38,7 +38,6 @@ export class ProxyApiService {
   }
 
   calculatePrice = calculatePrice;
-  formatPrice = formatPrice;
   validateUrl = validateUrl;
 }
 

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Filter, X } from 'lucide-react';
 import { Service } from '@/types/api';
-import { calculatePrice, formatPrice } from '@/utils/priceCalculator';
+import { calculatePrice } from '@/utils/priceCalculator';
 
 interface ServiceSelectorProps {
   services: Service[];
@@ -138,7 +138,7 @@ export function ServiceSelector({
                 <div className="flex items-center space-x-2">
                   <span>{service.public_name}</span>
                   <Badge variant="secondary" className="ml-2">
-                    ${formatPrice(getDisplayPrice(service).toString())}/{service.prices[0]?.pricing_per || '1K'}
+                    ${getDisplayPrice(service)}/${service.prices[0]?.pricing_per || '1K'}
                   </Badge>
                 </div>
               </SelectItem>
