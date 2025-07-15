@@ -33,6 +33,8 @@ export function PaymentButton({
   const { paymentDialogOpen, setPaymentDialogOpen, currentPaymentRequest, initiatePayment } = usePayment();
 
   const handlePaymentClick = () => {
+    console.log('Payment button clicked'); // Debug log
+    
     const paymentRequest: PaymentRequest = {
       amount,
       currency: 'AZN',
@@ -44,8 +46,11 @@ export function PaymentButton({
       errorUrl: `${window.location.origin}/payment-error?order=${orderId}`
     };
 
+    console.log('Initiating payment with request:', paymentRequest); // Debug log
     initiatePayment(paymentRequest);
   };
+
+  console.log('PaymentButton rendered - dialogOpen:', paymentDialogOpen, 'currentRequest:', !!currentPaymentRequest); // Debug log
 
   return (
     <>
@@ -58,15 +63,13 @@ export function PaymentButton({
         {children || `${amount.toFixed(2)} AZN ödə`}
       </Button>
 
-      {currentPaymentRequest && (
-        <PaymentDialog
-          open={paymentDialogOpen}
-          onOpenChange={setPaymentDialogOpen}
-          paymentRequest={currentPaymentRequest}
-          onSuccess={onSuccess}
-          onError={onError}
-        />
-      )}
+      <PaymentDialog
+        open={paymentDialogOpen}
+        onOpenChange={setPaymentDialogOpen}
+        paymentRequest={currentPaymentRequest}
+        onSuccess={onSuccess}
+        onError={onError}
+      />
     </>
   );
 }

@@ -10,8 +10,10 @@ export function usePayment() {
   const [currentPaymentRequest, setCurrentPaymentRequest] = useState<PaymentRequest | null>(null);
 
   const initiatePayment = async (request: PaymentRequest) => {
+    console.log('initiatePayment called with:', request); // Debug log
     setCurrentPaymentRequest(request);
     setPaymentDialogOpen(true);
+    console.log('Dialog should be open now'); // Debug log
   };
 
   const checkPaymentStatus = async (transactionId: string, providerId?: string): Promise<PaymentStatus | null> => {

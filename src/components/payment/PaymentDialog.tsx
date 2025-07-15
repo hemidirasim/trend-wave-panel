@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 interface PaymentDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  paymentRequest: PaymentRequest;
+  paymentRequest: PaymentRequest | null;
   onSuccess?: (transactionId: string) => void;
   onError?: (error: string) => void;
 }
@@ -29,6 +29,11 @@ export function PaymentDialog({
   const availableProviders = paymentService.getAvailableProviders();
 
   const handlePayment = async () => {
+    if (!paymentRequest) {
+      toast.error('Ödəniş məlumatları tapılmadı');
+      return;
+    }
+
     try {
       setLoading(true);
       
@@ -54,6 +59,11 @@ export function PaymentDialog({
     }
   };
 
+  // Don't render dialog if no payment request
+  if (!paymentRequest) {
+    return null;
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -71,7 +81,7 @@ export function PaymentDialog({
           <div className="bg-muted p-4 rounded-lg">
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm text-muted-foreground">Məbləğ:</span>
-              <span className="font-semibold">${paymentRequest.amount.toFixed(2)}</span>
+              <span className="font-semibold">{paymentRequest.amount.toFixed(2)} AZN</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Sifariş ID:</span>
