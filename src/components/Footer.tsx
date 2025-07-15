@@ -29,11 +29,6 @@ export const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/faq" className="text-slate-300 hover:text-primary transition-colors duration-300">
-                  Suallar
-                </Link>
-              </li>
-              <li>
                 <Link to="/terms" className="text-slate-300 hover:text-primary transition-colors duration-300">
                   Qaydalar və Şərtlər
                 </Link>
