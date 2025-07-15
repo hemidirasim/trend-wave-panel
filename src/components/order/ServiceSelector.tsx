@@ -58,6 +58,14 @@ export function ServiceSelector({
       const priceA = proxyApiService.calculatePrice(a, 1000, serviceFeePercentage);
       const priceB = proxyApiService.calculatePrice(b, 1000, serviceFeePercentage);
       
+      console.log('🔥 Service sorting comparison:', {
+        serviceA: a.public_name,
+        priceA,
+        serviceB: b.public_name,
+        priceB,
+        serviceFeePercentage
+      });
+      
       return priceFilter === 'low-to-high' ? priceA - priceB : priceB - priceA;
     });
 
@@ -65,9 +73,40 @@ export function ServiceSelector({
   };
 
   const formatPriceDisplay = (service: Service) => {
-    // Use the calculatePrice function which includes percentage fee
+    console.log('🔥 Formatting price for service:', {
+      serviceName: service.public_name,
+      serviceId: service.id_service,
+      prices: service.prices,
+      serviceFeePercentage
+    });
+
+    // Check if service has valid price data
+    if (!service.prices || service.prices.length === 0) {
+      console.log('❌ No prices found for service:', service.public_name);
+      return 'Qiymət yoxdur';
+    }
+
+    // Use a standard quantity of 1000 for price comparison
     const totalPrice = proxyApiService.calculatePrice(service, 1000, serviceFeePercentage);
     const pricingPer = service.prices[0]?.pricing_per || '1000';
+    
+    console.log('🔥 Calculated price display:', {
+      serviceName: service.public_name,
+      totalPrice,
+      pricingPer,
+      originalPrice: service.prices[0]?.price
+    });
+
+    if (totalPrice === 0) {
+      console.log('❌ Price calculation returned 0 for:', service.public_name);
+      // Fallback to showing the raw price if calculation fails
+      const rawPrice = parseFloat(service.prices[0]?.price || '0');
+      if (rawPrice > 0) {
+        const fallbackPrice = rawPrice + (rawPrice * serviceFeePercentage / 100);
+        return `$${fallbackPrice.toFixed(2)}/${pricingPer}`;
+      }
+      return 'Qiymət hesablanmadı';
+    }
     
     return `$${totalPrice.toFixed(2)}/${pricingPer}`;
   };
