@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Filter, X } from 'lucide-react';
 import { Service } from '@/types/api';
-import { calculatePrice } from '@/utils/priceCalculator';
 
 interface ServiceSelectorProps {
   services: Service[];
@@ -53,23 +52,16 @@ export function ServiceSelector({
       return serviceType === selectedServiceType;
     });
 
-    // Apply price filter - calculate total price including service fee for comparison
+    // Sort services by price from API data
     const sortedServices = [...filtered].sort((a, b) => {
-      // Get the base quantity for pricing comparison (use pricing_per from the service)
-      const baseQuantityA = parseInt(a.prices[0]?.pricing_per?.toString() || '1000');
-      const baseQuantityB = parseInt(b.prices[0]?.pricing_per?.toString() || '1000');
+      const priceA = parseFloat(a.prices[0]?.price || '0');
+      const priceB = parseFloat(b.prices[0]?.price || '0');
       
-      const priceA = calculatePrice(a, baseQuantityA, serviceFee);
-      const priceB = calculatePrice(b, baseQuantityB, serviceFee);
-      
-      console.log('🔥 Filtered services price sorting:', {
+      console.log('🔥 Sorting services by API price:', {
         serviceA: a.public_name,
-        baseQuantityA,
         priceA,
         serviceB: b.public_name,
-        baseQuantityB,
         priceB,
-        appliedServiceFee: serviceFee,
         filter: priceFilter
       });
       
@@ -79,21 +71,23 @@ export function ServiceSelector({
     return sortedServices;
   };
 
-  const getDisplayPrice = (service: Service) => {
-    const pricingPer = parseInt(service.prices[0]?.pricing_per?.toString() || '1000');
+  const formatPriceDisplay = (service: Service) => {
+    // Get the raw price from API
+    const apiPrice = parseFloat(service.prices[0]?.price || '0');
+    const pricingPer = service.prices[0]?.pricing_per || '1000';
     
-    // Calculate total price including service fee for the pricing_per quantity
-    const totalPriceForPricingPer = calculatePrice(service, pricingPer, serviceFee);
+    // Add service fee to the API price
+    const totalPrice = apiPrice + serviceFee;
     
-    console.log('🔥 Display price calculation for dropdown:', {
+    console.log('🔥 Price display in dropdown:', {
       serviceName: service.public_name,
-      pricingPer,
-      totalPriceForPricingPer,
-      serviceFeeIncluded: serviceFee
+      apiPrice,
+      serviceFee,
+      totalPrice,
+      pricingPer
     });
     
-    // Return the exact calculated price without any additional formatting
-    return totalPriceForPricingPer;
+    return `$${totalPrice.toFixed(2)}/${pricingPer}`;
   };
 
   if (!selectedPlatform || !selectedServiceType) {
@@ -136,10 +130,10 @@ export function ServiceSelector({
           <SelectContent>
             {getFilteredServices().map(service => (
               <SelectItem key={service.id_service} value={service.id_service.toString()}>
-                <div className="flex items-center space-x-2">
-                  <span>{service.public_name}</span>
-                  <Badge variant="secondary" className="ml-2">
-                    ${getDisplayPrice(service)}/${service.prices[0]?.pricing_per || '1K'}
+                <div className="flex items-center justify-between w-full">
+                  <span className="flex-1">{service.public_name}</span>
+                  <Badge variant="secondary" className="ml-2 shrink-0">
+                    {formatPriceDisplay(service)}
                   </Badge>
                 </div>
               </SelectItem>

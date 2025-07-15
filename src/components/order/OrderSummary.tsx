@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calculator, CheckCircle } from 'lucide-react';
 import { Service } from '@/types/api';
-import { calculatePrice } from '@/utils/priceCalculator';
 
 interface OrderSummaryProps {
   selectedService: Service | null;
@@ -26,29 +25,27 @@ export function OrderSummary({ selectedService, quantity, calculatedPrice, servi
     return colors[platform.toLowerCase()] || 'bg-gray-500';
   };
 
-  const getDisplayPriceDetails = (service: Service) => {
-    const pricingPer = parseInt(service.prices[0]?.pricing_per?.toString() || '1000');
-    const basePrice = parseFloat(service.prices[0]?.price || '0');
+  const getPriceBreakdown = (service: Service) => {
+    if (!service || !service.prices || service.prices.length === 0) {
+      return null;
+    }
+
+    const apiPrice = parseFloat(service.prices[0].price);
+    const pricingPer = service.prices[0].pricing_per || '1000';
+    const totalPricePerUnit = apiPrice + serviceFee;
     
-    // Calculate base cost for pricing_per quantity (without service fee)
-    const baseCostForPricingPer = basePrice;
-    
-    // Calculate total cost for pricing_per quantity (including service fee)
-    const totalCostForPricingPer = calculatePrice(service, pricingPer, serviceFee);
-    
-    console.log('🔥 OrderSummary price details:', {
+    console.log('🔥 OrderSummary price breakdown:', {
       serviceName: service.public_name,
-      pricingPer,
-      basePrice,
-      baseCostForPricingPer,
-      serviceFeeUSD: serviceFee,
-      totalCostForPricingPer
+      apiPrice,
+      serviceFee,
+      totalPricePerUnit,
+      pricingPer
     });
     
     return {
-      baseCostForPricingPer,
-      serviceFeeUSD: serviceFee,
-      totalCostForPricingPer,
+      apiPrice,
+      serviceFee,
+      totalPricePerUnit,
       pricingPer
     };
   };
@@ -80,31 +77,36 @@ export function OrderSummary({ selectedService, quantity, calculatedPrice, servi
                 <span>Miqdar:</span>
                 <span>{quantity || '0'}</span>
               </div>
+              
               {(() => {
-                const priceDetails = getDisplayPriceDetails(selectedService);
+                const priceInfo = getPriceBreakdown(selectedService);
+                if (!priceInfo) return null;
+                
                 return (
                   <>
                     <div className="flex justify-between text-sm">
-                      <span>{priceDetails.pricingPer} üçün qiymət:</span>
-                      <span>${priceDetails.totalCostForPricingPer}</span>
+                      <span>{priceInfo.pricingPer} üçün qiymət:</span>
+                      <span>${priceInfo.totalPricePerUnit.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>Əsas qiymət ({priceDetails.pricingPer}):</span>
-                      <span>${priceDetails.baseCostForPricingPer}</span>
+                      <span>Əsas qiymət ({priceInfo.pricingPer}):</span>
+                      <span>${priceInfo.apiPrice.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-xs text-green-600">
-                      <span>Xidmət haqqı ({priceDetails.pricingPer}):</span>
-                      <span>${priceDetails.serviceFeeUSD}</span>
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-2 p-2 bg-muted/50 rounded">
-                      * Göstərilən qiymətlər xidmət haqqı daxil olmaqla
+                      <span>Xidmət haqqı ({priceInfo.pricingPer}):</span>
+                      <span>${priceInfo.serviceFee.toFixed(2)}</span>
                     </div>
                   </>
                 );
               })()}
+              
+              <div className="text-xs text-muted-foreground mt-2 p-2 bg-muted/50 rounded">
+                * Göstərilən qiymətlər xidmət haqqı daxil olmaqla
+              </div>
+              
               <div className="flex justify-between font-semibold border-t pt-2">
                 <span>Cəmi:</span>
-                <span>${calculatedPrice}</span>
+                <span>${calculatedPrice.toFixed(2)}</span>
               </div>
             </div>
 

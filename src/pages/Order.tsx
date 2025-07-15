@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,6 +18,8 @@ const Order = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { settings, loading: settingsLoading } = useSettings();
+  
+  // State management
   const [services, setServices] = useState<Service[]>([]);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [serviceDetails, setServiceDetails] = useState<Service | null>(null);
@@ -41,44 +44,57 @@ const Order = () => {
   const urlPlatform = searchParams.get('platform');
   const allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook'];
 
-  useEffect(() => {
-    if (!settingsLoading) {
-      console.log('🔥 Order: Settings loaded, service_fee:', settings.service_fee);
-      fetchServices();
-    }
-  }, [settingsLoading, settings.service_fee]);
-
+  // Initialize platform from URL
   useEffect(() => {
     if (urlPlatform && allowedPlatforms.includes(urlPlatform.toLowerCase())) {
       setSelectedPlatform(urlPlatform.toLowerCase());
     }
   }, [urlPlatform]);
 
+  // Fetch services when settings are loaded
+  useEffect(() => {
+    if (!settingsLoading) {
+      fetchServices();
+    }
+  }, [settingsLoading]);
+
+  // Handle service selection from URL
   useEffect(() => {
     if (services.length > 0 && formData.serviceId) {
       const service = services.find(s => s.id_service.toString() === formData.serviceId);
       if (service) {
-        setSelectedService(service);
-        setSelectedPlatform(service.platform.toLowerCase());
-        const serviceType = service.type_name && service.type_name.trim() !== '' 
-          ? service.type_name 
-          : getServiceTypeFromName(service.public_name);
-        setSelectedServiceType(serviceType);
-        calculatePrice(service, parseInt(formData.quantity) || 0);
-        fetchServiceDetails(formData.serviceId);
+        handleServiceSelection(service);
       }
     }
-  }, [services, formData.serviceId, formData.quantity, settings.service_fee]);
+  }, [services, formData.serviceId]);
+
+  // Calculate price when quantity changes
+  useEffect(() => {
+    if (selectedService && formData.quantity) {
+      const quantity = parseInt(formData.quantity);
+      if (!isNaN(quantity) && quantity > 0) {
+        const price = proxyApiService.calculatePrice(selectedService, quantity, settings.service_fee);
+        setCalculatedPrice(price);
+      } else {
+        setCalculatedPrice(0);
+      }
+    }
+  }, [selectedService, formData.quantity, settings.service_fee]);
 
   const fetchServices = async () => {
     try {
       setLoading(true);
       const data = await proxyApiService.getServices();
+      
+      // Filter and sort services
       const filteredData = data.filter(service => {
-        if (!service || !service.platform || !service.id_service) return false;
-        return allowedPlatforms.includes(service.platform.toLowerCase());
+        return service && 
+               service.platform && 
+               service.id_service && 
+               allowedPlatforms.includes(service.platform.toLowerCase());
       });
       
+      // Sort by price (low to high by default)
       const sortedData = [...filteredData].sort((a, b) => {
         const priceA = proxyApiService.calculatePrice(a, 1000, settings.service_fee);
         const priceB = proxyApiService.calculatePrice(b, 1000, settings.service_fee);
@@ -107,83 +123,18 @@ const Order = () => {
     }
   };
 
-  const calculatePrice = (service: Service, quantity: number) => {
-    if (!service || !quantity) {
-      setCalculatedPrice(0);
-      return;
-    }
-    const price = proxyApiService.calculatePrice(service, quantity, settings.service_fee);
-    setCalculatedPrice(price);
-  };
-
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-    if (!formData.serviceId) newErrors.serviceId = 'Xidmət seçmək vacibdir';
-    if (!formData.url.trim()) newErrors.url = 'URL daxil etmək vacibdir';
-    else if (!proxyApiService.validateUrl(selectedPlatform, formData.url)) newErrors.url = 'Düzgün URL formatı daxil edin';
-    if (!formData.quantity.trim()) newErrors.quantity = 'Miqdar daxil etmək vacibdir';
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-
-    try {
-      setPlacing(true);
-      const response = await proxyApiService.placeOrder(
-        formData.serviceId, formData.url, parseInt(formData.quantity), formData.additionalParams
-      );
-      if (response.status === 'success' && response.id_service_submission) {
-        toast.success('Sifariş uğurla verildi!');
-        navigate(`/track?order=${response.id_service_submission}`);
-      }
-    } catch (error) {
-      toast.error('Sifariş verilmədi.');
-    } finally {
-      setPlacing(false);
-    }
-  };
-
-  const updateFormData = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const updateAdditionalParam = (paramName: string, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      additionalParams: { ...prev.additionalParams, [paramName]: value }
-    }));
-  };
-
-  const handlePlatformChange = (platform: string) => {
-    setSelectedPlatform(platform);
-    setSelectedServiceType('');
-    setSelectedService(null);
-    setServiceDetails(null);
-  };
-
-  const handleServiceTypeChange = (serviceType: string) => {
+  const handleServiceSelection = (service: Service) => {
+    setSelectedService(service);
+    setSelectedPlatform(service.platform.toLowerCase());
+    
+    // Determine service type
+    const serviceType = service.type_name && service.type_name.trim() !== '' 
+      ? service.type_name 
+      : getServiceTypeFromName(service.public_name);
     setSelectedServiceType(serviceType);
-    setSelectedService(null);
-    setServiceDetails(null);
-  };
-
-  const handleServiceSelect = (serviceId: string) => {
-    updateFormData('serviceId', serviceId);
-    const service = services.find(s => s.id_service.toString() === serviceId);
-    if (service) {
-      setSelectedService(service);
-      calculatePrice(service, parseInt(formData.quantity) || 0);
-      fetchServiceDetails(serviceId);
-    }
-  };
-
-  const getServiceDescription = () => {
-    if (serviceDetails?.description && serviceDetails.description.trim()) return serviceDetails.description;
-    if (selectedService?.description && selectedService.description.trim()) return selectedService.description;
-    return null;
+    
+    // Fetch additional details
+    fetchServiceDetails(service.id_service.toString());
   };
 
   const getServiceTypeFromName = (serviceName: string): string => {
@@ -191,7 +142,134 @@ const Order = () => {
     if (name.includes('like') || name.includes('bəyən')) return 'Likes';
     if (name.includes('follow') || name.includes('izləyici')) return 'Followers';
     if (name.includes('view') || name.includes('baxış')) return 'Views';
+    if (name.includes('share') || name.includes('paylaş')) return 'Shares';
+    if (name.includes('comment') || name.includes('şərh')) return 'Comments';
     return 'Other';
+  };
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    
+    if (!formData.serviceId) {
+      newErrors.serviceId = 'Xidmət seçmək vacibdir';
+    }
+    
+    if (!formData.url.trim()) {
+      newErrors.url = 'URL daxil etmək vacibdir';
+    } else if (!proxyApiService.validateUrl(selectedPlatform, formData.url)) {
+      newErrors.url = 'Düzgün URL formatı daxil edin';
+    }
+    
+    if (!formData.quantity.trim()) {
+      newErrors.quantity = 'Miqdar daxil etmək vacibdir';
+    } else {
+      const quantity = parseInt(formData.quantity);
+      if (isNaN(quantity) || quantity <= 0) {
+        newErrors.quantity = 'Düzgün miqdar daxil edin';
+      } else if (selectedService) {
+        const minAmount = parseInt(selectedService.amount_minimum);
+        if (quantity < minAmount) {
+          newErrors.quantity = `Minimum miqdar: ${minAmount}`;
+        }
+      }
+    }
+    
+    // Validate additional parameters
+    if (selectedService && selectedService.params) {
+      selectedService.params.forEach(param => {
+        if (param.field_validators.includes('required')) {
+          const value = formData.additionalParams[param.field_name];
+          if (!value || value.toString().trim() === '') {
+            newErrors[param.field_name] = `${param.field_label} vacibdir`;
+          }
+        }
+      });
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    try {
+      setPlacing(true);
+      const response = await proxyApiService.placeOrder(
+        formData.serviceId,
+        formData.url,
+        parseInt(formData.quantity),
+        formData.additionalParams
+      );
+      
+      if (response.status === 'success' && response.id_service_submission) {
+        toast.success('Sifariş uğurla verildi!');
+        navigate(`/track?order=${response.id_service_submission}`);
+      } else {
+        toast.error('Sifariş verilmədi. Yenidən cəhd edin.');
+      }
+    } catch (error) {
+      console.error('Order submission error:', error);
+      toast.error('Sifariş verilmədi. Yenidən cəhd edin.');
+    } finally {
+      setPlacing(false);
+    }
+  };
+
+  const updateFormData = (field: string, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear related errors
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
+  };
+
+  const updateAdditionalParam = (paramName: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      additionalParams: { ...prev.additionalParams, [paramName]: value }
+    }));
+    // Clear related errors
+    if (errors[paramName]) {
+      setErrors(prev => ({ ...prev, [paramName]: '' }));
+    }
+  };
+
+  const handlePlatformChange = (platform: string) => {
+    setSelectedPlatform(platform);
+    setSelectedServiceType('');
+    setSelectedService(null);
+    setServiceDetails(null);
+    updateFormData('serviceId', '');
+  };
+
+  const handleServiceTypeChange = (serviceType: string) => {
+    setSelectedServiceType(serviceType);
+    setSelectedService(null);
+    setServiceDetails(null);
+    updateFormData('serviceId', '');
+  };
+
+  const handleServiceSelect = (serviceId: string) => {
+    updateFormData('serviceId', serviceId);
+    const service = services.find(s => s.id_service.toString() === serviceId);
+    if (service) {
+      handleServiceSelection(service);
+    }
+  };
+
+  const getServiceDescription = () => {
+    if (serviceDetails?.description && serviceDetails.description.trim()) {
+      return serviceDetails.description;
+    }
+    if (selectedService?.description && selectedService.description.trim()) {
+      return selectedService.description;
+    }
+    return null;
   };
 
   if (loading) {
