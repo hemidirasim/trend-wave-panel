@@ -72,8 +72,9 @@ export const ServiceSelector = ({
     return (
       <Card className="border-border bg-card">
         <CardContent className="pt-6">
-          <div className="text-center py-8 text-muted-foreground">
-            <p className="text-sm">{t('service.selectPlatform')}</p>
+          <div className="text-center py-12 text-muted-foreground">
+            <div className="text-4xl mb-4">📱</div>
+            <p className="text-base font-medium">{t('service.selectPlatform')}</p>
           </div>
         </CardContent>
       </Card>
@@ -84,8 +85,9 @@ export const ServiceSelector = ({
     return (
       <Card className="border-border bg-card">
         <CardContent className="pt-6">
-          <div className="text-center py-8 text-muted-foreground">
-            <p className="text-sm">{t('service.selectServiceType')}</p>
+          <div className="text-center py-12 text-muted-foreground">
+            <div className="text-4xl mb-4">⚙️</div>
+            <p className="text-base font-medium">{t('service.selectServiceType')}</p>
           </div>
         </CardContent>
       </Card>
@@ -96,8 +98,9 @@ export const ServiceSelector = ({
     return (
       <Card className="border-border bg-card">
         <CardContent className="pt-6">
-          <div className="text-center py-8 text-muted-foreground">
-            <p className="text-sm">{t('service.noServicesFound')}</p>
+          <div className="text-center py-12 text-muted-foreground">
+            <div className="text-4xl mb-4">🔍</div>
+            <p className="text-base font-medium">{t('service.noServicesFound')}</p>
           </div>
         </CardContent>
       </Card>
@@ -119,14 +122,14 @@ export const ServiceSelector = ({
       </CardHeader>
       <CardContent className="pt-0">
         <Select value={selectedServiceId} onValueChange={onServiceSelect}>
-          <SelectTrigger className="w-full h-14 bg-background border-input hover:bg-accent/5 transition-colors text-left">
+          <SelectTrigger className="w-full h-16 bg-background border-input hover:bg-accent/5 transition-colors text-left">
             <SelectValue 
               placeholder={t('service.selectServicePlaceholder')}
               className="text-sm text-muted-foreground"
             />
           </SelectTrigger>
-          <SelectContent className="max-h-96 bg-popover border-border shadow-lg z-50">
-            <div className="max-h-80 overflow-y-auto">
+          <SelectContent className="max-h-[28rem] bg-popover border-border shadow-xl z-50">
+            <div className="max-h-96 overflow-y-auto">
               {sortedServices.map((service) => (
                 <ServiceItem
                   key={service.id_service}
@@ -139,10 +142,12 @@ export const ServiceSelector = ({
         </Select>
         
         {error && (
-          <p className="text-sm text-destructive mt-2 flex items-center">
-            <span className="mr-1">⚠</span>
-            {error}
-          </p>
+          <div className="mt-3 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+            <p className="text-sm text-destructive flex items-center">
+              <span className="mr-2">⚠</span>
+              {error}
+            </p>
+          </div>
         )}
       </CardContent>
     </Card>

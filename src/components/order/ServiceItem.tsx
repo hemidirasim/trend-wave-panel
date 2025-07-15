@@ -25,7 +25,7 @@ export const ServiceItem = ({ service, calculateDisplayPrice }: ServiceItemProps
       const match = lowerTime.match(/(\d+)\s*hour/);
       if (match) {
         const hours = parseInt(match[1]);
-        return `${hours} ${t('service.hours')} ərzində`;
+        return `${hours} ${t('service.hours')} ${t('service.withinHours')}`;
       }
     }
     
@@ -33,7 +33,7 @@ export const ServiceItem = ({ service, calculateDisplayPrice }: ServiceItemProps
       const match = lowerTime.match(/(\d+)\s*day/);
       if (match) {
         const days = parseInt(match[1]);
-        return `${days} ${t('service.days')} ərzində`;
+        return `${days} ${t('service.days')} ${t('service.withinDays')}`;
       }
     }
     
@@ -41,7 +41,7 @@ export const ServiceItem = ({ service, calculateDisplayPrice }: ServiceItemProps
       const match = lowerTime.match(/(\d+)\s*(minute|min)/);
       if (match) {
         const minutes = parseInt(match[1]);
-        return `${minutes} ${t('service.minutes')} ərzində`;
+        return `${minutes} ${t('service.minutes')} ${t('service.withinMinutes')}`;
       }
     }
     
@@ -75,55 +75,63 @@ export const ServiceItem = ({ service, calculateDisplayPrice }: ServiceItemProps
   return (
     <SelectItem 
       value={service.id_service.toString()}
-      className="p-0 focus:bg-accent/10 data-[highlighted]:bg-accent/10"
+      className="p-3 hover:bg-accent/10 data-[highlighted]:bg-accent/10 cursor-pointer border-b border-border/50 last:border-b-0"
     >
-      <div className="w-full p-4 space-y-3">
-        {/* Service name and price section */}
-        <div className="flex items-start justify-between gap-4">
+      <div className="w-full space-y-3">
+        {/* Başlıq və qiymət */}
+        <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <h4 className="font-medium text-sm leading-5 text-foreground line-clamp-2">
+            <h4 className="font-medium text-sm leading-5 text-foreground">
               {service.public_name}
             </h4>
           </div>
           <div className="flex-shrink-0 text-right">
-            <div className="font-bold text-primary text-lg leading-none">
+            <div className="font-bold text-primary text-base">
               ${calculateDisplayPrice(service)}
             </div>
-            <div className="text-xs text-muted-foreground mt-1 whitespace-nowrap">
-              1000 {t('service.units')} {t('service.priceFor')}
+            <div className="text-xs text-muted-foreground mt-0.5">
+              1000 {t('service.priceFor')}
             </div>
           </div>
         </div>
         
-        {/* Service details section */}
-        <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+        {/* Xidmət təfərrüatları */}
+        <div className="space-y-1.5">
           {service.amount_minimum && (
-            <div className="flex items-center gap-2">
-              <div className="w-1 h-1 bg-muted-foreground rounded-full flex-shrink-0"></div>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <div className="w-1.5 h-1.5 bg-primary/60 rounded-full flex-shrink-0"></div>
               <span>
-                {t('service.minimumOrder')}: {parseInt(service.amount_minimum).toLocaleString()} {t('service.units')}
+                {t('service.minimumOrder')}: <span className="font-medium">{parseInt(service.amount_minimum).toLocaleString()}</span> {t('service.units')}
               </span>
             </div>
           )}
+          
           {service.start_time && (
-            <div className="flex items-center gap-2">
-              <div className="w-1 h-1 bg-muted-foreground rounded-full flex-shrink-0"></div>
-              <span>{formatStartTime(service.start_time)}</span>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <div className="w-1.5 h-1.5 bg-green-500 rounded-full flex-shrink-0"></div>
+              <span>
+                {t('service.startTime')}: <span className="font-medium">{formatStartTime(service.start_time)}</span>
+              </span>
             </div>
           )}
+          
           {service.speed && (
-            <div className="flex items-center gap-2">
-              <div className="w-1 h-1 bg-muted-foreground rounded-full flex-shrink-0"></div>
-              <span>{t('service.speed')}: {formatSpeed(service.speed)}</span>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full flex-shrink-0"></div>
+              <span>
+                {t('service.speed')}: <span className="font-medium">{formatSpeed(service.speed)}</span>
+              </span>
             </div>
           )}
         </div>
         
-        {/* Description section */}
-        {service.description && (
-          <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed border-t border-border pt-2">
-            {service.description}
-          </p>
+        {/* Təsvir */}
+        {service.description && service.description.trim() && (
+          <div className="border-t border-border/30 pt-2">
+            <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+              {service.description}
+            </p>
+          </div>
         )}
       </div>
     </SelectItem>
