@@ -208,33 +208,7 @@ const Blog = () => {
         </div>
 
         {/* CTA Section */}
-        <div className="text-center mt-16">
-          <Card className="bg-gradient-to-r from-primary to-secondary text-primary-foreground">
-            <CardContent className="py-12">
-              <h2 className="text-3xl font-bold mb-4">
-                SocialBoost ilə Uğura Başlayın!
-              </h2>
-              <p className="text-xl mb-8 opacity-90">
-                Bloqdakı strategiyaları öyrəndin? İndi onları tətbiq etmək vaxtıdır!
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button asChild size="lg" variant="secondary" className="text-lg">
-                  <Link to="/services">
-                    Xidmətlərə Bax
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline" 
-                  className="text-lg border-white text-white hover:bg-white hover:text-primary"
-                >
-                  Newsletter-ə Qoşul
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+ 
       </div>
 
       <Footer />
