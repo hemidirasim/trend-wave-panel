@@ -1,22 +1,23 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Settings {
-  service_fee: number; // Changed from commission_rate to service_fee
+  service_fee: number;
 }
 
 interface SettingsContextType {
   settings: Settings;
   updateSettings: (newSettings: Partial<Settings>) => void;
   applyServiceFee: (basePrice: number) => number;
-  loading: boolean; // Add loading state
+  loading: boolean;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [settings, setSettings] = useState<Settings>({
-    service_fee: 0 // Default service fee is 0 dollars
+    service_fee: 0
   });
   const [loading, setLoading] = useState(true);
 
@@ -24,75 +25,81 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     loadSettings();
   }, []);
 
-  const loadSettings = () => {
-    console.log('🔥 SettingsContext: Loading settings from localStorage');
+  const loadSettings = async () => {
+    console.log('🔥 SettingsContext: Loading settings from database');
     try {
-      const savedSettings = localStorage.getItem('admin_settings');
-      if (savedSettings) {
-        const parsed = JSON.parse(savedSettings);
-        console.log('🔥 SettingsContext: Parsed settings from localStorage:', parsed);
-        
-        // Handle migration from old commission_rate to new service_fee
-        if (parsed.commission_rate !== undefined && parsed.service_fee === undefined) {
-          parsed.service_fee = 0; // Default to 0 for migration
-          delete parsed.commission_rate;
-        }
+      const { data, error } = await supabase
+        .from('admin_settings')
+        .select('setting_key, setting_value')
+        .eq('setting_key', 'service_fee')
+        .single();
+
+      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+        console.error('🔥 SettingsContext: Error loading settings:', error);
+        return;
+      }
+
+      if (data) {
+        const serviceFee = parseFloat(String(data.setting_value)) || 0;
+        console.log('🔥 SettingsContext: Loaded service_fee from database:', serviceFee);
         
         setSettings(prev => {
-          const updated = { ...prev, ...parsed };
+          const updated = { ...prev, service_fee: serviceFee };
           console.log('🔥 SettingsContext: Updated settings state:', updated);
           return updated;
         });
       } else {
-        console.log('🔥 SettingsContext: No saved settings found in localStorage');
+        console.log('🔥 SettingsContext: No service_fee setting found in database, using default: 0');
       }
     } catch (error) {
-      console.error('🔥 SettingsContext: Error parsing saved settings:', error);
+      console.error('🔥 SettingsContext: Error loading settings:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const updateSettings = (newSettings: Partial<Settings>) => {
+  const updateSettings = async (newSettings: Partial<Settings>) => {
     console.log('🔥 SettingsContext: updateSettings called with:', newSettings);
     
-    setSettings(prev => {
-      const updated = { ...prev, ...newSettings };
-      console.log('🔥 SettingsContext: Setting new state:', updated);
-      
-      try {
-        localStorage.setItem('admin_settings', JSON.stringify(updated));
-        console.log('🔥 SettingsContext: Saved to localStorage:', updated);
-      } catch (error) {
-        console.error('🔥 SettingsContext: Error saving to localStorage:', error);
+    try {
+      if (newSettings.service_fee !== undefined) {
+        const { error } = await supabase
+          .from('admin_settings')
+          .upsert({
+            setting_key: 'service_fee',
+            setting_value: newSettings.service_fee.toString()
+          }, { onConflict: 'setting_key' });
+
+        if (error) {
+          console.error('🔥 SettingsContext: Error saving service_fee to database:', error);
+          return;
+        }
+
+        console.log('🔥 SettingsContext: Successfully saved service_fee to database:', newSettings.service_fee);
       }
-      
-      return updated;
-    });
+
+      setSettings(prev => {
+        const updated = { ...prev, ...newSettings };
+        console.log('🔥 SettingsContext: Updated local state:', updated);
+        return updated;
+      });
+    } catch (error) {
+      console.error('🔥 SettingsContext: Error in updateSettings:', error);
+    }
   };
 
   const applyServiceFee = (basePrice: number): number => {
-    const result = basePrice + settings.service_fee;
+    // Service fee-ni faiz olaraq tətbiq et (məsələn: 10 = 10%)
+    const feeMultiplier = 1 + (settings.service_fee / 100);
+    const result = basePrice * feeMultiplier;
     console.log('🔥 SettingsContext: applyServiceFee called:', {
       basePrice,
-      serviceFee: settings.service_fee,
+      serviceFeePercent: settings.service_fee,
+      feeMultiplier: feeMultiplier,
       result
     });
     return result;
   };
-
-  // Add a listener for storage changes to sync across tabs
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'admin_settings' && e.newValue) {
-        console.log('🔥 SettingsContext: Storage changed, reloading settings');
-        loadSettings();
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
 
   return (
     <SettingsContext.Provider value={{ settings, updateSettings, applyServiceFee, loading }}>

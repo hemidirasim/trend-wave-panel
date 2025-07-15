@@ -53,22 +53,54 @@ export default function AdminSettings() {
     loadSettings();
   }, []);
 
-  const loadSettings = () => {
-    const savedSettings = localStorage.getItem('admin_settings');
-    if (savedSettings) {
-      try {
-        const parsed = JSON.parse(savedSettings);
-        // Handle migration from old commission_rate to new service_fee
-        if (parsed.commission_rate !== undefined && parsed.service_fee === undefined) {
-          parsed.service_fee = 0; // Default to 0 for migration
-          delete parsed.commission_rate;
-        }
-        setSettings(prev => ({ ...prev, ...parsed }));
-      } catch (error) {
-        console.error('Error loading settings:', error);
+  const loadSettings = async () => {
+    try {
+      // Load service_fee from database via SettingsContext
+      const { data, error } = await supabase
+        .from('admin_settings')
+        .select('setting_key, setting_value');
+
+      if (error) {
+        console.error('Error loading settings from database:', error);
+        setLoading(false);
+        return;
       }
+
+      if (data && data.length > 0) {
+        const dbSettings: Partial<Settings> = {};
+        
+        data.forEach((item) => {
+          const key = item.setting_key as keyof Settings;
+          let value = item.setting_value;
+          
+          // Parse JSON values if they are strings
+          if (typeof value === 'string' && (value.startsWith('"') || value === 'true' || value === 'false' || !isNaN(Number(value)))) {
+            try {
+              value = JSON.parse(value);
+            } catch {
+              // If JSON parsing fails, keep original value
+            }
+          }
+          
+          if (key === 'service_fee') {
+            dbSettings[key] = parseFloat(String(value)) || 0;
+          } else if (key === 'maintenance_mode' || key === 'allow_registration') {
+            dbSettings[key] = Boolean(value);
+          } else if (key === 'default_balance') {
+            dbSettings[key] = parseFloat(String(value)) || 0;
+          } else if (typeof value === 'string') {
+            dbSettings[key] = value;
+          }
+        });
+
+        setSettings(prev => ({ ...prev, ...dbSettings }));
+        console.log('Loaded settings from database:', dbSettings);
+      }
+    } catch (error) {
+      console.error('Error loading settings:', error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const fetchStats = async () => {
@@ -107,10 +139,20 @@ export default function AdminSettings() {
     try {
       console.log('🔥 AdminSettings: Saving settings:', settings);
       
-      // Save settings to localStorage and context
-      localStorage.setItem('admin_settings', JSON.stringify(settings));
-      console.log('🔥 AdminSettings: Saved to localStorage');
-      
+      // Save all settings to database
+      const settingsArray = Object.entries(settings).map(([key, value]) => ({
+        setting_key: key,
+        setting_value: typeof value === 'string' ? JSON.stringify(value) : value.toString()
+      }));
+
+      const { error } = await supabase
+        .from('admin_settings')
+        .upsert(settingsArray, { onConflict: 'setting_key' });
+
+      if (error) {
+        throw error;
+      }
+
       // Update the context with new settings
       updateSettings({ service_fee: settings.service_fee });
       console.log('🔥 AdminSettings: Updated context with service_fee:', settings.service_fee);
