@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -42,6 +43,18 @@ const Order = () => {
 
   const urlPlatform = searchParams.get('platform');
   const allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook'];
+
+  // Scroll to top when component mounts or when loading starts
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  // Also scroll to top when loading state changes
+  useEffect(() => {
+    if (loading) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [loading]);
 
   // Initialize platform from URL
   useEffect(() => {
@@ -282,12 +295,13 @@ const Order = () => {
       <div className="min-h-screen bg-background">
         <Header />
         <div className="container mx-auto px-4 py-20">
-          <div className="flex items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin" />
-            <span className="ml-2">Xidmətlər yüklənir...</span>
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="text-center">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+              <span className="text-lg">Xidmətlər yüklənir...</span>
+            </div>
           </div>
         </div>
-        <Footer />
       </div>
     );
   }
