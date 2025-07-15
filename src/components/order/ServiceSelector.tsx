@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Filter, X } from 'lucide-react';
 import { Service } from '@/types/api';
-import { calculatePrice } from '@/utils/priceCalculator';
+import { proxyApiService } from '@/components/ProxyApiService';
 
 interface ServiceSelectorProps {
   services: Service[];
@@ -55,16 +55,8 @@ export function ServiceSelector({
 
     // Sort services by calculated final price (including percentage fee)
     const sortedServices = [...filtered].sort((a, b) => {
-      const priceA = calculatePrice(a, 1000, serviceFeePercentage);
-      const priceB = calculatePrice(b, 1000, serviceFeePercentage);
-      
-      console.log('🔥 Sorting services by calculated price:', {
-        serviceA: a.public_name,
-        priceA,
-        serviceB: b.public_name,
-        priceB,
-        filter: priceFilter
-      });
+      const priceA = proxyApiService.calculatePrice(a, 1000, serviceFeePercentage);
+      const priceB = proxyApiService.calculatePrice(b, 1000, serviceFeePercentage);
       
       return priceFilter === 'low-to-high' ? priceA - priceB : priceB - priceA;
     });
@@ -73,16 +65,9 @@ export function ServiceSelector({
   };
 
   const formatPriceDisplay = (service: Service) => {
-    // Use the calculatePrice function which now includes percentage fee
-    const totalPrice = calculatePrice(service, 1000, serviceFeePercentage);
+    // Use the calculatePrice function which includes percentage fee
+    const totalPrice = proxyApiService.calculatePrice(service, 1000, serviceFeePercentage);
     const pricingPer = service.prices[0]?.pricing_per || '1000';
-    
-    console.log('🔥 Price display in dropdown:', {
-      serviceName: service.public_name,
-      totalPrice,
-      pricingPer,
-      serviceFeePercentage
-    });
     
     return `$${totalPrice.toFixed(2)}/${pricingPer}`;
   };

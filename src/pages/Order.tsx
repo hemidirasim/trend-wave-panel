@@ -12,7 +12,6 @@ import { OrderForm } from '@/components/order/OrderForm';
 import { OrderSummary } from '@/components/order/OrderSummary';
 import { proxyApiService, Service } from '@/components/ProxyApiService';
 import { useSettings } from '@/contexts/SettingsContext';
-import { calculatePrice } from '@/utils/priceCalculator';
 import { toast } from 'sonner';
 
 const Order = () => {
@@ -74,7 +73,7 @@ const Order = () => {
     if (selectedService && formData.quantity) {
       const quantity = parseInt(formData.quantity);
       if (!isNaN(quantity) && quantity > 0) {
-        const price = calculatePrice(selectedService, quantity, settings.service_fee);
+        const price = proxyApiService.calculatePrice(selectedService, quantity, settings.service_fee);
         setCalculatedPrice(price);
       } else {
         setCalculatedPrice(0);
@@ -87,7 +86,7 @@ const Order = () => {
       setLoading(true);
       const data = await proxyApiService.getServices();
       
-      // Filter and sort services
+      // Filter services for allowed platforms
       const filteredData = data.filter(service => {
         return service && 
                service.platform && 
@@ -95,14 +94,7 @@ const Order = () => {
                allowedPlatforms.includes(service.platform.toLowerCase());
       });
       
-      // Sort by calculated price (low to high by default)
-      const sortedData = [...filteredData].sort((a, b) => {
-        const priceA = calculatePrice(a, 1000, settings.service_fee);
-        const priceB = calculatePrice(b, 1000, settings.service_fee);
-        return priceA - priceB;
-      });
-      
-      setServices(sortedData);
+      setServices(filteredData);
     } catch (error) {
       console.error('Error fetching services:', error);
       toast.error('Xidmətlər yüklənmədi');
