@@ -40,6 +40,34 @@ export function OrderForm({
   };
 
   const maximumAmount = getMaximumAmount();
+  const minimumAmount = parseInt(selectedService.amount_minimum);
+
+  const handleQuantityChange = (value: string) => {
+    if (!value.trim()) {
+      onUpdateFormData('quantity', '');
+      return;
+    }
+
+    const numericValue = parseInt(value);
+    
+    if (isNaN(numericValue)) {
+      return;
+    }
+
+    let adjustedValue = numericValue;
+
+    // Auto-adjust to minimum if below
+    if (adjustedValue < minimumAmount) {
+      adjustedValue = minimumAmount;
+    }
+
+    // Auto-adjust to maximum if above
+    if (maximumAmount && adjustedValue > maximumAmount) {
+      adjustedValue = maximumAmount;
+    }
+
+    onUpdateFormData('quantity', adjustedValue.toString());
+  };
 
   return (
     <>
@@ -75,9 +103,10 @@ export function OrderForm({
           type="number"
           placeholder="1000"
           value={formData.quantity}
-          onChange={(e) => onUpdateFormData('quantity', e.target.value)}
+          onChange={(e) => handleQuantityChange(e.target.value)}
+          onBlur={(e) => handleQuantityChange(e.target.value)}
           className={errors.quantity ? 'border-red-500' : ''}
-          min={selectedService.amount_minimum}
+          min={minimumAmount}
           max={maximumAmount || undefined}
           step={selectedService.amount_increment}
         />
@@ -88,7 +117,7 @@ export function OrderForm({
           </p>
         )}
         <div className="text-sm text-muted-foreground space-y-1">
-          <p>Minimum: {parseInt(selectedService.amount_minimum).toLocaleString()}</p>
+          <p>Minimum: {minimumAmount.toLocaleString()}</p>
           {maximumAmount && (
             <p>Maksimum: {maximumAmount.toLocaleString()}</p>
           )}
