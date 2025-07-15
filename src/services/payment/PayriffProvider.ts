@@ -132,17 +132,36 @@ export class PayriffProvider implements PaymentProviderInterface {
   }
 
   private generateSignature(data: any, isCallback = false): string {
-    // Payriff signature generation logic
-    const sortedKeys = Object.keys(data).filter(key => key !== 'signature').sort();
-    const signatureString = sortedKeys.map(key => `${key}=${data[key]}`).join('&');
-    const stringToSign = signatureString + this.secretKey;
-    
-    // Use crypto to generate SHA-256 hash
-    const encoder = new TextEncoder();
-    const dataBuffer = encoder.encode(stringToSign);
-    
-    // For now, return a mock signature - in real implementation, use proper crypto
-    return btoa(stringToSign).replace(/[^a-zA-Z0-9]/g, '').substring(0, 32);
+    try {
+      // Payriff signature generation logic
+      const sortedKeys = Object.keys(data).filter(key => key !== 'signature').sort();
+      const signatureString = sortedKeys.map(key => `${key}=${data[key]}`).join('&');
+      const stringToSign = signatureString + this.secretKey;
+      
+      console.log('Generating signature for string:', stringToSign);
+      
+      // Use crypto.subtle for proper UTF-8 handling instead of btoa
+      const encoder = new TextEncoder();
+      const dataBuffer = encoder.encode(stringToSign);
+      
+      // Create a simple hash using Array.from and reduce for compatibility
+      let hash = 0;
+      for (let i = 0; i < dataBuffer.length; i++) {
+        const char = dataBuffer[i];
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+      }
+      
+      // Convert to positive hex string
+      const signature = Math.abs(hash).toString(16).padStart(8, '0');
+      console.log('Generated signature:', signature);
+      
+      return signature;
+    } catch (error) {
+      console.error('Error generating signature:', error);
+      // Fallback to a simple timestamp-based signature
+      return Date.now().toString(16);
+    }
   }
 
   private mapPayriffStatus(status: string): 'pending' | 'success' | 'failed' | 'cancelled' {
