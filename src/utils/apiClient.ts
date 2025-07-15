@@ -37,6 +37,21 @@ class ApiClient {
   async getServiceDetails(serviceId: string): Promise<Service | null> {
     try {
       console.log('Fetching service details for ID:', serviceId);
+      
+      // First try to get from all services list
+      const allServices = await this.getServices();
+      const serviceFromList = allServices.find(s => s.id_service.toString() === serviceId);
+      
+      if (serviceFromList) {
+        console.log('Service found in services list:', {
+          id: serviceFromList.id_service,
+          name: serviceFromList.public_name,
+          price: serviceFromList.prices?.[0]?.price
+        });
+        return serviceFromList;
+      }
+      
+      // If not found, try the individual service API
       const data = await this.makeRequest({ 
         action: 'service',
         id_service: serviceId
