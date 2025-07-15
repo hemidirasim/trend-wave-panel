@@ -89,13 +89,11 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const applyServiceFee = (basePrice: number): number => {
-    // Service fee-ni faiz olaraq tətbiq et (məsələn: 10 = 10%)
-    const feeMultiplier = 1 + (settings.service_fee / 100);
-    const result = basePrice * feeMultiplier;
+    // Service fee is now a fixed amount in USD, not a percentage
+    const result = basePrice + settings.service_fee;
     console.log('🔥 SettingsContext: applyServiceFee called:', {
       basePrice,
-      serviceFeePercent: settings.service_fee,
-      feeMultiplier: feeMultiplier,
+      serviceFeeUSD: settings.service_fee,
       result
     });
     return result;

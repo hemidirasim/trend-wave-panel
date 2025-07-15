@@ -354,7 +354,7 @@ export default function AdminSettings() {
                   onChange={(e) => handleInputChange('service_fee', parseFloat(e.target.value) || 0)}
                 />
                 <p className="text-sm text-muted-foreground mt-1">
-                  Hər xidmətin qiymətinə əlavə olunacaq konkret məbləğ (USD)
+                  Hər sifarişə əlavə olunacaq sabit məbləğ (USD). Məsələn: 100 USD əlavə haqqı
                 </p>
               </div>
             </CardContent>
