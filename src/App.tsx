@@ -15,7 +15,6 @@ import ServiceDetail from '@/pages/ServiceDetail';
 import Order from '@/pages/Order';
 import Track from '@/pages/Track';
 import Blog from '@/pages/Blog';
-import FAQ from '@/pages/FAQ';
 import Terms from '@/pages/Terms';
 import Privacy from '@/pages/Privacy';
 import NotFound from '@/pages/NotFound';
@@ -26,7 +25,6 @@ import AdminUsers from '@/pages/AdminUsers';
 import AdminServices from '@/pages/AdminServices';
 import AdminSettings from '@/pages/AdminSettings';
 import AdminBlog from '@/pages/AdminBlog';
-import AdminFAQ from '@/pages/AdminFAQ';
 
 import ProtectedRoute from '@/components/ProtectedRoute';
 import ProtectedAdminRoute from '@/components/ProtectedAdminRoute';
@@ -51,7 +49,6 @@ function App() {
                     <Route path="/order" element={<Order />} />
                     <Route path="/track" element={<Track />} />
                     <Route path="/blog" element={<Blog />} />
-                    <Route path="/faq" element={<FAQ />} />
                     <Route path="/terms" element={<Terms />} />
                     <Route path="/privacy" element={<Privacy />} />
                     
@@ -102,14 +99,6 @@ function App() {
                       element={
                         <ProtectedAdminRoute>
                           <AdminBlog />
-                        </ProtectedAdminRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/admin/faq" 
-                      element={
-                        <ProtectedAdminRoute>
-                          <AdminFAQ />
                         </ProtectedAdminRoute>
                       } 
                     />

@@ -22,15 +22,6 @@ const translations: Record<string, Language> = {
     'nav.dashboard': 'Dashboard',
     'nav.signIn': 'Daxil ol',
     'nav.signOut': 'Çıxış',
-  },
-  en: {
-    'nav.home': 'Home',
-    'nav.services': 'Services',
-    'nav.blog': 'Blog',
-    'nav.faq': 'FAQ',
-    'nav.dashboard': 'Dashboard',
-    'nav.signIn': 'Sign In',
-    'nav.signOut': 'Sign Out',
   }
 };
 
@@ -39,7 +30,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem('language');
-    if (savedLanguage && (savedLanguage === 'az' || savedLanguage === 'en')) {
+    if (savedLanguage && savedLanguage === 'az') {
       setLanguage(savedLanguage);
     }
   }, []);

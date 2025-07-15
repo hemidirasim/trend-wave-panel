@@ -96,7 +96,85 @@ const Terms = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>6. Əqli Mülkiyyət</CardTitle>
+              <CardTitle>6. Nəticə Zəmanəti</CardTitle>
+            </CardHeader>
+            <CardContent className="prose prose-slate max-w-none">
+              <p>
+                HitLoyal müştərilərinin məqsədlərinə çatması üçün nəticəyönümlü xidmətlər təqdim edir. Reklam kampaniyalarının effektivliyi və KPI göstəriciləri düzenli olaraq izlənir və hesabatlar təqdim edilir. Əgər razılaşdırılan nəticələr əldə edilməzsə, əlavə optimizasiya və ya xidmət müddətinin uzadılması təklif olunur.
+              </p>
+              <p>
+                Nəticə zəmanəti əhatə edir:
+              </p>
+              <ul>
+                <li>Kampaniya performansının düzenli monitorinqi</li>
+                <li>Aylıq ətraflı hesabatlar və analitika</li>
+                <li>Lazım olduqda strategiyanın düzəlişi</li>
+                <li>Məqsədə çatmadıqda əlavə dəstək</li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>7. Məmnuniyyət Zəmanəti</CardTitle>
+            </CardHeader>
+            <CardContent className="prose prose-slate max-w-none">
+              <p>
+                Müştəri məmnuniyyəti bizim prioritetimizdir. Hər bir layihənin başlanğıcında gözləntilərin düzgün müəyyən edilməsi və prosesin şəffaflığının təmin edilməsi vacibdir. Müştərilərimizin xidmətlərimizdən tam razı qalmaları üçün:
+              </p>
+              <ul>
+                <li>Düzenli olaraq feedback alınır və dəyərləndirilir</li>
+                <li>Şikayətlər 24 saat ərzində cavablandırılır</li>
+                <li>Keyfiyyət standartları daim yüksək səviyyədə saxlanılır</li>
+                <li>Müştəri tələblərinə uyğun fərdi yanaşma tətbiq edilir</li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>8. 24/7 Müştəri Dəstəyi</CardTitle>
+            </CardHeader>
+            <CardContent className="prose prose-slate max-w-none">
+              <p>
+                HitLoyal komandası günün istənilən saatında müştərilərinə xidmət göstərməyə hazırdır. Dəstək xidmətimiz aşağıdakı kanallar vasitəsilə əlçatandır:
+              </p>
+              <ul>
+                <li>WhatsApp və Telegram üzərindən canlı söhbət</li>
+                <li>Email dəstəyi (info@hitloyal.com)</li>
+                <li>Telefon dəstəyi</li>
+                <li>Video konfrans və məsləhətləşmə</li>
+                <li>Təcili hallar üçün xüsusi əlaqə nömrəsi</li>
+              </ul>
+              <p>
+                Orta cavab müddəti: 30 dəqiqədən az
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>9. Pul Geri Qaytarma Siyasəti</CardTitle>
+            </CardHeader>
+            <CardContent className="prose prose-slate max-w-none">
+              <p>
+                Müştərilərimizin hüquqlarını qorumaq üçün aydın pul geri qaytarma siyasəti tətbiq edirik:
+              </p>
+              <ul>
+                <li><strong>Tam geri qaytarma:</strong> Xidmət başlamayıbsa - 48 saat ərzində</li>
+                <li><strong>Qismən geri qaytarma:</strong> Xidmət yarımçıq qalıbsa - əməyin dəyərinə görə</li>
+                <li><strong>Keyfiyyət zəmanəti:</strong> Nəticə gözləntilərə uyğun deyilsə - 30 gün ərzində</li>
+                <li><strong>Texniki problemlər:</strong> Platformadan asılı problemlər - tam kompensasiya</li>
+              </ul>
+              <p>
+                Geri qaytarma prosesi 3-5 iş günü ərzində həyata keçirilir və müştəriyə tam məlumat verilir.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>10. Əqli Mülkiyyət</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
@@ -107,7 +185,7 @@ const Terms = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>7. Məxfilik və Təhlükəsizlik</CardTitle>
+              <CardTitle>11. Məxfilik və Təhlükəsizlik</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
@@ -118,7 +196,7 @@ const Terms = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>8. Məsuliyyətin Məhdudlaşdırılması</CardTitle>
+              <CardTitle>12. Məsuliyyətin Məhdudlaşdırılması</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
@@ -129,7 +207,7 @@ const Terms = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>9. Müqavilənin Ləğvi</CardTitle>
+              <CardTitle>13. Müqavilənin Ləğvi</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
@@ -140,7 +218,7 @@ const Terms = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>10. Şərtlərdə Dəyişikliklər</CardTitle>
+              <CardTitle>14. Şərtlərdə Dəyişikliklər</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>
@@ -151,7 +229,7 @@ const Terms = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>11. Əlaqə</CardTitle>
+              <CardTitle>15. Əlaqə</CardTitle>
             </CardHeader>
             <CardContent className="prose prose-slate max-w-none">
               <p>

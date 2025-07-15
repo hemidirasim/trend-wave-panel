@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Menu, X, Globe } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
@@ -27,7 +26,6 @@ export const Header = () => {
   const navigation = [
     { name: t('nav.home'), href: '/' },
     { name: t('nav.blog'), href: '/blog' },
-    { name: t('nav.faq'), href: '/faq' },
   ];
 
   useEffect(() => {
@@ -57,7 +55,7 @@ export const Header = () => {
   const isActive = (href: string) => location.pathname === href;
 
   const toggleLanguage = () => {
-    const newLang = language === 'az' ? 'en' : 'az';
+    const newLang = language === 'az' ? 'az' : 'az';
     setLanguage(newLang);
   };
 
