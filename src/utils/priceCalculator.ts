@@ -36,35 +36,39 @@ export const calculatePrice = (service: Service, quantity: number, serviceFee: n
     return 0;
   }
 
-  const pricePer = parseInt(priceRange.pricing_per);
-  const basePrice = parseFloat(priceRange.price);
+  const pricingPer = parseInt(priceRange.pricing_per);
+  const priceForPricingPer = parseFloat(priceRange.price);
   
   // Validate parsed values
-  if (isNaN(pricePer) || pricePer <= 0) {
+  if (isNaN(pricingPer) || pricingPer <= 0) {
     console.log('❌ Pricing per qiyməti düzgün deyil:', priceRange.pricing_per);
     return 0;
   }
   
-  if (isNaN(basePrice) || basePrice < 0) {
-    console.log('❌ Baza qiyməti düzgün deyil:', priceRange.price);
+  if (isNaN(priceForPricingPer) || priceForPricingPer < 0) {
+    console.log('❌ Qiymət düzgün deyil:', priceRange.price);
     return 0;
   }
 
-  // Calculate base cost
-  const baseCost = (quantity / pricePer) * basePrice;
+  // Calculate the cost for the requested quantity
+  // priceForPricingPer is the cost for pricingPer units
+  // So the cost per unit is: priceForPricingPer / pricingPer
+  // And the total cost for quantity units is: (priceForPricingPer / pricingPer) * quantity
+  const costPerUnit = priceForPricingPer / pricingPer;
+  const totalCost = costPerUnit * quantity;
   
   // Apply service fee as fixed amount (not percentage)
-  // Service fee is in USD and should be added directly to the total cost
-  const finalPrice = baseCost + serviceFee;
+  const finalPrice = totalCost + serviceFee;
   
   console.log('💰 Service price calculation:', {
     serviceName: service.public_name,
-    basePricePer: pricePer,
-    basePrice: basePrice,
-    baseCost: baseCost,
+    pricingPer: pricingPer,
+    priceForPricingPer: priceForPricingPer,
+    costPerUnit: costPerUnit,
+    quantity: quantity,
+    totalCost: totalCost,
     serviceFeeUSD: serviceFee,
-    finalPrice: finalPrice,
-    pricePerUnit: finalPrice / quantity
+    finalPrice: finalPrice
   });
   
   return Math.max(0, finalPrice); // Ensure non-negative result

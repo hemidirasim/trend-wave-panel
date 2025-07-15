@@ -53,15 +53,21 @@ export function ServiceSelector({
       return serviceType === selectedServiceType;
     });
 
-    // Apply price filter - including service fee in the calculation
+    // Apply price filter - calculate total price including service fee for comparison
     const sortedServices = [...filtered].sort((a, b) => {
-      const priceA = proxyApiService.calculatePrice(a, 1000, serviceFee);
-      const priceB = proxyApiService.calculatePrice(b, 1000, serviceFee);
+      // Get the base quantity for pricing comparison (use pricing_per from the service)
+      const baseQuantityA = parseInt(a.prices[0]?.pricing_per || '1000');
+      const baseQuantityB = parseInt(b.prices[0]?.pricing_per || '1000');
+      
+      const priceA = proxyApiService.calculatePrice(a, baseQuantityA, serviceFee);
+      const priceB = proxyApiService.calculatePrice(b, baseQuantityB, serviceFee);
       
       console.log('🔥 Filtered services price sorting:', {
         serviceA: a.public_name,
+        baseQuantityA,
         priceA,
         serviceB: b.public_name,
+        baseQuantityB,
         priceB,
         appliedServiceFee: serviceFee,
         filter: priceFilter
@@ -74,20 +80,24 @@ export function ServiceSelector({
   };
 
   const getDisplayPrice = (service: Service) => {
-    const basePricePer = parseInt(service.prices[0]?.pricing_per || '1000');
-    // Calculate price with service fee included
-    const finalPriceForBase = proxyApiService.calculatePrice(service, basePricePer, serviceFee);
-    const pricePerUnit = finalPriceForBase / basePricePer;
+    const pricingPer = parseInt(service.prices[0]?.pricing_per || '1000');
+    const priceForPricingPer = parseFloat(service.prices[0]?.price || '0');
     
-    console.log('🔥 Display price calculation (with service fee included):', {
+    // Calculate price per unit including service fee
+    const costPerUnit = priceForPricingPer / pricingPer;
+    const serviceFeePerUnit = serviceFee / pricingPer;
+    const finalPricePerUnit = costPerUnit + serviceFeePerUnit;
+    
+    console.log('🔥 Display price calculation (per unit with service fee included):', {
       serviceName: service.public_name,
-      basePricePer,
-      serviceFee,
-      finalPriceForBase,
-      pricePerUnit: pricePerUnit
+      pricingPer,
+      priceForPricingPer,
+      costPerUnit,
+      serviceFeePerUnit,
+      finalPricePerUnit
     });
     
-    return pricePerUnit;
+    return finalPricePerUnit;
   };
 
   if (!selectedPlatform || !selectedServiceType) {

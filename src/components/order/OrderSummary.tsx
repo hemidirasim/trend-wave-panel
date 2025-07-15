@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calculator, CheckCircle } from 'lucide-react';
@@ -21,25 +20,39 @@ export function OrderSummary({ selectedService, quantity, calculatedPrice, servi
       facebook: 'bg-blue-500',
       twitter: 'bg-sky-500',
       telegram: 'bg-blue-400',
+      vimeo: 'bg-blue-600',
     };
     return colors[platform.toLowerCase()] || 'bg-gray-500';
   };
 
-  const getDisplayPrice = (service: Service) => {
-    const basePricePer = parseInt(service.prices[0]?.pricing_per || '1000');
-    // Calculate price with service fee included
-    const finalPriceForBase = proxyApiService.calculatePrice(service, basePricePer, serviceFee);
-    const pricePerUnit = finalPriceForBase / basePricePer;
+  const getDisplayPriceDetails = (service: Service) => {
+    const pricingPer = parseInt(service.prices[0]?.pricing_per || '1000');
+    const priceForPricingPer = parseFloat(service.prices[0]?.price || '0');
     
-    console.log('🔥 OrderSummary display price (with service fee included):', {
+    // Calculate base cost per unit (without service fee)
+    const baseCostPerUnit = priceForPricingPer / pricingPer;
+    
+    // Calculate service fee per unit
+    const serviceFeePerUnit = serviceFee / pricingPer;
+    
+    // Total price per unit (including service fee)
+    const totalPricePerUnit = baseCostPerUnit + serviceFeePerUnit;
+    
+    console.log('🔥 OrderSummary price details:', {
       serviceName: service.public_name,
-      basePricePer,
-      serviceFee,
-      finalPriceForBase,
-      pricePerUnit
+      pricingPer,
+      priceForPricingPer,
+      baseCostPerUnit,
+      serviceFeePerUnit,
+      totalPricePerUnit
     });
     
-    return pricePerUnit;
+    return {
+      baseCostPerUnit,
+      serviceFeePerUnit,
+      totalPricePerUnit,
+      pricingPer
+    };
   };
 
   return (
@@ -69,14 +82,25 @@ export function OrderSummary({ selectedService, quantity, calculatedPrice, servi
                 <span>Miqdar:</span>
                 <span>{quantity || '0'}</span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span>{selectedService.prices[0]?.pricing_per || '1000'} üçün qiymət:</span>
-                <span>${proxyApiService.formatPrice(getDisplayPrice(selectedService).toString())}</span>
-              </div>
-              <div className="flex justify-between text-xs text-green-600">
-                <span>Xidmət haqqı:</span>
-                <span>Qiymətə daxildir</span>
-              </div>
+              {(() => {
+                const priceDetails = getDisplayPriceDetails(selectedService);
+                return (
+                  <>
+                    <div className="flex justify-between text-sm">
+                      <span>{priceDetails.pricingPer} üçün qiymət:</span>
+                      <span>${proxyApiService.formatPrice((priceDetails.totalPricePerUnit * priceDetails.pricingPer).toString())}</span>
+                    </div>
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>Əsas qiymət:</span>
+                      <span>${proxyApiService.formatPrice((priceDetails.baseCostPerUnit * priceDetails.pricingPer).toString())}</span>
+                    </div>
+                    <div className="flex justify-between text-xs text-green-600">
+                      <span>Xidmət haqqı:</span>
+                      <span>${proxyApiService.formatPrice((priceDetails.serviceFeePerUnit * priceDetails.pricingPer).toString())}</span>
+                    </div>
+                  </>
+                );
+              })()}
               <div className="flex justify-between font-semibold border-t pt-2">
                 <span>Cəmi:</span>
                 <span>${proxyApiService.formatPrice(calculatedPrice.toFixed(2))}</span>
