@@ -1,10 +1,29 @@
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Sparkles, Rocket } from 'lucide-react';
+import { ArrowRight, Sparkles, Rocket, Check, Clock, Shield, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const HeroSection = () => {
+  const guarantees = [
+    {
+      icon: Check,
+      title: "Nəticə Zəmanəti"
+    },
+    {
+      icon: Shield,
+      title: "Məmnuniyyət Zəmanəti"
+    },
+    {
+      icon: Clock,
+      title: "24/7 Müştəri Dəstəyi"
+    },
+    {
+      icon: RefreshCw,
+      title: "Pul Geri Qaytarma"
+    }
+  ];
+
   return (
     <section className="relative py-24 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-secondary/10 to-accent/5"></div>
@@ -24,6 +43,24 @@ export const HeroSection = () => {
             <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
               Instagram, TikTok, YouTube və digər sosial media platformalarında hesablarınızı böyütmək üçün ən keyfiyyətli xidmətlər. Organik böyümə və təhlükəsiz yanaşma ilə real nəticələr əldə edin.
             </p>
+
+            {/* Guarantees Grid */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12 max-w-4xl mx-auto">
+              {guarantees.map((guarantee, index) => (
+                <div 
+                  key={index}
+                  className="flex flex-col items-center p-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 group"
+                >
+                  <div className="mb-3 inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/20 group-hover:bg-primary/30 transition-colors">
+                    <guarantee.icon className="w-6 h-6 text-primary" />
+                  </div>
+                  <span className="text-sm font-semibold text-foreground text-center">
+                    {guarantee.title}
+                  </span>
+                </div>
+              ))}
+            </div>
+
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
               <Button 
                 size="lg" 
