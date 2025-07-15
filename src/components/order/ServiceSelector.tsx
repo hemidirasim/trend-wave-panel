@@ -53,12 +53,12 @@ export function ServiceSelector({
       return serviceType === selectedServiceType;
     });
 
-    // Qiymət filtri tətbiq et - xidmət haqqı ilə birlikdə
+    // Apply price filter - including service fee in the calculation
     const sortedServices = [...filtered].sort((a, b) => {
       const priceA = proxyApiService.calculatePrice(a, 1000, serviceFee);
       const priceB = proxyApiService.calculatePrice(b, 1000, serviceFee);
       
-      console.log('🔥 Filterlənmiş xidmətlərin qiymət sıralaması:', {
+      console.log('🔥 Filtered services price sorting:', {
         serviceA: a.public_name,
         priceA,
         serviceB: b.public_name,
@@ -73,17 +73,18 @@ export function ServiceSelector({
     return sortedServices;
   };
 
-  const getServicePriceWithFee = (service: Service) => {
+  const getDisplayPrice = (service: Service) => {
     const basePricePer = parseInt(service.prices[0]?.pricing_per || '1000');
-    const priceWithFee = proxyApiService.calculatePrice(service, basePricePer, serviceFee);
-    const pricePerUnit = priceWithFee / basePricePer;
+    // Calculate price with service fee included
+    const finalPriceForBase = proxyApiService.calculatePrice(service, basePricePer, serviceFee);
+    const pricePerUnit = finalPriceForBase / basePricePer;
     
-    console.log('🔥 Xidmətin vahid qiyməti (xidmət haqqı ilə):', {
+    console.log('🔥 Display price calculation (with service fee included):', {
       serviceName: service.public_name,
       basePricePer,
-      appliedServiceFee: serviceFee,
-      priceWithFee,
-      pricePerUnit
+      serviceFee,
+      finalPriceForBase,
+      pricePerUnit: pricePerUnit
     });
     
     return pricePerUnit;
@@ -95,7 +96,7 @@ export function ServiceSelector({
 
   return (
     <div className="space-y-4">
-      {/* Qiymət filtri */}
+      {/* Price filter */}
       <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg">
         <Filter className="h-4 w-4 text-muted-foreground" />
         <Label className="text-sm font-medium">Qiymətə görə sırala:</Label>
@@ -119,7 +120,7 @@ export function ServiceSelector({
         </Button>
       </div>
 
-      {/* Konkret xidmət seçimi */}
+      {/* Service selection */}
       <div className="space-y-2">
         <Label>Xidmət seçin *</Label>
         <Select value={selectedServiceId} onValueChange={onServiceSelect}>
@@ -132,7 +133,7 @@ export function ServiceSelector({
                 <div className="flex items-center space-x-2">
                   <span>{service.public_name}</span>
                   <Badge variant="secondary" className="ml-2">
-                    ${proxyApiService.formatPrice(getServicePriceWithFee(service).toString())}/{service.prices[0]?.pricing_per || '1K'}
+                    ${proxyApiService.formatPrice(getDisplayPrice(service).toString())}/{service.prices[0]?.pricing_per || '1K'}
                   </Badge>
                 </div>
               </SelectItem>

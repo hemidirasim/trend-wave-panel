@@ -25,16 +25,17 @@ export function OrderSummary({ selectedService, quantity, calculatedPrice, servi
     return colors[platform.toLowerCase()] || 'bg-gray-500';
   };
 
-  const getServicePriceWithFee = (service: Service) => {
+  const getDisplayPrice = (service: Service) => {
     const basePricePer = parseInt(service.prices[0]?.pricing_per || '1000');
-    const priceWithFee = proxyApiService.calculatePrice(service, basePricePer, serviceFee);
-    const pricePerUnit = priceWithFee / basePricePer;
+    // Calculate price with service fee included
+    const finalPriceForBase = proxyApiService.calculatePrice(service, basePricePer, serviceFee);
+    const pricePerUnit = finalPriceForBase / basePricePer;
     
-    console.log('🔥 Xidmətin vahid qiyməti (xidmət haqqı ilə):', {
+    console.log('🔥 OrderSummary display price (with service fee included):', {
       serviceName: service.public_name,
       basePricePer,
-      appliedServiceFee: serviceFee,
-      priceWithFee,
+      serviceFee,
+      finalPriceForBase,
       pricePerUnit
     });
     
@@ -70,14 +71,12 @@ export function OrderSummary({ selectedService, quantity, calculatedPrice, servi
               </div>
               <div className="flex justify-between text-sm">
                 <span>{selectedService.prices[0]?.pricing_per || '1000'} üçün qiymət:</span>
-                <span>${proxyApiService.formatPrice(getServicePriceWithFee(selectedService).toString())}</span>
+                <span>${proxyApiService.formatPrice(getDisplayPrice(selectedService).toString())}</span>
               </div>
-              {serviceFee > 0 && (
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>Xidmət haqqı (+${serviceFee}):</span>
-                  <span>Daxildir</span>
-                </div>
-              )}
+              <div className="flex justify-between text-xs text-green-600">
+                <span>Xidmət haqqı:</span>
+                <span>Qiymətə daxildir</span>
+              </div>
               <div className="flex justify-between font-semibold border-t pt-2">
                 <span>Cəmi:</span>
                 <span>${proxyApiService.formatPrice(calculatedPrice.toFixed(2))}</span>
