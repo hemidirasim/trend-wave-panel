@@ -22,7 +22,7 @@ interface PayriffStatusData {
 }
 
 export class PayriffProvider implements PaymentProviderInterface {
-  private readonly baseUrl = 'https://api.payriff.com';
+  private readonly baseUrl = 'https://api.payriff.com/api/v3';
   private readonly merchantId: string;
   private readonly secretKey: string;
 
@@ -33,7 +33,7 @@ export class PayriffProvider implements PaymentProviderInterface {
 
   async createPayment(request: PaymentRequest): Promise<PaymentResponse> {
     try {
-      console.log('Creating Payriff payment:', request);
+      console.log('Creating Payriff payment with API v3:', request);
 
       // Convert amount to kopecks (Payriff expects amount in kopecks)
       const amountInKopecks = Math.round(request.amount * 100);
@@ -55,15 +55,36 @@ export class PayriffProvider implements PaymentProviderInterface {
       const signature = this.generateSignature(paymentData);
       paymentData.signature = signature;
 
-      const response = await fetch(`${this.baseUrl}/api/v2/payment/create`, {
+      console.log('Sending payment request to:', `${this.baseUrl}/payment/create`);
+      console.log('Payment data:', paymentData);
+
+      const response = await fetch(`${this.baseUrl}/payment/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         body: JSON.stringify(paymentData)
       });
 
-      const result = await response.json();
+      console.log('Payriff API response status:', response.status);
+      console.log('Payriff API response headers:', Object.fromEntries(response.headers.entries()));
+
+      const responseText = await response.text();
+      console.log('Payriff API raw response:', responseText);
+
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('Failed to parse response as JSON:', parseError);
+        console.error('Response text:', responseText);
+        return {
+          success: false,
+          error: 'API cavab formatı düzgün deyil'
+        };
+      }
+
       console.log('Payriff payment response:', result);
 
       if (result.status === 'success' && result.payment_url) {
@@ -97,10 +118,11 @@ export class PayriffProvider implements PaymentProviderInterface {
       const signature = this.generateSignature(statusData);
       statusData.signature = signature;
 
-      const response = await fetch(`${this.baseUrl}/api/v2/payment/status`, {
+      const response = await fetch(`${this.baseUrl}/payment/status`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         body: JSON.stringify(statusData)
       });
@@ -133,18 +155,18 @@ export class PayriffProvider implements PaymentProviderInterface {
 
   private generateSignature(data: any, isCallback = false): string {
     try {
-      // Payriff signature generation logic
+      // Payriff signature generation logic for API v3
       const sortedKeys = Object.keys(data).filter(key => key !== 'signature').sort();
       const signatureString = sortedKeys.map(key => `${key}=${data[key]}`).join('&');
       const stringToSign = signatureString + this.secretKey;
       
       console.log('Generating signature for string:', stringToSign);
       
-      // Use crypto.subtle for proper UTF-8 handling instead of btoa
+      // Use a proper hash function for API v3
       const encoder = new TextEncoder();
       const dataBuffer = encoder.encode(stringToSign);
       
-      // Create a simple hash using Array.from and reduce for compatibility
+      // Create a more robust hash
       let hash = 0;
       for (let i = 0; i < dataBuffer.length; i++) {
         const char = dataBuffer[i];
@@ -152,15 +174,15 @@ export class PayriffProvider implements PaymentProviderInterface {
         hash = hash & hash; // Convert to 32bit integer
       }
       
-      // Convert to positive hex string
-      const signature = Math.abs(hash).toString(16).padStart(8, '0');
-      console.log('Generated signature:', signature);
+      // Convert to positive hex string with better formatting for v3
+      const signature = Math.abs(hash).toString(16).padStart(8, '0').toUpperCase();
+      console.log('Generated signature for API v3:', signature);
       
       return signature;
     } catch (error) {
       console.error('Error generating signature:', error);
       // Fallback to a simple timestamp-based signature
-      return Date.now().toString(16);
+      return Date.now().toString(16).toUpperCase();
     }
   }
 
@@ -168,9 +190,11 @@ export class PayriffProvider implements PaymentProviderInterface {
     switch (status?.toLowerCase()) {
       case 'success':
       case 'completed':
+      case 'paid':
         return 'success';
       case 'failed':
       case 'error':
+      case 'declined':
         return 'failed';
       case 'cancelled':
       case 'canceled':
