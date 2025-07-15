@@ -1,3 +1,4 @@
+
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -5,7 +6,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { AlertCircle, Loader2, ShoppingCart } from 'lucide-react';
 import { Service } from '@/types/api';
-import { proxyApiService } from '@/components/ProxyApiService';
 
 interface OrderFormProps {
   selectedService: Service;
@@ -145,7 +145,7 @@ export function OrderForm({
         ) : (
           <>
             <ShoppingCart className="h-4 w-4 mr-2" />
-            Sifariş Ver - ${proxyApiService.formatPrice(calculatedPrice.toFixed(2))}
+            Sifariş Ver - ${calculatedPrice.toFixed(2)}
           </>
         )}
       </Button>
