@@ -12,6 +12,8 @@ export interface Service {
   example: string;
   type_name: string;
   description?: string;
+  start_time?: string;
+  speed?: string;
   prices: Array<{
     minimum: string;
     maximum: string;

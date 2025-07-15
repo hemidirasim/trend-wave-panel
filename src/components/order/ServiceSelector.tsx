@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -64,7 +63,7 @@ export const ServiceSelector = ({
     return finalPrice.toFixed(2);
   };
 
-  const formatStartTime = (startTime: string) => {
+  const formatStartTime = (startTime?: string) => {
     if (!startTime) return '';
     
     const lowerTime = startTime.toLowerCase();
@@ -104,7 +103,7 @@ export const ServiceSelector = ({
     return startTime;
   };
 
-  const formatSpeed = (speed: string) => {
+  const formatSpeed = (speed?: string) => {
     if (!speed) return '';
     
     const lowerSpeed = speed.toLowerCase();
