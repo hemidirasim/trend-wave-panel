@@ -67,103 +67,111 @@ export const Header = () => {
   };
 
   return (
-    <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">
-        <div className="flex lg:flex-1">
-          <Link to="/" className="-m-1.5 p-1.5">
-            <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              HitLoyal
-            </span>
-          </Link>
-        </div>
-        
-        <div className="flex lg:hidden">
-          <button
-            type="button"
-            className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
-            onClick={() => setIsMenuOpen(true)}
-          >
-            <span className="sr-only">Open main menu</span>
-            <Menu className="h-6 w-6" aria-hidden="true" />
-          </button>
-        </div>
-        
-        <div className="hidden lg:flex lg:items-center lg:gap-x-6">
-          {navigation.map((item) => (
-            <Link
-              key={item.name}
-              to={item.href}
-              className={`text-sm font-semibold leading-6 transition-colors hover:text-primary ${
-                isActive(item.href) ? 'text-primary' : 'text-foreground'
-              }`}
-            >
-              {item.name}
+    <>
+      <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b">
+        <nav className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">
+          <div className="flex lg:flex-1">
+            <Link to="/" className="-m-1.5 p-1.5">
+              <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                HitLoyal
+              </span>
             </Link>
-          ))}
+          </div>
           
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="text-sm font-semibold leading-6 text-foreground hover:text-primary">
-                Sosial Media
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56 bg-background border border-border shadow-lg">
-              <div className="p-2">
-                <h3 className="mb-2 text-sm font-medium leading-none text-muted-foreground">
-                  Sosial Şəbəkələr
-                </h3>
-                {socialPlatforms.map((platform) => (
-                  <DropdownMenuItem key={platform} asChild>
-                    <Link
-                      to={`/order?platform=${platform.toLowerCase()}`}
-                      className="block w-full text-left px-2 py-1.5 text-sm capitalize cursor-pointer hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                    >
-                      {platform}
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
-              </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-        
-        <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center lg:gap-4">
-          {user ? (
-            <div className="flex items-center gap-4">
-              <Link to="/dashboard">
-                <Button variant="outline" size="sm">
-                  {t('nav.dashboard')}
-                </Button>
+          <div className="flex lg:hidden">
+            <button
+              type="button"
+              className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
+              onClick={() => setIsMenuOpen(true)}
+            >
+              <span className="sr-only">Open main menu</span>
+              <Menu className="h-6 w-6" aria-hidden="true" />
+            </button>
+          </div>
+          
+          <div className="hidden lg:flex lg:items-center lg:gap-x-6">
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={`text-sm font-semibold leading-6 transition-colors hover:text-primary ${
+                  isActive(item.href) ? 'text-primary' : 'text-foreground'
+                }`}
+              >
+                {item.name}
               </Link>
-              <Button onClick={handleSignOut} variant="ghost" size="sm">
-                {t('nav.signOut')}
-              </Button>
-            </div>
-          ) : (
-            <Button onClick={() => setShowAuthDialog(true)} size="sm">
-              {t('nav.signIn')}
-            </Button>
-          )}
+            ))}
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="text-sm font-semibold leading-6 text-foreground hover:text-primary">
+                  Sosial Media
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56 bg-background border border-border shadow-lg">
+                <div className="p-2">
+                  <h3 className="mb-2 text-sm font-medium leading-none text-muted-foreground">
+                    Sosial Şəbəkələr
+                  </h3>
+                  {socialPlatforms.map((platform) => (
+                    <DropdownMenuItem key={platform} asChild>
+                      <Link
+                        to={`/order?platform=${platform.toLowerCase()}`}
+                        className="block w-full text-left px-2 py-1.5 text-sm capitalize cursor-pointer hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                      >
+                        {platform}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
           
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleLanguage}
-            className="flex items-center gap-2"
-          >
-            <Globe className="h-4 w-4" />
-            {language.toUpperCase()}
-          </Button>
-        </div>
-      </nav>
+          <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center lg:gap-4">
+            {user ? (
+              <div className="flex items-center gap-4">
+                <Link to="/dashboard">
+                  <Button variant="outline" size="sm">
+                    {t('nav.dashboard')}
+                  </Button>
+                </Link>
+                <Button onClick={handleSignOut} variant="ghost" size="sm">
+                  {t('nav.signOut')}
+                </Button>
+              </div>
+            ) : (
+              <Button onClick={() => setShowAuthDialog(true)} size="sm">
+                {t('nav.signIn')}
+              </Button>
+            )}
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleLanguage}
+              className="flex items-center gap-2"
+            >
+              <Globe className="h-4 w-4" />
+              {language.toUpperCase()}
+            </Button>
+          </div>
+        </nav>
+      </header>
 
-      {/* Mobile menu */}
+      {/* Mobile menu overlay */}
       {isMenuOpen && (
-        <div className="lg:hidden">
-          <div className="fixed inset-0 z-50" />
+        <div className="lg:hidden fixed inset-0 z-50">
+          {/* Background overlay */}
+          <div 
+            className="fixed inset-0 bg-black/20 backdrop-blur-sm"
+            onClick={() => setIsMenuOpen(false)}
+          />
+          
+          {/* Menu panel */}
           <div className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-background px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
             <div className="flex items-center justify-between">
-              <Link to="/" className="-m-1.5 p-1.5">
+              <Link to="/" className="-m-1.5 p-1.5" onClick={() => setIsMenuOpen(false)}>
                 <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   HitLoyal
                 </span>
@@ -252,6 +260,6 @@ export const Header = () => {
         open={showAuthDialog} 
         onOpenChange={setShowAuthDialog}
       />
-    </header>
+    </>
   );
 };
