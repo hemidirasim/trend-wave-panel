@@ -1,8 +1,6 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowUpDown } from 'lucide-react';
 import { Service } from '@/types/api';
@@ -66,6 +64,12 @@ export const ServiceSelector = ({
     return finalPrice.toFixed(2);
   };
 
+  const formatServiceOption = (service: Service) => {
+    const price = calculateDisplayPrice(service);
+    const minAmount = service.amount_minimum ? parseInt(service.amount_minimum).toLocaleString() : '';
+    return `${service.public_name} - $${price} (1000 ədəd üçün)${minAmount ? ` - Minimum sifariş: ${minAmount}` : ''}`;
+  };
+
   if (!selectedPlatform) {
     return (
       <div className="text-center py-8 text-muted-foreground">
@@ -91,77 +95,63 @@ export const ServiceSelector = ({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Mövcud Xidmətlər</h3>
-        <div className="flex items-center gap-2">
-          <ArrowUpDown className="h-4 w-4" />
-          <Select value={priceFilter} onValueChange={onPriceFilterChange}>
-            <SelectTrigger className="w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="low-to-high">Qiymət: Azdan Çoxa</SelectItem>
-              <SelectItem value="high-to-low">Qiymət: Çoxdan Aza</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {sortedServices.map((service) => (
-          <Card
-            key={service.id_service}
-            className={`cursor-pointer transition-all hover:shadow-md ${
-              selectedServiceId === service.id_service.toString()
-                ? 'ring-2 ring-primary border-primary'
-                : 'hover:border-primary/50'
-            }`}
-            onClick={() => onServiceSelect(service.id_service.toString())}
-          >
-            <CardHeader className="pb-3">
-              <div className="flex justify-between items-start">
-                <CardTitle className="text-base line-clamp-2">
-                  {service.public_name}
-                </CardTitle>
-                {service.platform && (
-                  <Badge variant="secondary" className="ml-2 shrink-0 capitalize">
-                    {service.platform}
-                  </Badge>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent className="pt-0">
-              {service.description && (
-                <CardDescription className="text-sm mb-3 line-clamp-2">
-                  {service.description}
-                </CardDescription>
-              )}
-              <div className="flex justify-between items-center">
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between">
+          <span>Xidmət seçin *</span>
+          <div className="flex items-center gap-2">
+            <ArrowUpDown className="h-4 w-4" />
+            <Select value={priceFilter} onValueChange={onPriceFilterChange}>
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="low-to-high">Qiymət: Azdan Çoxa</SelectItem>
+                <SelectItem value="high-to-low">Qiymət: Çoxdan Aza</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Select value={selectedServiceId} onValueChange={onServiceSelect}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Xidmət seçin..." />
+          </SelectTrigger>
+          <SelectContent className="max-h-80">
+            {sortedServices.map((service) => (
+              <SelectItem 
+                key={service.id_service} 
+                value={service.id_service.toString()}
+                className="py-3"
+              >
                 <div className="flex flex-col">
-                  <span className="text-2xl font-bold text-primary">
-                    ${calculateDisplayPrice(service)}
+                  <span className="font-medium">{service.public_name}</span>
+                  <span className="text-sm text-muted-foreground">
+                    ${calculateDisplayPrice(service)} (1000 ədəd üçün)
+                    {service.amount_minimum && (
+                      <span className="ml-2">
+                        • Minimum sifariş: {parseInt(service.amount_minimum).toLocaleString()}
+                      </span>
+                    )}
                   </span>
-                  <span className="text-xs text-muted-foreground">
-                    1000 ədəd üçün
-                  </span>
-                  {service.amount_minimum && (
-                    <span className="text-xs text-muted-foreground mt-1">
-                      Min: {parseInt(service.amount_minimum).toLocaleString()}
+                  {service.description && (
+                    <span className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                      {service.description}
                     </span>
                   )}
                 </div>
-                <Button
-                  variant={selectedServiceId === service.id_service.toString() ? "default" : "outline"}
-                  size="sm"
-                >
-                  {selectedServiceId === service.id_service.toString() ? 'Seçilib' : 'Seç'}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        
+        {error && (
+          <p className="text-sm text-red-500 mt-2">
+            {error}
+          </p>
+        )}
+      </CardContent>
+    </Card>
   );
 };
