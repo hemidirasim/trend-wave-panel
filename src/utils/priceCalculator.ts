@@ -1,5 +1,4 @@
 
-
 import { Service } from "@/types/api";
 
 export const calculatePrice = (service: Service, quantity: number, serviceFee: number = 0): number => {
@@ -98,20 +97,38 @@ export const formatPrice = (price: string | number): string => {
     return '0';
   }
   
-  // Convert to string with appropriate precision
+  // Format the number properly without losing precision
   let result;
   
-  // If it's a very small number (less than 0.01), use more decimal places
-  if (numPrice < 0.01) {
+  // For very small numbers (less than 0.001), show more decimals
+  if (numPrice < 0.001 && numPrice > 0) {
     result = numPrice.toFixed(6);
-  } else if (numPrice < 1) {
+  } 
+  // For small numbers less than 1, show 4 decimals max
+  else if (numPrice < 1) {
     result = numPrice.toFixed(4);
-  } else {
-    result = numPrice.toFixed(2);
+  } 
+  // For regular numbers, use 2 decimals but don't lose precision for larger numbers
+  else {
+    // Use toPrecision for larger numbers to avoid rounding issues
+    if (numPrice >= 1000) {
+      result = numPrice.toPrecision(10);
+      // Convert back to regular notation if it's in scientific notation
+      if (result.includes('e')) {
+        result = numPrice.toFixed(2);
+      }
+    } else {
+      result = numPrice.toFixed(2);
+    }
   }
   
-  // Remove trailing zeros and unnecessary decimal point
+  // Remove unnecessary trailing zeros and decimal point
   result = result.replace(/\.?0+$/, '');
+  
+  // Ensure we don't return empty string
+  if (!result || result === '') {
+    result = '0';
+  }
   
   console.log('🔥 formatPrice: Final result:', {
     original: numPrice,
@@ -120,4 +137,3 @@ export const formatPrice = (price: string | number): string => {
   
   return result;
 };
-
