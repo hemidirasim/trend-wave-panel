@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface Language {
@@ -43,7 +42,26 @@ const translations: Record<string, Language> = {
     'service.instant': 'Dərhal',
     'service.hours': 'saat',
     'service.days': 'gün',
-    'service.minutes': 'dəqiqə'
+    'service.minutes': 'dəqiqə',
+    // API stringləri üçün tərcümələr
+    'service.api.instant': 'Dərhal',
+    'service.api.immediate': 'Ani',
+    'service.api.0-1hour': '0-1 saat',
+    'service.api.1-6hours': '1-6 saat',  
+    'service.api.6-12hours': '6-12 saat',
+    'service.api.12-24hours': '12-24 saat',
+    'service.api.1-3days': '1-3 gün',
+    'service.api.3-7days': '3-7 gün',
+    'service.api.slowstart': 'Yavaş başlama',
+    'service.api.faststart': 'Sürətli başlama',
+    'service.api.normalstart': 'Normal başlama',
+    'service.api.day': 'gün',
+    'service.api.hour': 'saat', 
+    'service.api.minute': 'dəqiqə',
+    'service.api.perday': 'gündə',
+    'service.api.perhour': 'saatda',
+    'service.api.perminute': 'dəqiqədə',
+    'service.api.within': 'ərzində'
   }
 };
 
