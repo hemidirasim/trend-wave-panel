@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Filter, X } from 'lucide-react';
 import { Service } from '@/types/api';
-import { proxyApiService } from '@/components/ProxyApiService';
+import { calculatePrice, formatPrice } from '@/utils/priceCalculator';
 
 interface ServiceSelectorProps {
   services: Service[];
@@ -56,11 +56,11 @@ export function ServiceSelector({
     // Apply price filter - calculate total price including service fee for comparison
     const sortedServices = [...filtered].sort((a, b) => {
       // Get the base quantity for pricing comparison (use pricing_per from the service)
-      const baseQuantityA = parseInt(a.prices[0]?.pricing_per || '1000');
-      const baseQuantityB = parseInt(b.prices[0]?.pricing_per || '1000');
+      const baseQuantityA = parseInt(a.prices[0]?.pricing_per?.toString() || '1000');
+      const baseQuantityB = parseInt(b.prices[0]?.pricing_per?.toString() || '1000');
       
-      const priceA = proxyApiService.calculatePrice(a, baseQuantityA, serviceFee);
-      const priceB = proxyApiService.calculatePrice(b, baseQuantityB, serviceFee);
+      const priceA = calculatePrice(a, baseQuantityA, serviceFee);
+      const priceB = calculatePrice(b, baseQuantityB, serviceFee);
       
       console.log('🔥 Filtered services price sorting:', {
         serviceA: a.public_name,
@@ -80,24 +80,19 @@ export function ServiceSelector({
   };
 
   const getDisplayPrice = (service: Service) => {
-    const pricingPer = parseInt(service.prices[0]?.pricing_per || '1000');
-    const priceForPricingPer = parseFloat(service.prices[0]?.price || '0');
+    const pricingPer = parseInt(service.prices[0]?.pricing_per?.toString() || '1000');
     
-    // Calculate price per unit including service fee
-    const costPerUnit = priceForPricingPer / pricingPer;
-    const serviceFeePerUnit = serviceFee / pricingPer;
-    const finalPricePerUnit = costPerUnit + serviceFeePerUnit;
+    // Calculate total price including service fee for the pricing_per quantity
+    const totalPriceForPricingPer = calculatePrice(service, pricingPer, serviceFee);
     
-    console.log('🔥 Display price calculation (per unit with service fee included):', {
+    console.log('🔥 Display price calculation (total price including service fee):', {
       serviceName: service.public_name,
       pricingPer,
-      priceForPricingPer,
-      costPerUnit,
-      serviceFeePerUnit,
-      finalPricePerUnit
+      totalPriceForPricingPer,
+      serviceFeeIncluded: serviceFee
     });
     
-    return finalPricePerUnit;
+    return totalPriceForPricingPer;
   };
 
   if (!selectedPlatform || !selectedServiceType) {
@@ -143,7 +138,7 @@ export function ServiceSelector({
                 <div className="flex items-center space-x-2">
                   <span>{service.public_name}</span>
                   <Badge variant="secondary" className="ml-2">
-                    ${proxyApiService.formatPrice(getDisplayPrice(service).toString())}/{service.prices[0]?.pricing_per || '1K'}
+                    ${formatPrice(getDisplayPrice(service).toString())}/{service.prices[0]?.pricing_per || '1K'}
                   </Badge>
                 </div>
               </SelectItem>

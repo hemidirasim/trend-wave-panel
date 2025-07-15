@@ -1,8 +1,9 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calculator, CheckCircle } from 'lucide-react';
 import { Service } from '@/types/api';
-import { proxyApiService } from '@/components/ProxyApiService';
+import { calculatePrice, formatPrice } from '@/utils/priceCalculator';
 
 interface OrderSummaryProps {
   selectedService: Service | null;
@@ -26,31 +27,28 @@ export function OrderSummary({ selectedService, quantity, calculatedPrice, servi
   };
 
   const getDisplayPriceDetails = (service: Service) => {
-    const pricingPer = parseInt(service.prices[0]?.pricing_per || '1000');
-    const priceForPricingPer = parseFloat(service.prices[0]?.price || '0');
+    const pricingPer = parseInt(service.prices[0]?.pricing_per?.toString() || '1000');
+    const basePrice = parseFloat(service.prices[0]?.price || '0');
     
-    // Calculate base cost per unit (without service fee)
-    const baseCostPerUnit = priceForPricingPer / pricingPer;
+    // Calculate base cost for pricing_per quantity (without service fee)
+    const baseCostForPricingPer = basePrice;
     
-    // Calculate service fee per unit
-    const serviceFeePerUnit = serviceFee / pricingPer;
-    
-    // Total price per unit (including service fee)
-    const totalPricePerUnit = baseCostPerUnit + serviceFeePerUnit;
+    // Calculate total cost for pricing_per quantity (including service fee)
+    const totalCostForPricingPer = calculatePrice(service, pricingPer, serviceFee);
     
     console.log('🔥 OrderSummary price details:', {
       serviceName: service.public_name,
       pricingPer,
-      priceForPricingPer,
-      baseCostPerUnit,
-      serviceFeePerUnit,
-      totalPricePerUnit
+      basePrice,
+      baseCostForPricingPer,
+      serviceFeeUSD: serviceFee,
+      totalCostForPricingPer
     });
     
     return {
-      baseCostPerUnit,
-      serviceFeePerUnit,
-      totalPricePerUnit,
+      baseCostForPricingPer,
+      serviceFeeUSD: serviceFee,
+      totalCostForPricingPer,
       pricingPer
     };
   };
@@ -88,22 +86,25 @@ export function OrderSummary({ selectedService, quantity, calculatedPrice, servi
                   <>
                     <div className="flex justify-between text-sm">
                       <span>{priceDetails.pricingPer} üçün qiymət:</span>
-                      <span>${proxyApiService.formatPrice((priceDetails.totalPricePerUnit * priceDetails.pricingPer).toString())}</span>
+                      <span>${formatPrice(priceDetails.totalCostForPricingPer.toString())}</span>
                     </div>
                     <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>Əsas qiymət:</span>
-                      <span>${proxyApiService.formatPrice((priceDetails.baseCostPerUnit * priceDetails.pricingPer).toString())}</span>
+                      <span>Əsas qiymət ({priceDetails.pricingPer}):</span>
+                      <span>${formatPrice(priceDetails.baseCostForPricingPer.toString())}</span>
                     </div>
                     <div className="flex justify-between text-xs text-green-600">
-                      <span>Xidmət haqqı:</span>
-                      <span>${proxyApiService.formatPrice((priceDetails.serviceFeePerUnit * priceDetails.pricingPer).toString())}</span>
+                      <span>Xidmət haqqı ({priceDetails.pricingPer}):</span>
+                      <span>${formatPrice(priceDetails.serviceFeeUSD.toString())}</span>
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-2 p-2 bg-muted/50 rounded">
+                      * Göstərilən qiymətlər xidmət haqqı daxil olmaqla
                     </div>
                   </>
                 );
               })()}
               <div className="flex justify-between font-semibold border-t pt-2">
                 <span>Cəmi:</span>
-                <span>${proxyApiService.formatPrice(calculatedPrice.toFixed(2))}</span>
+                <span>${formatPrice(calculatedPrice.toFixed(2))}</span>
               </div>
             </div>
 
