@@ -73,7 +73,7 @@ export const ServiceSelector = ({
     
     // Instant/immediate start
     if (lowerTime.includes('instant') || lowerTime.includes('immediate') || lowerTime === '0') {
-      return t('service.instantStart');
+      return t('service.instant');
     }
     
     // Hours
@@ -81,7 +81,7 @@ export const ServiceSelector = ({
       const match = lowerTime.match(/(\d+)\s*hour/);
       if (match) {
         const hours = parseInt(match[1]);
-        return `${hours} ${t('service.withinHours')}`;
+        return `${hours} ${t('service.hours')} ərzində`;
       }
     }
     
@@ -90,7 +90,7 @@ export const ServiceSelector = ({
       const match = lowerTime.match(/(\d+)\s*day/);
       if (match) {
         const days = parseInt(match[1]);
-        return `${days} ${t('service.withinDays')}`;
+        return `${days} ${t('service.days')} ərzində`;
       }
     }
     
@@ -99,7 +99,7 @@ export const ServiceSelector = ({
       const match = lowerTime.match(/(\d+)\s*(minute|min)/);
       if (match) {
         const minutes = parseInt(match[1]);
-        return `${minutes} ${t('service.withinMinutes')}`;
+        return `${minutes} ${t('service.minutes')} ərzində`;
       }
     }
     
@@ -116,7 +116,7 @@ export const ServiceSelector = ({
       const match = lowerSpeed.match(/(\d+[,\s]*\d*)\s*(?:per\s*)?day/);
       if (match) {
         const amount = match[1].replace(/,/g, '');
-        return `${t('service.perDay')} ${parseInt(amount).toLocaleString()}`;
+        return `${parseInt(amount).toLocaleString()} ${t('service.perDay')}`;
       }
     }
     
@@ -125,7 +125,7 @@ export const ServiceSelector = ({
       const match = lowerSpeed.match(/(\d+[,\s]*\d*)\s*(?:per\s*)?hour/);
       if (match) {
         const amount = match[1].replace(/,/g, '');
-        return `${t('service.perHour')} ${parseInt(amount).toLocaleString()}`;
+        return `${parseInt(amount).toLocaleString()} ${t('service.perHour')}`;
       }
     }
     
@@ -195,14 +195,14 @@ export const ServiceSelector = ({
                         ${calculateDisplayPrice(service)}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        1000 {t('service.priceFor')}
+                        1000 {t('service.units')} {t('service.priceFor')}
                       </div>
                     </div>
                   </div>
                   
                   <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
                     {service.amount_minimum && (
-                      <span>• {t('service.minimumOrder')}: {parseInt(service.amount_minimum).toLocaleString()} ədəd</span>
+                      <span>• {t('service.minimumOrder')}: {parseInt(service.amount_minimum).toLocaleString()} {t('service.units')}</span>
                     )}
                     {service.start_time && (
                       <span>• {formatStartTime(service.start_time)}</span>

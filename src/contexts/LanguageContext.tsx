@@ -37,7 +37,13 @@ const translations: Record<string, Language> = {
     'service.perDay': 'gündə',
     'service.perHour': 'saatda',
     'service.sortLowToHigh': 'Qiymət: Azdan Çoxa',
-    'service.sortHighToLow': 'Qiymət: Çoxdan Aza'
+    'service.sortHighToLow': 'Qiymət: Çoxdan Aza',
+    'service.units': 'ədəd',
+    'service.startTime': 'Başlama vaxtı',
+    'service.instant': 'Dərhal',
+    'service.hours': 'saat',
+    'service.days': 'gün',
+    'service.minutes': 'dəqiqə'
   }
 };
 
