@@ -23,7 +23,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   });
   const [loading, setLoading] = useState(true);
 
-  // Load settings on component mount
+  // Load settings on component mount - now available for ALL users
   useEffect(() => {
     loadSettings();
     
@@ -41,9 +41,11 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, []);
 
   const loadSettings = async () => {
-    console.log('🔥 SettingsContext: Loading settings from database');
+    console.log('🔥 SettingsContext: Loading settings from database for all users');
     try {
       setLoading(true);
+      
+      // Use public access to read admin settings - no auth required for reading
       const { data, error } = await supabase
         .from('admin_settings')
         .select('setting_key, setting_value')
@@ -51,6 +53,9 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
       if (error) {
         console.error('🔥 SettingsContext: Error loading settings:', error);
+        // If there's an error (like RLS blocking), use default values
+        console.log('🔥 SettingsContext: Using default settings due to error');
+        setSettings({ service_fee: 0, base_fee: 0 });
         setLoading(false);
         return;
       }
@@ -74,13 +79,16 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           }
         });
         
-        console.log('🔥 SettingsContext: Loaded settings from database:', newSettings);
+        console.log('🔥 SettingsContext: Loaded settings from database for all users:', newSettings);
         setSettings(newSettings);
       } else {
         console.log('🔥 SettingsContext: No settings found in database, using defaults');
+        setSettings({ service_fee: 0, base_fee: 0 });
       }
     } catch (error) {
       console.error('🔥 SettingsContext: Error loading settings:', error);
+      // Fallback to default values
+      setSettings({ service_fee: 0, base_fee: 0 });
     } finally {
       setLoading(false);
     }
@@ -113,6 +121,9 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         console.log('🔥 SettingsContext: Updated local state:', updated);
         return updated;
       });
+
+      // Dispatch custom event to notify other components
+      window.dispatchEvent(new CustomEvent('settingsUpdated', { detail: newSettings }));
 
       // Reload settings to ensure consistency
       await loadSettings();
