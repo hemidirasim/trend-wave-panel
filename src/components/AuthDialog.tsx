@@ -9,6 +9,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { useAuth } from '@/contexts/AuthContext';
 import { useNotification } from '@/components/NotificationProvider';
 import { Loader2, Zap } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import PasswordStrengthIndicator from '@/components/PasswordStrengthIndicator';
+import { validatePasswordStrength } from '@/utils/passwordValidation';
 
 interface AuthDialogProps {
   open: boolean;
@@ -46,6 +49,18 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Şifrə gücünü yoxla
+    const passwordStrength = validatePasswordStrength(signupPassword);
+    if (passwordStrength.score < 3) {
+      addNotification({
+        type: 'error',
+        title: 'Zəif şifrə',
+        message: 'Zəhmət olmasa daha güclü şifrə seçin (ən azı 3/5 bal)',
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -66,7 +81,7 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md z-[60]">
         <DialogHeader>
           <div className="flex items-center justify-center space-x-2 mb-4">
             <div className="bg-primary text-primary-foreground p-2 rounded-lg">
@@ -112,6 +127,15 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
                       onChange={(e) => setLoginPassword(e.target.value)}
                       required
                     />
+                  </div>
+                  <div className="text-right">
+                    <Link
+                      to="/reset-password"
+                      className="text-sm text-primary hover:underline"
+                      onClick={() => onOpenChange(false)}
+                    >
+                      Şifrəmi unutdum
+                    </Link>
                   </div>
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -162,6 +186,9 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
                       onChange={(e) => setSignupPassword(e.target.value)}
                       required
                     />
+                    {signupPassword && (
+                      <PasswordStrengthIndicator password={signupPassword} />
+                    )}
                   </div>
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
