@@ -85,14 +85,14 @@ export function ServiceSelector({
     // Calculate total price including service fee for the pricing_per quantity
     const totalPriceForPricingPer = calculatePrice(service, pricingPer, serviceFee);
     
-    console.log('🔥 Display price calculation (total price including service fee):', {
+    console.log('🔥 Display price calculation for dropdown:', {
       serviceName: service.public_name,
       pricingPer,
       totalPriceForPricingPer,
       serviceFeeIncluded: serviceFee
     });
     
-    // Return the price as it comes from API calculation, no formatting
+    // Return the exact calculated price without any additional formatting
     return totalPriceForPricingPer;
   };
 
