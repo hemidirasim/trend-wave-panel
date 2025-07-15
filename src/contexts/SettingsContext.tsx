@@ -40,8 +40,22 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
 
       if (data) {
-        const serviceFee = parseFloat(String(data.setting_value)) || 0;
-        console.log('🔥 SettingsContext: Loaded service_fee from database:', serviceFee);
+        // setting_value is stored as JSONB, so we need to extract the numeric value
+        let serviceFee = 0;
+        if (typeof data.setting_value === 'string') {
+          serviceFee = parseFloat(data.setting_value) || 0;
+        } else if (typeof data.setting_value === 'number') {
+          serviceFee = data.setting_value;
+        } else {
+          // If it's stored as quoted string in JSONB
+          serviceFee = parseFloat(String(data.setting_value).replace(/"/g, '')) || 0;
+        }
+        
+        console.log('🔥 SettingsContext: Loaded service_fee from database:', {
+          rawValue: data.setting_value,
+          parsedValue: serviceFee,
+          type: typeof data.setting_value
+        });
         
         setSettings(prev => {
           const updated = { ...prev, service_fee: serviceFee };
