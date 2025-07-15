@@ -10,6 +10,7 @@ import { NotificationProvider } from '@/components/NotificationProvider';
 import Index from '@/pages/Index';
 import Auth from '@/pages/Auth';
 import ResetPassword from '@/pages/ResetPassword';
+import PasswordRecovery from '@/pages/PasswordRecovery';
 import Dashboard from '@/pages/Dashboard';
 import Services from '@/pages/Services';
 import ServiceDetail from '@/pages/ServiceDetail';
@@ -46,6 +47,7 @@ function App() {
                     <Route path="/" element={<Index />} />
                     <Route path="/auth" element={<Auth />} />
                     <Route path="/reset-password" element={<ResetPassword />} />
+                    <Route path="/password-recovery" element={<PasswordRecovery />} />
                     <Route path="/services" element={<Services />} />
                     <Route path="/service/:id" element={<ServiceDetail />} />
                     <Route path="/order" element={<Order />} />
