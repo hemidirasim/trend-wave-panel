@@ -45,7 +45,7 @@ export class PayriffProvider implements PaymentProviderInterface {
 
       const paymentData: PayriffPaymentData = {
         amount: request.amount,
-        language: 'AZ',
+        language: 'EN',
         currency: request.currency.toUpperCase(),
         description: request.description,
         callbackUrl: request.successUrl,
