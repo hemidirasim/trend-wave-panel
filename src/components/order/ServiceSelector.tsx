@@ -25,7 +25,7 @@ export function ServiceSelector({
   selectedPlatform,
   selectedServiceType,
   selectedServiceId,
-  priceFilter,
+  priceFilter = 'low-to-high', // Set default value
   serviceFeePercentage,
   baseFee,
   onServiceSelect,
