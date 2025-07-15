@@ -25,7 +25,7 @@ export function ServiceSelector({
   selectedPlatform,
   selectedServiceType,
   selectedServiceId,
-  priceFilter = 'low-to-high', // Set default value
+  priceFilter,
   serviceFeePercentage,
   baseFee,
   onServiceSelect,
@@ -60,7 +60,20 @@ export function ServiceSelector({
       const priceA = proxyApiService.calculatePrice(a, 1000, serviceFeePercentage, baseFee);
       const priceB = proxyApiService.calculatePrice(b, 1000, serviceFeePercentage, baseFee);
       
+      // Handle cases where price calculation returns 0 (invalid services)
+      if (priceA === 0 && priceB === 0) return 0;
+      if (priceA === 0) return 1; // Put invalid services at the end
+      if (priceB === 0) return -1; // Put invalid services at the end
+      
       return priceFilter === 'low-to-high' ? priceA - priceB : priceB - priceA;
+    });
+
+    console.log('🔥 ServiceSelector sorting:', {
+      priceFilter,
+      sortedServices: sortedServices.map(s => ({
+        name: s.public_name,
+        price: proxyApiService.calculatePrice(s, 1000, serviceFeePercentage, baseFee)
+      }))
     });
 
     return sortedServices;
@@ -72,7 +85,6 @@ export function ServiceSelector({
       return 'Qiymət yoxdur';
     }
 
-    // Use a standard quantity of 1000 for price comparison
     const totalPrice = proxyApiService.calculatePrice(service, 1000, serviceFeePercentage, baseFee);
     const pricingPer = service.prices[0]?.pricing_per || '1000';
 
@@ -85,7 +97,6 @@ export function ServiceSelector({
     });
 
     if (totalPrice === 0) {
-      // Fallback to showing the raw price if calculation fails
       const rawPrice = parseFloat(service.prices[0]?.price || '0');
       if (rawPrice > 0) {
         const priceWithBaseFee = rawPrice + baseFee;
