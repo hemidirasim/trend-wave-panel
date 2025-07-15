@@ -21,6 +21,7 @@ interface Settings {
   default_balance: number;
   notification_email: string;
   service_fee: number;
+  base_fee: number;
 }
 
 export default function AdminSettings() {
@@ -38,7 +39,8 @@ export default function AdminSettings() {
     allow_registration: true,
     default_balance: 0,
     notification_email: 'admin@hitloyal.com',
-    service_fee: 0
+    service_fee: 0,
+    base_fee: 0
   });
 
   const [stats, setStats] = useState({
@@ -55,7 +57,6 @@ export default function AdminSettings() {
 
   const loadSettings = async () => {
     try {
-      // Load service_fee from database via SettingsContext
       const { data, error } = await supabase
         .from('admin_settings')
         .select('setting_key, setting_value');
@@ -73,7 +74,6 @@ export default function AdminSettings() {
           const key = item.setting_key as keyof Settings;
           let value = item.setting_value;
           
-          // Parse JSON values if they are strings
           if (typeof value === 'string' && (value.startsWith('"') || value === 'true' || value === 'false' || !isNaN(Number(value)))) {
             try {
               value = JSON.parse(value);
@@ -82,7 +82,7 @@ export default function AdminSettings() {
             }
           }
           
-          if (key === 'service_fee') {
+          if (key === 'service_fee' || key === 'base_fee') {
             dbSettings[key] = parseFloat(String(value)) || 0;
           } else if (key === 'maintenance_mode' || key === 'allow_registration') {
             dbSettings[key] = Boolean(value);
@@ -139,7 +139,6 @@ export default function AdminSettings() {
     try {
       console.log('🔥 AdminSettings: Saving settings:', settings);
       
-      // Save all settings to database
       const settingsArray = Object.entries(settings).map(([key, value]) => ({
         setting_key: key,
         setting_value: value
@@ -153,9 +152,14 @@ export default function AdminSettings() {
         throw error;
       }
 
-      // Update the context with new settings
-      updateSettings({ service_fee: settings.service_fee });
-      console.log('🔥 AdminSettings: Updated context with service_fee:', settings.service_fee);
+      updateSettings({ 
+        service_fee: settings.service_fee,
+        base_fee: settings.base_fee 
+      });
+      console.log('🔥 AdminSettings: Updated context with fees:', {
+        service_fee: settings.service_fee,
+        base_fee: settings.base_fee
+      });
       
       toast({
         title: "Uğurlu",
@@ -355,7 +359,22 @@ export default function AdminSettings() {
                   onChange={(e) => handleInputChange('service_fee', parseFloat(e.target.value) || 0)}
                 />
                 <p className="text-sm text-muted-foreground mt-1">
-                  Hər sifarişin əsas qiymətinə əlavə olunacaq faiz. Məsələn: 10% əlavə haqqı
+                  Hər sifarişin qiymətinə əlavə olunacaq faiz. Məsələn: 10% əlavə haqqı
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="base_fee">Standart Haqqı ($)</Label>
+                <Input
+                  id="base_fee"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={settings.base_fee}
+                  onChange={(e) => handleInputChange('base_fee', parseFloat(e.target.value) || 0)}
+                />
+                <p className="text-sm text-muted-foreground mt-1">
+                  Hər sifarişə əlavə olunacaq standart qiymət. Məsələn: $0.50 əlavə haqqı
                 </p>
               </div>
             </CardContent>

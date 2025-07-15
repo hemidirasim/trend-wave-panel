@@ -1,4 +1,3 @@
-
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -53,18 +52,10 @@ export function ServiceSelector({
       return serviceType === selectedServiceType;
     });
 
-    // Sort services by calculated final price (including percentage fee)
+    // Sort services by calculated final price (including percentage fee and base fee)
     const sortedServices = [...filtered].sort((a, b) => {
-      const priceA = proxyApiService.calculatePrice(a, 1000, serviceFeePercentage);
-      const priceB = proxyApiService.calculatePrice(b, 1000, serviceFeePercentage);
-      
-      console.log('🔥 Service sorting comparison:', {
-        serviceA: a.public_name,
-        priceA,
-        serviceB: b.public_name,
-        priceB,
-        serviceFeePercentage
-      });
+      const priceA = proxyApiService.calculatePrice(a, 1000, serviceFeePercentage, 0); // Base fee will be added in context
+      const priceB = proxyApiService.calculatePrice(b, 1000, serviceFeePercentage, 0);
       
       return priceFilter === 'low-to-high' ? priceA - priceB : priceB - priceA;
     });
@@ -73,32 +64,16 @@ export function ServiceSelector({
   };
 
   const formatPriceDisplay = (service: Service) => {
-    console.log('🔥 Formatting price for service:', {
-      serviceName: service.public_name,
-      serviceId: service.id_service,
-      prices: service.prices,
-      serviceFeePercentage
-    });
-
     // Check if service has valid price data
     if (!service.prices || service.prices.length === 0) {
-      console.log('❌ No prices found for service:', service.public_name);
       return 'Qiymət yoxdur';
     }
 
     // Use a standard quantity of 1000 for price comparison
-    const totalPrice = proxyApiService.calculatePrice(service, 1000, serviceFeePercentage);
+    const totalPrice = proxyApiService.calculatePrice(service, 1000, serviceFeePercentage, 0); // Base fee handled in context
     const pricingPer = service.prices[0]?.pricing_per || '1000';
-    
-    console.log('🔥 Calculated price display:', {
-      serviceName: service.public_name,
-      totalPrice,
-      pricingPer,
-      originalPrice: service.prices[0]?.price
-    });
 
     if (totalPrice === 0) {
-      console.log('❌ Price calculation returned 0 for:', service.public_name);
       // Fallback to showing the raw price if calculation fails
       const rawPrice = parseFloat(service.prices[0]?.price || '0');
       if (rawPrice > 0) {

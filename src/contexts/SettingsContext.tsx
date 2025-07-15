@@ -3,7 +3,8 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Settings {
-  service_fee: number; // Now represents percentage (e.g., 10 for 10%)
+  service_fee: number; // Faiz (məs. 10 = 10%)
+  base_fee: number; // Standart qiymət (məs. 0.50 USD)
 }
 
 interface SettingsContextType {
@@ -17,7 +18,8 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [settings, setSettings] = useState<Settings>({
-    service_fee: 0
+    service_fee: 0,
+    base_fee: 0
   });
   const [loading, setLoading] = useState(true);
 
@@ -31,39 +33,33 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const { data, error } = await supabase
         .from('admin_settings')
         .select('setting_key, setting_value')
-        .eq('setting_key', 'service_fee')
-        .single();
+        .in('setting_key', ['service_fee', 'base_fee']);
 
-      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+      if (error && error.code !== 'PGRST116') {
         console.error('🔥 SettingsContext: Error loading settings:', error);
         return;
       }
 
-      if (data) {
-        // setting_value is stored as JSONB, so we need to extract the numeric value
-        let serviceFee = 0;
-        if (typeof data.setting_value === 'number') {
-          serviceFee = data.setting_value;
-        } else if (typeof data.setting_value === 'string') {
-          serviceFee = parseFloat(data.setting_value) || 0;
-        } else {
-          // If it's stored as quoted string in JSONB or any other format
-          serviceFee = parseFloat(String(data.setting_value)) || 0;
-        }
+      if (data && data.length > 0) {
+        const newSettings = { ...settings };
         
-        console.log('🔥 SettingsContext: Loaded service_fee from database:', {
-          rawValue: data.setting_value,
-          parsedValue: serviceFee,
-          type: typeof data.setting_value
+        data.forEach((item) => {
+          const key = item.setting_key as keyof Settings;
+          let value = item.setting_value;
+          
+          if (typeof value === 'number') {
+            newSettings[key] = value;
+          } else if (typeof value === 'string') {
+            newSettings[key] = parseFloat(value) || 0;
+          } else {
+            newSettings[key] = parseFloat(String(value)) || 0;
+          }
         });
         
-        setSettings(prev => {
-          const updated = { ...prev, service_fee: serviceFee };
-          console.log('🔥 SettingsContext: Updated settings state:', updated);
-          return updated;
-        });
+        console.log('🔥 SettingsContext: Loaded settings from database:', newSettings);
+        setSettings(newSettings);
       } else {
-        console.log('🔥 SettingsContext: No service_fee setting found in database, using default: 0');
+        console.log('🔥 SettingsContext: No settings found in database, using defaults');
       }
     } catch (error) {
       console.error('🔥 SettingsContext: Error loading settings:', error);
@@ -76,21 +72,23 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     console.log('🔥 SettingsContext: updateSettings called with:', newSettings);
     
     try {
-      if (newSettings.service_fee !== undefined) {
+      const settingsToUpdate = Object.entries(newSettings).map(([key, value]) => ({
+        setting_key: key,
+        setting_value: value
+      }));
+
+      for (const setting of settingsToUpdate) {
         const { error } = await supabase
           .from('admin_settings')
-          .upsert({
-            setting_key: 'service_fee',
-            setting_value: newSettings.service_fee
-          }, { onConflict: 'setting_key' });
+          .upsert(setting, { onConflict: 'setting_key' });
 
         if (error) {
-          console.error('🔥 SettingsContext: Error saving service_fee to database:', error);
+          console.error(`🔥 SettingsContext: Error saving ${setting.setting_key} to database:`, error);
           return;
         }
-
-        console.log('🔥 SettingsContext: Successfully saved service_fee to database:', newSettings.service_fee);
       }
+
+      console.log('🔥 SettingsContext: Successfully saved settings to database:', newSettings);
 
       setSettings(prev => {
         const updated = { ...prev, ...newSettings };
@@ -103,15 +101,22 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const applyServiceFee = (basePrice: number): number => {
-    // Service fee is now a percentage (e.g., 10 for 10%)
-    const feeAmount = (basePrice * settings.service_fee) / 100;
-    const result = basePrice + feeAmount;
+    // Əvvəlcə standart qiymət əlavə et
+    const priceWithBaseFee = basePrice + settings.base_fee;
+    
+    // Sonra faiz tətbiq et
+    const feeAmount = (priceWithBaseFee * settings.service_fee) / 100;
+    const result = priceWithBaseFee + feeAmount;
+    
     console.log('🔥 SettingsContext: applyServiceFee called:', {
       basePrice,
+      baseFee: settings.base_fee,
+      priceWithBaseFee,
       serviceFeePercentage: settings.service_fee,
       feeAmount,
       result
     });
+    
     return result;
   };
 

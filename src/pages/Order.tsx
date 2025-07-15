@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -73,13 +72,18 @@ const Order = () => {
     if (selectedService && formData.quantity) {
       const quantity = parseInt(formData.quantity);
       if (!isNaN(quantity) && quantity > 0) {
-        const price = proxyApiService.calculatePrice(selectedService, quantity, settings.service_fee);
+        const price = proxyApiService.calculatePrice(
+          selectedService, 
+          quantity, 
+          settings.service_fee,
+          settings.base_fee
+        );
         setCalculatedPrice(price);
       } else {
         setCalculatedPrice(0);
       }
     }
-  }, [selectedService, formData.quantity, settings.service_fee]);
+  }, [selectedService, formData.quantity, settings.service_fee, settings.base_fee]);
 
   const fetchServices = async () => {
     try {

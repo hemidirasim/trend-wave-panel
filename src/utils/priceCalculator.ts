@@ -1,11 +1,17 @@
 
 import { Service } from "@/types/api";
 
-export const calculatePrice = (service: Service, quantity: number, serviceFeePercentage: number = 0): number => {
+export const calculatePrice = (
+  service: Service, 
+  quantity: number, 
+  serviceFeePercentage: number = 0,
+  baseFee: number = 0
+): number => {
   console.log('🔥 calculatePrice metoduna giriş:', {
     serviceName: service.public_name,
     quantity,
-    serviceFeePercentage: serviceFeePercentage,
+    serviceFeePercentage,
+    baseFee,
     prices: service.prices
   });
 
@@ -54,9 +60,12 @@ export const calculatePrice = (service: Service, quantity: number, serviceFeePer
   const costPerUnit = priceForPricingPer / pricingPer;
   const baseCost = costPerUnit * quantity;
   
-  // Apply service fee as percentage
-  const feeAmount = (baseCost * serviceFeePercentage) / 100;
-  const finalPrice = baseCost + feeAmount;
+  // Apply base fee first
+  const costWithBaseFee = baseCost + baseFee;
+  
+  // Apply service fee as percentage on top of base cost + base fee
+  const feeAmount = (costWithBaseFee * serviceFeePercentage) / 100;
+  const finalPrice = costWithBaseFee + feeAmount;
   
   console.log('💰 Service price calculation:', {
     serviceName: service.public_name,
@@ -65,6 +74,8 @@ export const calculatePrice = (service: Service, quantity: number, serviceFeePer
     costPerUnit: costPerUnit,
     quantity: quantity,
     baseCost: baseCost,
+    baseFee: baseFee,
+    costWithBaseFee: costWithBaseFee,
     serviceFeePercentage: serviceFeePercentage,
     feeAmount: feeAmount,
     finalPrice: finalPrice
