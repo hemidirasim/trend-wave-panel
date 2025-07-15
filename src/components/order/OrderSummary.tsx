@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calculator, CheckCircle } from 'lucide-react';
@@ -58,20 +59,6 @@ export function OrderSummary({
                 <span>Miqdar:</span>
                 <span>{quantity || '0'}</span>
               </div>
-              
-              {baseFee > 0 && (
-                <div className="flex justify-between text-sm text-muted-foreground">
-                  <span>Standart haqqı:</span>
-                  <span>${baseFee.toFixed(2)}</span>
-                </div>
-              )}
-              
-              {serviceFeePercentage > 0 && (
-                <div className="flex justify-between text-sm text-muted-foreground">
-                  <span>Xidmət haqqı ({serviceFeePercentage}%):</span>
-                  <span>Daxildir</span>
-                </div>
-              )}
               
               <div className="flex justify-between font-semibold border-t pt-2">
                 <span>Cəmi:</span>
