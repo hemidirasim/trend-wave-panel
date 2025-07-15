@@ -1,6 +1,26 @@
 
 import { PaymentProviderInterface, PaymentRequest, PaymentResponse, PaymentStatus } from '@/types/payment';
 
+interface PayriffPaymentData {
+  merchant: string;
+  amount: number;
+  currency: string;
+  order_id: string;
+  description: string;
+  success_url: string;
+  error_url: string;
+  customer_email: string;
+  customer_name: string;
+  language: string;
+  signature?: string;
+}
+
+interface PayriffStatusData {
+  merchant: string;
+  transaction_id: string;
+  signature?: string;
+}
+
 export class PayriffProvider implements PaymentProviderInterface {
   private readonly baseUrl = 'https://api.payriff.com';
   private readonly merchantId: string;
@@ -18,7 +38,7 @@ export class PayriffProvider implements PaymentProviderInterface {
       // Convert amount to kopecks (Payriff expects amount in kopecks)
       const amountInKopecks = Math.round(request.amount * 100);
 
-      const paymentData = {
+      const paymentData: PayriffPaymentData = {
         merchant: this.merchantId,
         amount: amountInKopecks,
         currency: request.currency.toUpperCase(),
@@ -26,8 +46,8 @@ export class PayriffProvider implements PaymentProviderInterface {
         description: request.description,
         success_url: request.successUrl,
         error_url: request.errorUrl,
-        customer_email: request.customerEmail,
-        customer_name: request.customerName,
+        customer_email: request.customerEmail || '',
+        customer_name: request.customerName || '',
         language: 'az'
       };
 
@@ -69,7 +89,7 @@ export class PayriffProvider implements PaymentProviderInterface {
 
   async checkPaymentStatus(transactionId: string): Promise<PaymentStatus> {
     try {
-      const statusData = {
+      const statusData: PayriffStatusData = {
         merchant: this.merchantId,
         transaction_id: transactionId
       };
