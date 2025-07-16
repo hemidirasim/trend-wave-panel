@@ -66,8 +66,12 @@ serve(async (req) => {
 
       // Create signature according to Epoint documentation
       // signature = base64_encode(sha1(private_key + data + private_key, 1))
-      const dataString = JSON.stringify(paymentData);
+      // Create the data string by concatenating values in the order they appear
+      const dataString = `${publicKey}${amountInQepik}${currency}${description}${orderId}${successUrl}${errorUrl}az`;
       const signatureData = privateKey + dataString + privateKey;
+      
+      console.log('Signature data string:', dataString);
+      console.log('Full signature input:', `${privateKey}[data]${privateKey}`);
       
       // Create SHA1 hash
       const encoder = new TextEncoder();
@@ -77,21 +81,30 @@ serve(async (req) => {
       const hashHex = Array.from(hashArray).map(b => b.toString(16).padStart(2, '0')).join('');
       const signature = btoa(hashHex);
 
-      const requestBody = {
-        ...paymentData,
-        signature: signature
-      };
+      console.log('Generated signature:', signature);
 
-      console.log('Request body:', JSON.stringify(requestBody, null, 2));
+      // Prepare form data for Epoint API
+      const formData = new URLSearchParams();
+      formData.append('public_key', publicKey);
+      formData.append('amount', amountInQepik.toString());
+      formData.append('currency', currency);
+      formData.append('description', description);
+      formData.append('order_id', orderId);
+      formData.append('success_redirect', successUrl);
+      formData.append('error_redirect', errorUrl);
+      formData.append('lang', 'az');
+      formData.append('signature', signature);
+
+      console.log('Form data:', formData.toString());
 
       try {
         const response = await fetch('https://epoint.az/api/1/request', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded',
             'Accept': 'application/json'
           },
-          body: JSON.stringify(requestBody)
+          body: formData.toString()
         });
 
         console.log('Epoint API response status:', response.status);
