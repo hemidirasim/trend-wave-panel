@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -52,13 +51,14 @@ serve(async (req) => {
 
       console.log('Creating Epoint payment with amount:', amountInQepik);
 
-      // Create JSON string as shown in the documentation
+      // Create JSON string as shown in the documentation with language parameter
       const jsonData = {
         "public_key": publicKey,
         "amount": amountInQepik.toString(),
         "currency": currency,
         "description": description,
-        "order_id": orderId.toString()
+        "order_id": orderId.toString(),
+        "language": "az"
       };
 
       const jsonString = JSON.stringify(jsonData);
