@@ -5,18 +5,18 @@ import { Service, OrderResponse, OrderStatus, Submission } from "@/types/api";
 class ApiClient {
   private async makeRequest(requestData: any): Promise<any> {
     try {
-      console.log('Making request via Edge Function:', requestData);
+      console.log('Making request via Social Media API:', requestData);
       
-      const { data, error } = await supabase.functions.invoke('qqtube-api', {
+      const { data, error } = await supabase.functions.invoke('social-media-api', {
         body: requestData,
       });
 
       if (error) {
-        console.error('Edge Function Error:', error);
-        throw new Error(`Edge Function error: ${error.message}`);
+        console.error('Social Media API Error:', error);
+        throw new Error(`API error: ${error.message}`);
       }
 
-      console.log('Edge Function Response:', data);
+      console.log('Social Media API Response:', data);
       return data;
     } catch (error) {
       console.error('API Request Error:', error);
