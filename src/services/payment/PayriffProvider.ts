@@ -41,7 +41,10 @@ export class PayriffProvider implements PaymentProviderInterface {
 
   async createPayment(request: PaymentRequest): Promise<PaymentResponse> {
     try {
-      console.log('Creating Payriff payment with API v3:', request);
+      console.log('Creating Payriff payment with credentials:', {
+        merchantId: this.merchantId,
+        secretKeyLength: this.secretKey.length
+      });
 
       const paymentData: PayriffPaymentData = {
         amount: request.amount,
@@ -66,6 +69,7 @@ export class PayriffProvider implements PaymentProviderInterface {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
+          'MerchantId': this.merchantId,
           'Authorization': `Bearer ${this.secretKey}`
         },
         body: JSON.stringify(paymentData)
@@ -123,6 +127,7 @@ export class PayriffProvider implements PaymentProviderInterface {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
+          'MerchantId': this.merchantId,
           'Authorization': `Bearer ${this.secretKey}`
         },
         body: JSON.stringify(statusData)
