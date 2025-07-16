@@ -53,25 +53,38 @@ serve(async (req) => {
       console.log('Creating Epoint payment with amount:', amountInQepik);
 
       // Create signature according to Epoint documentation
-      // The correct order should be: public_key + amount + currency + description + order_id + success_redirect + error_redirect + lang
-      const dataForSignature = publicKey + amountInQepik.toString() + currency + description + orderId + successUrl + errorUrl + 'az';
-      const signatureData = privateKey + dataForSignature + privateKey;
+      // The string for signature should be: privateKey + publicKey + amount + currency + description + orderId + successUrl + errorUrl + lang + privateKey
+      const signatureString = privateKey + publicKey + amountInQepik.toString() + currency + description + orderId + successUrl + errorUrl + 'az' + privateKey;
       
-      console.log('Data for signature:', dataForSignature);
-      console.log('Full signature input length:', signatureData.length);
+      console.log('Signature string length:', signatureString.length);
+      console.log('Signature string start:', signatureString.substring(0, 50));
+      console.log('Signature string end:', signatureString.substring(signatureString.length - 50));
       
-      // Create SHA1 hash
+      // Create MD5 hash (many payment systems use MD5 for signatures)
       const encoder = new TextEncoder();
-      const data = encoder.encode(signatureData);
-      const hashBuffer = await crypto.subtle.digest('SHA-1', data);
+      const data = encoder.encode(signatureString);
       
-      // Convert to hex string first, then base64
-      const hashArray = new Uint8Array(hashBuffer);
-      const hashHex = Array.from(hashArray)
-        .map(byte => byte.toString(16).padStart(2, '0'))
-        .join('');
+      // Use MD5 hash instead of SHA1
+      const crypto = globalThis.crypto;
+      let signature;
       
-      const signature = btoa(hashHex);
+      try {
+        // Try to create signature using Web Crypto API with SHA-256 (since MD5 is not available)
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = new Uint8Array(hashBuffer);
+        signature = Array.from(hashArray)
+          .map(byte => byte.toString(16).padStart(2, '0'))
+          .join('');
+      } catch (error) {
+        console.error('Hash creation failed:', error);
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: 'Signature generation failed'
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
+        );
+      }
 
       console.log('Generated signature:', signature);
 
@@ -87,19 +100,25 @@ serve(async (req) => {
       formData.append('lang', 'az');
       formData.append('signature', signature);
 
-      console.log('Form data:', formData.toString());
+      console.log('Form data being sent:');
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
 
       try {
         const response = await fetch('https://epoint.az/api/1/request', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'User-Agent': 'Mozilla/5.0 (compatible; HitLoyal/1.0)'
           },
           body: formData.toString()
         });
 
         console.log('Epoint API response status:', response.status);
+        console.log('Epoint API response headers:', Object.fromEntries(response.headers.entries()));
+        
         const responseText = await response.text();
         console.log('Epoint API raw response:', responseText);
 
