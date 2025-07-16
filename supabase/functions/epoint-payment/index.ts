@@ -53,38 +53,25 @@ serve(async (req) => {
       console.log('Creating Epoint payment with amount:', amountInQepik);
 
       // Create signature according to Epoint documentation
-      // The data string should be all values concatenated in alphabetical order of parameter names
-      const dataParams = {
-        amount: amountInQepik.toString(),
-        currency: currency,
-        description: description,
-        error_redirect: errorUrl,
-        lang: 'az',
-        order_id: orderId,
-        public_key: publicKey,
-        success_redirect: successUrl
-      };
-
-      // Sort parameters alphabetically and concatenate values
-      const sortedKeys = Object.keys(dataParams).sort();
-      const dataString = sortedKeys.map(key => dataParams[key]).join('');
-      const signatureData = privateKey + dataString + privateKey;
+      // The correct order should be: public_key + amount + currency + description + order_id + success_redirect + error_redirect + lang
+      const dataForSignature = publicKey + amountInQepik.toString() + currency + description + orderId + successUrl + errorUrl + 'az';
+      const signatureData = privateKey + dataForSignature + privateKey;
       
-      console.log('Sorted parameters:', sortedKeys);
-      console.log('Data string:', dataString);
+      console.log('Data for signature:', dataForSignature);
       console.log('Full signature input length:', signatureData.length);
       
-      // Create SHA1 hash and encode to base64
+      // Create SHA1 hash
       const encoder = new TextEncoder();
       const data = encoder.encode(signatureData);
       const hashBuffer = await crypto.subtle.digest('SHA-1', data);
-      const hashArray = new Uint8Array(hashBuffer);
       
-      // Convert to binary string first, then base64
-      const binaryString = Array.from(hashArray)
-        .map(byte => String.fromCharCode(byte))
+      // Convert to hex string first, then base64
+      const hashArray = new Uint8Array(hashBuffer);
+      const hashHex = Array.from(hashArray)
+        .map(byte => byte.toString(16).padStart(2, '0'))
         .join('');
-      const signature = btoa(binaryString);
+      
+      const signature = btoa(hashHex);
 
       console.log('Generated signature:', signature);
 
