@@ -11,11 +11,8 @@ export class PaymentService {
   }
 
   private initializeProviders() {
-    // Initialize Payriff provider with correct credentials
-    const payriffProvider = new PayriffProvider(
-      'ES1094521', // Merchant ID
-      '910C7790D6F14A6DAF28C7A34374A81A' // Secret Key
-    );
+    // Initialize Payriff provider (credentials are now in Edge Function)
+    const payriffProvider = new PayriffProvider();
     this.providers.set('payriff', payriffProvider);
   }
 

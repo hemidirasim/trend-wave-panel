@@ -1,110 +1,46 @@
 
 import { PaymentProviderInterface, PaymentRequest, PaymentResponse, PaymentStatus } from '@/types/payment';
-
-interface PayriffPaymentData {
-  amount: number;
-  language: string;
-  currency: string;
-  description: string;
-  callbackUrl: string;
-  cardSave: boolean;
-  operation: string;
-  metadata?: { [key: string]: string };
-}
-
-interface PayriffApiResponse {
-  code: string;
-  message: string;
-  route: string;
-  internalMessage: string | null;
-  responseId: string;
-  payload: {
-    orderId: string;
-    paymentUrl: string;
-    transactionId: number;
-  };
-}
-
-interface PayriffStatusData {
-  orderId: string;
-}
+import { supabase } from '@/integrations/supabase/client';
 
 export class PayriffProvider implements PaymentProviderInterface {
-  private readonly baseUrl = 'https://api.payriff.com';
-  private readonly merchantId: string;
-  private readonly secretKey: string;
-
-  constructor(merchantId: string, secretKey: string) {
-    this.merchantId = merchantId;
-    this.secretKey = secretKey;
-  }
-
   async createPayment(request: PaymentRequest): Promise<PaymentResponse> {
     try {
-      console.log('Creating Payriff payment with credentials:', {
-        merchantId: this.merchantId,
-        secretKeyLength: this.secretKey.length
-      });
+      console.log('Creating Payriff payment via Edge Function:', request);
 
-      const paymentData: PayriffPaymentData = {
-        amount: request.amount,
-        language: 'EN',
-        currency: request.currency.toUpperCase(),
-        description: request.description,
-        callbackUrl: request.successUrl,
-        cardSave: false,
-        operation: 'PURCHASE',
-        metadata: {
+      const { data, error } = await supabase.functions.invoke('payriff-payment', {
+        body: {
+          action: 'createPayment',
+          amount: request.amount,
+          currency: request.currency,
           orderId: request.orderId,
-          customerEmail: request.customerEmail || '',
-          customerName: request.customerName || ''
+          description: request.description,
+          customerEmail: request.customerEmail,
+          customerName: request.customerName,
+          successUrl: request.successUrl,
+          errorUrl: request.errorUrl
         }
-      };
-
-      console.log('Sending payment request to:', `${this.baseUrl}/api/v3/orders`);
-      console.log('Payment data:', paymentData);
-
-      const response = await fetch(`${this.baseUrl}/api/v3/orders`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'MerchantId': this.merchantId,
-          'Authorization': `Bearer ${this.secretKey}`
-        },
-        body: JSON.stringify(paymentData)
       });
 
-      console.log('Payriff API response status:', response.status);
-      console.log('Payriff API response headers:', Object.fromEntries(response.headers.entries()));
-
-      const responseText = await response.text();
-      console.log('Payriff API raw response:', responseText);
-
-      let result: PayriffApiResponse;
-      try {
-        result = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error('Failed to parse response as JSON:', parseError);
-        console.error('Response text:', responseText);
+      if (error) {
+        console.error('Edge function error:', error);
         return {
           success: false,
-          error: 'API cavab formatı düzgün deyil'
+          error: 'Ödəniş sistemində xəta baş verdi'
         };
       }
 
-      console.log('Payriff payment response:', result);
+      console.log('Edge function response:', data);
 
-      if (result.code === '00000' && result.payload?.paymentUrl) {
+      if (data.success && data.paymentUrl) {
         return {
           success: true,
-          paymentUrl: result.payload.paymentUrl,
-          transactionId: result.payload.transactionId.toString()
+          paymentUrl: data.paymentUrl,
+          transactionId: data.transactionId
         };
       } else {
         return {
           success: false,
-          error: result.message || 'Ödəniş yaradılmadı'
+          error: data.error || 'Ödəniş yaradılmadı'
         };
       }
     } catch (error) {
@@ -118,30 +54,19 @@ export class PayriffProvider implements PaymentProviderInterface {
 
   async checkPaymentStatus(transactionId: string): Promise<PaymentStatus> {
     try {
-      const statusData: PayriffStatusData = {
-        orderId: transactionId
-      };
-
-      const response = await fetch(`${this.baseUrl}/api/v3/orders/status`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'MerchantId': this.merchantId,
-          'Authorization': `Bearer ${this.secretKey}`
-        },
-        body: JSON.stringify(statusData)
+      const { data, error } = await supabase.functions.invoke('payriff-payment', {
+        body: {
+          action: 'checkStatus',
+          transactionId: transactionId
+        }
       });
 
-      const result = await response.json();
+      if (error) {
+        console.error('Status check error:', error);
+        throw new Error('Ödəniş statusu yoxlanılmadı');
+      }
 
-      return {
-        status: this.mapPayriffStatus(result.status),
-        transactionId: result.transactionId,
-        amount: result.amount,
-        currency: result.currency,
-        orderId: result.orderId
-      };
+      return data;
     } catch (error) {
       console.error('Error checking payment status:', error);
       throw new Error('Ödəniş statusu yoxlanılmadı');
@@ -156,24 +81,6 @@ export class PayriffProvider implements PaymentProviderInterface {
     } catch (error) {
       console.error('Payment verification error:', error);
       return false;
-    }
-  }
-
-  private mapPayriffStatus(status: string): 'pending' | 'success' | 'failed' | 'cancelled' {
-    switch (status?.toLowerCase()) {
-      case 'success':
-      case 'completed':
-      case 'paid':
-        return 'success';
-      case 'failed':
-      case 'error':
-      case 'declined':
-        return 'failed';
-      case 'cancelled':
-      case 'canceled':
-        return 'cancelled';
-      default:
-        return 'pending';
     }
   }
 }
