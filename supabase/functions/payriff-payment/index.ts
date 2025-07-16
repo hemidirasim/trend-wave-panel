@@ -42,8 +42,8 @@ serve(async (req) => {
     const { action, ...data } = await req.json()
     
     // Use real Payriff test credentials - update these with your real credentials
-    const merchantId = 'YOUR_MERCHANT_ID'
-    const secretKey = 'YOUR_SECRET_KEY'
+    const merchantId = 'ES1094521'
+    const secretKey = '910C7790D6F14A6DAF28C7A34374A81A'
     const baseUrl = 'https://api.payriff.com'
 
     console.log('Payriff payment request:', { action, data })
