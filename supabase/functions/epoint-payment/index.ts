@@ -50,36 +50,41 @@ serve(async (req) => {
       // Convert amount to proper format (Epoint expects amount in qəpik/cents)
       const amountInQepik = Math.round(amount * 100);
 
-      // Create payment data according to Epoint API
-      const paymentData = {
-        public_key: publicKey,
-        amount: amountInQepik,
-        currency: currency,
-        description: description,
-        order_id: orderId,
-        success_redirect: successUrl,
-        error_redirect: errorUrl,
-        lang: 'az'
-      };
-
-      console.log('Creating Epoint payment:', paymentData);
+      console.log('Creating Epoint payment with amount:', amountInQepik);
 
       // Create signature according to Epoint documentation
-      // signature = base64_encode(sha1(private_key + data + private_key, 1))
-      // Create the data string by concatenating values in the order they appear
-      const dataString = `${publicKey}${amountInQepik}${currency}${description}${orderId}${successUrl}${errorUrl}az`;
+      // The data string should be all values concatenated in alphabetical order of parameter names
+      const dataParams = {
+        amount: amountInQepik.toString(),
+        currency: currency,
+        description: description,
+        error_redirect: errorUrl,
+        lang: 'az',
+        order_id: orderId,
+        public_key: publicKey,
+        success_redirect: successUrl
+      };
+
+      // Sort parameters alphabetically and concatenate values
+      const sortedKeys = Object.keys(dataParams).sort();
+      const dataString = sortedKeys.map(key => dataParams[key]).join('');
       const signatureData = privateKey + dataString + privateKey;
       
-      console.log('Signature data string:', dataString);
-      console.log('Full signature input:', `${privateKey}[data]${privateKey}`);
+      console.log('Sorted parameters:', sortedKeys);
+      console.log('Data string:', dataString);
+      console.log('Full signature input length:', signatureData.length);
       
-      // Create SHA1 hash
+      // Create SHA1 hash and encode to base64
       const encoder = new TextEncoder();
       const data = encoder.encode(signatureData);
       const hashBuffer = await crypto.subtle.digest('SHA-1', data);
       const hashArray = new Uint8Array(hashBuffer);
-      const hashHex = Array.from(hashArray).map(b => b.toString(16).padStart(2, '0')).join('');
-      const signature = btoa(hashHex);
+      
+      // Convert to binary string first, then base64
+      const binaryString = Array.from(hashArray)
+        .map(byte => String.fromCharCode(byte))
+        .join('');
+      const signature = btoa(binaryString);
 
       console.log('Generated signature:', signature);
 
