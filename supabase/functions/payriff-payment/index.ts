@@ -41,9 +41,22 @@ serve(async (req) => {
   try {
     const { action, ...data } = await req.json()
     
-    // Use real Payriff test credentials - update these with your real credentials
-    const merchantId = 'ES1094521'
-    const secretKey = '910C7790D6F14A6DAF28C7A34374A81A'
+    // Use Payriff credentials from environment variables
+    const merchantId = Deno.env.get('PAYRIFF_MERCHANT_ID')
+    const secretKey = Deno.env.get('PAYRIFF_SECRET_KEY')
+    
+    if (!merchantId || !secretKey) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Payriff credentials not configured'
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500,
+        }
+      )
+    }
     const baseUrl = 'https://api.payriff.com'
 
     console.log('Payriff payment request:', { action, data })
