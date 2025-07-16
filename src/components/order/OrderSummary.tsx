@@ -1,7 +1,8 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calculator, CheckCircle } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { Calculator, DollarSign, Wallet, AlertTriangle } from 'lucide-react';
 import { Service } from '@/types/api';
 
 interface OrderSummaryProps {
@@ -9,84 +10,162 @@ interface OrderSummaryProps {
   quantity: string;
   calculatedPrice: number;
   serviceFeePercentage: number;
-  baseFee?: number;
+  baseFee: number;
+  userBalance?: number;
+  balanceLoading?: boolean;
+  onBalanceTopUp?: () => void;
+  showBalanceTopUp?: boolean;
+  BalanceTopUpComponent?: React.ReactNode;
 }
 
-export function OrderSummary({ 
-  selectedService, 
-  quantity, 
-  calculatedPrice, 
+export function OrderSummary({
+  selectedService,
+  quantity,
+  calculatedPrice,
   serviceFeePercentage,
-  baseFee = 0 
+  baseFee,
+  userBalance = 0,
+  balanceLoading = false,
+  onBalanceTopUp,
+  showBalanceTopUp = false,
+  BalanceTopUpComponent
 }: OrderSummaryProps) {
-  const getPlatformColor = (platform: string) => {
-    const colors: Record<string, string> = {
-      youtube: 'bg-red-500',
-      instagram: 'bg-pink-500',
-      tiktok: 'bg-purple-500',
-      facebook: 'bg-blue-500',
-      twitter: 'bg-sky-500',
-      telegram: 'bg-blue-400',
-      vimeo: 'bg-blue-600',
-    };
-    return colors[platform.toLowerCase()] || 'bg-gray-500';
-  };
+  const quantityNum = parseInt(quantity) || 0;
+  const basePrice = selectedService && quantityNum > 0 
+    ? (selectedService.prices?.[0]?.price_per_item || 0) * quantityNum / 1000
+    : 0;
+  
+  const serviceFee = basePrice * (serviceFeePercentage / 100);
+  const totalPrice = calculatedPrice;
+
+  const hasInsufficientBalance = userBalance < totalPrice && totalPrice > 0;
 
   return (
-    <Card className="sticky top-4">
-      <CardHeader>
-        <CardTitle className="flex items-center">
-          <Calculator className="h-5 w-5 mr-2" />
-          Sifariş Xülasəsi
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {selectedService ? (
-          <>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Xidmət:</span>
-                <Badge className={`${getPlatformColor(selectedService.platform)} text-white`}>
-                  {selectedService.platform}
-                </Badge>
+    <div className="space-y-6">
+      {/* Balance Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center text-lg">
+            <Wallet className="h-5 w-5 mr-2" />
+            Balans
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">Mövcud balans:</span>
+              <div className="flex items-center space-x-2">
+                {balanceLoading ? (
+                  <div className="h-4 w-16 bg-muted animate-pulse rounded" />
+                ) : (
+                  <Badge variant={userBalance > 0 ? "default" : "secondary"} className="text-lg font-semibold">
+                    ${userBalance.toFixed(2)}
+                  </Badge>
+                )}
               </div>
-              <h3 className="font-medium text-sm">{selectedService.public_name}</h3>
-              <p className="text-xs text-muted-foreground">{selectedService.type_name || 'Xidmət'}</p>
             </div>
+            
+            {userBalance === 0 && (
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                <div className="flex items-center space-x-2 text-orange-700">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span className="text-sm font-medium">Balansınız 0-dır</span>
+                </div>
+                <p className="text-xs text-orange-600 mt-1">
+                  Sifariş vermək üçün balansınızı artırın
+                </p>
+                <div className="mt-2">
+                  {BalanceTopUpComponent}
+                </div>
+              </div>
+            )}
 
-            <div className="border-t pt-4 space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Miqdar:</span>
-                <span>{quantity || '0'}</span>
+            {hasInsufficientBalance && userBalance > 0 && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <div className="flex items-center space-x-2 text-red-700">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span className="text-sm font-medium">Kifayət qədər balans yoxdur</span>
+                </div>
+                <p className="text-xs text-red-600 mt-1">
+                  ${(totalPrice - userBalance).toFixed(2)} çatışmır
+                </p>
+                <div className="mt-2">
+                  {BalanceTopUpComponent}
+                </div>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Order Summary Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center text-lg">
+            <Calculator className="h-5 w-5 mr-2" />
+            Sifariş Xülasəsi
+          </CardTitle>
+          <CardDescription>Qiymət hesablaması</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {selectedService && quantityNum > 0 ? (
+            <div className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Xidmət:</span>
+                  <span className="font-medium">{selectedService.public_name}</span>
+                </div>
+                
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Miqdar:</span>
+                  <span className="font-medium">{quantityNum.toLocaleString()}</span>
+                </div>
+                
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Baza qiymət:</span>
+                  <span className="font-medium">${basePrice.toFixed(4)}</span>
+                </div>
+                
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Xidmət haqqı ({serviceFeePercentage}%):</span>
+                  <span className="font-medium">${serviceFee.toFixed(4)}</span>
+                </div>
+                
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Əlavə haqq:</span>
+                  <span className="font-medium">${baseFee.toFixed(2)}</span>
+                </div>
               </div>
               
-              <div className="flex justify-between font-semibold border-t pt-2">
-                <span>Cəmi:</span>
-                <span>${calculatedPrice.toFixed(2)}</span>
+              <Separator />
+              
+              <div className="flex justify-between items-center">
+                <span className="font-semibold">Cəmi:</span>
+                <Badge variant="default" className="text-lg font-bold px-3 py-1">
+                  <DollarSign className="h-4 w-4 mr-1" />
+                  {totalPrice.toFixed(2)}
+                </Badge>
               </div>
+              
+              {selectedService.amount_minimum && (
+                <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
+                  <strong>Minimum:</strong> {parseInt(selectedService.amount_minimum).toLocaleString()}
+                  {selectedService.prices?.[0]?.maximum && (
+                    <span className="ml-2">
+                      <strong>Maksimum:</strong> {parseInt(selectedService.prices[0].maximum).toLocaleString()}
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
-
-            <div className="border-t pt-4 space-y-2">
-              <div className="flex items-center space-x-2 text-sm text-green-600">
-                <CheckCircle className="h-4 w-4" />
-                <span>Təhlükəsiz</span>
-              </div>
-              <div className="flex items-center space-x-2 text-sm text-blue-600">
-                <CheckCircle className="h-4 w-4" />
-                <span>Sürətli Çatdırılma</span>
-              </div>
-              <div className="flex items-center space-x-2 text-sm text-purple-600">
-                <CheckCircle className="h-4 w-4" />
-                <span>24/7 Dəstək</span>
-              </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <Calculator className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p className="text-sm">Xidmət və miqdar seçin</p>
             </div>
-          </>
-        ) : (
-          <p className="text-muted-foreground text-center py-8 text-sm">
-            Sifariş xülasəsini görmək üçün xidmət seçin
-          </p>
-        )}
-      </CardContent>
-    </Card>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }

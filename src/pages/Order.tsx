@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,12 +12,22 @@ import { OrderForm } from '@/components/order/OrderForm';
 import { OrderSummary } from '@/components/order/OrderSummary';
 import { proxyApiService, Service } from '@/components/ProxyApiService';
 import { useSettings } from '@/contexts/SettingsContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import AuthDialog from '@/components/AuthDialog';
+import { BalanceTopUpDialog } from '@/components/payment/BalanceTopUpDialog';
+import { supabase } from '@/integrations/supabase/client';
 
 const Order = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { settings, loading: settingsLoading } = useSettings();
+  const { user, loading: authLoading } = useAuth();
+  
+  // Auth and balance states
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const [userBalance, setUserBalance] = useState<number>(0);
+  const [balanceLoading, setBalanceLoading] = useState(false);
   
   // State management
   const [services, setServices] = useState<Service[]>([]);
@@ -61,6 +72,38 @@ const Order = () => {
       setSelectedPlatform(urlPlatform.toLowerCase());
     }
   }, [urlPlatform]);
+
+  // Fetch user balance when user is available
+  useEffect(() => {
+    if (user && !authLoading) {
+      fetchUserBalance();
+    }
+  }, [user, authLoading]);
+
+  const fetchUserBalance = async () => {
+    if (!user) return;
+    
+    try {
+      setBalanceLoading(true);
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('balance')
+        .eq('id', user.id)
+        .single();
+      
+      if (error) {
+        console.error('Error fetching balance:', error);
+        setUserBalance(0);
+      } else {
+        setUserBalance(data?.balance || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching balance:', error);
+      setUserBalance(0);
+    } finally {
+      setBalanceLoading(false);
+    }
+  };
 
   // Fetch services when settings are loaded
   useEffect(() => {
@@ -217,6 +260,18 @@ const Order = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Check if user is authenticated
+    if (!user) {
+      setAuthDialogOpen(true);
+      return;
+    }
+
+    // Check if user has sufficient balance
+    if (userBalance < calculatedPrice) {
+      toast.error('Kifayət qədər balansınız yoxdur. Balansınızı artırın.');
+      return;
+    }
+
     if (!validateForm()) {
       return;
     }
@@ -232,6 +287,8 @@ const Order = () => {
       
       if (response.status === 'success' && response.id_service_submission) {
         toast.success('Sifariş uğurla verildi!');
+        // Refresh balance after successful order
+        fetchUserBalance();
         navigate(`/track?order=${response.id_service_submission}`);
       } else {
         toast.error('Sifariş verilmədi. Yenidən cəhd edin.');
@@ -296,7 +353,12 @@ const Order = () => {
     return null;
   };
 
-  if (loading || settingsLoading) {
+  const handleBalanceTopUpSuccess = (transactionId: string) => {
+    toast.success('Balans uğurla artırıldı!');
+    fetchUserBalance();
+  };
+
+  if (loading || settingsLoading || authLoading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -407,6 +469,18 @@ const Order = () => {
                 calculatedPrice={calculatedPrice}
                 serviceFeePercentage={settings.service_fee}
                 baseFee={settings.base_fee}
+                userBalance={userBalance}
+                balanceLoading={balanceLoading}
+                onBalanceTopUp={() => {}}
+                showBalanceTopUp={user && userBalance < calculatedPrice}
+                BalanceTopUpComponent={
+                  <BalanceTopUpDialog
+                    customerEmail={user?.email}
+                    customerName={user?.user_metadata?.full_name}
+                    onSuccess={handleBalanceTopUpSuccess}
+                    onError={(error) => toast.error('Balans artırma zamanı xəta: ' + error)}
+                  />
+                }
               />
             </div>
           </div>
@@ -414,6 +488,11 @@ const Order = () => {
       </section>
 
       <Footer />
+
+      <AuthDialog
+        open={authDialogOpen}
+        onOpenChange={setAuthDialogOpen}
+      />
     </div>
   );
 };
