@@ -1,6 +1,7 @@
 
 import { PaymentProviderInterface, PaymentRequest, PaymentResponse, PaymentStatus, PaymentProvider } from '@/types/payment';
 import { PayriffProvider } from './PayriffProvider';
+import { EpointProvider } from './EpointProvider';
 
 export class PaymentService {
   private providers: Map<string, PaymentProviderInterface> = new Map();
@@ -14,6 +15,10 @@ export class PaymentService {
     // Initialize Payriff provider (credentials are now in Edge Function)
     const payriffProvider = new PayriffProvider();
     this.providers.set('payriff', payriffProvider);
+
+    // Initialize Epoint provider
+    const epointProvider = new EpointProvider();
+    this.providers.set('epoint', epointProvider);
   }
 
   getAvailableProviders(): PaymentProvider[] {
@@ -21,6 +26,11 @@ export class PaymentService {
       {
         id: 'payriff',
         name: 'Payriff',
+        isActive: true
+      },
+      {
+        id: 'epoint',
+        name: 'Epoint',
         isActive: true
       }
       // Future providers can be added here
