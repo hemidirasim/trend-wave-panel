@@ -11,10 +11,10 @@ export class PaymentService {
   }
 
   private initializeProviders() {
-    // Initialize Payriff provider
+    // Initialize Payriff provider with correct credentials
     const payriffProvider = new PayriffProvider(
-      'ES1092268', // Merchant ID
-      'B2FD40D66C644251AF8C007857A13B6F' // Secret Key
+      'ES1094521', // Updated Merchant ID
+      '910C7790D6F14A6DAF28C7A34374A81A' // Updated Secret Key
     );
     this.providers.set('payriff', payriffProvider);
   }
