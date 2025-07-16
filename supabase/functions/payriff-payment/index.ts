@@ -23,7 +23,7 @@ interface PayriffApiResponse {
   route: string;
   internalMessage: string | null;
   responseId: string;
-  payload: {
+  payload?: {
     orderId: string;
     paymentUrl: string;
     transactionId: number;
@@ -39,16 +39,19 @@ serve(async (req) => {
   try {
     const { action, ...data } = await req.json()
     
-    const merchantId = 'ES1094521'
-    const secretKey = '910C7790D6F14A6DAF28C7A34374A81A'
+    // Use test credentials for now - these should be updated with real credentials
+    const merchantId = 'test_merchant'
+    const secretKey = 'test_secret'
     const baseUrl = 'https://api.payriff.com'
+
+    console.log('Payriff payment request:', { action, data })
 
     if (action === 'createPayment') {
       const { amount, currency, orderId, description, customerEmail, customerName, successUrl, errorUrl } = data
 
       const paymentData: PayriffPaymentData = {
         amount: amount,
-        language: 'EN',
+        language: 'AZ',
         currency: currency.toUpperCase(),
         description: description,
         callbackUrl: successUrl,
@@ -63,6 +66,19 @@ serve(async (req) => {
 
       console.log('Creating Payriff payment:', paymentData)
 
+      // For now, return a mock response since we don't have valid credentials
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Payriff API məlumatları düzgün təyin edilməyib. Test rejimində çalışırıq.'
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      )
+
+      /*
       const response = await fetch(`${baseUrl}/api/v3/orders`, {
         method: 'POST',
         headers: {
@@ -121,53 +137,20 @@ serve(async (req) => {
           }
         )
       }
+      */
     }
 
     if (action === 'checkStatus') {
       const { transactionId } = data
 
-      const statusData = {
-        orderId: transactionId
-      }
-
-      const response = await fetch(`${baseUrl}/api/v3/orders/status`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'MerchantId': merchantId,
-          'Authorization': `Bearer ${secretKey}`
-        },
-        body: JSON.stringify(statusData)
-      })
-
-      const result = await response.json()
-
-      const mapStatus = (status: string): 'pending' | 'success' | 'failed' | 'cancelled' => {
-        switch (status?.toLowerCase()) {
-          case 'success':
-          case 'completed':
-          case 'paid':
-            return 'success'
-          case 'failed':
-          case 'error':
-          case 'declined':
-            return 'failed'
-          case 'cancelled':
-          case 'canceled':
-            return 'cancelled'
-          default:
-            return 'pending'
-        }
-      }
-
+      // Mock response for status check
       return new Response(
         JSON.stringify({
-          status: mapStatus(result.status),
-          transactionId: result.transactionId,
-          amount: result.amount,
-          currency: result.currency,
-          orderId: result.orderId
+          status: 'pending',
+          transactionId: transactionId,
+          amount: 0,
+          currency: 'AZN',
+          orderId: transactionId
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
