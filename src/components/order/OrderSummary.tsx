@@ -32,7 +32,7 @@ export function OrderSummary({
 }: OrderSummaryProps) {
   const quantityNum = parseInt(quantity) || 0;
   const basePrice = selectedService && quantityNum > 0 
-    ? (selectedService.prices?.[0]?.price_per_item || 0) * quantityNum / 1000
+    ? (selectedService.prices?.[0]?.price || 0) * quantityNum / 1000
     : 0;
   
   const serviceFee = basePrice * (serviceFeePercentage / 100);
