@@ -39,9 +39,9 @@ serve(async (req) => {
   try {
     const { action, ...data } = await req.json()
     
-    // Use test credentials for now - these should be updated with real credentials
-    const merchantId = 'test_merchant'
-    const secretKey = 'test_secret'
+    // Use real Payriff test credentials - update these with your real credentials
+    const merchantId = 'YOUR_MERCHANT_ID'
+    const secretKey = 'YOUR_SECRET_KEY'
     const baseUrl = 'https://api.payriff.com'
 
     console.log('Payriff payment request:', { action, data })
@@ -66,44 +66,71 @@ serve(async (req) => {
 
       console.log('Creating Payriff payment:', paymentData)
 
-      // For now, return a mock response since we don't have valid credentials
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: 'Payriff API məlumatları düzgün təyin edilməyib. Test rejimində çalışırıq.'
-        }),
-        {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 400,
-        }
-      )
-
-      /*
-      const response = await fetch(`${baseUrl}/api/v3/orders`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'MerchantId': merchantId,
-          'Authorization': `Bearer ${secretKey}`
-        },
-        body: JSON.stringify(paymentData)
-      })
-
-      console.log('Payriff API response status:', response.status)
-      
-      const responseText = await response.text()
-      console.log('Payriff API raw response:', responseText)
-
-      let result: PayriffApiResponse
       try {
-        result = JSON.parse(responseText)
-      } catch (parseError) {
-        console.error('Failed to parse response as JSON:', parseError)
+        const response = await fetch(`${baseUrl}/api/v3/orders`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'MerchantId': merchantId,
+            'Authorization': `Bearer ${secretKey}`
+          },
+          body: JSON.stringify(paymentData)
+        })
+
+        console.log('Payriff API response status:', response.status)
+        
+        const responseText = await response.text()
+        console.log('Payriff API raw response:', responseText)
+
+        let result: PayriffApiResponse
+        try {
+          result = JSON.parse(responseText)
+        } catch (parseError) {
+          console.error('Failed to parse response as JSON:', parseError)
+          return new Response(
+            JSON.stringify({
+              success: false,
+              error: 'API cavab formatı düzgün deyil'
+            }),
+            {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              status: 500,
+            }
+          )
+        }
+
+        console.log('Payriff payment response:', result)
+
+        if (result.code === '00000' && result.payload?.paymentUrl) {
+          return new Response(
+            JSON.stringify({
+              success: true,
+              paymentUrl: result.payload.paymentUrl,
+              transactionId: result.payload.transactionId.toString()
+            }),
+            {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            }
+          )
+        } else {
+          return new Response(
+            JSON.stringify({
+              success: false,
+              error: result.message || 'Ödəniş yaradılmadı'
+            }),
+            {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              status: 400,
+            }
+          )
+        }
+      } catch (fetchError) {
+        console.error('Fetch error:', fetchError)
         return new Response(
           JSON.stringify({
             success: false,
-            error: 'API cavab formatı düzgün deyil'
+            error: 'API sorğusunda xəta baş verdi'
           }),
           {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -111,51 +138,74 @@ serve(async (req) => {
           }
         )
       }
-
-      console.log('Payriff payment response:', result)
-
-      if (result.code === '00000' && result.payload?.paymentUrl) {
-        return new Response(
-          JSON.stringify({
-            success: true,
-            paymentUrl: result.payload.paymentUrl,
-            transactionId: result.payload.transactionId.toString()
-          }),
-          {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        )
-      } else {
-        return new Response(
-          JSON.stringify({
-            success: false,
-            error: result.message || 'Ödəniş yaradılmadı'
-          }),
-          {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 400,
-          }
-        )
-      }
-      */
     }
 
     if (action === 'checkStatus') {
       const { transactionId } = data
 
-      // Mock response for status check
-      return new Response(
-        JSON.stringify({
-          status: 'pending',
-          transactionId: transactionId,
-          amount: 0,
-          currency: 'AZN',
-          orderId: transactionId
-        }),
-        {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      const statusData = {
+        orderId: transactionId
+      }
+
+      try {
+        const response = await fetch(`${baseUrl}/api/v3/orders/status`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'MerchantId': merchantId,
+            'Authorization': `Bearer ${secretKey}`
+          },
+          body: JSON.stringify(statusData)
+        })
+
+        const result = await response.json()
+
+        const mapStatus = (status: string): 'pending' | 'success' | 'failed' | 'cancelled' => {
+          switch (status?.toLowerCase()) {
+            case 'success':
+            case 'completed':
+            case 'paid':
+              return 'success'
+            case 'failed':
+            case 'error':
+            case 'declined':
+              return 'failed'
+            case 'cancelled':
+            case 'canceled':
+              return 'cancelled'
+            default:
+              return 'pending'
+          }
         }
-      )
+
+        return new Response(
+          JSON.stringify({
+            status: mapStatus(result.status),
+            transactionId: result.transactionId,
+            amount: result.amount,
+            currency: result.currency,
+            orderId: result.orderId
+          }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        )
+      } catch (fetchError) {
+        console.error('Status check error:', fetchError)
+        return new Response(
+          JSON.stringify({
+            status: 'pending',
+            transactionId: transactionId,
+            amount: 0,
+            currency: 'AZN',
+            orderId: transactionId
+          }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        )
+      }
     }
 
     return new Response(
