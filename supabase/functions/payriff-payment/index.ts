@@ -45,6 +45,11 @@ serve(async (req) => {
     const merchantId = Deno.env.get('PAYRIFF_MERCHANT_ID')
     const secretKey = Deno.env.get('PAYRIFF_SECRET_KEY')
     
+    console.log('Payriff credentials check:', {
+      merchantId: merchantId ? `${merchantId.substring(0, 3)}...${merchantId.substring(merchantId.length - 3)}` : 'NOT SET',
+      secretKey: secretKey ? `${secretKey.substring(0, 8)}...${secretKey.substring(secretKey.length - 8)}` : 'NOT SET'
+    })
+    
     if (!merchantId || !secretKey) {
       return new Response(
         JSON.stringify({
@@ -81,15 +86,24 @@ serve(async (req) => {
 
       console.log('Creating Payriff payment:', paymentData)
 
+      const requestHeaders = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'MerchantId': merchantId,
+        'Authorization': `Bearer ${secretKey}`
+      }
+
+      console.log('Request headers:', {
+        ...requestHeaders,
+        'Authorization': `Bearer ${secretKey.substring(0, 8)}...${secretKey.substring(secretKey.length - 8)}`
+      })
+      console.log('Request URL:', `${baseUrl}/api/v3/orders`)
+      console.log('Request body:', JSON.stringify(paymentData, null, 2))
+
       try {
         const response = await fetch(`${baseUrl}/api/v3/orders`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'MerchantId': merchantId,
-            'Authorization': `Bearer ${secretKey}`
-          },
+          headers: requestHeaders,
           body: JSON.stringify(paymentData)
         })
 
