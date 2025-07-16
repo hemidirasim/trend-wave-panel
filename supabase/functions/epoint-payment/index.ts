@@ -52,52 +52,46 @@ serve(async (req) => {
 
       console.log('Creating Epoint payment with amount:', amountInQepik);
 
-      // Create signature according to Epoint documentation
-      // The string for signature should be: privateKey + publicKey + amount + currency + description + orderId + successUrl + errorUrl + lang + privateKey
-      const signatureString = privateKey + publicKey + amountInQepik.toString() + currency + description + orderId + successUrl + errorUrl + 'az' + privateKey;
-      
-      console.log('Signature string length:', signatureString.length);
-      console.log('Signature string start:', signatureString.substring(0, 50));
-      console.log('Signature string end:', signatureString.substring(signatureString.length - 50));
-      
-      // Create MD5 hash (many payment systems use MD5 for signatures)
-      const encoder = new TextEncoder();
-      const data = encoder.encode(signatureString);
-      
-      // Use MD5 hash instead of SHA1
-      const crypto = globalThis.crypto;
-      let signature;
-      
-      try {
-        // Try to create signature using Web Crypto API with SHA-256 (since MD5 is not available)
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-        const hashArray = new Uint8Array(hashBuffer);
-        signature = Array.from(hashArray)
-          .map(byte => byte.toString(16).padStart(2, '0'))
-          .join('');
-      } catch (error) {
-        console.error('Hash creation failed:', error);
-        return new Response(
-          JSON.stringify({
-            success: false,
-            error: 'Signature generation failed'
-          }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
-        );
-      }
+      // Create JSON string as shown in the documentation
+      const jsonData = {
+        "public_key": publicKey,
+        "amount": amountInQepik.toString(),
+        "currency": currency,
+        "description": description,
+        "order_id": orderId.toString()
+      };
 
+      const jsonString = JSON.stringify(jsonData);
+      console.log('JSON string created:', jsonString);
+
+      // Base64 encode the JSON string
+      const encoder = new TextEncoder();
+      const jsonBytes = encoder.encode(jsonString);
+      const data = btoa(String.fromCharCode(...jsonBytes));
+      
+      console.log('Base64 encoded data:', data);
+
+      // Create signature: private_key + data + private_key
+      const signatureInput = privateKey + data + privateKey;
+      console.log('Signature input length:', signatureInput.length);
+      console.log('Signature input start:', signatureInput.substring(0, 50));
+      console.log('Signature input end:', signatureInput.substring(signatureInput.length - 50));
+
+      // Create SHA1 hash and then base64 encode
+      const signatureBytes = encoder.encode(signatureInput);
+      const hashBuffer = await crypto.subtle.digest('SHA-1', signatureBytes);
+      const hashArray = new Uint8Array(hashBuffer);
+      const hashHex = Array.from(hashArray)
+        .map(byte => byte.toString(16).padStart(2, '0'))
+        .join('');
+      
+      // Base64 encode the hash
+      const signature = btoa(hashHex);
       console.log('Generated signature:', signature);
 
       // Prepare form data for Epoint API
       const formData = new URLSearchParams();
-      formData.append('public_key', publicKey);
-      formData.append('amount', amountInQepik.toString());
-      formData.append('currency', currency);
-      formData.append('description', description);
-      formData.append('order_id', orderId);
-      formData.append('success_redirect', successUrl);
-      formData.append('error_redirect', errorUrl);
-      formData.append('lang', 'az');
+      formData.append('data', data);
       formData.append('signature', signature);
 
       console.log('Form data being sent:');
