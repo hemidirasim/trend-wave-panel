@@ -12,6 +12,7 @@ const Blog = () => {
   const blogPosts = [
     {
       id: 1,
+      slug: "instagram-takipci-artirma-yollari",
       title: "Instagram Takipçi Artırmanın 10 Effektiv Yolu",
       excerpt: "Instagram hesabınızda organik takipçi artırmaq üçün ən effektiv strategiyalar və məsləhətlər...",
       author: "SocialBoost Team",
@@ -22,6 +23,7 @@ const Blog = () => {
     },
     {
       id: 2,
+      slug: "tiktok-algoritmi-viral-olmaq",
       title: "TikTok Algoritmi: Viral Olmaq üçün Gizli Formullar",
       excerpt: "TikTok alqoritminin necə işlədiyi və virallaşmaq üçün lazım olan əsas faktorlar...",
       author: "Digital Ekspert",
@@ -32,6 +34,7 @@ const Blog = () => {
     },
     {
       id: 3,
+      slug: "youtube-seo-strategiyalari",
       title: "YouTube SEO: Videoları Axtarışda Üstə Çıxarmaq",
       excerpt: "YouTube videolarınızı axtarış nəticələrində üst sıralarda göstərmək üçün SEO strategiyaları...",
       author: "SEO Mütəxəssis",
@@ -43,6 +46,7 @@ const Blog = () => {
     {
       id: 4,
       title: "Facebook Marketinq: Biznes üçün Effektiv Strategiyalar",
+      slug: "facebook-marketing-strategiyalari",
       excerpt: "Facebook platformasında biznesinizi genişləndirmək və müştəri cəlb etmək üçün praktik məsləhətlər...",
       author: "Marketing Guru",
       date: "30 Dekabr 2023",
@@ -53,6 +57,7 @@ const Blog = () => {
     {
       id: 5,
       title: "Sosial Media Analitikası: KPI-ları Necə İzləmək Lazımdır",
+      slug: "sosial-media-analitikasi",
       excerpt: "Sosial media kampaniyalarınızın effektivliyini ölçmək üçün vacib olan göstəricilər və analiz metodları...",
       author: "Data Analisti",
       date: "28 Dekabr 2023",
@@ -63,6 +68,7 @@ const Blog = () => {
     {
       id: 6,
       title: "İnfluencer Marketinq: Uğurlu Əməkdaşlıq Qurmanın Yolları",
+      slug: "influencer-marketing-strategiyalari",
       excerpt: "İnfluencerlərlə effektiv əməkdaşlıq qurmaq və kampaniya ROI-sini artırmaq üçün strategiyalar...",
       author: "Brend Meneceri",
       date: "25 Dekabr 2023",
@@ -166,49 +172,48 @@ const Blog = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredPosts.map((post) => (
             <Card key={post.id} className="hover:shadow-lg transition-shadow cursor-pointer group">
-              <div className="aspect-video bg-muted rounded-t-lg relative overflow-hidden">
-                <img 
-                  src={post.image} 
-                  alt={post.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                />
-                <Badge className={`absolute top-4 left-4 ${getCategoryColor(post.category)} text-white`}>
-                  {post.category}
-                </Badge>
-              </div>
-              
-              <CardHeader>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
-                    {post.date}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <User className="h-3 w-3" />
-                    {post.author}
-                  </div>
-                  <Badge variant="secondary">{post.readTime}</Badge>
+              <Link to={`/blog/${post.slug}`}>
+                <div className="aspect-video bg-muted rounded-t-lg relative overflow-hidden">
+                  <img 
+                    src={post.image} 
+                    alt={post.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                  />
+                  <Badge className={`absolute top-4 left-4 ${getCategoryColor(post.category)} text-white`}>
+                    {post.category}
+                  </Badge>
                 </div>
-                <CardTitle className="text-xl group-hover:text-primary transition-colors">
-                  {post.title}
-                </CardTitle>
-                <CardDescription className="text-base">
-                  {post.excerpt}
-                </CardDescription>
-              </CardHeader>
-              
-              <CardContent>
-                <Button variant="ghost" className="w-full justify-between group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                  Məqaləni Oxu
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </CardContent>
+                
+                <CardHeader>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      {post.date}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <User className="h-3 w-3" />
+                      {post.author}
+                    </div>
+                    <Badge variant="secondary">{post.readTime}</Badge>
+                  </div>
+                  <CardTitle className="text-xl group-hover:text-primary transition-colors">
+                    {post.title}
+                  </CardTitle>
+                  <CardDescription className="text-base">
+                    {post.excerpt}
+                  </CardDescription>
+                </CardHeader>
+                
+                <CardContent>
+                  <Button variant="ghost" className="w-full justify-between group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    Məqaləni Oxu
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </CardContent>
+              </Link>
             </Card>
           ))}
         </div>
-
-        {/* CTA Section */}
- 
       </div>
 
       <Footer />

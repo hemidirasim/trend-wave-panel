@@ -17,6 +17,7 @@ import ServiceDetail from '@/pages/ServiceDetail';
 import Order from '@/pages/Order';
 import Track from '@/pages/Track';
 import Blog from '@/pages/Blog';
+import BlogPost from '@/pages/BlogPost';
 import About from '@/pages/About';
 import Contact from '@/pages/Contact';
 import Terms from '@/pages/Terms';
@@ -55,6 +56,7 @@ function App() {
                     <Route path="/order" element={<Order />} />
                     <Route path="/track" element={<Track />} />
                     <Route path="/blog" element={<Blog />} />
+                    <Route path="/blog/:slug" element={<BlogPost />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/terms" element={<Terms />} />
