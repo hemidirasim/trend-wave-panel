@@ -90,49 +90,82 @@ serve(async (req) => {
             console.log('👤 Finding user profile by email:', transaction.customer_email);
             const { data: profile, error: profileError } = await supabase
               .from('profiles')
-              .select('id, balance')
+              .select('id, balance, email')
               .eq('email', transaction.customer_email)
               .single();
 
             if (profileError) {
               console.error('❌ Error finding profile:', profileError);
+              
+              // Also try to find all profiles to debug
+              console.log('🔍 Debug: Checking all profiles...');
+              const { data: allProfiles, error: allProfilesError } = await supabase
+                .from('profiles')
+                .select('id, email, balance');
+              
+              if (allProfilesError) {
+                console.error('❌ Error fetching all profiles:', allProfilesError);
+              } else {
+                console.log('📊 All profiles in database:', allProfiles);
+              }
+              
               return new Response('Profile not found', { status: 404 });
             }
 
             console.log('📋 Found user profile:', {
               userId: profile?.id,
+              email: profile?.email,
               currentBalance: profile?.balance
             });
 
             if (profile) {
-              const oldBalance = profile.balance || 0;
+              const oldBalance = parseFloat(profile.balance || '0');
               const newBalance = oldBalance + amountValue;
               
               console.log('💳 Updating balance:', {
+                userId: profile.id,
+                email: profile.email,
                 oldBalance,
                 amountToAdd: amountValue,
                 newBalance
               });
               
-              const { error: updateBalanceError } = await supabase
+              const { data: updateResult, error: updateBalanceError } = await supabase
                 .from('profiles')
                 .update({ 
                   balance: newBalance,
                   updated_at: new Date().toISOString()
                 })
-                .eq('id', profile.id);
+                .eq('id', profile.id)
+                .select();
 
               if (updateBalanceError) {
                 console.error('❌ Error updating balance:', updateBalanceError);
                 return new Response('Error updating balance', { status: 500 });
               }
 
-              console.log('🎉 Balance updated successfully:', {
+              console.log('🎉 Balance update result:', updateResult);
+              console.log('✅ Balance updated successfully:', {
                 userId: profile.id,
+                email: profile.email,
                 oldBalance: oldBalance,
                 newBalance: newBalance,
                 amountAdded: amountValue
               });
+
+              // Verify the update by fetching the profile again
+              console.log('🔍 Verifying balance update...');
+              const { data: verifyProfile, error: verifyError } = await supabase
+                .from('profiles')
+                .select('balance')
+                .eq('id', profile.id)
+                .single();
+
+              if (verifyError) {
+                console.error('❌ Error verifying update:', verifyError);
+              } else {
+                console.log('✅ Verified balance:', verifyProfile?.balance);
+              }
             }
           }
         } else {
