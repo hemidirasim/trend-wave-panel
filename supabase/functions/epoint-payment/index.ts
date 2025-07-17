@@ -72,28 +72,21 @@ serve(async (req) => {
       
       console.log('Base64 encoded data:', data);
 
-      // Create signature exactly as specified in the documentation:
-      // base64_encode(sha1(private_key + data + private_key, 1))
-      const signatureInput = privateKey + data + privateKey;
-      console.log('Signature input length:', signatureInput.length);
-      console.log('Signature input (first 50 chars):', signatureInput.substring(0, 50));
-      console.log('Signature input (last 50 chars):', signatureInput.substring(signatureInput.length - 50));
+      // Create signature string: private_key + data + private_key
+      const sgnString = privateKey + data + privateKey;
+      console.log('Signature string length:', sgnString.length);
+      console.log('Signature string (first 50 chars):', sgnString.substring(0, 50));
+      console.log('Signature string (last 50 chars):', sgnString.substring(sgnString.length - 50));
 
-      // Create SHA1 hash
-      const signatureBytes = encoder.encode(signatureInput);
-      const hashBuffer = await crypto.subtle.digest('SHA-1', signatureBytes);
+      // Create SHA1 hash of the signature string
+      const sgnBytes = encoder.encode(sgnString);
+      const hashBuffer = await crypto.subtle.digest('SHA-1', sgnBytes);
+      
+      // Convert hash buffer directly to base64 (not hex first)
       const hashArray = new Uint8Array(hashBuffer);
+      const signature = btoa(String.fromCharCode(...hashArray));
       
-      // Convert hash to lowercase hexadecimal string (20 characters as specified)
-      const hashHex = Array.from(hashArray)
-        .map(byte => byte.toString(16).padStart(2, '0'))
-        .join('');
-      
-      console.log('SHA1 hash (hex):', hashHex);
-      console.log('Hash length:', hashHex.length);
-      
-      // Base64 encode the hex string
-      const signature = btoa(hashHex);
+      console.log('SHA1 hash bytes length:', hashArray.length);
       console.log('Final signature:', signature);
 
       // Prepare form data for Epoint API
