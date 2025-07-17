@@ -77,7 +77,8 @@ serve(async (req) => {
       console.log('Amount for Epoint:', amountForEpoint);
 
       // Create JSON string as shown in the documentation
-      // IMPORTANT: Include webhook callback URL so Epoint can notify us of payment completion
+      // IMPORTANT: Include all necessary URLs for Epoint notification
+      const baseUrl = Deno.env.get('SUPABASE_URL');
       const jsonData = {
         "public_key": publicKey,
         "amount": amountForEpoint,
@@ -85,7 +86,10 @@ serve(async (req) => {
         "description": description,
         "order_id": orderId.toString(),
         "language": "az",
-        "callback_url": `${Deno.env.get('SUPABASE_URL')}/functions/v1/epoint-webhook`
+        "success_url": successUrl,
+        "fail_url": errorUrl,
+        "callback_url": `${baseUrl}/functions/v1/epoint-webhook`,
+        "server_callback_url": `${baseUrl}/functions/v1/epoint-webhook`
       };
 
       const jsonString = JSON.stringify(jsonData);
