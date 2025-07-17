@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -71,23 +72,26 @@ serve(async (req) => {
       
       console.log('Base64 encoded data:', data);
 
-      // Create signature: private_key + data + private_key
+      // Create signature: SHA1(private_key + data + private_key) then base64 encode
       const signatureInput = privateKey + data + privateKey;
       console.log('Signature input length:', signatureInput.length);
       console.log('Signature input start:', signatureInput.substring(0, 50));
       console.log('Signature input end:', signatureInput.substring(signatureInput.length - 50));
 
-      // Create SHA1 hash and then base64 encode
+      // Create SHA1 hash
       const signatureBytes = encoder.encode(signatureInput);
       const hashBuffer = await crypto.subtle.digest('SHA-1', signatureBytes);
       const hashArray = new Uint8Array(hashBuffer);
+      
+      // Convert to hex string (lowercase)
       const hashHex = Array.from(hashArray)
         .map(byte => byte.toString(16).padStart(2, '0'))
         .join('');
       
-      // Base64 encode the hash
+      // Base64 encode the hex string (not the hash bytes)
       const signature = btoa(hashHex);
       console.log('Generated signature:', signature);
+      console.log('Hash hex:', hashHex);
 
       // Prepare form data for Epoint API
       const formData = new URLSearchParams();
@@ -95,9 +99,8 @@ serve(async (req) => {
       formData.append('signature', signature);
 
       console.log('Form data being sent:');
-      for (const [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-      }
+      console.log('data:', data);
+      console.log('signature:', signature);
 
       try {
         const response = await fetch('https://epoint.az/api/1/request', {
