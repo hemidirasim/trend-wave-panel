@@ -62,10 +62,10 @@ const Dashboard = () => {
     
     if (paymentStatus === 'success') {
       toast.success('Ödəniş uğurla tamamlandı! Balansınız yenilənəcək.');
-      // Refresh user data after successful payment
+      // Refresh user data after successful payment with delay for webhook processing
       setTimeout(() => {
         fetchUserData();
-      }, 2000); // Wait 2 seconds for webhook to process
+      }, 3000); // Wait 3 seconds for webhook to process
     } else if (paymentStatus === 'error') {
       toast.error('Ödəniş zamanı xəta baş verdi.');
     }
@@ -111,10 +111,10 @@ const Dashboard = () => {
 
   const handlePaymentSuccess = async (transactionId: string) => {
     toast.success('Ödəniş prosesi başladı. Balansınız tezliklə yenilənəcək.');
-    // Wait a moment and refresh to get updated balance
+    // Wait for webhook to process and refresh data
     setTimeout(() => {
       fetchUserData();
-    }, 3000);
+    }, 5000); // Wait 5 seconds for webhook processing
   };
 
   const handlePaymentError = (error: string) => {
