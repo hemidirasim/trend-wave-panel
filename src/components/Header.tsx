@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Menu, X, Globe } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
@@ -24,7 +23,9 @@ export const Header = () => {
 
   const navigation = [
     { name: t('nav.home'), href: '/' },
+    { name: 'Haqqımızda', href: '/about' },
     { name: t('nav.blog'), href: '/blog' },
+    { name: 'Əlaqə', href: '/contact' },
   ];
 
   useEffect(() => {
