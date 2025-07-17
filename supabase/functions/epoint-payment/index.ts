@@ -47,15 +47,17 @@ serve(async (req) => {
         errorUrl
       } = requestData;
 
-      // Convert amount to proper format (Epoint expects amount in qəpik/cents)
-      const amountInQepik = Math.round(amount * 100);
+      // Məbləği düzgün formata çevir - Epoint AZN üçün qəpik formatı gözləmir
+      // 1 AZN = 1 AZN (qəpik formatına çevirmərik)
+      const amountForEpoint = parseFloat(amount.toString()).toFixed(2);
 
-      console.log('Creating Epoint payment with amount:', amountInQepik);
+      console.log('Original amount:', amount);
+      console.log('Amount for Epoint:', amountForEpoint);
 
       // Create JSON string as shown in the documentation
       const jsonData = {
         "public_key": publicKey,
-        "amount": amountInQepik.toString(),
+        "amount": amountForEpoint,
         "currency": currency,
         "description": description,
         "order_id": orderId.toString(),
