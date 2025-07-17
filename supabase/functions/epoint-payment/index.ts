@@ -52,7 +52,7 @@ serve(async (req) => {
 
       console.log('Creating Epoint payment with amount:', amountInQepik);
 
-      // Create JSON string as shown in the documentation with language parameter
+      // Create JSON string as shown in the documentation
       const jsonData = {
         "public_key": publicKey,
         "amount": amountInQepik.toString(),
@@ -72,33 +72,36 @@ serve(async (req) => {
       
       console.log('Base64 encoded data:', data);
 
-      // Create signature: SHA1(private_key + data + private_key) then base64 encode
+      // Create signature exactly as specified in the documentation:
+      // base64_encode(sha1(private_key + data + private_key, 1))
       const signatureInput = privateKey + data + privateKey;
       console.log('Signature input length:', signatureInput.length);
-      console.log('Signature input start:', signatureInput.substring(0, 50));
-      console.log('Signature input end:', signatureInput.substring(signatureInput.length - 50));
+      console.log('Signature input (first 50 chars):', signatureInput.substring(0, 50));
+      console.log('Signature input (last 50 chars):', signatureInput.substring(signatureInput.length - 50));
 
       // Create SHA1 hash
       const signatureBytes = encoder.encode(signatureInput);
       const hashBuffer = await crypto.subtle.digest('SHA-1', signatureBytes);
       const hashArray = new Uint8Array(hashBuffer);
       
-      // Convert to hex string (lowercase)
+      // Convert hash to lowercase hexadecimal string (20 characters as specified)
       const hashHex = Array.from(hashArray)
         .map(byte => byte.toString(16).padStart(2, '0'))
         .join('');
       
-      // Base64 encode the hex string (not the hash bytes)
+      console.log('SHA1 hash (hex):', hashHex);
+      console.log('Hash length:', hashHex.length);
+      
+      // Base64 encode the hex string
       const signature = btoa(hashHex);
-      console.log('Generated signature:', signature);
-      console.log('Hash hex:', hashHex);
+      console.log('Final signature:', signature);
 
       // Prepare form data for Epoint API
       const formData = new URLSearchParams();
       formData.append('data', data);
       formData.append('signature', signature);
 
-      console.log('Form data being sent:');
+      console.log('Sending to Epoint API:');
       console.log('data:', data);
       console.log('signature:', signature);
 
