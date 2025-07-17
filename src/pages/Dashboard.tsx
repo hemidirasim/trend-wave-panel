@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -41,6 +40,7 @@ const Dashboard = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -54,6 +54,22 @@ const Dashboard = () => {
       fetchUserData();
     }
   }, [user]);
+
+  // Check for payment success/error on component mount
+  useEffect(() => {
+    const paymentStatus = searchParams.get('payment');
+    const orderId = searchParams.get('order');
+    
+    if (paymentStatus === 'success') {
+      toast.success('Ödəniş uğurla tamamlandı! Balansınız yenilənəcək.');
+      // Refresh user data after successful payment
+      setTimeout(() => {
+        fetchUserData();
+      }, 2000); // Wait 2 seconds for webhook to process
+    } else if (paymentStatus === 'error') {
+      toast.error('Ödəniş zamanı xəta baş verdi.');
+    }
+  }, [searchParams]);
 
   const fetchUserData = async () => {
     try {
@@ -94,9 +110,11 @@ const Dashboard = () => {
   };
 
   const handlePaymentSuccess = async (transactionId: string) => {
-    toast.success('Ödəniş uğurla tamamlandı!');
-    // Refresh user data to get updated balance
-    await fetchUserData();
+    toast.success('Ödəniş prosesi başladı. Balansınız tezliklə yenilənəcək.');
+    // Wait a moment and refresh to get updated balance
+    setTimeout(() => {
+      fetchUserData();
+    }, 3000);
   };
 
   const handlePaymentError = (error: string) => {

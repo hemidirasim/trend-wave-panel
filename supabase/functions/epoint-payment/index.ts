@@ -47,8 +47,30 @@ serve(async (req) => {
         errorUrl
       } = requestData;
 
-      // Məbləği düzgün formata çevir - Epoint AZN üçün qəpik formatı gözləmir
-      // 1 AZN = 1 AZN (qəpik formatına çevirmərik)
+      // Create Supabase client to track payment
+      const supabase = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      );
+
+      // Store payment tracking info
+      const { error: insertError } = await supabase
+        .from('payment_transactions')
+        .insert({
+          order_id: orderId,
+          amount: parseFloat(amount.toString()),
+          currency: currency,
+          customer_email: customerEmail,
+          customer_name: customerName,
+          status: 'pending',
+          provider: 'epoint'
+        });
+
+      if (insertError) {
+        console.error('Error storing payment transaction:', insertError);
+      }
+
+      // Convert amount to proper format for Epoint (AZN decimal format)
       const amountForEpoint = parseFloat(amount.toString()).toFixed(2);
 
       console.log('Original amount:', amount);
@@ -80,11 +102,11 @@ serve(async (req) => {
       console.log('Signature string (first 50 chars):', sgnString.substring(0, 50));
       console.log('Signature string (last 50 chars):', sgnString.substring(sgnString.length - 50));
 
-      // Create SHA1 hash of the signature string
+      // Create SHA1 hash of the signature string and directly encode to base64
       const sgnBytes = encoder.encode(sgnString);
       const hashBuffer = await crypto.subtle.digest('SHA-1', sgnBytes);
       
-      // Convert hash buffer directly to base64 (not hex first)
+      // Convert hash buffer directly to base64
       const hashArray = new Uint8Array(hashBuffer);
       const signature = btoa(String.fromCharCode(...hashArray));
       
@@ -138,7 +160,7 @@ serve(async (req) => {
             JSON.stringify({
               success: true,
               paymentUrl: responseData.redirect_url,
-              transactionId: responseData.payment_id || orderId
+              transactionId: responseData.transaction || orderId
             }),
             { headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
