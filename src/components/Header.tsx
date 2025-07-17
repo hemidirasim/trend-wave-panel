@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Menu, X, Globe } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
@@ -22,7 +23,6 @@ export const Header = () => {
   const { user, signOut } = useAuth();
 
   const navigation = [
-    { name: t('nav.home'), href: '/' },
     { name: 'Haqqımızda', href: '/about' },
     { name: t('nav.blog'), href: '/blog' },
     { name: 'Əlaqə', href: '/contact' },
@@ -91,18 +91,6 @@ export const Header = () => {
           </div>
           
           <div className="hidden lg:flex lg:items-center lg:gap-x-6">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                to={item.href}
-                className={`text-sm font-semibold leading-6 transition-colors hover:text-primary ${
-                  isActive(item.href) ? 'text-primary' : 'text-foreground'
-                }`}
-              >
-                {item.name}
-              </Link>
-            ))}
-            
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="text-sm font-semibold leading-6 text-foreground hover:text-primary">
@@ -127,6 +115,18 @@ export const Header = () => {
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>
+
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={`text-sm font-semibold leading-6 transition-colors hover:text-primary ${
+                  isActive(item.href) ? 'text-primary' : 'text-foreground'
+                }`}
+              >
+                {item.name}
+              </Link>
+            ))}
           </div>
           
           <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center lg:gap-4">
@@ -189,19 +189,6 @@ export const Header = () => {
             <div className="mt-6 flow-root">
               <div className="-my-6 divide-y divide-gray-500/10">
                 <div className="space-y-2 py-6">
-                  {navigation.map((item) => (
-                    <Link
-                      key={item.name}
-                      to={item.href}
-                      className={`-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 hover:bg-muted ${
-                        isActive(item.href) ? 'text-primary bg-muted' : 'text-foreground'
-                      }`}
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      {item.name}
-                    </Link>
-                  ))}
-                  
                    <div className="space-y-1">
                      <div className="px-3 py-2 text-base font-semibold leading-7 text-foreground">
                        Sosial Şəbəkələr
@@ -217,6 +204,19 @@ export const Header = () => {
                        </Link>
                      ))}
                    </div>
+
+                  {navigation.map((item) => (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      className={`-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 hover:bg-muted ${
+                        isActive(item.href) ? 'text-primary bg-muted' : 'text-foreground'
+                      }`}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {item.name}
+                    </Link>
+                  ))}
                 </div>
                 <div className="py-6 space-y-4">
                   <Button
