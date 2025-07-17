@@ -86,98 +86,78 @@ serve(async (req) => {
           console.log('📧 Found transaction for customer:', transaction?.customer_email);
 
           if (transaction?.customer_email) {
-            // First, let's check if we're using the service role correctly
-            console.log('🔐 Verifying service role connection...');
-            const { data: testQuery, error: testError } = await supabase
-              .from('profiles')
-              .select('count')
-              .limit(1);
+            const customerEmail = transaction.customer_email;
             
-            if (testError) {
-              console.error('❌ Service role connection error:', testError);
-              return new Response('Database connection error', { status: 500 });
-            } else {
-              console.log('✅ Service role connection working');
+            // First, try to find existing profile by email
+            console.log('👤 Looking for existing profile with email:', customerEmail);
+            const { data: existingProfile, error: profileSearchError } = await supabase
+              .from('profiles')
+              .select('id, balance, email')
+              .eq('email', customerEmail)
+              .maybeSingle();
+
+            if (profileSearchError) {
+              console.error('❌ Error searching for profile:', profileSearchError);
+              return new Response('Error searching profile', { status: 500 });
             }
 
-            // Find user by email and update balance
-            console.log('👤 Finding user profile by email:', transaction.customer_email);
+            let profileToUpdate = existingProfile;
             
-            // Try with multiple approaches to find the profile
-            console.log('🔍 Attempt 1: Direct email match');
-            const { data: profile1, error: profileError1 } = await supabase
-              .from('profiles')
-              .select('id, balance, email')
-              .eq('email', transaction.customer_email)
-              .maybeSingle();
-
-            console.log('Profile search result 1:', { profile1, profileError1 });
-
-            // Try case-insensitive search
-            console.log('🔍 Attempt 2: Case-insensitive email match');
-            const { data: profile2, error: profileError2 } = await supabase
-              .from('profiles')
-              .select('id, balance, email')
-              .ilike('email', transaction.customer_email)
-              .maybeSingle();
-
-            console.log('Profile search result 2:', { profile2, profileError2 });
-
-            // Get all profiles for debugging
-            console.log('🔍 Debug: Checking all profiles...');
-            const { data: allProfiles, error: allProfilesError } = await supabase
-              .from('profiles')
-              .select('id, email, balance')
-              .limit(10);
-            
-            if (allProfilesError) {
-              console.error('❌ Error fetching all profiles:', allProfilesError);
-            } else {
-              console.log('📊 Sample profiles in database:', allProfiles);
-              console.log('📧 Looking for email:', transaction.customer_email);
+            // If no profile exists, create one
+            if (!existingProfile) {
+              console.log('🆕 No profile found, creating new profile for:', customerEmail);
               
-              // Check if email exists in any form
-              const emailExists = allProfiles?.find(p => 
-                p.email?.toLowerCase() === transaction.customer_email?.toLowerCase()
-              );
-              console.log('🔍 Email found in profiles?', emailExists ? 'YES' : 'NO');
+              // Generate a UUID for the new profile (since we don't have auth.uid)
+              const newProfileId = crypto.randomUUID();
+              
+              const { data: newProfile, error: createProfileError } = await supabase
+                .from('profiles')
+                .insert({
+                  id: newProfileId,
+                  email: customerEmail,
+                  full_name: customerEmail.split('@')[0], // Use email prefix as name
+                  balance: 0.00,
+                  created_at: new Date().toISOString(),
+                  updated_at: new Date().toISOString()
+                })
+                .select('id, balance, email')
+                .single();
+
+              if (createProfileError) {
+                console.error('❌ Error creating profile:', createProfileError);
+                return new Response('Error creating profile', { status: 500 });
+              }
+              
+              console.log('✅ New profile created:', newProfile);
+              profileToUpdate = newProfile;
             }
 
-            const profile = profile1 || profile2;
-            const profileError = profile1 ? profileError1 : profileError2;
-
-            if (profileError || !profile) {
-              console.error('❌ Profile not found for email:', transaction.customer_email);
-              console.error('❌ Profile error:', profileError);
-              return new Response('Profile not found', { status: 404 });
-            }
-
-            console.log('📋 Found user profile:', {
-              userId: profile.id,
-              email: profile.email,
-              currentBalance: profile.balance
+            console.log('📋 Profile to update:', {
+              userId: profileToUpdate.id,
+              email: profileToUpdate.email,
+              currentBalance: profileToUpdate.balance
             });
 
-            const oldBalance = parseFloat(profile.balance || '0');
+            const oldBalance = parseFloat(profileToUpdate.balance || '0');
             const newBalance = oldBalance + amountValue;
             
             console.log('💳 About to update balance:', {
-              userId: profile.id,
-              email: profile.email,
+              userId: profileToUpdate.id,
+              email: profileToUpdate.email,
               oldBalance,
               amountToAdd: amountValue,
               newBalance,
               timestamp: new Date().toISOString()
             });
             
-            // Update with explicit select to verify the update
+            // Update balance
             const { data: updateResult, error: updateBalanceError } = await supabase
               .from('profiles')
               .update({ 
                 balance: newBalance,
                 updated_at: new Date().toISOString()
               })
-              .eq('id', profile.id)
+              .eq('id', profileToUpdate.id)
               .select('id, email, balance, updated_at');
 
             if (updateBalanceError) {
@@ -204,7 +184,7 @@ serve(async (req) => {
             const { data: verifyProfile, error: verifyError } = await supabase
               .from('profiles')
               .select('id, email, balance, updated_at')
-              .eq('id', profile.id)
+              .eq('id', profileToUpdate.id)
               .single();
 
             if (verifyError) {
