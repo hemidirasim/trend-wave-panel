@@ -22,6 +22,8 @@ import About from '@/pages/About';
 import Contact from '@/pages/Contact';
 import Terms from '@/pages/Terms';
 import Privacy from '@/pages/Privacy';
+import PaymentSuccess from '@/pages/PaymentSuccess';
+import PaymentError from '@/pages/PaymentError';
 import NotFound from '@/pages/NotFound';
 
 // Admin pages
@@ -61,6 +63,8 @@ function App() {
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/terms" element={<Terms />} />
                     <Route path="/privacy" element={<Privacy />} />
+                    <Route path="/payment-success" element={<PaymentSuccess />} />
+                    <Route path="/payment-error" element={<PaymentError />} />
                     
                     <Route 
                       path="/dashboard" 
