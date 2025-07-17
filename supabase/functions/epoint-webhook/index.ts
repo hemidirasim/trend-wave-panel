@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log('Epoint webhook received:', req.method, req.url);
+    console.log('🔔 Epoint webhook received:', req.method, req.url);
     
     // Create Supabase client with service role key to bypass RLS
     const supabase = createClient(
@@ -23,7 +23,7 @@ serve(async (req) => {
 
     if (req.method === 'POST') {
       const body = await req.text();
-      console.log('Webhook body:', body);
+      console.log('📥 Webhook body received:', body);
 
       // Parse form data from Epoint webhook
       const formData = new URLSearchParams(body);
@@ -32,7 +32,7 @@ serve(async (req) => {
       const amount = formData.get('amount');
       const transactionId = formData.get('transaction_id');
       
-      console.log('Parsed webhook data:', {
+      console.log('📊 Parsed webhook data:', {
         status,
         orderId,
         amount,
@@ -43,13 +43,14 @@ serve(async (req) => {
       if (status === 'approved' && orderId && amount) {
         const amountValue = parseFloat(amount);
         
-        console.log('Processing successful payment:', {
+        console.log('✅ Processing successful payment:', {
           orderId,
           amount: amountValue,
           transactionId
         });
 
         // Update payment transaction status
+        console.log('📝 Updating payment transaction...');
         const { error: updateTransactionError } = await supabase
           .from('payment_transactions')
           .update({ 
@@ -60,12 +61,17 @@ serve(async (req) => {
           .eq('order_id', orderId);
 
         if (updateTransactionError) {
-          console.error('Error updating transaction:', updateTransactionError);
+          console.error('❌ Error updating transaction:', updateTransactionError);
+        } else {
+          console.log('✅ Transaction updated successfully');
         }
 
         // Check if this is a balance top-up order
         if (orderId.startsWith('balance-')) {
+          console.log('💰 Processing balance top-up...');
+          
           // Get the payment transaction to find the customer
+          console.log('🔍 Finding transaction by order_id:', orderId);
           const { data: transaction, error: transactionError } = await supabase
             .from('payment_transactions')
             .select('customer_email')
@@ -73,12 +79,15 @@ serve(async (req) => {
             .single();
 
           if (transactionError) {
-            console.error('Error finding transaction:', transactionError);
+            console.error('❌ Error finding transaction:', transactionError);
             return new Response('Transaction not found', { status: 404 });
           }
 
+          console.log('📧 Found transaction for customer:', transaction?.customer_email);
+
           if (transaction?.customer_email) {
             // Find user by email and update balance
+            console.log('👤 Finding user profile by email:', transaction.customer_email);
             const { data: profile, error: profileError } = await supabase
               .from('profiles')
               .select('id, balance')
@@ -86,12 +95,24 @@ serve(async (req) => {
               .single();
 
             if (profileError) {
-              console.error('Error finding profile:', profileError);
+              console.error('❌ Error finding profile:', profileError);
               return new Response('Profile not found', { status: 404 });
             }
 
+            console.log('📋 Found user profile:', {
+              userId: profile?.id,
+              currentBalance: profile?.balance
+            });
+
             if (profile) {
-              const newBalance = (profile.balance || 0) + amountValue;
+              const oldBalance = profile.balance || 0;
+              const newBalance = oldBalance + amountValue;
+              
+              console.log('💳 Updating balance:', {
+                oldBalance,
+                amountToAdd: amountValue,
+                newBalance
+              });
               
               const { error: updateBalanceError } = await supabase
                 .from('profiles')
@@ -102,22 +123,27 @@ serve(async (req) => {
                 .eq('id', profile.id);
 
               if (updateBalanceError) {
-                console.error('Error updating balance:', updateBalanceError);
+                console.error('❌ Error updating balance:', updateBalanceError);
                 return new Response('Error updating balance', { status: 500 });
               }
 
-              console.log('Balance updated successfully:', {
+              console.log('🎉 Balance updated successfully:', {
                 userId: profile.id,
-                oldBalance: profile.balance,
+                oldBalance: oldBalance,
                 newBalance: newBalance,
                 amountAdded: amountValue
               });
             }
           }
+        } else {
+          console.log('ℹ️ Not a balance top-up order, skipping balance update');
         }
 
         return new Response('Payment processed successfully', { status: 200 });
+        
       } else if (status === 'declined' || status === 'cancelled') {
+        console.log('❌ Payment failed or cancelled:', { orderId, status });
+        
         // Update transaction status for failed payments
         const { error: updateTransactionError } = await supabase
           .from('payment_transactions')
@@ -129,22 +155,25 @@ serve(async (req) => {
           .eq('order_id', orderId);
 
         if (updateTransactionError) {
-          console.error('Error updating failed transaction:', updateTransactionError);
+          console.error('❌ Error updating failed transaction:', updateTransactionError);
         }
 
-        console.log('Payment failed or cancelled:', { orderId, status });
         return new Response('Payment failed', { status: 200 });
+      } else {
+        console.log('⚠️ Unhandled webhook status:', { status, orderId });
+        return new Response('Unhandled status', { status: 200 });
       }
     }
 
     // For GET requests or other methods, return OK
+    console.log('ℹ️ Non-POST request received');
     return new Response('Epoint webhook endpoint is active', { 
       status: 200,
       headers: corsHeaders
     });
 
   } catch (error) {
-    console.error('Webhook error:', error);
+    console.error('💥 Webhook error:', error);
     return new Response('Internal server error', { 
       status: 500,
       headers: corsHeaders
