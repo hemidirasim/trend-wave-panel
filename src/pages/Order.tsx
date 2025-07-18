@@ -323,7 +323,20 @@ const Order = () => {
         navigate(`/track?order=${response.id_service_submission}`);
       } else {
         console.error('Order failed:', response);
-        toast.error(response.message || 'Sifariş verilmədi. Yenidən cəhd edin.');
+        
+        // Handle error messages properly
+        let errorMessage = 'Sifariş verilmədi. Yenidən cəhd edin.';
+        
+        if (response.message) {
+          if (Array.isArray(response.message)) {
+            // If message is an array of objects, extract the message text
+            errorMessage = response.message.map(msg => msg.message).join(', ');
+          } else if (typeof response.message === 'string') {
+            errorMessage = response.message;
+          }
+        }
+        
+        toast.error(errorMessage);
       }
     } catch (error) {
       console.error('Order submission error:', error);
