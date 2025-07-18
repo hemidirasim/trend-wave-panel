@@ -491,6 +491,13 @@ const Order = () => {
                     {selectedService && (
                       <OrderForm
                         service={selectedService}
+                        formData={formData}
+                        errors={errors}
+                        calculatedPrice={calculatedPrice}
+                        placing={placing}
+                        onUpdateFormData={updateFormData}
+                        onUpdateAdditionalParam={updateAdditionalParam}
+                        onPlaceOrder={() => handleSubmit(new Event('submit') as any)}
                       />
                     )}
                   </form>
