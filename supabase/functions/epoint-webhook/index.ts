@@ -25,23 +25,38 @@ serve(async (req) => {
       const body = await req.text();
       console.log('📥 Webhook body received:', body);
 
-      // Parse form data from Epoint webhook
-      const formData = new URLSearchParams(body);
-      const status = formData.get('status');
-      const orderId = formData.get('order_id');
-      const amount = formData.get('amount');
-      const transactionId = formData.get('transaction_id');
-      
-      console.log('📊 Parsed webhook data:', {
+      // Try to parse as JSON first (Epoint new format)
+      let parsedData;
+      let status, orderId, amount, transactionId;
+
+      try {
+        parsedData = JSON.parse(body);
+        console.log('📊 Parsed JSON webhook data:', parsedData);
+        
+        status = parsedData.status;
+        orderId = parsedData.order_id;
+        amount = parsedData.amount;
+        transactionId = parsedData.transaction;
+      } catch (jsonError) {
+        // If JSON parsing fails, try form data (fallback)
+        console.log('📝 Trying form data parsing...');
+        const formData = new URLSearchParams(body);
+        status = formData.get('status');
+        orderId = formData.get('order_id');
+        amount = formData.get('amount');
+        transactionId = formData.get('transaction_id');
+      }
+
+      console.log('📊 Final parsed webhook data:', {
         status,
         orderId,
         amount,
         transactionId
       });
 
-      // Only process successful payments
-      if (status === 'approved' && orderId && amount) {
-        const amountValue = parseFloat(amount);
+      // Check for successful payments - Epoint sends "success" status
+      if (status === 'success' && orderId && amount) {
+        const amountValue = parseFloat(amount.toString());
         
         console.log('✅ Processing successful payment:', {
           orderId,
@@ -207,7 +222,7 @@ serve(async (req) => {
 
         return new Response('Payment processed successfully', { status: 200 });
         
-      } else if (status === 'declined' || status === 'cancelled') {
+      } else if (status === 'declined' || status === 'cancelled' || status === 'failed') {
         console.log('❌ Payment failed or cancelled:', { orderId, status });
         
         // Update transaction status for failed payments
