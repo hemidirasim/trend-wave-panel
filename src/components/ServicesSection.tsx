@@ -35,15 +35,14 @@ export const ServicesSection = () => {
       console.log('🔍 API-dən gələn xidmətlər:', services);
       console.log('🔍 Cari xidmət haqqı:', settings.service_fee);
       
-      // Twitter-siz sosial media platformalarını alırıq
+      // API-dən gələn sosial media platformalarını çıxarırıq
+      const allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook'];
       const platforms = [...new Set(services
         .filter(service => 
-          ['instagram', 'tiktok', 'youtube', 'facebook'].some(platform => 
-            service.platform?.toLowerCase().includes(platform)
-          )
+          service.platform && 
+          allowedPlatforms.includes(service.platform.toLowerCase())
         )
-        .map(service => service.platform)
-        .filter(Boolean)
+        .map(service => service.platform.toLowerCase())
       )];
       
       // Platform adlarını formatlayırıq
