@@ -158,6 +158,7 @@ export type Database = {
       orders: {
         Row: {
           created_at: string | null
+          external_order_id: string | null
           id: string
           link: string
           platform: string
@@ -172,6 +173,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          external_order_id?: string | null
           id?: string
           link: string
           platform: string
@@ -186,6 +188,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          external_order_id?: string | null
           id?: string
           link?: string
           platform?: string

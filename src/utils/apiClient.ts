@@ -93,6 +93,12 @@ class ApiClient {
       };
 
       const data = await this.makeRequest(requestData);
+      
+      // Store the external order ID for status tracking
+      if (data && data.id_service_submission) {
+        console.log('Order placed successfully with external ID:', data.id_service_submission);
+      }
+      
       return data;
     } catch (error) {
       console.error('Error placing order:', error);
