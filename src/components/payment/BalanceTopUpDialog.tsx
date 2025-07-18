@@ -10,6 +10,7 @@ import { PaymentButton } from './PaymentButton';
 interface BalanceTopUpDialogProps {
   customerEmail?: string;
   customerName?: string;
+  userId?: string;
   onSuccess?: (transactionId: string) => void;
   onError?: (error: string) => void;
 }
@@ -17,6 +18,7 @@ interface BalanceTopUpDialogProps {
 export function BalanceTopUpDialog({
   customerEmail,
   customerName,
+  userId,
   onSuccess,
   onError
 }: BalanceTopUpDialogProps) {
@@ -110,6 +112,7 @@ export function BalanceTopUpDialog({
               description={`Balans artırma - $${amount.toFixed(2)}`}
               customerEmail={customerEmail}
               customerName={customerName}
+              userId={userId}
               onSuccess={(transactionId) => {
                 onSuccess?.(transactionId);
                 setIsOpen(false);

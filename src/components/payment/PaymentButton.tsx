@@ -11,6 +11,7 @@ interface PaymentButtonProps {
   description: string;
   customerEmail?: string;
   customerName?: string;
+  userId?: string;
   onSuccess?: (transactionId: string) => void;
   onError?: (error: string) => void;
   disabled?: boolean;
@@ -24,6 +25,7 @@ export function PaymentButton({
   description,
   customerEmail,
   customerName,
+  userId,
   onSuccess,
   onError,
   disabled,
@@ -42,6 +44,7 @@ export function PaymentButton({
       description,
       customerEmail,
       customerName,
+      userId,
       successUrl: `${window.location.origin}/payment-success?order=${orderId}`,
       errorUrl: `${window.location.origin}/payment-error?order=${orderId}`
     };

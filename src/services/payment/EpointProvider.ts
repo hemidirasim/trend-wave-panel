@@ -16,6 +16,7 @@ export class EpointProvider implements PaymentProviderInterface {
           description: request.description,
           customerEmail: request.customerEmail,
           customerName: request.customerName,
+          userId: request.userId,
           successUrl: request.successUrl,
           errorUrl: request.errorUrl
         }

@@ -200,6 +200,7 @@ const Dashboard = () => {
                   <BalanceTopUpDialog
                     customerEmail={user?.email}
                     customerName={profile?.full_name}
+                    userId={user?.id}
                     onSuccess={handlePaymentSuccess}
                     onError={handlePaymentError}
                   />

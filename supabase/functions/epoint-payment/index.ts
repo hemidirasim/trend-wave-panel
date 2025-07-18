@@ -44,7 +44,8 @@ serve(async (req) => {
         customerEmail,
         customerName,
         successUrl,
-        errorUrl
+        errorUrl,
+        userId
       } = requestData;
 
       // Create Supabase client to track payment
@@ -62,6 +63,7 @@ serve(async (req) => {
           currency: currency,
           customer_email: customerEmail,
           customer_name: customerName,
+          user_id: userId,
           status: 'pending',
           provider: 'epoint'
         });

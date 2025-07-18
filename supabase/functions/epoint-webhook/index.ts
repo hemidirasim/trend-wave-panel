@@ -70,11 +70,11 @@ serve(async (req) => {
         if (orderId.startsWith('balance-')) {
           console.log('💰 Processing balance top-up...');
           
-          // Get the payment transaction to find the customer
+          // Get the payment transaction to find the user
           console.log('🔍 Finding transaction by order_id:', orderId);
           const { data: transaction, error: transactionError } = await supabase
             .from('payment_transactions')
-            .select('customer_email')
+            .select('user_id, customer_email')
             .eq('order_id', orderId)
             .single();
 
@@ -83,17 +83,17 @@ serve(async (req) => {
             return new Response('Transaction not found', { status: 404 });
           }
 
-          console.log('📧 Found transaction for customer:', transaction?.customer_email);
+          console.log('📧 Found transaction for user:', transaction?.user_id, 'email:', transaction?.customer_email);
 
-          if (transaction?.customer_email) {
-            const customerEmail = transaction.customer_email;
+          if (transaction?.user_id) {
+            const userId = transaction.user_id;
             
-            // First, try to find existing profile by email
-            console.log('👤 Looking for existing profile with email:', customerEmail);
+            // Find profile by user_id (more reliable than email)
+            console.log('👤 Looking for profile with user_id:', userId);
             const { data: existingProfile, error: profileSearchError } = await supabase
               .from('profiles')
               .select('id, balance, email')
-              .eq('email', customerEmail)
+              .eq('id', userId)
               .maybeSingle();
 
             if (profileSearchError) {
@@ -103,19 +103,16 @@ serve(async (req) => {
 
             let profileToUpdate = existingProfile;
             
-            // If no profile exists, create one
+            // If no profile exists, create one (shouldn't happen but just in case)
             if (!existingProfile) {
-              console.log('🆕 No profile found, creating new profile for:', customerEmail);
-              
-              // Generate a UUID for the new profile (since we don't have auth.uid)
-              const newProfileId = crypto.randomUUID();
+              console.log('🆕 No profile found, creating new profile for user:', userId);
               
               const { data: newProfile, error: createProfileError } = await supabase
                 .from('profiles')
                 .insert({
-                  id: newProfileId,
-                  email: customerEmail,
-                  full_name: customerEmail.split('@')[0], // Use email prefix as name
+                  id: userId,
+                  email: transaction.customer_email,
+                  full_name: transaction.customer_email?.split('@')[0] || 'User',
                   balance: 0.00,
                   created_at: new Date().toISOString(),
                   updated_at: new Date().toISOString()

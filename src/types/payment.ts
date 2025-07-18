@@ -12,6 +12,7 @@ export interface PaymentRequest {
   description: string;
   customerEmail?: string;
   customerName?: string;
+  userId?: string;
   successUrl: string;
   errorUrl: string;
 }

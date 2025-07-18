@@ -477,6 +477,7 @@ const Order = () => {
                   <BalanceTopUpDialog
                     customerEmail={user?.email}
                     customerName={user?.user_metadata?.full_name}
+                    userId={user?.id}
                     onSuccess={handleBalanceTopUpSuccess}
                     onError={(error) => toast.error('Balans artırma zamanı xəta: ' + error)}
                   />
