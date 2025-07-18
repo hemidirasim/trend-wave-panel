@@ -8,6 +8,8 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
 }
 
@@ -58,6 +60,84 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, [addNotification]);
 
+  const signIn = async (email: string, password: string) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        addNotification({
+          type: 'error',
+          title: 'Giriş xətası',
+          message: error.message,
+        });
+        return { error };
+      }
+
+      if (data.user) {
+        addNotification({
+          type: 'success',
+          title: 'Uğurlu giriş',
+          message: 'Hesabınıza uğurla daxil oldunuz',
+        });
+      }
+
+      return { error: null };
+    } catch (error) {
+      console.error('Sign in error:', error);
+      addNotification({
+        type: 'error',
+        title: 'Xəta',
+        message: 'Giriş zamanı xəta baş verdi',
+      });
+      return { error };
+    }
+  };
+
+  const signUp = async (email: string, password: string, fullName?: string) => {
+    try {
+      const redirectUrl = `${window.location.origin}/`;
+      
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: fullName ? { full_name: fullName } : undefined,
+        },
+      });
+
+      if (error) {
+        addNotification({
+          type: 'error',
+          title: 'Qeydiyyat xətası',
+          message: error.message,
+        });
+        return { error };
+      }
+
+      if (data.user) {
+        addNotification({
+          type: 'success',
+          title: 'Qeydiyyat uğurludur',
+          message: 'Hesabınız uğurla yaradıldı',
+        });
+      }
+
+      return { error: null };
+    } catch (error) {
+      console.error('Sign up error:', error);
+      addNotification({
+        type: 'error',
+        title: 'Xəta',
+        message: 'Qeydiyyat zamanı xəta baş verdi',
+      });
+      return { error };
+    }
+  };
+
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
@@ -67,7 +147,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, signIn, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );
