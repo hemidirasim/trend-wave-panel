@@ -7,7 +7,7 @@ import { Footer } from '@/components/Footer';
 import { ServiceFilters } from '@/components/order/ServiceFilters';
 import { ServiceSelector } from '@/components/order/ServiceSelector';
 import { ServiceInfo } from '@/components/order/ServiceInfo';
-import { OrderForm } from '@/components/order/OrderForm';
+import OrderForm from '@/components/order/OrderForm';
 import { OrderSummary } from '@/components/order/OrderSummary';
 import { proxyApiService, Service } from '@/components/ProxyApiService';
 import { useSettings } from '@/contexts/SettingsContext';
