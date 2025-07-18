@@ -26,6 +26,7 @@ export interface Service {
     field_placeholder: string;
     field_name: string;
     field_validators: string;
+    field_type?: string;
     is_price_modifier: string;
     options?: Array<{
       name: string;

@@ -490,14 +490,7 @@ const Order = () => {
 
                     {selectedService && (
                       <OrderForm
-                        selectedService={selectedService}
-                        formData={formData}
-                        errors={errors}
-                        calculatedPrice={calculatedPrice}
-                        placing={placing}
-                        onUpdateFormData={updateFormData}
-                        onUpdateAdditionalParam={updateAdditionalParam}
-                        onSubmit={handleSubmit}
+                        service={selectedService}
                       />
                     )}
                   </form>
