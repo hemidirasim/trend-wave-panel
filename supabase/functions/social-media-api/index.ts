@@ -31,32 +31,55 @@ const handler = async (req: Request): Promise<Response> => {
     const requestBody: ApiRequest = await req.json();
     console.log('Request body:', requestBody);
 
-    // Prepare form data for POST request
-    const formData = new URLSearchParams();
-    formData.append('api_key', API_KEY);
-    
-    // Add all request parameters to form data
-    Object.entries(requestBody).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        formData.append(key, value.toString());
-      }
-    });
+    let response: Response;
 
-    console.log('Making POST request to QQTube API with form data:', formData.toString());
+    // Use GET method for 'services' action, POST for others
+    if (requestBody.action === 'services') {
+      // For services, use GET method with query parameters
+      const params = new URLSearchParams();
+      params.append('api_key', API_KEY);
+      params.append('action', requestBody.action);
+      
+      const url = `${API_BASE_URL}?${params.toString()}`;
+      console.log('Making GET request to QQTube API:', url);
 
-    // Make POST request to QQTube API with form data
-    const response = await fetch(API_BASE_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        'Accept': 'application/json, text/plain, */*',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Connection': 'keep-alive',
-      },
-      body: formData,
-    });
+      response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+          'Accept': 'application/json, text/plain, */*',
+          'Accept-Language': 'en-US,en;q=0.9',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Connection': 'keep-alive',
+        },
+      });
+    } else {
+      // For other actions, use POST method with form data
+      const formData = new URLSearchParams();
+      formData.append('api_key', API_KEY);
+      
+      // Add all request parameters to form data
+      Object.entries(requestBody).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          formData.append(key, value.toString());
+        }
+      });
+
+      console.log('Making POST request to QQTube API with form data:', formData.toString());
+
+      response = await fetch(API_BASE_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+          'Accept': 'application/json, text/plain, */*',
+          'Accept-Language': 'en-US,en;q=0.9',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Connection': 'keep-alive',
+        },
+        body: formData,
+      });
+    }
 
     console.log('QQTube API response status:', response.status);
     console.log('QQTube API response headers:', Object.fromEntries(response.headers.entries()));
@@ -71,9 +94,9 @@ const handler = async (req: Request): Promise<Response> => {
           error: `QQTube API error: ${response.status}`,
           details: responseText,
           debug: {
-            url: API_BASE_URL,
-            method: 'POST',
-            formData: formData.toString(),
+            url: requestBody.action === 'services' ? `${API_BASE_URL}?api_key=${API_KEY}&action=services` : API_BASE_URL,
+            method: requestBody.action === 'services' ? 'GET' : 'POST',
+            requestData: requestBody,
           }
         }),
         {
