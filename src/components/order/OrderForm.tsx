@@ -84,7 +84,6 @@ export function OrderForm({
           value={formData.url}
           onChange={(e) => onUpdateFormData('url', e.target.value)}
           className={errors.url ? 'border-red-500' : ''}
-          disabled={!user}
         />
         {errors.url && (
           <p className="text-sm text-red-500 flex items-center">
@@ -113,7 +112,6 @@ export function OrderForm({
           min={minimumAmount}
           max={maximumAmount || undefined}
           step={selectedService.amount_increment}
-          disabled={!user}
         />
         {errors.quantity && (
           <p className="text-sm text-red-500 flex items-center">
@@ -142,7 +140,6 @@ export function OrderForm({
             <Select 
               value={formData.additionalParams[param.field_name] || ''} 
               onValueChange={(value) => onUpdateAdditionalParam(param.field_name, value)}
-              disabled={!user}
             >
               <SelectTrigger className={errors[param.field_name] ? 'border-red-500' : ''}>
                 <SelectValue placeholder={param.field_placeholder || `${param.field_label} seçin`} />
@@ -162,7 +159,6 @@ export function OrderForm({
               value={formData.additionalParams[param.field_name] || ''}
               onChange={(e) => onUpdateAdditionalParam(param.field_name, e.target.value)}
               className={errors[param.field_name] ? 'border-red-500' : ''}
-              disabled={!user}
             />
           )}
           
