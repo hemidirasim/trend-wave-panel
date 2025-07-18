@@ -7,15 +7,26 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Add startup logging
+console.log('🚀 EPOINT WEBHOOK FUNCTION INITIALIZING...');
+console.log('🚀 Function started at:', new Date().toISOString());
+
 serve(async (req) => {
-  // Log incoming request details
-  console.log('🔔 ===========================================');
-  console.log('🔔 NEW WEBHOOK REQUEST RECEIVED');
-  console.log('🔔 ===========================================');
-  console.log('📥 Method:', req.method);
-  console.log('📥 URL:', req.url);
-  console.log('📥 Headers:', Object.fromEntries(req.headers.entries()));
-  console.log('📥 Timestamp:', new Date().toISOString());
+  // CRITICAL: Log every single request that comes in, no matter what
+  const timestamp = new Date().toISOString();
+  console.log('\n' + '='.repeat(80));
+  console.log('🚨 WEBHOOK REQUEST INCOMING! 🚨');
+  console.log('='.repeat(80));
+  console.log('⏰ Timestamp:', timestamp);
+  console.log('📋 Method:', req.method);
+  console.log('🌐 URL:', req.url);
+  console.log('🌐 Host:', req.headers.get('host'));
+  console.log('🔗 User-Agent:', req.headers.get('user-agent'));
+  console.log('📍 Content-Type:', req.headers.get('content-type'));
+  console.log('📍 Content-Length:', req.headers.get('content-length'));
+  console.log('🌍 Origin:', req.headers.get('origin'));
+  console.log('🔑 Authorization:', req.headers.get('authorization') ? 'PRESENT' : 'NOT PRESENT');
+  console.log('📨 ALL HEADERS:', JSON.stringify(Object.fromEntries(req.headers.entries()), null, 2));
 
   if (req.method === "OPTIONS") {
     console.log('✅ OPTIONS request - returning CORS headers');
@@ -337,9 +348,25 @@ serve(async (req) => {
 
     // For GET requests or other methods, return OK
     console.log('ℹ️ Non-POST request received, returning OK');
-    return new Response('Epoint webhook endpoint is active', { 
+    console.log('ℹ️ Request details for non-POST:', {
+      method: req.method,
+      url: req.url,
+      headers: Object.fromEntries(req.headers.entries()),
+      timestamp: new Date().toISOString()
+    });
+    
+    return new Response(JSON.stringify({
+      status: 'active',
+      message: 'Epoint webhook endpoint is running and ready to receive payments',
+      timestamp: new Date().toISOString(),
+      version: '2.0',
+      webhook_url: 'https://lnsragearbdkxpbhhyez.supabase.co/functions/v1/epoint-webhook'
+    }), { 
       status: 200,
-      headers: corsHeaders
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json'
+      }
     });
 
   } catch (error) {
