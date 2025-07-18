@@ -6,7 +6,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const API_BASE_URL = 'https://www.qqtube.com/v1-api';
+const API_BASE_URL = 'https://www.qqtube.com/api/v1';
 const API_KEY = '9d9a63f4407126586252fe2a33a424dce7e0a6a4';
 
 interface ApiRequest {
@@ -33,7 +33,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Prepare form data for POST request
     const formData = new URLSearchParams();
-    formData.append('api_key', API_KEY);
+    formData.append('key', API_KEY);
     
     // Add all request parameters to form data
     Object.entries(requestBody).forEach(([key, value]) => {
@@ -50,7 +50,7 @@ const handler = async (req: Request): Promise<Response> => {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        'Accept': 'application/json',
+        'Accept': 'application/json, text/plain, */*',
         'Accept-Language': 'en-US,en;q=0.9',
         'Accept-Encoding': 'gzip, deflate, br',
         'Connection': 'keep-alive',
