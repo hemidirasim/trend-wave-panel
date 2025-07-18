@@ -142,15 +142,10 @@ const OrderForm = ({
 
       console.log('Order API response:', orderResponse);
 
-      // Extract external_order_id from the response
+      // Extract external_order_id from the response - use the correct property name
       let externalOrderId = null;
       if (orderResponse) {
-        // Try different possible field names for the external order ID
-        externalOrderId = orderResponse.id_service_submission || 
-                         orderResponse.order_id || 
-                         orderResponse.submission_id ||
-                         orderResponse.id ||
-                         null;
+        externalOrderId = orderResponse.id_service_submission || null;
       }
 
       console.log('Extracted external_order_id:', externalOrderId);
