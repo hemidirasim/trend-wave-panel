@@ -260,7 +260,7 @@ const Order = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Check if user is authenticated
+    // Check if user is authenticated - if not, show auth dialog
     if (!user) {
       setAuthDialogOpen(true);
       return;

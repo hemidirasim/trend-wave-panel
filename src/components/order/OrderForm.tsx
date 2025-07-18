@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, Loader2, ShoppingCart, Lock } from 'lucide-react';
+import { AlertCircle, Loader2, ShoppingCart } from 'lucide-react';
 import { Service } from '@/types/api';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -179,34 +179,17 @@ export function OrderForm({
         </div>
       ))}
 
-      {!user && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="flex items-center space-x-2 text-blue-700 mb-2">
-            <Lock className="h-4 w-4" />
-            <span className="font-medium">Qeydiyyat tələb olunur</span>
-          </div>
-          <p className="text-sm text-blue-600">
-            Sifariş vermək üçün hesaba daxil olmalı və ya qeydiyyatdan keçməlisiniz.
-          </p>
-        </div>
-      )}
-
       <Button 
         type="submit" 
         className="w-full" 
         size="lg"
-        disabled={placing || !user}
+        disabled={placing}
         onClick={onSubmit}
       >
         {placing ? (
           <>
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
             Sifariş verilir...
-          </>
-        ) : !user ? (
-          <>
-            <Lock className="h-4 w-4 mr-2" />
-            Hesaba daxil olun
           </>
         ) : (
           <>
