@@ -90,7 +90,7 @@ const OrderForm = ({
         .eq('user_id', user?.id)
         .eq('link', formData.url)
         .eq('platform', service.platform)
-        .in('status', ['pending', 'processing', 'in_progress'])
+        .in('status', ['pending', 'processing', 'in_progress', 'active', 'running'])
         .order('created_at', { ascending: false })
         .limit(1);
 
@@ -121,7 +121,7 @@ const OrderForm = ({
           .eq('user_id', user?.id)
           .eq('link', formData.url)
           .eq('platform', service.platform)
-          .in('status', ['pending', 'processing', 'in_progress']);
+          .in('status', ['pending', 'processing', 'in_progress', 'active', 'running']);
 
         if (existingOrders && existingOrders.length > 0) {
           toast.error('Bu URL üçün aktiv sifariş mövcuddur');
@@ -142,6 +142,19 @@ const OrderForm = ({
 
       console.log('Order API response:', orderResponse);
 
+      // Extract external_order_id from the response
+      let externalOrderId = null;
+      if (orderResponse) {
+        // Try different possible field names for the external order ID
+        externalOrderId = orderResponse.id_service_submission || 
+                         orderResponse.order_id || 
+                         orderResponse.submission_id ||
+                         orderResponse.id ||
+                         null;
+      }
+
+      console.log('Extracted external_order_id:', externalOrderId);
+
       // Save order to database with external_order_id
       const orderData = {
         user_id: user?.id,
@@ -153,19 +166,23 @@ const OrderForm = ({
         quantity: parseInt(formData.quantity),
         price: calculatedPrice,
         status: 'pending',
-        external_order_id: orderResponse?.id_service_submission || null
+        external_order_id: externalOrderId
       };
 
-      console.log('Saving order to database:', orderData);
+      console.log('Saving order to database with data:', orderData);
 
-      const { error: insertError } = await supabase
+      const { data: insertedOrder, error: insertError } = await supabase
         .from('orders')
-        .insert(orderData);
+        .insert(orderData)
+        .select()
+        .single();
 
       if (insertError) {
         console.error('Database insert error:', insertError);
         throw new Error('Sifarişi yadda saxlamaq mümkün olmadı');
       }
+
+      console.log('Order saved successfully:', insertedOrder);
 
       // Update user balance
       if (profile) {
@@ -177,6 +194,8 @@ const OrderForm = ({
 
         if (balanceError) {
           console.error('Balance update error:', balanceError);
+        } else {
+          console.log('Balance updated successfully. New balance:', newBalance);
         }
       }
 
