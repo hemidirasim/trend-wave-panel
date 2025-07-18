@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -43,6 +43,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const hasShownLoginNotification = useRef(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -71,6 +72,20 @@ const Dashboard = () => {
       toast.error('Ödəniş zamanı xəta baş verdi.');
     }
   }, [searchParams]);
+
+  // Prevent duplicate login notifications when returning to the site
+  useEffect(() => {
+    if (user && !hasShownLoginNotification.current && !searchParams.get('payment')) {
+      // Only show login notification if we're not coming from a payment redirect
+      // and we haven't shown it already in this session
+      const hasJustLoggedIn = sessionStorage.getItem('just_logged_in');
+      if (hasJustLoggedIn) {
+        toast.success('Uğurla daxil oldunuz!');
+        sessionStorage.removeItem('just_logged_in');
+        hasShownLoginNotification.current = true;
+      }
+    }
+  }, [user, searchParams]);
 
   const fetchUserData = async () => {
     try {
