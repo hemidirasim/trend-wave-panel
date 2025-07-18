@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -152,7 +151,6 @@ const Order = () => {
       setLoading(true);
       const data = await proxyApiService.getServices();
       
-      // Filter services for allowed platforms
       const filteredData = data.filter(service => {
         return service && 
                service.platform && 
@@ -186,13 +184,11 @@ const Order = () => {
     setSelectedService(service);
     setSelectedPlatform(service.platform.toLowerCase());
     
-    // Determine service type
     const serviceType = service.type_name && service.type_name.trim() !== '' 
       ? service.type_name 
       : getServiceTypeFromName(service.public_name);
     setSelectedServiceType(serviceType);
     
-    // Fetch additional details
     fetchServiceDetails(service.id_service.toString());
   };
 
@@ -231,7 +227,6 @@ const Order = () => {
           newErrors.quantity = `Minimum miqdar: ${minAmount}`;
         }
         
-        // Add maximum amount validation
         if (selectedService.prices && selectedService.prices.length > 0) {
           const maxAmount = parseInt(selectedService.prices[0].maximum);
           if (quantity > maxAmount) {
@@ -241,7 +236,6 @@ const Order = () => {
       }
     }
     
-    // Validate additional parameters
     if (selectedService && selectedService.params) {
       selectedService.params.forEach(param => {
         if (param.field_validators.includes('required')) {
@@ -260,13 +254,11 @@ const Order = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Check if user is authenticated - if not, show auth dialog
     if (!user) {
       setAuthDialogOpen(true);
       return;
     }
 
-    // Check if user has sufficient balance
     if (userBalance < calculatedPrice) {
       toast.error('Kifayət qədər balansınız yoxdur. Balansınızı artırın.');
       return;
@@ -278,6 +270,13 @@ const Order = () => {
 
     try {
       setPlacing(true);
+      console.log('Placing order with data:', {
+        serviceId: formData.serviceId,
+        url: formData.url,
+        quantity: parseInt(formData.quantity),
+        additionalParams: formData.additionalParams
+      });
+
       const response = await proxyApiService.placeOrder(
         formData.serviceId,
         formData.url,
@@ -285,13 +284,46 @@ const Order = () => {
         formData.additionalParams
       );
       
+      console.log('Order API response:', response);
+      
       if (response.status === 'success' && response.id_service_submission) {
+        // Update user balance
+        const newBalance = userBalance - calculatedPrice;
+        const { error: balanceError } = await supabase
+          .from('profiles')
+          .update({ balance: newBalance })
+          .eq('id', user.id);
+
+        if (balanceError) {
+          console.error('Error updating balance:', balanceError);
+        } else {
+          setUserBalance(newBalance);
+        }
+
+        // Save order to local database
+        const { error: orderError } = await supabase
+          .from('orders')
+          .insert({
+            user_id: user.id,
+            service_id: formData.serviceId,
+            service_name: selectedService?.public_name || '',
+            platform: selectedService?.platform || '',
+            service_type: selectedServiceType,
+            quantity: parseInt(formData.quantity),
+            price: calculatedPrice,
+            link: formData.url,
+            status: 'pending'
+          });
+
+        if (orderError) {
+          console.error('Error saving order:', orderError);
+        }
+
         toast.success('Sifariş uğurla verildi!');
-        // Refresh balance after successful order
-        fetchUserBalance();
         navigate(`/track?order=${response.id_service_submission}`);
       } else {
-        toast.error('Sifariş verilmədi. Yenidən cəhd edin.');
+        console.error('Order failed:', response);
+        toast.error(response.message || 'Sifariş verilmədi. Yenidən cəhd edin.');
       }
     } catch (error) {
       console.error('Order submission error:', error);
@@ -303,7 +335,6 @@ const Order = () => {
 
   const updateFormData = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear related errors
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
@@ -314,7 +345,6 @@ const Order = () => {
       ...prev,
       additionalParams: { ...prev.additionalParams, [paramName]: value }
     }));
-    // Clear related errors
     if (errors[paramName]) {
       setErrors(prev => ({ ...prev, [paramName]: '' }));
     }
