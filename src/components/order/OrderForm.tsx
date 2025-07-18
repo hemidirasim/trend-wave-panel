@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,17 +28,68 @@ export const OrderForm = ({ service }: OrderFormProps) => {
   const [comment, setComment] = useState('');
   const [selectedParams, setSelectedParams] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const [checkingUrl, setCheckingUrl] = useState(false);
+  const [urlBlocked, setUrlBlocked] = useState(false);
 
   const price = calculatePrice(service, quantity);
   const minimumQuantity = parseInt(service.amount_minimum || '1');
   const maximumQuantity = service.prices?.[0]?.maximum ? parseInt(service.prices[0].maximum) : 10000;
   const increment = parseInt(service.amount_increment || '1');
 
+  // Check if URL has pending orders whenever URL changes
+  useEffect(() => {
+    if (url && url.trim() && validateUrl(url, service.platform)) {
+      checkPendingOrders(url.trim());
+    } else {
+      setUrlBlocked(false);
+    }
+  }, [url, service.platform]);
+
+  const checkPendingOrders = async (urlToCheck: string) => {
+    if (!user) return;
+    
+    try {
+      setCheckingUrl(true);
+      
+      const { data: existingOrders, error } = await supabase
+        .from('orders')
+        .select('id, status, service_name, created_at')
+        .eq('user_id', user.id)
+        .eq('link', urlToCheck)
+        .eq('platform', service.platform)
+        .in('status', ['pending', 'processing', 'in_progress']);
+
+      if (error) {
+        console.error('Error checking existing orders:', error);
+        return;
+      }
+
+      if (existingOrders && existingOrders.length > 0) {
+        setUrlBlocked(true);
+        const latestOrder = existingOrders[0];
+        toast.warning(`Bu URL üçün artıq aktiv sifariş mövcuddur!`, {
+          description: `${latestOrder.service_name} xidməti üçün ${new Date(latestOrder.created_at).toLocaleDateString('az-AZ')} tarixində verilmiş sifariş hələ tamamlanmayıb.`
+        });
+      } else {
+        setUrlBlocked(false);
+      }
+    } catch (error) {
+      console.error('Error checking pending orders:', error);
+    } finally {
+      setCheckingUrl(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!user) {
       toast.error('Sifariş vermək üçün daxil olun');
+      return;
+    }
+
+    if (urlBlocked) {
+      toast.error('Bu URL üçün artıq aktiv sifariş mövcuddur. Yeni sifariş verə bilməzsiniz.');
       return;
     }
 
@@ -68,6 +119,22 @@ export const OrderForm = ({ service }: OrderFormProps) => {
 
       if (!profile || profile.balance < price) {
         toast.error('Kifayət qədər balansınız yoxdur');
+        return;
+      }
+
+      // Double-check for pending orders before placing the order
+      const { data: recentCheck, error: recheckError } = await supabase
+        .from('orders')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('link', url.trim())
+        .eq('platform', service.platform)
+        .in('status', ['pending', 'processing', 'in_progress']);
+
+      if (recheckError) {
+        console.error('Error double-checking orders:', recheckError);
+      } else if (recentCheck && recentCheck.length > 0) {
+        toast.error('Bu URL üçün artıq aktiv sifariş mövcuddur.');
         return;
       }
 
@@ -151,14 +218,31 @@ export const OrderForm = ({ service }: OrderFormProps) => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="url">URL</Label>
-            <Input
-              id="url"
-              type="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder={service.example || `${service.platform} URL daxil edin`}
-              required
-            />
+            <div className="relative">
+              <Input
+                id="url"
+                type="url"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder={service.example || `${service.platform} URL daxil edin`}
+                required
+                className={urlBlocked ? 'border-red-500 bg-red-50' : ''}
+              />
+              {checkingUrl && (
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                </div>
+              )}
+            </div>
+            {urlBlocked && (
+              <div className="flex items-start space-x-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <AlertCircle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-red-800">URL məhdudlaşdırılıb</p>
+                  <p className="text-sm text-red-700">Bu URL üçün artıq aktiv sifariş mövcuddur. Əvvəlki sifariş tamamlanana qədər yeni sifariş verə bilməzsiniz.</p>
+                </div>
+              </div>
+            )}
             <p className="text-sm text-muted-foreground">
               Məsələn: {service.example}
             </p>
@@ -256,11 +340,22 @@ export const OrderForm = ({ service }: OrderFormProps) => {
             </div>
           )}
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button 
+            type="submit" 
+            className="w-full" 
+            disabled={loading || urlBlocked || checkingUrl}
+          >
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 Sifariş verilir...
+              </>
+            ) : urlBlocked ? (
+              'URL məhdudlaşdırılıb'
+            ) : checkingUrl ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                URL yoxlanılır...
               </>
             ) : (
               'Sifarişi Ver'
