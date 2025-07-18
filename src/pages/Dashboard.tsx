@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Loader2, Package, Clock, CheckCircle, XCircle, Wallet, LifeBuoy, Settings } from 'lucide-react';
+import { Loader2, Package, Clock, CheckCircle, XCircle, Wallet, LifeBuoy, Settings, ExternalLink } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import Support from '@/components/Support';
@@ -26,6 +26,7 @@ interface Order {
   link: string;
   status: string;
   created_at: string;
+  comment?: string;
 }
 
 interface Profile {
@@ -298,30 +299,58 @@ const Dashboard = () => {
               </CardHeader>
               <CardContent>
                 {orders.length > 0 ? (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Xidmət</TableHead>
-                        <TableHead>Platform</TableHead>
-                        <TableHead>Miqdar</TableHead>
-                        <TableHead>Qiymət</TableHead>
-                        <TableHead>Vəziyyət</TableHead>
-                        <TableHead>Tarix</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {orders.map((order) => (
-                        <TableRow key={order.id}>
-                          <TableCell className="font-medium">{order.service_name}</TableCell>
-                          <TableCell className="capitalize">{order.platform}</TableCell>
-                          <TableCell>{order.quantity.toLocaleString()}</TableCell>
-                          <TableCell>${order.price.toFixed(2)}</TableCell>
-                          <TableCell>{getStatusBadge(order.status)}</TableCell>
-                          <TableCell>{formatDate(order.created_at)}</TableCell>
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Xidmət</TableHead>
+                          <TableHead>Platform</TableHead>
+                          <TableHead>URL</TableHead>
+                          <TableHead>Miqdar</TableHead>
+                          <TableHead>Qiymət</TableHead>
+                          <TableHead>Vəziyyət</TableHead>
+                          <TableHead>Tarix</TableHead>
+                          <TableHead>Qeyd</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                      </TableHeader>
+                      <TableBody>
+                        {orders.map((order) => (
+                          <TableRow key={order.id}>
+                            <TableCell className="font-medium">{order.service_name}</TableCell>
+                            <TableCell className="capitalize">{order.platform}</TableCell>
+                            <TableCell className="max-w-xs">
+                              <div className="flex items-center space-x-2">
+                                <span className="truncate text-sm text-muted-foreground" title={order.link}>
+                                  {order.link}
+                                </span>
+                                <a 
+                                  href={order.link} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="flex-shrink-0 hover:text-primary"
+                                >
+                                  <ExternalLink className="h-3 w-3" />
+                                </a>
+                              </div>
+                            </TableCell>
+                            <TableCell>{order.quantity.toLocaleString()}</TableCell>
+                            <TableCell>${order.price.toFixed(2)}</TableCell>
+                            <TableCell>{getStatusBadge(order.status)}</TableCell>
+                            <TableCell>{formatDate(order.created_at)}</TableCell>
+                            <TableCell className="max-w-xs">
+                              {order.comment ? (
+                                <span className="text-sm text-muted-foreground truncate" title={order.comment}>
+                                  {order.comment}
+                                </span>
+                              ) : (
+                                <span className="text-sm text-muted-foreground">-</span>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 ) : (
                   <div className="text-center py-8">
                     <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />

@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, Package, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Search, Package, Clock, CheckCircle, XCircle, AlertCircle, ExternalLink } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -18,6 +18,7 @@ interface Order {
   link: string;
   status: string;
   created_at: string;
+  comment?: string;
 }
 
 const OrderTracker = () => {
@@ -119,7 +120,7 @@ const OrderTracker = () => {
               {getStatusBadge(order.status)}
             </div>
             
-            <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="text-muted-foreground">Miqdar:</span>
                 <p className="font-medium">{order.quantity.toLocaleString()}</p>
@@ -140,8 +141,25 @@ const OrderTracker = () => {
 
             <div>
               <span className="text-muted-foreground text-sm">Link:</span>
-              <p className="font-medium text-sm break-all">{order.link}</p>
+              <div className="flex items-center space-x-2 mt-1">
+                <p className="font-medium text-sm break-all flex-1">{order.link}</p>
+                <a 
+                  href={order.link} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex-shrink-0 hover:text-primary"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              </div>
             </div>
+
+            {order.comment && (
+              <div>
+                <span className="text-muted-foreground text-sm">Qeyd:</span>
+                <p className="font-medium text-sm mt-1">{order.comment}</p>
+              </div>
+            )}
           </div>
         )}
       </CardContent>
