@@ -31,31 +31,31 @@ const handler = async (req: Request): Promise<Response> => {
     const requestBody: ApiRequest = await req.json();
     console.log('Request body:', requestBody);
 
-    // Prepare URL with query parameters for GET request
-    const urlParams = new URLSearchParams();
-    urlParams.append('api_key', API_KEY);
+    // Prepare form data for POST request
+    const formData = new URLSearchParams();
+    formData.append('api_key', API_KEY);
     
-    // Add all request parameters to URL params
+    // Add all request parameters to form data
     Object.entries(requestBody).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
-        urlParams.append(key, value.toString());
+        formData.append(key, value.toString());
       }
     });
 
-    const fullUrl = `${API_BASE_URL}?${urlParams.toString()}`;
-    console.log('Making GET request to QQTube API:', fullUrl);
+    console.log('Making POST request to QQTube API with form data:', formData.toString());
 
-    // Make GET request to QQTube API (not POST)
-    const response = await fetch(fullUrl, {
-      method: 'GET',
+    // Make POST request to QQTube API with form data
+    const response = await fetch(API_BASE_URL, {
+      method: 'POST',
       headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
         'Accept': 'application/json',
         'Accept-Language': 'en-US,en;q=0.9',
         'Accept-Encoding': 'gzip, deflate, br',
         'Connection': 'keep-alive',
-        'Upgrade-Insecure-Requests': '1',
       },
+      body: formData,
     });
 
     console.log('QQTube API response status:', response.status);
@@ -71,8 +71,9 @@ const handler = async (req: Request): Promise<Response> => {
           error: `QQTube API error: ${response.status}`,
           details: responseText,
           debug: {
-            url: fullUrl,
-            method: 'GET',
+            url: API_BASE_URL,
+            method: 'POST',
+            formData: formData.toString(),
           }
         }),
         {
