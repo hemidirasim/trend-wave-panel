@@ -22,10 +22,10 @@ export function BalanceTopUpDialog({
   onSuccess,
   onError
 }: BalanceTopUpDialogProps) {
-  const [amount, setAmount] = useState<number>(50);
+  const [amount, setAmount] = useState<number>(0.10);
   const [isOpen, setIsOpen] = useState(false);
 
-  const predefinedAmounts = [25, 50, 100, 200, 500];
+  const predefinedAmounts = [0.10, 1, 5, 10, 25, 50];
 
   const handleAmountSelect = (selectedAmount: number) => {
     setAmount(selectedAmount);
@@ -69,7 +69,7 @@ export function BalanceTopUpDialog({
                   onClick={() => handleAmountSelect(presetAmount)}
                   className="text-sm"
                 >
-                  ${presetAmount}
+                  {presetAmount === 0.10 ? '0.10 AZN (Test)' : `${presetAmount} AZN`}
                 </Button>
               ))}
             </div>
@@ -82,7 +82,7 @@ export function BalanceTopUpDialog({
             <Input
               id="custom-amount"
               type="number"
-              min="1"
+              min="0.01"
               step="0.01"
               value={amount}
               onChange={handleCustomAmountChange}
@@ -94,8 +94,13 @@ export function BalanceTopUpDialog({
           <div className="bg-muted p-4 rounded-lg">
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Artırılacaq məbləğ:</span>
-              <span className="font-semibold text-lg">${amount.toFixed(2)}</span>
+              <span className="font-semibold text-lg">{amount.toFixed(2)} AZN</span>
             </div>
+            {amount === 0.10 && (
+              <div className="mt-2 text-xs text-blue-600 bg-blue-50 p-2 rounded">
+                💡 Test məbləği - ödəniş sistemini yoxlamaq üçün
+              </div>
+            )}
           </div>
 
           <div className="flex space-x-2">
@@ -109,7 +114,7 @@ export function BalanceTopUpDialog({
             <PaymentButton
               amount={amount}
               orderId={`balance-${Date.now()}`}
-              description={`Balans artırma - $${amount.toFixed(2)}`}
+              description={`Balans artırma - ${amount.toFixed(2)} AZN`}
               customerEmail={customerEmail}
               customerName={customerName}
               userId={userId}
