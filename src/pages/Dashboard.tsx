@@ -14,6 +14,7 @@ import { Footer } from '@/components/Footer';
 import Support from '@/components/Support';
 import AccountSettings from '@/components/AccountSettings';
 import { BalanceTopUpDialog } from '@/components/payment/BalanceTopUpDialog';
+import { PaymentHistory } from '@/components/payment/PaymentHistory';
 
 interface Order {
   id: string;
@@ -253,10 +254,14 @@ const Dashboard = () => {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="orders" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8">
+          <TabsList className="grid w-full grid-cols-4 mb-8">
             <TabsTrigger value="orders" className="flex items-center gap-2">
               <Package className="h-4 w-4" />
               Sifarişlər
+            </TabsTrigger>
+            <TabsTrigger value="payments" className="flex items-center gap-2">
+              <Wallet className="h-4 w-4" />
+              Ödənişlər
             </TabsTrigger>
             <TabsTrigger value="support" className="flex items-center gap-2">
               <LifeBuoy className="h-4 w-4" />
@@ -313,6 +318,10 @@ const Dashboard = () => {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="payments">
+            <PaymentHistory />
           </TabsContent>
 
           <TabsContent value="support">

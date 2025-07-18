@@ -22,10 +22,10 @@ export function BalanceTopUpDialog({
   onSuccess,
   onError
 }: BalanceTopUpDialogProps) {
-  const [amount, setAmount] = useState<number>(0.10);
+  const [amount, setAmount] = useState<number>(20);
   const [isOpen, setIsOpen] = useState(false);
 
-  const predefinedAmounts = [0.10, 1, 5, 10, 25, 50];
+  const predefinedAmounts = [20, 50, 100, 200, 500];
 
   const handleAmountSelect = (selectedAmount: number) => {
     setAmount(selectedAmount);
@@ -33,7 +33,7 @@ export function BalanceTopUpDialog({
 
   const handleCustomAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(e.target.value);
-    if (!isNaN(value) && value > 0) {
+    if (!isNaN(value) && value >= 20) {
       setAmount(value);
     }
   };
@@ -53,7 +53,7 @@ export function BalanceTopUpDialog({
             Balans Artır
           </DialogTitle>
           <DialogDescription>
-            Hesabınıza artırmaq istədiyiniz məbləği seçin
+            Hesabınıza artırmaq istədiyiniz məbləği seçin (minimum 20 AZN)
           </DialogDescription>
         </DialogHeader>
 
@@ -69,7 +69,7 @@ export function BalanceTopUpDialog({
                   onClick={() => handleAmountSelect(presetAmount)}
                   className="text-sm"
                 >
-                  {presetAmount === 0.10 ? '0.10 AZN (Test)' : `${presetAmount} AZN`}
+                  {presetAmount} AZN
                 </Button>
               ))}
             </div>
@@ -82,13 +82,18 @@ export function BalanceTopUpDialog({
             <Input
               id="custom-amount"
               type="number"
-              min="0.01"
-              step="0.01"
+              min="20"
+              step="1"
               value={amount}
               onChange={handleCustomAmountChange}
-              placeholder="Məbləği daxil edin"
+              placeholder="Məbləği daxil edin (min 20 AZN)"
               className="mt-1"
             />
+            {amount < 20 && (
+              <p className="text-sm text-red-600 mt-1">
+                Minimum məbləğ 20 AZN olmalıdır
+              </p>
+            )}
           </div>
 
           <div className="bg-muted p-4 rounded-lg">
@@ -96,11 +101,6 @@ export function BalanceTopUpDialog({
               <span className="text-sm text-muted-foreground">Artırılacaq məbləğ:</span>
               <span className="font-semibold text-lg">{amount.toFixed(2)} AZN</span>
             </div>
-            {amount === 0.10 && (
-              <div className="mt-2 text-xs text-blue-600 bg-blue-50 p-2 rounded">
-                💡 Test məbləği - ödəniş sistemini yoxlamaq üçün
-              </div>
-            )}
           </div>
 
           <div className="flex space-x-2">
@@ -124,6 +124,7 @@ export function BalanceTopUpDialog({
               }}
               onError={onError}
               className="flex-1"
+              disabled={amount < 20}
             >
               Ödənişə keç
             </PaymentButton>
