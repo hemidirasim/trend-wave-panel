@@ -56,12 +56,12 @@ const handler = async (req: Request): Promise<Response> => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get all orders that might need status updates
+    // Get all orders that might need status updates - include more statuses
     console.log('Fetching orders that need status checks...');
     const { data: orders, error: ordersError } = await supabase
       .from('orders')
       .select('id, external_order_id, status, service_name, created_at')
-      .in('status', ['pending', 'processing'])
+      .in('status', ['pending', 'processing', 'in_progress', 'active', 'running'])
       .not('external_order_id', 'is', null);
 
     if (ordersError) {
@@ -76,9 +76,24 @@ const handler = async (req: Request): Promise<Response> => {
     console.log('Orders data:', orders?.map(o => ({ id: o.id, external_order_id: o.external_order_id, status: o.status, service_name: o.service_name })));
 
     if (!orders || orders.length === 0) {
+      // Also check if there are any orders with external_order_id but different statuses
+      const { data: allOrders, error: allOrdersError } = await supabase
+        .from('orders')
+        .select('id, external_order_id, status, service_name, created_at')
+        .not('external_order_id', 'is', null)
+        .limit(5);
+
+      console.log('Sample orders with external_order_id:', allOrders?.map(o => ({ 
+        id: o.id, 
+        external_order_id: o.external_order_id, 
+        status: o.status, 
+        service_name: o.service_name 
+      })));
+
       return new Response(JSON.stringify({ 
-        message: 'No orders to check',
-        timestamp: new Date().toISOString() 
+        message: 'No active orders to check',
+        timestamp: new Date().toISOString(),
+        sample_orders: allOrders?.map(o => ({ status: o.status, external_order_id: o.external_order_id })) || []
       }), {
         status: 200,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
