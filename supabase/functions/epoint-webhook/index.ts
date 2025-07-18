@@ -64,7 +64,7 @@ serve(async (req) => {
         console.log('✅ JSON parsing successful!');
         console.log('📊 Parsed webhook data:', JSON.stringify(webhookData, null, 2));
         
-        // Extract all relevant fields from Epoint webhook
+        // Extract all relevant fields from JSON webhook data
         status = webhookData.status;
         orderId = webhookData.order_id;
         amount = webhookData.amount;
@@ -75,7 +75,7 @@ serve(async (req) => {
         cardName = webhookData.card_name;
         cardMask = webhookData.card_mask;
 
-        console.log('📋 Extracted fields:');
+        console.log('📋 JSON extracted fields:');
         console.log('  - Status:', status);
         console.log('  - Order ID:', orderId);
         console.log('  - Amount:', amount);
@@ -90,28 +90,99 @@ serve(async (req) => {
         console.log('❌ JSON parsing failed:', jsonError);
         console.log('🔄 Attempting form data parsing...');
         
-        // If JSON parsing fails, try form data (fallback)
+        // If JSON parsing fails, try form data (Real Epoint format)
         const formData = new URLSearchParams(body);
-        status = formData.get('status');
-        orderId = formData.get('order_id');
-        amount = formData.get('amount');
-        transactionId = formData.get('transaction');
-        code = formData.get('code');
-        message = formData.get('message');
-        rrn = formData.get('rrn');
-        cardName = formData.get('card_name');
-        cardMask = formData.get('card_mask');
+        const dataParam = formData.get('data');
+        const signatureParam = formData.get('signature');
+        
+        console.log('📋 Form data params:');
+        console.log('  - data exists:', !!dataParam);
+        console.log('  - signature exists:', !!signatureParam);
+        console.log('  - data length:', dataParam?.length || 0);
+        console.log('  - signature:', signatureParam);
 
-        console.log('📋 Form data extracted fields:');
-        console.log('  - Status:', status);
-        console.log('  - Order ID:', orderId);
-        console.log('  - Amount:', amount);
-        console.log('  - Transaction ID:', transactionId);
-        console.log('  - Code:', code);
-        console.log('  - Message:', message);
-        console.log('  - RRN:', rrn);
-        console.log('  - Card Name:', cardName);
-        console.log('  - Card Mask:', cardMask);
+        if (dataParam) {
+          try {
+            console.log('🔓 Decoding base64 data...');
+            // Decode base64 data
+            const decodedData = atob(dataParam);
+            console.log('📊 Decoded data:', decodedData);
+            
+            // Parse the decoded JSON
+            const ePointData = JSON.parse(decodedData);
+            console.log('✅ Epoint data parsed successfully!');
+            console.log('📊 Epoint parsed data:', JSON.stringify(ePointData, null, 2));
+            
+            // Extract fields from Epoint data structure
+            status = ePointData.status;
+            orderId = ePointData.order_id;
+            amount = ePointData.amount;
+            transactionId = ePointData.transaction;
+            code = ePointData.code;
+            message = ePointData.message;
+            rrn = ePointData.rrn;
+            cardName = ePointData.card_name;
+            cardMask = ePointData.card_mask;
+
+            console.log('📋 Epoint extracted fields:');
+            console.log('  - Status:', status);
+            console.log('  - Order ID:', orderId);
+            console.log('  - Amount:', amount);
+            console.log('  - Transaction ID:', transactionId);
+            console.log('  - Code:', code);
+            console.log('  - Message:', message);
+            console.log('  - RRN:', rrn);
+            console.log('  - Card Name:', cardName);
+            console.log('  - Card Mask:', cardMask);
+
+          } catch (decodeError) {
+            console.error('❌ Error decoding Epoint data:', decodeError);
+            
+            // Fallback: try direct form field extraction
+            status = formData.get('status');
+            orderId = formData.get('order_id');
+            amount = formData.get('amount');
+            transactionId = formData.get('transaction');
+            code = formData.get('code');
+            message = formData.get('message');
+            rrn = formData.get('rrn');
+            cardName = formData.get('card_name');
+            cardMask = formData.get('card_mask');
+
+            console.log('📋 Direct form extracted fields:');
+            console.log('  - Status:', status);
+            console.log('  - Order ID:', orderId);
+            console.log('  - Amount:', amount);
+            console.log('  - Transaction ID:', transactionId);
+            console.log('  - Code:', code);
+            console.log('  - Message:', message);
+            console.log('  - RRN:', rrn);
+            console.log('  - Card Name:', cardName);
+            console.log('  - Card Mask:', cardMask);
+          }
+        } else {
+          // No data parameter, try direct form parsing
+          status = formData.get('status');
+          orderId = formData.get('order_id');
+          amount = formData.get('amount');
+          transactionId = formData.get('transaction');
+          code = formData.get('code');
+          message = formData.get('message');
+          rrn = formData.get('rrn');
+          cardName = formData.get('card_name');
+          cardMask = formData.get('card_mask');
+
+          console.log('📋 Basic form extracted fields:');
+          console.log('  - Status:', status);
+          console.log('  - Order ID:', orderId);
+          console.log('  - Amount:', amount);
+          console.log('  - Transaction ID:', transactionId);
+          console.log('  - Code:', code);
+          console.log('  - Message:', message);
+          console.log('  - RRN:', rrn);
+          console.log('  - Card Name:', cardName);
+          console.log('  - Card Mask:', cardMask);
+        }
       }
 
       // Validation checks
@@ -359,7 +430,7 @@ serve(async (req) => {
       status: 'active',
       message: 'Epoint webhook endpoint is running and ready to receive payments',
       timestamp: new Date().toISOString(),
-      version: '2.0',
+      version: '3.0',
       webhook_url: 'https://lnsragearbdkxpbhhyez.supabase.co/functions/v1/epoint-webhook'
     }), { 
       status: 200,
