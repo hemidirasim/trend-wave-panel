@@ -26,17 +26,23 @@ serve(async (req) => {
       console.log('📥 Webhook body received:', body);
 
       // Try to parse as JSON first (Epoint new format)
-      let parsedData;
-      let status, orderId, amount, transactionId;
+      let webhookData;
+      let status, orderId, amount, transactionId, code, message, rrn, cardName, cardMask;
 
       try {
-        parsedData = JSON.parse(body);
-        console.log('📊 Parsed JSON webhook data:', parsedData);
+        webhookData = JSON.parse(body);
+        console.log('📊 Parsed JSON webhook data:', webhookData);
         
-        status = parsedData.status;
-        orderId = parsedData.order_id;
-        amount = parsedData.amount;
-        transactionId = parsedData.transaction;
+        // Extract all relevant fields from Epoint webhook
+        status = webhookData.status;
+        orderId = webhookData.order_id;
+        amount = webhookData.amount;
+        transactionId = webhookData.transaction;
+        code = webhookData.code;
+        message = webhookData.message;
+        rrn = webhookData.rrn;
+        cardName = webhookData.card_name;
+        cardMask = webhookData.card_mask;
       } catch (jsonError) {
         // If JSON parsing fails, try form data (fallback)
         console.log('📝 Trying form data parsing...');
@@ -44,27 +50,42 @@ serve(async (req) => {
         status = formData.get('status');
         orderId = formData.get('order_id');
         amount = formData.get('amount');
-        transactionId = formData.get('transaction_id');
+        transactionId = formData.get('transaction');
+        code = formData.get('code');
+        message = formData.get('message');
+        rrn = formData.get('rrn');
+        cardName = formData.get('card_name');
+        cardMask = formData.get('card_mask');
       }
 
       console.log('📊 Final parsed webhook data:', {
         status,
         orderId,
         amount,
-        transactionId
+        transactionId,
+        code,
+        message,
+        rrn,
+        cardName,
+        cardMask
       });
 
-      // Check for successful payments - Epoint sends "success" status
-      if (status === 'success' && orderId && amount) {
+      // Check for successful payments - Epoint sends "success" status and code "000"
+      if (status === 'success' && code === '000' && orderId && amount) {
         const amountValue = parseFloat(amount.toString());
         
         console.log('✅ Processing successful payment:', {
           orderId,
           amount: amountValue,
-          transactionId
+          transactionId,
+          code,
+          message,
+          rrn,
+          cardName,
+          cardMask
         });
 
-        // Update payment transaction status
+        // Update payment transaction status with additional data
         console.log('📝 Updating payment transaction...');
         const { error: updateTransactionError } = await supabase
           .from('payment_transactions')
@@ -159,6 +180,12 @@ serve(async (req) => {
               oldBalance,
               amountToAdd: amountValue,
               newBalance,
+              paymentDetails: {
+                transactionId,
+                rrn,
+                cardName,
+                cardMask
+              },
               timestamp: new Date().toISOString()
             });
             
@@ -185,7 +212,13 @@ serve(async (req) => {
                 email: updateResult[0].email,
                 newBalance: updateResult[0].balance,
                 updatedAt: updateResult[0].updated_at,
-                amountAdded: amountValue
+                amountAdded: amountValue,
+                paymentInfo: {
+                  transactionId,
+                  rrn,
+                  cardName,
+                  cardMask
+                }
               });
             } else {
               console.error('❌ No rows were updated!');
@@ -222,8 +255,15 @@ serve(async (req) => {
 
         return new Response('Payment processed successfully', { status: 200 });
         
-      } else if (status === 'declined' || status === 'cancelled' || status === 'failed') {
-        console.log('❌ Payment failed or cancelled:', { orderId, status });
+      } else if (status === 'failed' || (status === 'failed' && code !== '000')) {
+        console.log('❌ Payment failed:', { 
+          orderId, 
+          status, 
+          code, 
+          message,
+          transactionId,
+          rrn 
+        });
         
         // Update transaction status for failed payments
         const { error: updateTransactionError } = await supabase
@@ -241,8 +281,14 @@ serve(async (req) => {
 
         return new Response('Payment failed', { status: 200 });
       } else {
-        console.log('⚠️ Unhandled webhook status:', { status, orderId });
-        return new Response('Unhandled status', { status: 200 });
+        console.log('⚠️ Unhandled webhook status or missing required fields:', { 
+          status, 
+          code, 
+          orderId, 
+          amount,
+          message 
+        });
+        return new Response('Unhandled status or missing data', { status: 200 });
       }
     }
 
