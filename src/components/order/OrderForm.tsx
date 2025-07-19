@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -144,31 +143,40 @@ const OrderForm = ({
 
       console.log('Order API response:', orderResponse);
 
-      // Check if order was successful
-      if (!orderResponse || orderResponse.status === 'error' || orderResponse.error) {
-        // Handle API error - don't deduct balance
+      // Check if order was successful - handle all possible error scenarios
+      if (!orderResponse) {
+        toast.error('API cavab vermədi. Yenidən cəhd edin.');
+        return;
+      }
+
+      // Check for explicit error status
+      if (orderResponse.status === 'error' || orderResponse.error) {
         let errorMessage = 'Sifariş verilmədi. Yenidən cəhd edin.';
         
-        if (orderResponse?.message) {
+        if (orderResponse.error) {
+          errorMessage = orderResponse.error;
+        } else if (orderResponse.message) {
           if (Array.isArray(orderResponse.message)) {
             errorMessage = orderResponse.message.map((msg: any) => msg.message || msg).join(', ');
           } else if (typeof orderResponse.message === 'string') {
             errorMessage = orderResponse.message;
           }
-        } else if (orderResponse?.error) {
-          errorMessage = orderResponse.error;
         }
         
+        console.error('API Error:', errorMessage);
         toast.error(errorMessage);
-        return; // Don't proceed with balance deduction or database save
+        return;
+      }
+
+      // Check if we have a valid submission ID (success indicator)
+      if (!orderResponse.id_service_submission) {
+        console.error('No submission ID received:', orderResponse);
+        toast.error('Sifariş ID alınamadı. Yenidən cəhd edin.');
+        return;
       }
 
       // Extract external_order_id from successful response
-      let externalOrderId = null;
-      if (orderResponse) {
-        externalOrderId = orderResponse.id_service_submission || null;
-      }
-
+      const externalOrderId = orderResponse.id_service_submission;
       console.log('Extracted external_order_id:', externalOrderId);
 
       // Only if API call was successful, then deduct balance and save to database
@@ -224,7 +232,21 @@ const OrderForm = ({
 
     } catch (error: any) {
       console.error('Order placement error:', error);
-      toast.error(error.message || 'Sifariş verərkən xəta baş verdi');
+      
+      // Show user-friendly error message for different error types
+      let errorMessage = 'Sifariş verərkən xəta baş verdi';
+      
+      if (error.message) {
+        if (error.message.includes('network') || error.message.includes('fetch')) {
+          errorMessage = 'İnternet bağlantısında problem var. Yenidən cəhd edin.';
+        } else if (error.message.includes('timeout')) {
+          errorMessage = 'Sorğu vaxtı bitdi. Yenidən cəhd edin.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      toast.error(errorMessage);
     }
   };
 
