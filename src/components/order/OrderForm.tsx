@@ -15,6 +15,7 @@ import { Service } from '@/types/api';
 import { apiClient } from '@/utils/apiClient';
 import { calculatePrice } from '@/utils/priceCalculator';
 import { validateUrl } from '@/utils/urlValidator';
+import { useNavigate } from 'react-router-dom';
 
 interface OrderFormProps {
   service: Service;
@@ -43,6 +44,7 @@ const OrderForm = ({
   onPlaceOrder 
 }: OrderFormProps) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
   const [existingOrder, setExistingOrder] = useState<any>(null);
   const [checkingExisting, setCheckingExisting] = useState(false);
@@ -132,7 +134,7 @@ const OrderForm = ({
       console.log('Placing order with service:', service);
       console.log('Form data:', formData);
 
-      // Place the order via API
+      // Place the order via API FIRST - don't touch balance yet
       const orderResponse = await apiClient.placeOrder(
         formData.serviceId,
         formData.url,
@@ -142,7 +144,26 @@ const OrderForm = ({
 
       console.log('Order API response:', orderResponse);
 
-      // Extract external_order_id from the response - use the correct property name
+      // Check if order was successful
+      if (!orderResponse || orderResponse.status === 'error' || orderResponse.error) {
+        // Handle API error - don't deduct balance
+        let errorMessage = 'Sifariş verilmədi. Yenidən cəhd edin.';
+        
+        if (orderResponse?.message) {
+          if (Array.isArray(orderResponse.message)) {
+            errorMessage = orderResponse.message.map((msg: any) => msg.message || msg).join(', ');
+          } else if (typeof orderResponse.message === 'string') {
+            errorMessage = orderResponse.message;
+          }
+        } else if (orderResponse?.error) {
+          errorMessage = orderResponse.error;
+        }
+        
+        toast.error(errorMessage);
+        return; // Don't proceed with balance deduction or database save
+      }
+
+      // Extract external_order_id from successful response
       let externalOrderId = null;
       if (orderResponse) {
         externalOrderId = orderResponse.id_service_submission || null;
@@ -150,7 +171,7 @@ const OrderForm = ({
 
       console.log('Extracted external_order_id:', externalOrderId);
 
-      // Save order to database with external_order_id
+      // Only if API call was successful, then deduct balance and save to database
       const orderData = {
         user_id: user?.id,
         service_id: formData.serviceId,
@@ -174,12 +195,13 @@ const OrderForm = ({
 
       if (insertError) {
         console.error('Database insert error:', insertError);
-        throw new Error('Sifarişi yadda saxlamaq mümkün olmadı');
+        toast.error('Sifarişi yadda saxlamaq mümkün olmadı');
+        return;
       }
 
       console.log('Order saved successfully:', insertedOrder);
 
-      // Update user balance
+      // Update user balance only after successful order placement and database save
       if (profile) {
         const newBalance = (profile.balance || 0) - calculatedPrice;
         const { error: balanceError } = await supabase
@@ -189,13 +211,16 @@ const OrderForm = ({
 
         if (balanceError) {
           console.error('Balance update error:', balanceError);
+          toast.error('Balansı yeniləmək mümkün olmadı');
+          return;
         } else {
           console.log('Balance updated successfully. New balance:', newBalance);
         }
       }
 
+      // Show success message and redirect immediately to dashboard
       toast.success('Sifariş uğurla verildi!');
-      onPlaceOrder();
+      navigate('/dashboard');
 
     } catch (error: any) {
       console.error('Order placement error:', error);
@@ -205,6 +230,12 @@ const OrderForm = ({
 
   const hasInsufficientBalance = profile && calculatedPrice > (profile.balance || 0);
   const hasExistingOrder = !!existingOrder;
+
+  // Validate quantity against service limits
+  const quantity = parseInt(formData.quantity) || 0;
+  const minQuantity = service?.amount_minimum || 1;
+  const maxQuantity = service?.prices?.[0]?.maximum || 10000;
+  const isQuantityInvalid = quantity < minQuantity || quantity > maxQuantity;
 
   return (
     <Card>
@@ -249,16 +280,21 @@ const OrderForm = ({
             type="number"
             value={formData.quantity}
             onChange={(e) => onUpdateFormData('quantity', e.target.value)}
-            min={service?.amount_minimum || 1}
-            max={service?.prices?.[0]?.maximum || 10000}
+            min={minQuantity}
+            max={maxQuantity}
             step={service?.amount_increment || 1}
-            className={errors.quantity ? 'border-red-500' : ''}
+            className={`${errors.quantity ? 'border-red-500' : ''} ${isQuantityInvalid ? 'border-red-500' : ''}`}
           />
           {errors.quantity && (
             <p className="text-sm text-red-500">{errors.quantity}</p>
           )}
+          {isQuantityInvalid && formData.quantity && (
+            <p className="text-sm text-red-500">
+              Miqdar {minQuantity} - {maxQuantity.toLocaleString()} aralığında olmalıdır
+            </p>
+          )}
           <p className="text-sm text-gray-500">
-            Min: {service?.amount_minimum || 1}, Max: {service?.prices?.[0]?.maximum || 10000}
+            Min: {minQuantity.toLocaleString()}, Max: {maxQuantity.toLocaleString()}
           </p>
         </div>
 
@@ -331,6 +367,7 @@ const OrderForm = ({
             hasExistingOrder ||
             !formData.url || 
             !formData.quantity ||
+            isQuantityInvalid ||
             Object.keys(errors).length > 0
           }
           className="w-full"

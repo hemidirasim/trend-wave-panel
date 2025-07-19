@@ -286,6 +286,26 @@ const Order = () => {
       
       console.log('Order API response:', response);
       
+      // Check if order was successful
+      if (!response || response.status === 'error' || response.error) {
+        // Handle API error - don't deduct balance or redirect
+        let errorMessage = 'Sifariş verilmədi. Yenidən cəhd edin.';
+        
+        if (response?.message) {
+          if (Array.isArray(response.message)) {
+            errorMessage = response.message.map(msg => msg.message || msg).join(', ');
+          } else if (typeof response.message === 'string') {
+            errorMessage = response.message;
+          }
+        } else if (response?.error) {
+          errorMessage = response.error;
+        }
+        
+        toast.error(errorMessage);
+        return; // Don't proceed with balance deduction or database save
+      }
+
+      // If we get here, the API call was successful
       if (response.status === 'success' && response.id_service_submission) {
         // Update user balance
         const newBalance = userBalance - calculatedPrice;
@@ -312,7 +332,8 @@ const Order = () => {
             quantity: parseInt(formData.quantity),
             price: calculatedPrice,
             link: formData.url,
-            status: 'pending'
+            status: 'pending',
+            external_order_id: response.id_service_submission
           });
 
         if (orderError) {
@@ -320,23 +341,11 @@ const Order = () => {
         }
 
         toast.success('Sifariş uğurla verildi!');
-        navigate(`/track?order=${response.id_service_submission}`);
+        // Redirect immediately to dashboard instead of waiting
+        navigate('/dashboard');
       } else {
         console.error('Order failed:', response);
-        
-        // Handle error messages properly
-        let errorMessage = 'Sifariş verilmədi. Yenidən cəhd edin.';
-        
-        if (response.message) {
-          if (Array.isArray(response.message)) {
-            // If message is an array of objects, extract the message text
-            errorMessage = response.message.map(msg => msg.message).join(', ');
-          } else if (typeof response.message === 'string') {
-            errorMessage = response.message;
-          }
-        }
-        
-        toast.error(errorMessage);
+        toast.error('Sifariş verilmədi. Yenidən cəhd edin.');
       }
     } catch (error) {
       console.error('Order submission error:', error);
