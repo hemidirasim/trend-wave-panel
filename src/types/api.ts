@@ -44,10 +44,11 @@ export interface OrderResponse {
   start_count?: number;
   wanted_count?: number;
   current_count?: number;
+  error?: string;
   message?: Array<{
     id: number;
     message: string;
-  }>;
+  }> | string;
 }
 
 export interface OrderStatus {

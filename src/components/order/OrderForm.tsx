@@ -231,10 +231,10 @@ const OrderForm = ({
   const hasInsufficientBalance = profile && calculatedPrice > (profile.balance || 0);
   const hasExistingOrder = !!existingOrder;
 
-  // Validate quantity against service limits
+  // Validate quantity against service limits - convert to numbers for comparison
   const quantity = parseInt(formData.quantity) || 0;
-  const minQuantity = service?.amount_minimum || 1;
-  const maxQuantity = service?.prices?.[0]?.maximum || 10000;
+  const minQuantity = parseInt(service?.amount_minimum) || 1;
+  const maxQuantity = parseInt(service?.prices?.[0]?.maximum) || 10000;
   const isQuantityInvalid = quantity < minQuantity || quantity > maxQuantity;
 
   return (
@@ -282,7 +282,7 @@ const OrderForm = ({
             onChange={(e) => onUpdateFormData('quantity', e.target.value)}
             min={minQuantity}
             max={maxQuantity}
-            step={service?.amount_increment || 1}
+            step={parseInt(service?.amount_increment) || 1}
             className={`${errors.quantity ? 'border-red-500' : ''} ${isQuantityInvalid ? 'border-red-500' : ''}`}
           />
           {errors.quantity && (
