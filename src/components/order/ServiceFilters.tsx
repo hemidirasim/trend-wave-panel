@@ -73,6 +73,15 @@ export function ServiceFilters({
     return [...new Set(platforms)];
   };
 
+  // Extract service base name (before first dash)
+  const getServiceBaseName = (serviceName: string): string => {
+    const dashIndex = serviceName.indexOf(' - ');
+    if (dashIndex !== -1) {
+      return serviceName.substring(0, dashIndex).trim();
+    }
+    return serviceName;
+  };
+
   const getServiceGroups = (platform: string) => {
     const platformServices = services.filter(service => 
       service.platform.toLowerCase() === platform.toLowerCase()
@@ -81,14 +90,13 @@ export function ServiceFilters({
     const groups: Record<string, Service[]> = {};
     
     platformServices.forEach(service => {
-      const mainType = service.type_name && service.type_name.trim() !== '' 
-        ? service.type_name 
-        : getServiceTypeFromName(service.public_name);
+      // Use base name (before first dash) as the group key
+      const baseName = getServiceBaseName(service.public_name);
       
-      if (!groups[mainType]) {
-        groups[mainType] = [];
+      if (!groups[baseName]) {
+        groups[baseName] = [];
       }
-      groups[mainType].push(service);
+      groups[baseName].push(service);
     });
     
     return groups;
@@ -101,25 +109,32 @@ export function ServiceFilters({
       const name = service.public_name.toLowerCase();
       let subType = 'Other';
       
-      // Instagram specific sub-grouping
-      if (service.platform.toLowerCase() === 'instagram') {
-        if (name.includes('post') && name.includes('like')) subType = 'Post Likes';
-        else if (name.includes('comment') && name.includes('like')) subType = 'Comment Likes';
-        else if (name.includes('story') && name.includes('like')) subType = 'Story Likes';
-        else if (name.includes('reel') && name.includes('like')) subType = 'Reel Likes';
-        else if (name.includes('video') && name.includes('like')) subType = 'Video Likes';
-        else if (name.includes('like')) subType = 'General Likes';
-        else if (name.includes('follow')) subType = 'Followers';
-        else if (name.includes('view')) subType = 'Views';
-        else if (name.includes('comment') && !name.includes('like')) subType = 'Comments';
-      }
-      // YouTube specific sub-grouping
-      else if (service.platform.toLowerCase() === 'youtube') {
-        if (name.includes('subscribe')) subType = 'Subscribers';
-        else if (name.includes('like')) subType = 'Likes';
-        else if (name.includes('view')) subType = 'Views';
-        else if (name.includes('comment')) subType = 'Comments';
-        else if (name.includes('share')) subType = 'Shares';
+      // Extract the part after the dash as sub-type
+      const dashIndex = service.public_name.indexOf(' - ');
+      if (dashIndex !== -1) {
+        subType = service.public_name.substring(dashIndex + 3).trim();
+        // Clean up common patterns
+        subType = subType.replace(/^\[|\]$/g, ''); // Remove brackets
+      } else {
+        // Fallback to old logic if no dash
+        if (service.platform.toLowerCase() === 'instagram') {
+          if (name.includes('post') && name.includes('like')) subType = 'Post Likes';
+          else if (name.includes('comment') && name.includes('like')) subType = 'Comment Likes';
+          else if (name.includes('story') && name.includes('like')) subType = 'Story Likes';
+          else if (name.includes('reel') && name.includes('like')) subType = 'Reel Likes';
+          else if (name.includes('video') && name.includes('like')) subType = 'Video Likes';
+          else if (name.includes('like')) subType = 'General Likes';
+          else if (name.includes('follow')) subType = 'Followers';
+          else if (name.includes('view')) subType = 'Views';
+          else if (name.includes('comment') && !name.includes('like')) subType = 'Comments';
+        }
+        else if (service.platform.toLowerCase() === 'youtube') {
+          if (name.includes('subscribe')) subType = 'Subscribers';
+          else if (name.includes('like')) subType = 'Likes';
+          else if (name.includes('view')) subType = 'Views';
+          else if (name.includes('comment')) subType = 'Comments';
+          else if (name.includes('share')) subType = 'Shares';
+        }
       }
       
       if (!subGroups[subType]) {
