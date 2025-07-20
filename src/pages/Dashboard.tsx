@@ -208,15 +208,6 @@ const Dashboard = () => {
               </CardContent>
             </Card>
             
-            {/* Order Button */}
-            <Button 
-              onClick={() => navigate('/order')} 
-              className="bg-primary hover:bg-primary/90"
-            >
-              <ShoppingCart className="h-4 w-4 mr-2" />
-              Sifariş Et
-            </Button>
-            
             <Button variant="outline" onClick={handleSignOut}>
               Çıxış
             </Button>
@@ -294,10 +285,21 @@ const Dashboard = () => {
           <TabsContent value="orders">
             <Card>
               <CardHeader>
-                <CardTitle>Bütün Sifarişlər</CardTitle>
-                <CardDescription>
-                  Bütün sifarişlərinizin siyahısı və vəziyyəti (Real-time yenilənmə aktiv)
-                </CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Bütün Sifarişlər</CardTitle>
+                    <CardDescription>
+                      Bütün sifarişlərinizin siyahısı və vəziyyəti (Real-time yenilənmə aktiv)
+                    </CardDescription>
+                  </div>
+                  <Button 
+                    onClick={() => navigate('/order')} 
+                    className="bg-primary hover:bg-primary/90"
+                  >
+                    <ShoppingCart className="h-4 w-4 mr-2" />
+                    Sifariş Et
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 <OrdersTable orders={orders} onOrdersUpdate={fetchUserData} />
