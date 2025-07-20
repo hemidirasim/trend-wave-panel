@@ -3,22 +3,35 @@ import { PaymentProviderInterface, PaymentRequest, PaymentResponse, PaymentStatu
 import { supabase } from '@/integrations/supabase/client';
 
 export class EpointProvider implements PaymentProviderInterface {
+  // Simple USD to AZN conversion rate - in production this should come from a live API
+  private readonly USD_TO_AZN_RATE = 1.7; // Approximate rate
+
+  private convertUsdToAzn(usdAmount: number): number {
+    return parseFloat((usdAmount * this.USD_TO_AZN_RATE).toFixed(2));
+  }
+
   async createPayment(request: PaymentRequest): Promise<PaymentResponse> {
     try {
       console.log('Creating Epoint payment via Edge Function:', request);
 
+      // Convert USD amount to AZN for Epoint
+      const aznAmount = request.currency === 'USD' ? this.convertUsdToAzn(request.amount) : request.amount;
+      console.log(`Converting ${request.amount} USD to ${aznAmount} AZN for Epoint`);
+
       const { data, error } = await supabase.functions.invoke('epoint-payment', {
         body: {
           action: 'createPayment',
-          amount: request.amount,
-          currency: request.currency,
+          amount: aznAmount, // Send converted AZN amount
+          currency: 'AZN', // Always AZN for Epoint
           orderId: request.orderId,
-          description: request.description,
+          description: `${request.description} (${request.amount} USD = ${aznAmount} AZN)`,
           customerEmail: request.customerEmail,
           customerName: request.customerName,
           userId: request.userId,
           successUrl: request.successUrl,
-          errorUrl: request.errorUrl
+          errorUrl: request.errorUrl,
+          originalAmount: request.amount, // Keep original USD amount for reference
+          originalCurrency: request.currency
         }
       });
 

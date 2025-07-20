@@ -81,7 +81,7 @@ export function PaymentDialog({
           <div className="bg-muted p-4 rounded-lg">
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm text-muted-foreground">Məbləğ:</span>
-              <span className="font-semibold">{paymentRequest.amount.toFixed(2)} AZN</span>
+              <span className="font-semibold">${paymentRequest.amount.toFixed(2)} USD</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Sifariş ID:</span>
@@ -99,6 +99,9 @@ export function PaymentDialog({
                 {availableProviders.map(provider => (
                   <SelectItem key={provider.id} value={provider.id} disabled={!provider.isActive}>
                     {provider.name}
+                    {provider.id === 'epoint' && (
+                      <span className="text-xs text-muted-foreground ml-2">(AZN-ə konvert ediləcək)</span>
+                    )}
                   </SelectItem>
                 ))}
               </SelectContent>

@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -53,7 +53,7 @@ export function BalanceTopUpDialog({
             Balans Artır
           </DialogTitle>
           <DialogDescription>
-            Hesabınıza artırmaq istədiyiniz məbləği seçin (minimum 20 AZN)
+            Hesabınıza artırmaq istədiyiniz məbləği seçin (minimum $20 USD)
           </DialogDescription>
         </DialogHeader>
 
@@ -69,7 +69,7 @@ export function BalanceTopUpDialog({
                   onClick={() => handleAmountSelect(presetAmount)}
                   className="text-sm"
                 >
-                  {presetAmount} AZN
+                  ${presetAmount} USD
                 </Button>
               ))}
             </div>
@@ -86,12 +86,12 @@ export function BalanceTopUpDialog({
               step="1"
               value={amount}
               onChange={handleCustomAmountChange}
-              placeholder="Məbləği daxil edin (min 20 AZN)"
+              placeholder="Məbləği daxil edin (min $20 USD)"
               className="mt-1"
             />
             {amount < 20 && (
               <p className="text-sm text-red-600 mt-1">
-                Minimum məbləğ 20 AZN olmalıdır
+                Minimum məbləğ $20 USD olmalıdır
               </p>
             )}
           </div>
@@ -99,7 +99,7 @@ export function BalanceTopUpDialog({
           <div className="bg-muted p-4 rounded-lg">
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Artırılacaq məbləğ:</span>
-              <span className="font-semibold text-lg">{amount.toFixed(2)} AZN</span>
+              <span className="font-semibold text-lg">${amount.toFixed(2)} USD</span>
             </div>
           </div>
 
@@ -114,7 +114,7 @@ export function BalanceTopUpDialog({
             <PaymentButton
               amount={amount}
               orderId={`balance-${Date.now()}`}
-              description={`Balans artırma - ${amount.toFixed(2)} AZN`}
+              description={`Balans artırma - $${amount.toFixed(2)} USD`}
               customerEmail={customerEmail}
               customerName={customerName}
               userId={userId}

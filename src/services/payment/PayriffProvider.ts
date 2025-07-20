@@ -11,7 +11,7 @@ export class PayriffProvider implements PaymentProviderInterface {
         body: {
           action: 'createPayment',
           amount: request.amount,
-          currency: request.currency,
+          currency: request.currency || 'USD', // Default to USD if not specified
           orderId: request.orderId,
           description: request.description,
           customerEmail: request.customerEmail,

@@ -35,11 +35,11 @@ export function PaymentButton({
   const { paymentDialogOpen, setPaymentDialogOpen, currentPaymentRequest, initiatePayment } = usePayment();
 
   const handlePaymentClick = () => {
-    console.log('Payment button clicked'); // Debug log
+    console.log('Payment button clicked with USD amount:', amount); // Debug log
     
     const paymentRequest: PaymentRequest = {
       amount,
-      currency: 'AZN',
+      currency: 'USD', // Always USD as the base currency
       orderId,
       description,
       customerEmail,
@@ -49,7 +49,7 @@ export function PaymentButton({
       errorUrl: `${window.location.origin}/payment-error?order=${orderId}`
     };
 
-    console.log('Initiating payment with request:', paymentRequest); // Debug log
+    console.log('Initiating payment with USD request:', paymentRequest); // Debug log
     initiatePayment(paymentRequest);
   };
 
@@ -63,7 +63,7 @@ export function PaymentButton({
         className={className}
       >
         <CreditCard className="h-4 w-4 mr-2" />
-        {children || `${amount.toFixed(2)} AZN ödə`}
+        {children || `$${amount.toFixed(2)} USD ödə`}
       </Button>
 
       <PaymentDialog

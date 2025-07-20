@@ -45,7 +45,9 @@ serve(async (req) => {
         customerName,
         successUrl,
         errorUrl,
-        userId
+        userId,
+        originalAmount,
+        originalCurrency
       } = requestData;
 
       // Create Supabase client to track payment
@@ -54,18 +56,20 @@ serve(async (req) => {
         Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
       );
 
-      // Store payment tracking info
+      // Store payment tracking info with both original and converted amounts
       const { error: insertError } = await supabase
         .from('payment_transactions')
         .insert({
           order_id: orderId,
-          amount: parseFloat(amount.toString()),
-          currency: currency,
+          amount: originalAmount || amount, // Store original USD amount
+          currency: originalCurrency || currency,
           customer_email: customerEmail,
           customer_name: customerName,
           user_id: userId,
           status: 'pending',
-          provider: 'epoint'
+          provider: 'epoint',
+          converted_amount: amount, // Store converted AZN amount
+          converted_currency: currency
         });
 
       if (insertError) {
@@ -75,8 +79,13 @@ serve(async (req) => {
       // Convert amount to proper format for Epoint (AZN decimal format)
       const amountForEpoint = parseFloat(amount.toString()).toFixed(2);
 
-      console.log('Original amount:', amount);
-      console.log('Amount for Epoint:', amountForEpoint);
+      console.log('Payment details for Epoint:', {
+        originalAmount: originalAmount,
+        originalCurrency: originalCurrency,
+        convertedAmount: amount,
+        convertedCurrency: currency,
+        amountForEpoint: amountForEpoint
+      });
 
       // Create JSON string as shown in the documentation
       // IMPORTANT: Include all necessary URLs for Epoint notification
@@ -84,7 +93,7 @@ serve(async (req) => {
       const jsonData = {
         "public_key": publicKey,
         "amount": amountForEpoint,
-        "currency": currency,
+        "currency": currency, // Should be AZN
         "description": description,
         "order_id": orderId.toString(),
         "language": "az",
@@ -107,8 +116,6 @@ serve(async (req) => {
       // Create signature string: private_key + data + private_key
       const sgnString = privateKey + data + privateKey;
       console.log('Signature string length:', sgnString.length);
-      console.log('Signature string (first 50 chars):', sgnString.substring(0, 50));
-      console.log('Signature string (last 50 chars):', sgnString.substring(sgnString.length - 50));
 
       // Create SHA1 hash of the signature string and directly encode to base64
       const sgnBytes = encoder.encode(sgnString);
@@ -118,7 +125,6 @@ serve(async (req) => {
       const hashArray = new Uint8Array(hashBuffer);
       const signature = btoa(String.fromCharCode(...hashArray));
       
-      console.log('SHA1 hash bytes length:', hashArray.length);
       console.log('Final signature:', signature);
 
       // Prepare form data for Epoint API
@@ -126,9 +132,7 @@ serve(async (req) => {
       formData.append('data', data);
       formData.append('signature', signature);
 
-      console.log('Sending to Epoint API:');
-      console.log('data:', data);
-      console.log('signature:', signature);
+      console.log('Sending to Epoint API with AZN amount:', amountForEpoint);
 
       try {
         const response = await fetch('https://epoint.az/api/1/request', {
@@ -142,7 +146,6 @@ serve(async (req) => {
         });
 
         console.log('Epoint API response status:', response.status);
-        console.log('Epoint API response headers:', Object.fromEntries(response.headers.entries()));
         
         const responseText = await response.text();
         console.log('Epoint API raw response:', responseText);
