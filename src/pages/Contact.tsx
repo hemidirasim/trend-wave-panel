@@ -34,26 +34,26 @@ const Contact = () => {
   const contactInfo = [
     {
       icon: Mail,
-      title: 'E-poçt',
+      title: t('contact.email'),
       value: 'support@hitloyal.com',
       link: 'mailto:support@hitloyal.com'
     },
     {
       icon: Phone,
-      title: 'Telefon',
+      title: t('contact.phone'),
       value: '+994 55 289 57 03',
       link: 'tel:+994552895703'
     },
     {
       icon: MapPin,
-      title: 'Ünvan',
-      value: 'Cəfər Cabbarlı 44 (Caspian Plaza)',
+      title: t('contact.address'),
+      value: t('contact.addressFull'),
       link: '#'
     },
     {
       icon: Clock,
-      title: 'İş Saatları',
-      value: '24/7 Dəstək',
+      title: t('contact.workHours'),
+      value: t('contact.support247'),
       link: '#'
     }
   ];
@@ -107,25 +107,25 @@ const Contact = () => {
             {/* Additional Info */}
             <Card className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20">
               <CardHeader>
-                <CardTitle>Niyə HitLoyal?</CardTitle>
+                <CardTitle>{t('contact.whyHitLoyal')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-3 text-muted-foreground">
                   <li className="flex items-center">
                     <div className="w-2 h-2 bg-primary rounded-full mr-3"></div>
-                    Sürətli cavab müddəti (24 saat ərzində)
+                    {t('contact.fastResponse')}
                   </li>
                   <li className="flex items-center">
                     <div className="w-2 h-2 bg-primary rounded-full mr-3"></div>
-                    Peşəkar konsultasiya xidməti
+                    {t('contact.professionalConsult')}
                   </li>
                   <li className="flex items-center">
                     <div className="w-2 h-2 bg-primary rounded-full mr-3"></div>
-                    Fərdiləşdirilmiş həllər
+                    {t('contact.personalizedSolutions')}
                   </li>
                   <li className="flex items-center">
                     <div className="w-2 h-2 bg-primary rounded-full mr-3"></div>
-                    Şəffaf qiymətləndirmə
+                    {t('contact.transparentPricing')}
                   </li>
                 </ul>
               </CardContent>
@@ -138,7 +138,7 @@ const Contact = () => {
               <CardHeader>
                 <CardTitle className="text-2xl">{t('contact.writeToUs')}</CardTitle>
                 <p className="text-muted-foreground">
-                  Sualınızı göndərin və tezliklə sizinlə əlaqə saxlayaq.
+                  {t('contact.formDesc')}
                 </p>
               </CardHeader>
               <CardContent>
@@ -146,7 +146,7 @@ const Contact = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="name" className="block text-sm font-medium mb-2">
-                        Ad və Soyad *
+                        {t('contact.fullName')} *
                       </label>
                       <Input
                         id="name"
@@ -155,12 +155,12 @@ const Contact = () => {
                         required
                         value={formData.name}
                         onChange={handleChange}
-                        placeholder="Adınızı daxil edin"
+                        placeholder={t('contact.namePlaceholder')}
                       />
                     </div>
                     <div>
                       <label htmlFor="email" className="block text-sm font-medium mb-2">
-                        E-poçt *
+                        {t('contact.email')} *
                       </label>
                       <Input
                         id="email"
@@ -169,14 +169,14 @@ const Contact = () => {
                         required
                         value={formData.email}
                         onChange={handleChange}
-                        placeholder="email@example.com"
+                        placeholder={t('contact.emailPlaceholder')}
                       />
                     </div>
                   </div>
                   
                   <div>
                     <label htmlFor="subject" className="block text-sm font-medium mb-2">
-                      Mövzu *
+                      {t('contact.subject')} *
                     </label>
                     <Input
                       id="subject"
@@ -185,13 +185,13 @@ const Contact = () => {
                       required
                       value={formData.subject}
                       onChange={handleChange}
-                      placeholder="Mesajınızın mövzusu"
+                      placeholder={t('contact.subjectPlaceholder')}
                     />
                   </div>
                   
                   <div>
                     <label htmlFor="message" className="block text-sm font-medium mb-2">
-                      Mesaj *
+                      {t('contact.message')} *
                     </label>
                     <Textarea
                       id="message"
@@ -199,7 +199,7 @@ const Contact = () => {
                       required
                       value={formData.message}
                       onChange={handleChange}
-                      placeholder="Mesajınızı buraya yazın..."
+                      placeholder={t('contact.messagePlaceholder')}
                       rows={6}
                     />
                   </div>
@@ -219,15 +219,14 @@ const Contact = () => {
           <Card>
             <CardContent className="p-8">
               <div className="text-center">
-                <h3 className="text-2xl font-bold mb-4">Ofisimizə Yolunuzu Tapın</h3>
+                <h3 className="text-2xl font-bold mb-4">{t('contact.findOffice')}</h3>
                 <p className="text-muted-foreground mb-6">
-                  Bakı şəhəri, Cəfər Cabbarlı küçəsi 44, Caspian Plaza binasında yerləşirik. 
-                  Metro stansiyalarına yaxın və əlçatan yerdəyik.
+                  {t('contact.officeLocation')}
                 </p>
                 <div className="bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700 rounded-lg p-8">
                   <MapPin className="h-12 w-12 text-primary mx-auto mb-4" />
-                  <p className="text-lg font-semibold">Cəfər Cabbarlı 44 (Caspian Plaza)</p>
-                  <p className="text-muted-foreground mt-2">Bakı, Azərbaycan</p>
+                  <p className="text-lg font-semibold">{t('contact.addressFull')}</p>
+                  <p className="text-muted-foreground mt-2">{t('contact.city')}</p>
                 </div>
               </div>
             </CardContent>
