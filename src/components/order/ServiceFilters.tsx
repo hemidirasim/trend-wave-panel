@@ -6,6 +6,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Instagram, Youtube, Facebook, Heart, Users, Eye, Share, MessageCircle, Repeat, Star, ChevronDown } from 'lucide-react';
 import { Service } from '@/types/api';
 import { useState } from 'react';
+import OrderForm from '@/components/order/OrderForm';
 
 interface ServiceFiltersProps {
   services: Service[];
@@ -14,6 +15,16 @@ interface ServiceFiltersProps {
   onPlatformChange: (platform: string) => void;
   onServiceTypeChange: (serviceType: string) => void;
   allowedPlatforms: string[];
+  selectedService?: Service | null;
+  formData?: any;
+  errors?: Record<string, string>;
+  onUpdateFormData?: (field: string, value: any) => void;
+  onUpdateAdditionalParam?: (paramName: string, value: any) => void;
+  onPlaceOrder?: (e: React.FormEvent) => void;
+  placing?: boolean;
+  calculatedPrice?: number;
+  serviceFeePercentage?: number;
+  baseFee?: number;
 }
 
 export function ServiceFilters({
@@ -22,7 +33,17 @@ export function ServiceFilters({
   selectedServiceType,
   onPlatformChange,
   onServiceTypeChange,
-  allowedPlatforms
+  allowedPlatforms,
+  selectedService,
+  formData,
+  errors,
+  onUpdateFormData,
+  onUpdateAdditionalParam,
+  onPlaceOrder,
+  placing,
+  calculatedPrice,
+  serviceFeePercentage,
+  baseFee
 }: ServiceFiltersProps) {
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
 
@@ -154,39 +175,57 @@ export function ServiceFilters({
               .sort(([, a], [, b]) => b.length - a.length) // Ən çox variantı olan üstdə
               .map(([groupName, groupServices]) => {
               const IconComponent = getServiceTypeIcon(groupName);
+              const isSelected = selectedServiceType.includes(groupName);
               
               return (
-                <button
-                  key={groupName}
-                  onClick={() => handleServiceGroupSelect(groupName, platform, groupServices)}
-                  className={`w-full flex items-center justify-between p-4 bg-muted/50 hover:bg-muted/70 rounded-lg transition-colors border-2 ${
-                    selectedServiceType.includes(groupName) 
-                      ? 'border-primary bg-primary/5' 
-                      : 'border-transparent'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <IconComponent className="w-5 h-5" />
-                    <div className="text-left">
-                      <span className="font-medium text-base">{groupName}</span>
+                <div key={groupName} className="space-y-3">
+                  <button
+                    onClick={() => handleServiceGroupSelect(groupName, platform, groupServices)}
+                    className={`w-full flex items-center justify-between p-4 bg-muted/50 hover:bg-muted/70 rounded-lg transition-colors border-2 ${
+                      isSelected 
+                        ? 'border-primary bg-primary/5' 
+                        : 'border-transparent'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <IconComponent className="w-5 h-5" />
+                      <div className="text-left">
+                        <span className="font-medium text-base">{groupName}</span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm text-muted-foreground">Ən ucuz qiymət</div>
-                    {(() => {
-                      const cheapestPrice = Math.min(
-                        ...groupServices
-                          .filter(s => s.prices && s.prices.length > 0)
-                          .map(s => parseFloat(s.prices[0].price))
-                      );
-                      return (
-                        <div className="font-bold text-primary">
-                          ${cheapestPrice.toFixed(2)}/1000
-                        </div>
-                      );
-                    })()}
-                  </div>
-                </button>
+                    <div className="text-right">
+                      <div className="text-sm text-muted-foreground">Ən ucuz qiymət</div>
+                      {(() => {
+                        const cheapestPrice = Math.min(
+                          ...groupServices
+                            .filter(s => s.prices && s.prices.length > 0)
+                            .map(s => parseFloat(s.prices[0].price))
+                        );
+                        return (
+                          <div className="font-bold text-primary">
+                            ${cheapestPrice.toFixed(2)}/1000
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  </button>
+                  
+                  {/* OrderForm seçilən xidmətin altında göstər */}
+                  {isSelected && selectedService && formData && onUpdateFormData && onUpdateAdditionalParam && onPlaceOrder && (
+                    <div className="ml-4 p-4 bg-background rounded-lg border-l-4 border-primary">
+                      <OrderForm
+                        service={selectedService}
+                        formData={formData}
+                        errors={errors || {}}
+                        onUpdateFormData={onUpdateFormData}
+                        onUpdateAdditionalParam={onUpdateAdditionalParam}
+                        onPlaceOrder={() => onPlaceOrder({} as React.FormEvent)}
+                        placing={placing || false}
+                        calculatedPrice={calculatedPrice || 0}
+                      />
+                    </div>
+                  )}
+                </div>
               );
             })}
           </TabsContent>

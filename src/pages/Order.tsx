@@ -449,7 +449,17 @@ const Order = () => {
                       selectedServiceType={selectedServiceType} 
                       onPlatformChange={handlePlatformChange} 
                       onServiceTypeChange={handleServiceTypeChange} 
-                      allowedPlatforms={allowedPlatforms} 
+                      allowedPlatforms={allowedPlatforms}
+                      selectedService={selectedService}
+                      formData={formData}
+                      errors={errors}
+                      onUpdateFormData={updateFormData}
+                      onUpdateAdditionalParam={updateAdditionalParam}
+                      onPlaceOrder={handleSubmit}
+                      placing={placing}
+                      calculatedPrice={calculatedPrice}
+                      serviceFeePercentage={settings.service_fee}
+                      baseFee={settings.base_fee}
                     />
                     
                     {errors.serviceId && (
@@ -472,18 +482,6 @@ const Order = () => {
 
                     {selectedPlatform && !selectedServiceType}
 
-                    {selectedService && (
-                      <OrderForm 
-                        service={selectedService} 
-                        formData={formData} 
-                        errors={errors} 
-                        calculatedPrice={calculatedPrice} 
-                        placing={placing} 
-                        onUpdateFormData={updateFormData} 
-                        onUpdateAdditionalParam={updateAdditionalParam} 
-                        onPlaceOrder={() => handleSubmit(new Event('submit') as any)} 
-                      />
-                    )}
                   </form>
                 </CardContent>
               </Card>
