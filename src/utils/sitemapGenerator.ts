@@ -7,13 +7,12 @@ export interface SitemapUrl {
 }
 
 export const generateSitemap = (urls: SitemapUrl[]): string => {
-  const urlEntries = urls.map(url => `
-  <url>
+  const urlEntries = urls.map(url => `  <url>
     <loc>${url.loc}</loc>
     ${url.lastmod ? `<lastmod>${url.lastmod}</lastmod>` : ''}
     ${url.changefreq ? `<changefreq>${url.changefreq}</changefreq>` : ''}
     ${url.priority ? `<priority>${url.priority}</priority>` : ''}
-  </url>`).join('');
+  </url>`).join('\n');
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap.xml">
@@ -33,7 +32,6 @@ export const getSitemapUrls = (): SitemapUrl[] => {
     { path: '/contact', priority: 0.7, changefreq: 'monthly' as const },
     { path: '/terms', priority: 0.5, changefreq: 'yearly' as const },
     { path: '/privacy', priority: 0.5, changefreq: 'yearly' as const },
-    { path: '/auth', priority: 0.6, changefreq: 'monthly' as const },
     { path: '/track', priority: 0.6, changefreq: 'monthly' as const }
   ];
 
@@ -72,6 +70,17 @@ export const getSitemapUrls = (): SitemapUrl[] => {
     'influencer-marketing-strategiyalari'
   ];
 
+  // Əsas dil üçün blog yazıları
+  blogPosts.forEach(slug => {
+    urls.push({
+      loc: `${baseUrl}/blog/${slug}`,
+      lastmod: currentDate,
+      changefreq: 'monthly',
+      priority: 0.6
+    });
+  });
+
+  // Dil-spesifik blog yazıları
   languages.forEach(lang => {
     blogPosts.forEach(slug => {
       urls.push({
@@ -84,4 +93,51 @@ export const getSitemapUrls = (): SitemapUrl[] => {
   });
 
   return urls;
+};
+
+// Robots.txt generatoru
+export const generateRobotsTxt = (): string => {
+  return `User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://hitloyal.com/sitemap.xml
+
+# Crawl delay
+Crawl-delay: 1
+
+# Specific rules for major search engines
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+# Block access to admin areas
+User-agent: *
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /auth/
+Disallow: /reset-password/
+Disallow: /password-recovery/
+Disallow: /payment-success/
+Disallow: /payment-error/
+
+# Allow access to important pages
+User-agent: *
+Allow: /services/
+Allow: /blog/
+Allow: /about/  
+Allow: /contact/
+Allow: /terms/
+Allow: /privacy/
+Allow: /track/`;
 };

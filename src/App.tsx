@@ -36,6 +36,8 @@ import AdminContactMessages from '@/pages/AdminContactMessages';
 
 import ProtectedRoute from '@/components/ProtectedRoute';
 import ProtectedAdminRoute from '@/components/ProtectedAdminRoute';
+import { SitemapRoute } from '@/components/SitemapRoute';
+import { RobotsRoute } from '@/components/RobotsRoute';
 import './App.css';
 
 const queryClient = new QueryClient();
@@ -51,6 +53,10 @@ function App() {
                 <LanguageProvider>
                   <div className="min-h-screen bg-background text-foreground">
                     <Routes>
+                      {/* SEO Routes */}
+                      <Route path="/sitemap.xml" element={<SitemapRoute />} />
+                      <Route path="/robots.txt" element={<RobotsRoute />} />
+                      
                       {/* Language-specific routes */}
                       <Route path="/:lang/" element={<Index />} />
                       <Route path="/:lang/auth" element={<Auth />} />

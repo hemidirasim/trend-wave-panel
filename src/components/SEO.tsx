@@ -1,4 +1,3 @@
-
 import { Helmet } from 'react-helmet-async';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useLocation } from 'react-router-dom';
@@ -15,7 +14,7 @@ interface SEOProps {
 export const SEO = ({ 
   title, 
   description, 
-  image = "https://lovable.dev/opengraph-image-p98pqg.png",
+  image = "https://hitloyal.com/logo-og.png",
   type = "website",
   noindex = false,
   canonical
@@ -65,6 +64,9 @@ export const SEO = ({
       
       {/* Canonical URL */}
       <link rel="canonical" href={canonicalUrl} />
+      
+      {/* Sitemap */}
+      <link rel="sitemap" type="application/xml" href={`${siteUrl}/sitemap.xml`} />
       
       {/* Alternate Languages */}
       <link rel="alternate" hrefLang="az" href={`${siteUrl}/az${location.pathname.replace(/^\/(az|tr)/, '')}`} />
