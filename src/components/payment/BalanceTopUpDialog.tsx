@@ -1,136 +1,145 @@
 
-import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { CreditCard } from 'lucide-react';
-import { PaymentButton } from './PaymentButton';
+import { Card, CardContent } from '@/components/ui/card';
+import { DollarSign, CreditCard } from 'lucide-react';
+import { PaymentDialog } from './PaymentDialog';
+import { PaymentRequest } from '@/types/payment';
 
 interface BalanceTopUpDialogProps {
-  customerEmail?: string;
-  customerName?: string;
-  userId?: string;
-  onSuccess?: (transactionId: string) => void;
-  onError?: (error: string) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onPaymentSuccess?: () => void;
 }
 
 export function BalanceTopUpDialog({
-  customerEmail,
-  customerName,
-  userId,
-  onSuccess,
-  onError
+  open,
+  onOpenChange,
+  onPaymentSuccess
 }: BalanceTopUpDialogProps) {
-  const [amount, setAmount] = useState<number>(20);
-  const [isOpen, setIsOpen] = useState(false);
+  const [amount, setAmount] = useState('');
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [paymentRequest, setPaymentRequest] = useState<PaymentRequest | null>(null);
 
-  const predefinedAmounts = [20, 50, 100, 200, 500];
+  // Predefined packages in USD
+  const packages = [
+    { amount: 1, label: 'Test Paketi', description: 'Test üçün' },
+    { amount: 10, label: 'Başlanğıc Paket', description: 'Kiçik sifarişlər üçün' },
+    { amount: 25, label: 'Standart Paket', description: 'Orta sifarişlər üçün' },
+    { amount: 50, label: 'Premium Paket', description: 'Böyük sifarişlər üçün' },
+    { amount: 100, label: 'Pro Paket', description: 'Peşəkar istifadə üçün' },
+    { amount: 250, label: 'Biznes Paket', description: 'Biznes hesabları üçün' }
+  ];
 
-  const handleAmountSelect = (selectedAmount: number) => {
-    setAmount(selectedAmount);
+  const handlePackageSelect = (packageAmount: number) => {
+    const request: PaymentRequest = {
+      amount: packageAmount,
+      currency: 'USD',
+      orderId: `balance-topup-${Date.now()}`,
+      description: `Balans artırılması - $${packageAmount}`,
+      customerEmail: '',
+      returnUrl: window.location.origin + '/dashboard'
+    };
+    
+    setPaymentRequest(request);
+    setPaymentDialogOpen(true);
   };
 
-  const handleCustomAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value);
-    if (!isNaN(value) && value >= 20) {
-      setAmount(value);
+  const handleCustomAmount = () => {
+    const customAmount = parseFloat(amount);
+    if (customAmount && customAmount >= 1) {
+      const request: PaymentRequest = {
+        amount: customAmount,
+        currency: 'USD',
+        orderId: `balance-topup-${Date.now()}`,
+        description: `Balans artırılması - $${customAmount}`,
+        customerEmail: '',
+        returnUrl: window.location.origin + '/dashboard'
+      };
+      
+      setPaymentRequest(request);
+      setPaymentDialogOpen(true);
     }
   };
 
+  const handlePaymentSuccess = () => {
+    setPaymentDialogOpen(false);
+    onOpenChange(false);
+    setAmount('');
+    onPaymentSuccess?.();
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm" variant="outline" className="border-green-200 text-green-700 hover:bg-green-50">
-          <CreditCard className="h-4 w-4 mr-1" />
-          Artır
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center">
-            <CreditCard className="h-5 w-5 mr-2" />
-            Balans Artır
-          </DialogTitle>
-          <DialogDescription>
-            Hesabınıza artırmaq istədiyiniz məbləği seçin (minimum $20 USD)
-          </DialogDescription>
-        </DialogHeader>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <DollarSign className="h-5 w-5 mr-2" />
+              Balans Artır
+            </DialogTitle>
+            <DialogDescription>
+              Balansınızı artırmaq üçün paket seçin və ya məbləğ daxil edin
+            </DialogDescription>
+          </DialogHeader>
 
-        <div className="space-y-4">
-          <div>
-            <Label className="text-sm font-medium">Tez seçim:</Label>
-            <div className="grid grid-cols-3 gap-2 mt-2">
-              {predefinedAmounts.map((presetAmount) => (
-                <Button
-                  key={presetAmount}
-                  variant={amount === presetAmount ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handleAmountSelect(presetAmount)}
-                  className="text-sm"
+          <div className="space-y-4">
+            <div>
+              <h4 className="text-sm font-medium mb-3">Hazır Paketlər (USD)</h4>
+              <div className="grid grid-cols-2 gap-2">
+                {packages.map((pkg) => (
+                  <Card key={pkg.amount} className="cursor-pointer hover:bg-muted/50 transition-colors">
+                    <CardContent 
+                      className="p-3 text-center"
+                      onClick={() => handlePackageSelect(pkg.amount)}
+                    >
+                      <div className="font-semibold text-lg">${pkg.amount}</div>
+                      <div className="text-xs text-muted-foreground">{pkg.label}</div>
+                      <div className="text-xs text-muted-foreground">{pkg.description}</div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="custom-amount">Və ya fərdi məbləğ (USD)</Label>
+              <div className="flex space-x-2">
+                <Input
+                  id="custom-amount"
+                  type="number"
+                  placeholder="Məbləğ daxil edin"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  min="1"
+                  step="0.01"
+                />
+                <Button 
+                  onClick={handleCustomAmount}
+                  disabled={!amount || parseFloat(amount) < 1}
+                  className="flex-shrink-0"
                 >
-                  ${presetAmount} USD
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  Ödə
                 </Button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <Label htmlFor="custom-amount" className="text-sm font-medium">
-              Və ya özünüz yazın:
-            </Label>
-            <Input
-              id="custom-amount"
-              type="number"
-              min="20"
-              step="1"
-              value={amount}
-              onChange={handleCustomAmountChange}
-              placeholder="Məbləği daxil edin (min $20 USD)"
-              className="mt-1"
-            />
-            {amount < 20 && (
-              <p className="text-sm text-red-600 mt-1">
-                Minimum məbləğ $20 USD olmalıdır
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Minimum məbləğ: $1.00 USD
               </p>
-            )}
-          </div>
-
-          <div className="bg-muted p-4 rounded-lg">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Artırılacaq məbləğ:</span>
-              <span className="font-semibold text-lg">${amount.toFixed(2)} USD</span>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
 
-          <div className="flex space-x-2">
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => setIsOpen(false)}
-            >
-              Ləğv et
-            </Button>
-            <PaymentButton
-              amount={amount}
-              orderId={`balance-${Date.now()}`}
-              description={`Balans artırma - $${amount.toFixed(2)} USD`}
-              customerEmail={customerEmail}
-              customerName={customerName}
-              userId={userId}
-              onSuccess={(transactionId) => {
-                onSuccess?.(transactionId);
-                setIsOpen(false);
-              }}
-              onError={onError}
-              className="flex-1"
-              disabled={amount < 20}
-            >
-              Ödənişə keç
-            </PaymentButton>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+      <PaymentDialog
+        open={paymentDialogOpen}
+        onOpenChange={setPaymentDialogOpen}
+        paymentRequest={paymentRequest}
+        onSuccess={handlePaymentSuccess}
+      />
+    </>
   );
 }
