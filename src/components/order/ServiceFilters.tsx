@@ -158,21 +158,29 @@ export function ServiceFilters({
   };
 
   const handleGroupClick = (services: Service[], groupKey: string) => {
+    console.log('🔥 Group clicked:', groupKey, 'Services count:', services.length, 'Current state:', openGroups[groupKey]);
+    
     if (services.length === 1) {
       // Directly select the single service
+      console.log('🔥 Auto-selecting single service:', services[0].public_name);
       handleServiceSelect(services[0]);
     } else {
       // Toggle the group
+      console.log('🔥 Toggling group state from', openGroups[groupKey], 'to', !openGroups[groupKey]);
       toggleGroup(groupKey);
     }
   };
 
   const handleSubGroupClick = (subServices: Service[], subGroupKey: string) => {
+    console.log('🔥 Sub-group clicked:', subGroupKey, 'Services count:', subServices.length, 'Current state:', openGroups[subGroupKey]);
+    
     if (subServices.length === 1) {
       // Directly select the single service
+      console.log('🔥 Auto-selecting single sub-service:', subServices[0].public_name);
       handleServiceSelect(subServices[0]);
     } else {
       // Toggle the sub-group
+      console.log('🔥 Toggling sub-group state from', openGroups[subGroupKey], 'to', !openGroups[subGroupKey]);
       toggleGroup(subGroupKey);
     }
   };
