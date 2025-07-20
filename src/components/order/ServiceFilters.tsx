@@ -94,7 +94,6 @@ export function ServiceFilters({
 
         {getUniquePlatforms().map((platform) => (
           <TabsContent key={platform} value={platform}>
-            {/* Xidmət növü seçimi */}
             {selectedPlatform && (
               <div className="mb-6">
                 <Label className="text-base font-medium mb-3 block">Xidmət növünü seçin *</Label>
