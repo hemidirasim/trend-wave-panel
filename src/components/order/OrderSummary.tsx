@@ -175,8 +175,8 @@ export function OrderSummary({
         </CardContent>
       </Card>
 
-      {/* Order Form Card - Only show when service is selected */}
-      {selectedService && formData && onUpdateFormData && onUpdateAdditionalParam && onPlaceOrder && (
+      {/* Order Form Card - Show when service is selected */}
+      {selectedService && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center text-lg">
@@ -191,8 +191,8 @@ export function OrderSummary({
               <Label htmlFor="sidebar-url">URL *</Label>
               <Input
                 id="sidebar-url"
-                value={formData.url}
-                onChange={(e) => onUpdateFormData('url', e.target.value)}
+                value={formData?.url || ''}
+                onChange={(e) => onUpdateFormData?.('url', e.target.value)}
                 placeholder={selectedService?.example || "https://example.com"}
                 className={errors.url ? 'border-red-500' : ''}
               />
@@ -207,8 +207,8 @@ export function OrderSummary({
               <Input
                 id="sidebar-quantity"
                 type="number"
-                value={formData.quantity}
-                onChange={(e) => onUpdateFormData('quantity', e.target.value)}
+                value={formData?.quantity || ''}
+                onChange={(e) => onUpdateFormData?.('quantity', e.target.value)}
                 min={minQuantity}
                 max={maxQuantity}
                 step={parseInt(selectedService?.amount_increment) || 1}
@@ -217,7 +217,7 @@ export function OrderSummary({
               {errors.quantity && (
                 <p className="text-sm text-red-500">{errors.quantity}</p>
               )}
-              {isQuantityInvalid && formData.quantity && (
+              {isQuantityInvalid && formData?.quantity && (
                 <p className="text-sm text-red-500">
                   Miqdar {minQuantity} - {maxQuantity.toLocaleString()} aralığında olmalıdır
                 </p>
@@ -236,8 +236,8 @@ export function OrderSummary({
                 
                 {param.field_type === 'dropdown' && param.options ? (
                   <Select
-                    value={formData.additionalParams[param.field_name] || ''}
-                    onValueChange={(value) => onUpdateAdditionalParam(param.field_name, value)}
+                    value={formData?.additionalParams[param.field_name] || ''}
+                    onValueChange={(value) => onUpdateAdditionalParam?.(param.field_name, value)}
                   >
                     <SelectTrigger className={errors[param.field_name] ? 'border-red-500' : ''}>
                       <SelectValue placeholder={param.field_placeholder || 'Seçin'} />
@@ -253,16 +253,16 @@ export function OrderSummary({
                 ) : param.field_type === 'textarea' ? (
                   <Textarea
                     id={`sidebar-${param.field_name}`}
-                    value={formData.additionalParams[param.field_name] || ''}
-                    onChange={(e) => onUpdateAdditionalParam(param.field_name, e.target.value)}
+                    value={formData?.additionalParams[param.field_name] || ''}
+                    onChange={(e) => onUpdateAdditionalParam?.(param.field_name, e.target.value)}
                     placeholder={param.field_placeholder}
                     className={errors[param.field_name] ? 'border-red-500' : ''}
                   />
                 ) : (
                   <Input
                     id={`sidebar-${param.field_name}`}
-                    value={formData.additionalParams[param.field_name] || ''}
-                    onChange={(e) => onUpdateAdditionalParam(param.field_name, e.target.value)}
+                    value={formData?.additionalParams[param.field_name] || ''}
+                    onChange={(e) => onUpdateAdditionalParam?.(param.field_name, e.target.value)}
                     placeholder={param.field_placeholder}
                     className={errors[param.field_name] ? 'border-red-500' : ''}
                   />
@@ -283,8 +283,8 @@ export function OrderSummary({
               disabled={
                 placing || 
                 hasInsufficientBalance || 
-                !formData.url || 
-                !formData.quantity ||
+                !formData?.url || 
+                !formData?.quantity ||
                 isQuantityInvalid ||
                 Object.keys(errors).length > 0
               }
