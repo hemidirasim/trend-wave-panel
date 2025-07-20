@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -125,6 +126,7 @@ const OrderForm = ({
           .in('status', ['pending', 'processing', 'in_progress', 'active', 'running']);
 
         if (existingOrders && existingOrders.length > 0) {
+          console.log('🚫 Existing order found, showing error toast');
           toast.error('Bu URL üçün aktiv sifariş mövcuddur');
           return;
         }
@@ -145,6 +147,7 @@ const OrderForm = ({
 
       // Check if order was successful - handle all possible error scenarios
       if (!orderResponse) {
+        console.log('🚫 No API response, showing error toast');
         toast.error('API cavab vermədi. Yenidən cəhd edin.');
         return;
       }
@@ -163,21 +166,21 @@ const OrderForm = ({
           }
         }
         
-        console.error('API Error:', errorMessage);
+        console.log('🚫 API Error detected, showing error toast:', errorMessage);
         toast.error(errorMessage);
         return;
       }
 
       // Check if we have a valid submission ID (success indicator)
       if (!orderResponse.id_service_submission) {
-        console.error('No submission ID received:', orderResponse);
+        console.log('🚫 No submission ID, showing error toast');
         toast.error('Sifariş ID alınamadı. Yenidən cəhd edin.');
         return;
       }
 
       // Extract external_order_id from successful response
       const externalOrderId = orderResponse.id_service_submission;
-      console.log('Extracted external_order_id:', externalOrderId);
+      console.log('✅ Extracted external_order_id:', externalOrderId);
 
       // Only if API call was successful, then deduct balance and save to database
       const orderData = {
@@ -203,6 +206,7 @@ const OrderForm = ({
 
       if (insertError) {
         console.error('Database insert error:', insertError);
+        console.log('🚫 Database error, showing error toast');
         toast.error('Sifarişi yadda saxlamaq mümkün olmadı');
         return;
       }
@@ -219,6 +223,7 @@ const OrderForm = ({
 
         if (balanceError) {
           console.error('Balance update error:', balanceError);
+          console.log('🚫 Balance update error, showing error toast');
           toast.error('Balansı yeniləmək mümkün olmadı');
           return;
         } else {
@@ -227,6 +232,7 @@ const OrderForm = ({
       }
 
       // Show success message and redirect immediately to dashboard
+      console.log('✅ Order completed successfully, showing success toast');
       toast.success('Sifariş uğurla verildi!');
       navigate('/dashboard');
 
@@ -246,6 +252,7 @@ const OrderForm = ({
         }
       }
       
+      console.log('🚫 Catch block error, showing error toast:', errorMessage);
       toast.error(errorMessage);
     }
   };
