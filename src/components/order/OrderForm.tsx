@@ -113,9 +113,12 @@ const OrderForm = ({
   };
 
   const handlePlaceOrder = async () => {
+    console.log('🚀 handlePlaceOrder called');
+    
     try {
       // Double-check for existing orders before placing
       if (formData.url && service?.platform) {
+        console.log('🔍 Checking for existing orders...');
         const { data: existingOrders } = await supabase
           .from('orders')
           .select('*')
@@ -125,13 +128,14 @@ const OrderForm = ({
           .in('status', ['pending', 'processing', 'in_progress', 'active', 'running']);
 
         if (existingOrders && existingOrders.length > 0) {
-          console.log('🚫 Existing order found');
+          console.log('🚫 Existing order found, aborting');
           toast.error('Bu URL üçün aktiv sifariş mövcuddur');
           return;
         }
       }
 
-      console.log('📤 Placing order with service:', service);
+      console.log('📤 Placing order via API...');
+      console.log('📤 Service:', service.public_name);
       console.log('📤 Form data:', formData);
 
       // Place the order via API FIRST
@@ -142,7 +146,7 @@ const OrderForm = ({
         formData.additionalParams
       );
 
-      console.log('📥 Order API response:', orderResponse);
+      console.log('📥 API Response received:', orderResponse);
 
       // Check if order was successful
       if (!orderResponse) {
@@ -151,14 +155,12 @@ const OrderForm = ({
         return;
       }
 
-      // Check for explicit error status or error field
-      if (orderResponse.status === 'error' || orderResponse.error) {
+      // Check for explicit error status
+      if (orderResponse.status === 'error') {
         console.log('❌ API returned error status');
         let errorMessage = 'Sifariş verilmədi. Yenidən cəhd edin.';
         
-        if (orderResponse.error) {
-          errorMessage = orderResponse.error;
-        } else if (orderResponse.message) {
+        if (orderResponse.message) {
           if (Array.isArray(orderResponse.message)) {
             errorMessage = orderResponse.message.map((msg: any) => msg.message || msg).join(', ');
           } else if (typeof orderResponse.message === 'string') {
@@ -170,6 +172,14 @@ const OrderForm = ({
         return;
       }
 
+      // Check for messages array with errors
+      if (orderResponse.messages && Array.isArray(orderResponse.messages)) {
+        console.log('❌ API returned messages array');
+        const errorMessages = orderResponse.messages.map((msg: any) => msg.message || msg).join(', ');
+        toast.error(errorMessages);
+        return;
+      }
+
       // Check if we have a valid submission ID (success indicator)
       if (!orderResponse.id_service_submission) {
         console.log('❌ No submission ID received');
@@ -177,11 +187,11 @@ const OrderForm = ({
         return;
       }
 
-      console.log('✅ Order API call successful, processing...');
+      console.log('✅ Order API call successful!');
+      console.log('✅ Submission ID:', orderResponse.id_service_submission);
       
       // Extract external_order_id from successful response
       const externalOrderId = orderResponse.id_service_submission;
-      console.log('✅ External order ID:', externalOrderId);
 
       // Save to database
       const orderData = {

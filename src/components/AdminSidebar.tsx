@@ -69,14 +69,14 @@ export const AdminSidebar = ({ collapsed, setCollapsed }: AdminSidebarProps) => 
     }
   ];
 
-  const isActive = (href: string, exact: boolean) => {
+  function isActive(href: string, exact: boolean) {
     if (exact) {
       return location.pathname === href;
     }
     return location.pathname.startsWith(href);
-  };
+  }
 
-  const handleSignOut = async () => {
+  async function handleSignOut() {
     try {
       await signOut();
     } catch (error) {
