@@ -60,9 +60,9 @@ const Services = () => {
             <h2 className="text-2xl font-semibold mb-4 capitalize">{platform}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {platformServices.map((service) => (
-                <Card key={service.id} className="hover:shadow-lg transition-shadow">
+                <Card key={service.id_service} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
-                    <CardTitle className="text-lg">{service.name}</CardTitle>
+                    <CardTitle className="text-lg">{service.public_name}</CardTitle>
                     <CardDescription>{service.description}</CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -70,16 +70,19 @@ const Services = () => {
                       <div className="flex justify-between items-center">
                         <span>Qiymət:</span>
                         <Badge variant="secondary">
-                          {formatAmount(service.rate)} / 1000
+                          {service.prices && service.prices.length > 0 
+                            ? `${formatAmount(service.prices[0].price)} / ${service.prices[0].pricing_per}`
+                            : 'N/A'
+                          }
                         </Badge>
                       </div>
                       <div className="flex justify-between items-center">
                         <span>Min:</span>
-                        <span>{service.min}</span>
+                        <span>{service.amount_minimum}</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span>Max:</span>
-                        <span>{service.max}</span>
+                        <span>{service.prices && service.prices.length > 0 ? service.prices[0].maximum : 'N/A'}</span>
                       </div>
                       <Button className="w-full mt-4">
                         Sifariş ver
