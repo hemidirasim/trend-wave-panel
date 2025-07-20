@@ -2,7 +2,7 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
@@ -45,10 +45,10 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <BrowserRouter>
-        <AuthProvider>
-          <LanguageProvider>
-            <SettingsProvider>
-              <NotificationProvider>
+        <NotificationProvider>
+          <AuthProvider>
+            <LanguageProvider>
+              <SettingsProvider>
                 <Routes>
                   {/* Language-aware routes */}
                   <Route path="/:lang" element={<LanguageRedirect />}>
@@ -138,19 +138,18 @@ const App = () => (
                   {/* 404 */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
-              </NotificationProvider>
-            </SettingsProvider>
-          </LanguageProvider>
-        </AuthProvider>
+              </SettingsProvider>
+            </LanguageProvider>
+          </AuthProvider>
+        </NotificationProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
 
 // Component to handle language parameter
-const LanguageRedirect = ({ children }: { children?: React.ReactNode }) => {
-  // This component can be expanded to handle language logic
-  return <>{children}</>;
+const LanguageRedirect = () => {
+  return <Outlet />;
 };
 
 export default App;
