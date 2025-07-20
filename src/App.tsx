@@ -1,3 +1,4 @@
+
 import {
   BrowserRouter as Router,
   Routes,
@@ -50,9 +51,6 @@ import { SettingsProvider } from "@/contexts/SettingsContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { queryClient } from "@/utils/queryClient";
 import { PublicLayout } from "@/components/PublicLayout";
-import { SiteHeader } from "@/components/SiteHeader";
-import { SiteFooter } from "@/components/SiteFooter";
-import { AdminLayout } from "@/components/AdminLayout";
 import { CurrencyProvider } from '@/contexts/CurrencyContext';
 
 function App() {
@@ -61,11 +59,11 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <Toaster />
         <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-          <AuthProvider>
-            <LanguageProvider>
-              <SettingsProvider>
-                <CurrencyProvider>
-                  <NotificationProvider>
+          <NotificationProvider>
+            <AuthProvider>
+              <LanguageProvider>
+                <SettingsProvider>
+                  <CurrencyProvider>
                     <div className="min-h-screen bg-background">
                       <Routes>
                         {/* Public Routes */}
@@ -117,11 +115,11 @@ function App() {
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </div>
-                  </NotificationProvider>
-                </CurrencyProvider>
-              </SettingsProvider>
-            </LanguageProvider>
-          </AuthProvider>
+                  </CurrencyProvider>
+                </SettingsProvider>
+              </LanguageProvider>
+            </AuthProvider>
+          </NotificationProvider>
         </ThemeProvider>
       </QueryClientProvider>
     </Router>
