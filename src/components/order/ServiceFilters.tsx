@@ -1,4 +1,3 @@
-
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Instagram, Youtube, Facebook, Heart, Users, Eye, Share, MessageCircle, Repeat, Star } from 'lucide-react';
@@ -152,6 +151,12 @@ export function ServiceFilters({
     }
   };
 
+  const handleOrderSubmit = (e: React.FormEvent) => {
+    if (onPlaceOrder) {
+      onPlaceOrder(e);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <Tabs value={selectedPlatform} onValueChange={onPlatformChange} className="w-full">
@@ -216,7 +221,7 @@ export function ServiceFilters({
                   </button>
                   
                   {/* OrderForm seçilən xidmətin düz altında göstər */}
-                  {isSelected && selectedService && formData && onUpdateFormData && onUpdateAdditionalParam && onPlaceOrder && (
+                  {isSelected && selectedService && formData && onUpdateFormData && onUpdateAdditionalParam && (
                     <div className="ml-4 p-4 bg-background rounded-lg border-l-4 border-primary">
                       <OrderForm
                         service={selectedService}
@@ -224,7 +229,7 @@ export function ServiceFilters({
                         errors={errors || {}}
                         onUpdateFormData={onUpdateFormData}
                         onUpdateAdditionalParam={onUpdateAdditionalParam}
-                        onPlaceOrder={onPlaceOrder}
+                        onPlaceOrder={handleOrderSubmit}
                         placing={placing || false}
                         calculatedPrice={calculatedPrice || 0}
                       />
