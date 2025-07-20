@@ -86,8 +86,7 @@ export function ServiceFilters({
             return (
               <TabsTrigger key={platform} value={platform} className="capitalize flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
                 {IconComponent && <IconComponent className="w-3 h-3 sm:w-4 sm:h-4" />}
-                <span className="hidden sm:inline">{platform}</span>
-                <span className="sm:hidden">{platform.slice(0, 3)}</span>
+                {platform}
               </TabsTrigger>
             );
           })}
