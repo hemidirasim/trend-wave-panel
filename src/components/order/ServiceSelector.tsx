@@ -177,161 +177,83 @@ export const ServiceSelector = ({
     );
   }
 
-  // If only one service is available, auto-select it
-  if (sortedServices.length === 1 && !selectedServiceId) {
+  // Always auto-select the cheapest service (first in sorted array)
+  if (sortedServices.length > 0 && !selectedServiceId) {
     onServiceSelect(sortedServices[0].id_service.toString());
   }
+
+  // Always show only the cheapest service as a single card
+  const cheapestService = sortedServices[0];
 
   return (
     <Card>
       <CardHeader className="pb-3 sm:pb-6">
         <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <span className="text-sm sm:text-lg">
-            {sortedServices.length === 1 ? 'Seçilmiş xidmət' : 'Xidmət seçin *'}
+            Seçilmiş xidmət
           </span>
-          {sortedServices.length > 1 && (
-            <div className="flex items-center gap-2">
-              <ArrowUpDown className="h-4 w-4" />
-              <Select value={priceFilter} onValueChange={onPriceFilterChange}>
-                <SelectTrigger className="w-full sm:w-40 text-xs sm:text-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low-to-high">Qiymət: Azdan Çoxa</SelectItem>
-                  <SelectItem value="high-to-low">Qiymət: Çoxdan Aza</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {sortedServices.length === 1 ? (
-          // Show single service as a card instead of dropdown
-          <div className="border rounded-lg p-4 bg-primary/5 border-primary/20">
-            {(() => {
-              const service = sortedServices[0];
-              const displayName = getCustomServiceName(service.public_name);
-              
-              return (
-                <div className="space-y-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-base leading-tight mb-2">
-                        {displayName}
-                      </h3>
-                      
-                      <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-                        <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded-md text-xs">
-                          1000 ədəd üçün
-                        </span>
-                        {service.amount_minimum && (
-                          <span className="bg-green-50 text-green-700 px-2 py-1 rounded-md text-xs">
-                            Min: {parseInt(service.amount_minimum).toLocaleString()}
-                          </span>
-                        )}
-                      </div>
-                    </div>
+        <div className="border rounded-lg p-4 bg-primary/5 border-primary/20">
+          {(() => {
+            const service = cheapestService;
+            const displayName = getCustomServiceName(service.public_name);
+            
+            return (
+              <div className="space-y-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-base leading-tight mb-2">
+                      {displayName}
+                    </h3>
                     
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-primary">
-                        ${calculateDisplayPrice(service)}
-                      </div>
+                    <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
+                      <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded-md text-xs">
+                        1000 ədəd üçün
+                      </span>
+                      {service.amount_minimum && (
+                        <span className="bg-green-50 text-green-700 px-2 py-1 rounded-md text-xs">
+                          Min: {parseInt(service.amount_minimum).toLocaleString()}
+                        </span>
+                      )}
+                      <span className="bg-yellow-50 text-yellow-700 px-2 py-1 rounded-md text-xs">
+                        💰 Ən ucuz
+                      </span>
                     </div>
                   </div>
                   
-                  <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                    {service.start_time && (
-                      <span className="bg-orange-50 text-orange-700 px-2 py-1 rounded-md text-xs">
-                        🚀 {formatStartTime(service.start_time)}
-                      </span>
-                    )}
-                    {service.speed && (
-                      <span className="bg-purple-50 text-purple-700 px-2 py-1 rounded-md text-xs">
-                        ⚡ {formatSpeed(service.speed)}
-                      </span>
-                    )}
-                  </div>
-                  
-                  {service.description && (
-                    <div className="text-sm text-muted-foreground bg-gray-50 p-3 rounded-md">
-                      <p className="line-clamp-3">
-                        {service.description}
-                      </p>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-primary">
+                      ${calculateDisplayPrice(service)}
                     </div>
+                  </div>
+                </div>
+                
+                <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                  {service.start_time && (
+                    <span className="bg-orange-50 text-orange-700 px-2 py-1 rounded-md text-xs">
+                      🚀 {formatStartTime(service.start_time)}
+                    </span>
+                  )}
+                  {service.speed && (
+                    <span className="bg-purple-50 text-purple-700 px-2 py-1 rounded-md text-xs">
+                      ⚡ {formatSpeed(service.speed)}
+                    </span>
                   )}
                 </div>
-              );
-            })()}
-          </div>
-        ) : (
-          <Select value={selectedServiceId} onValueChange={onServiceSelect}>
-            <SelectTrigger className="w-full min-h-[50px] sm:min-h-[60px]">
-              <SelectValue placeholder="Xidmət seçin..." />
-            </SelectTrigger>
-            <SelectContent className="max-h-[70vh] sm:max-h-96 w-full">
-              {sortedServices.map((service) => {
-                const displayName = getCustomServiceName(service.public_name);
                 
-                return (
-                  <SelectItem 
-                    key={service.id_service} 
-                    value={service.id_service.toString()}
-                    className="py-4 sm:py-6 px-3 sm:px-4 min-h-[80px] sm:min-h-[100px] cursor-pointer hover:bg-muted/50"
-                  >
-                    <div className="flex flex-col w-full space-y-2 sm:space-y-3">
-                      <div className="flex items-start justify-between w-full">
-                        <div className="flex-1 pr-3 sm:pr-4">
-                          <h3 className="font-semibold text-sm sm:text-base leading-tight mb-1 sm:mb-2 text-left">
-                            {displayName}
-                          </h3>
-                          
-                          <div className="flex flex-wrap gap-1 sm:gap-3 text-xs sm:text-sm text-muted-foreground">
-                            <span className="bg-blue-50 text-blue-700 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md text-xs">
-                              1000 ədəd üçün
-                            </span>
-                            {service.amount_minimum && (
-                              <span className="bg-green-50 text-green-700 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md text-xs">
-                                Min: {parseInt(service.amount_minimum).toLocaleString()}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        
-                        <div className="text-right flex-shrink-0">
-                          <div className="text-lg sm:text-2xl font-bold text-primary">
-                            ${calculateDisplayPrice(service)}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex flex-wrap gap-1 sm:gap-2 text-xs text-muted-foreground">
-                        {service.start_time && (
-                          <span className="bg-orange-50 text-orange-700 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md text-xs">
-                            🚀 {formatStartTime(service.start_time)}
-                          </span>
-                        )}
-                        {service.speed && (
-                          <span className="bg-purple-50 text-purple-700 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md text-xs">
-                            ⚡ {formatSpeed(service.speed)}
-                          </span>
-                        )}
-                      </div>
-                      
-                      {service.description && (
-                        <div className="text-xs sm:text-sm text-muted-foreground bg-gray-50 p-2 sm:p-3 rounded-md mt-1 sm:mt-2">
-                          <p className="line-clamp-2 sm:line-clamp-3 text-left">
-                            {service.description}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </SelectItem>
-                );
-              })}
-            </SelectContent>
-          </Select>
-        )}
+                {service.description && (
+                  <div className="text-sm text-muted-foreground bg-gray-50 p-3 rounded-md">
+                    <p className="line-clamp-3">
+                      {service.description}
+                    </p>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+        </div>
         
         {error && (
           <p className="text-sm text-red-500 mt-2">
