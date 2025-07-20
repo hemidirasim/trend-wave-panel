@@ -166,7 +166,22 @@ const translations: Record<string, Language> = {
     // Order Page
     'order.title': 'Sifariş Et',
     'order.selectService': 'Xidmət Seçin',
-    'order.placeOrder': 'Sifariş Ver'
+    'order.placeOrder': 'Sifariş Ver',
+    // Blog Page
+    'blog.title': 'SMM Bloqu',
+    'blog.subtitle': 'Sosial media marketinqi, strategiya və trendlər haqqında ən son məqalələr',
+    'blog.latestTrends': 'Ən Son Trendlər',
+    'blog.latestTrendsDesc': 'Sosial media dünyasındakı ən yeni trendlər və yeniliklər',
+    'blog.practicalTips': 'Praktik Məsləhətlər',
+    'blog.practicalTipsDesc': 'Dərhal tətbiq edə biləcəyiniz effektiv strategiyalar',
+    'blog.analytics': 'Analiz və İstatistika',
+    'blog.analyticsDesc': 'Rəqəmlərlə dəstəklənən dərin analiz və tövsiyələr',
+    'blog.readArticle': 'Məqaləni Oxu',
+    'blog.backToBlog': 'Bloqa Qayıt',
+    'blog.readOtherArticles': 'Digər Məqalələri Oxu',
+    'blog.articleNotFound': 'Məqalə Tapılmadı',
+    'blog.articleNotFoundDesc': 'Axtardığınız məqalə mövcud deyil və ya silinib.',
+    'blog.loading': 'Məqalə yüklənir...',
   },
   tr: {
     'nav.home': 'Ana Sayfa',
@@ -319,7 +334,22 @@ const translations: Record<string, Language> = {
     // Order Page
     'order.title': 'Sipariş Ver',
     'order.selectService': 'Hizmet Seç',
-    'order.placeOrder': 'Sipariş Ver'
+    'order.placeOrder': 'Sipariş Ver',
+    // Blog Page
+    'blog.title': 'SMM Blogu',
+    'blog.subtitle': 'Sosyal medya pazarlama, strateji ve trendler hakkında en son makaleler',
+    'blog.latestTrends': 'En Son Trendler',
+    'blog.latestTrendsDesc': 'Sosyal medya dünyasındaki en yeni trendler ve yenilikler',
+    'blog.practicalTips': 'Pratik Öneriler',
+    'blog.practicalTipsDesc': 'Hemen uygulayabileceğiniz etkili stratejiler',
+    'blog.analytics': 'Analiz ve İstatistik',
+    'blog.analyticsDesc': 'Sayılarla desteklenen derinlemesine analiz ve öneriler',
+    'blog.readArticle': 'Makaleyi Oku',
+    'blog.backToBlog': 'Bloga Dön',
+    'blog.readOtherArticles': 'Diğer Makaleleri Oku',
+    'blog.articleNotFound': 'Makale Bulunamadı',
+    'blog.articleNotFoundDesc': 'Aradığınız makale mevcut değil veya silinmiş.',
+    'blog.loading': 'Makale yükleniyor...',
   }
 };
 

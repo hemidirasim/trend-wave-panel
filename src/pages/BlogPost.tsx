@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -10,6 +11,7 @@ import { Calendar, User, ArrowLeft, Clock } from 'lucide-react';
 
 const BlogPost = () => {
   const { slug } = useParams();
+  const { t, language } = useLanguage();
   const [post, setPost] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -18,8 +20,12 @@ const BlogPost = () => {
     {
       id: 1,
       slug: "instagram-takipci-artirma-yollari",
-      title: "Instagram Takipçi Artırmanın 10 Effektiv Yolu",
-      content: `<p>Instagram hesabınızda organik takipçi artırmaq üçün ən effektiv strategiyalar və məsləhətlər haqqında ətraflı məlumat.</p>
+      title: {
+        az: "Instagram Takipçi Artırmanın 10 Effektiv Yolu",
+        tr: "Instagram Takipçi Artırmanın 10 Etkili Yolu"
+      },
+      content: {
+        az: `<p>Instagram hesabınızda organik takipçi artırmaq üçün ən effektiv strategiyalar və məsləhətlər haqqında ətraflı məlumat.</p>
 
 <h2>1. Keyfiyyətli Məzmun Paylaşın</h2>
 <p>Instagram-da uğurlu olmaq üçün ən vacib faktor keyfiyyətli məzmun paylaşmaqdır. Hər bir paylaşımınız auditoriyamızın marağını çəkməli və dəyərli məlumat verməlidir.</p>
@@ -35,11 +41,37 @@ const BlogPost = () => {
 
 <h2>5. Digər Hesablarla Əməkdaşlıq Edin</h2>
 <p>Sahənizdəki digər hesablarla əməkdaşlıq etmək yeni auditoriya qazanmaq üçün əla üsuldur.</p>`,
-      excerpt: "Instagram hesabınızda organik takipçi artırmaq üçün ən effektiv strategiyalar və məsləhətlər...",
+        tr: `<p>Instagram hesabınızda organik takipçi artırmak için en etkili stratejiler ve öneriler hakkında detaylı bilgi.</p>
+
+<h2>1. Kaliteli İçerik Paylaşın</h2>
+<p>Instagram'da başarılı olmak için en önemli faktör kaliteli içerik paylaşmaktır. Her paylaşımınız kitlenizin ilgisini çekmeli ve değerli bilgi vermelidir.</p>
+
+<h2>2. Hashtag Stratejisinden Yararlanın</h2>
+<p>Doğru hashtag stratejisi içeriğinizin daha fazla kişiye ulaşmasına yardımcı olur. Popüler ve nişinize ait hashtag-ları araştırın ve kullanın.</p>
+
+<h2>3. Düzenli Paylaşım Yapın</h2>
+<p>Kitle sizin aktif olduğunuzu görmek ister. Her gün veya haftada belirli saatlerde paylaşım yapmak görünürlüğünüzü artırır.</p>
+
+<h2>4. Stories Kullanın</h2>
+<p>Instagram Stories özelliği kitlenizle daha yakın ilişki kurmanıza olanak verir. Düzenli olarak stories paylaşın.</p>
+
+<h2>5. Diğer Hesaplarla İşbirliği Yapın</h2>
+<p>Alanınızdaki diğer hesaplarla işbirliği yapmak yeni kitle kazanmak için harika bir yoldur.</p>`
+      },
+      excerpt: {
+        az: "Instagram hesabınızda organik takipçi artırmaq üçün ən effektiv strategiyalar və məsləhətlər...",
+        tr: "Instagram hesabınızda organik takipçi artırmak için en etkili stratejiler ve öneriler..."
+      },
       author: "SocialBoost Team",
-      date: "5 Yanvar 2024",
+      date: {
+        az: "5 Yanvar 2024",
+        tr: "5 Ocak 2024"
+      },
       category: "Instagram",
-      readTime: "8 dəq",
+      readTime: {
+        az: "8 dəq",
+        tr: "8 dk"
+      },
       image: "/placeholder.svg"
     },
     {
@@ -122,7 +154,7 @@ const BlogPost = () => {
           <div className="flex justify-center items-center min-h-[400px]">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p>Məqalə yüklənir...</p>
+              <p>{t('blog.loading')}</p>
             </div>
           </div>
         </div>
@@ -137,12 +169,12 @@ const BlogPost = () => {
         <Header />
         <div className="container mx-auto px-4 py-8">
           <div className="text-center py-12">
-            <h1 className="text-4xl font-bold mb-4">Məqalə Tapılmadı</h1>
-            <p className="text-muted-foreground mb-8">Axtardığınız məqalə mövcud deyil və ya silinib.</p>
-            <Link to="/blog">
+            <h1 className="text-4xl font-bold mb-4">{t('blog.articleNotFound')}</h1>
+            <p className="text-muted-foreground mb-8">{t('blog.articleNotFoundDesc')}</p>
+            <Link to={`/${language}/blog`}>
               <Button>
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Bloqa Qayıt
+                {t('blog.backToBlog')}
               </Button>
             </Link>
           </div>
@@ -159,10 +191,10 @@ const BlogPost = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Back Button */}
         <div className="mb-6">
-          <Link to="/blog">
+          <Link to={`/${language}/blog`}>
             <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Bloqa Qayıt
+              {t('blog.backToBlog')}
             </Button>
           </Link>
         </div>
@@ -175,7 +207,7 @@ const BlogPost = () => {
             </Badge>
             
             <h1 className="text-4xl font-bold mb-4 leading-tight">
-              {post.title}
+              {post.title[language as keyof typeof post.title]}
             </h1>
             
             <div className="flex items-center gap-6 text-muted-foreground mb-6">
@@ -185,18 +217,18 @@ const BlogPost = () => {
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
-                {post.date}
+                {post.date[language as keyof typeof post.date]}
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
-                {post.readTime}
+                {post.readTime[language as keyof typeof post.readTime]}
               </div>
             </div>
 
             <div className="aspect-video bg-muted rounded-lg overflow-hidden mb-8">
               <img 
                 src={post.image} 
-                alt={post.title}
+                alt={post.title[language as keyof typeof post.title]}
                 className="w-full h-full object-cover"
               />
             </div>
@@ -207,16 +239,16 @@ const BlogPost = () => {
             <CardContent className="p-8">
               <div 
                 className="prose prose-lg max-w-none dark:prose-invert"
-                dangerouslySetInnerHTML={{ __html: post.content }}
+                dangerouslySetInnerHTML={{ __html: post.content[language as keyof typeof post.content] }}
               />
             </CardContent>
           </Card>
 
           {/* Related Articles or CTA can be added here */}
           <div className="mt-8 text-center">
-            <Link to="/blog">
+            <Link to={`/${language}/blog`}>
               <Button size="lg">
-                Digər Məqalələri Oxu
+                {t('blog.readOtherArticles')}
               </Button>
             </Link>
           </div>
