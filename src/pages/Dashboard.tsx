@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Loader2, Package, Clock, CheckCircle, XCircle, Wallet, LifeBuoy, Settings, ShoppingCart } from 'lucide-react';
+import { Loader2, Package, Clock, CheckCircle, XCircle, Wallet, LifeBuoy, Settings, ShoppingCart, DollarSign } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import Support from '@/components/Support';
@@ -46,6 +45,7 @@ const Dashboard = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const hasShownLoginNotification = useRef(false);
+  const [balanceTopUpOpen, setBalanceTopUpOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -197,13 +197,14 @@ const Dashboard = () => {
                       ${profile?.balance?.toFixed(2) || '0.00'}
                     </p>
                   </div>
-                  <BalanceTopUpDialog
-                    customerEmail={user?.email}
-                    customerName={profile?.full_name}
-                    userId={user?.id}
-                    onSuccess={handlePaymentSuccess}
-                    onError={handlePaymentError}
-                  />
+                  <Button
+                    onClick={() => setBalanceTopUpOpen(true)}
+                    size="sm"
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    <DollarSign className="h-4 w-4 mr-1" />
+                    Artır
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -336,6 +337,15 @@ const Dashboard = () => {
       </div>
 
       <Footer />
+
+      <BalanceTopUpDialog
+        open={balanceTopUpOpen}
+        onOpenChange={setBalanceTopUpOpen}
+        onPaymentSuccess={() => {
+          handlePaymentSuccess('');
+          setBalanceTopUpOpen(false);
+        }}
+      />
     </div>
   );
 };

@@ -400,13 +400,15 @@ const Order = () => {
         </div>
       </div>;
   }
-  return <div className="min-h-screen bg-background">
+
+  return (
+    <div className="min-h-screen bg-background">
       <Header />
       
       <section className="bg-gradient-to-br from-primary/5 to-secondary/5 py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">Sifarişinizi Verin</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-6">Sifarišinizi Verin</h1>
             <p className="text-xl text-muted-foreground mb-8">Xidmət seçin və məlumatlarınızı daxil edin</p>
           </div>
         </div>
@@ -422,7 +424,7 @@ const Order = () => {
                     <ShoppingCart className="h-5 w-5 mr-2" />
                     Sifariş Təfərrüatları
                   </CardTitle>
-                  <CardDescription>Sifarişinizi vermək üçün aşağıdakı məlumatları doldurun</CardDescription>
+                  <CardDescription>Sifarišinizi vermək üçün aşağıdakı məlumatları doldurun</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-6">
@@ -448,7 +450,7 @@ const Order = () => {
             </div>
 
             <div className="lg:col-span-1">
-              <OrderSummary selectedService={selectedService} quantity={formData.quantity} calculatedPrice={calculatedPrice} serviceFeePercentage={settings.service_fee} baseFee={settings.base_fee} userBalance={userBalance} balanceLoading={balanceLoading} onBalanceTopUp={() => {}} showBalanceTopUp={user && userBalance < calculatedPrice} BalanceTopUpComponent={<BalanceTopUpDialog customerEmail={user?.email} customerName={user?.user_metadata?.full_name} userId={user?.id} onSuccess={handleBalanceTopUpSuccess} onError={error => toast.error('Balans artırma zamanı xəta: ' + error)} />} />
+              <OrderSummary selectedService={selectedService} quantity={formData.quantity} calculatedPrice={calculatedPrice} serviceFeePercentage={settings.service_fee} baseFee={settings.base_fee} userBalance={userBalance} balanceLoading={balanceLoading} onBalanceTopUp={() => {}} showBalanceTopUp={user && userBalance < calculatedPrice} BalanceTopUpComponent={<BalanceTopUpDialog open={false} onOpenChange={() => {}} onPaymentSuccess={handleBalanceTopUpSuccess} />} />
             </div>
           </div>
         </div>
@@ -457,6 +459,7 @@ const Order = () => {
       <Footer />
 
       <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} />
-    </div>;
+    </div>
+  );
 };
 export default Order;

@@ -41,7 +41,8 @@ export function BalanceTopUpDialog({
       orderId: `balance-topup-${Date.now()}`,
       description: `Balans artırılması - $${packageAmount}`,
       customerEmail: '',
-      returnUrl: window.location.origin + '/dashboard'
+      successUrl: window.location.origin + '/dashboard',
+      errorUrl: window.location.origin + '/dashboard'
     };
     
     setPaymentRequest(request);
@@ -57,7 +58,8 @@ export function BalanceTopUpDialog({
         orderId: `balance-topup-${Date.now()}`,
         description: `Balans artırılması - $${customAmount}`,
         customerEmail: '',
-        returnUrl: window.location.origin + '/dashboard'
+        successUrl: window.location.origin + '/dashboard',
+        errorUrl: window.location.origin + '/dashboard'
       };
       
       setPaymentRequest(request);
