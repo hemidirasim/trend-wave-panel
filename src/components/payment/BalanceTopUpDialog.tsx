@@ -4,10 +4,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent } from '@/components/ui/card';
-import { DollarSign, CreditCard } from 'lucide-react';
-import { PaymentDialog } from './PaymentDialog';
-import { PaymentRequest } from '@/types/payment';
+import { PaymentButton } from './PaymentButton';
+import { useAuth } from '@/contexts/AuthContext';
+import { DollarSign } from 'lucide-react';
 
 interface BalanceTopUpDialogProps {
   open: boolean;
@@ -15,133 +14,94 @@ interface BalanceTopUpDialogProps {
   onPaymentSuccess?: () => void;
 }
 
-export function BalanceTopUpDialog({
-  open,
-  onOpenChange,
-  onPaymentSuccess
-}: BalanceTopUpDialogProps) {
-  const [amount, setAmount] = useState('');
-  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
-  const [paymentRequest, setPaymentRequest] = useState<PaymentRequest | null>(null);
+export function BalanceTopUpDialog({ open, onOpenChange, onPaymentSuccess }: BalanceTopUpDialogProps) {
+  const [amount, setAmount] = useState<number>(1);
+  const { user } = useAuth();
 
-  // Predefined packages in USD
-  const packages = [
-    { amount: 1, label: 'Test Paketi', description: 'Test üçün' },
-    { amount: 10, label: 'Başlanğıc Paket', description: 'Kiçik sifarişlər üçün' },
-    { amount: 25, label: 'Standart Paket', description: 'Orta sifarişlər üçün' },
-    { amount: 50, label: 'Premium Paket', description: 'Böyük sifarişlər üçün' },
-    { amount: 100, label: 'Pro Paket', description: 'Peşəkar istifadə üçün' },
-    { amount: 250, label: 'Biznes Paket', description: 'Biznes hesabları üçün' }
-  ];
+  const predefinedAmounts: number[] = [1, 5, 10, 25, 50, 100];
 
-  const handlePackageSelect = (packageAmount: number) => {
-    const request: PaymentRequest = {
-      amount: packageAmount,
-      currency: 'USD',
-      orderId: `balance-topup-${Date.now()}`,
-      description: `Balans artırılması - $${packageAmount}`,
-      customerEmail: '',
-      successUrl: window.location.origin + '/dashboard',
-      errorUrl: window.location.origin + '/dashboard'
-    };
-    
-    setPaymentRequest(request);
-    setPaymentDialogOpen(true);
-  };
-
-  const handleCustomAmount = () => {
-    const customAmount = parseFloat(amount);
-    if (customAmount && customAmount >= 1) {
-      const request: PaymentRequest = {
-        amount: customAmount,
-        currency: 'USD',
-        orderId: `balance-topup-${Date.now()}`,
-        description: `Balans artırılması - $${customAmount}`,
-        customerEmail: '',
-        successUrl: window.location.origin + '/dashboard',
-        errorUrl: window.location.origin + '/dashboard'
-      };
-      
-      setPaymentRequest(request);
-      setPaymentDialogOpen(true);
-    }
-  };
-
-  const handlePaymentSuccess = () => {
-    setPaymentDialogOpen(false);
-    onOpenChange(false);
-    setAmount('');
+  const handlePaymentSuccess = (transactionId: string) => {
+    console.log('Balance top-up payment successful:', transactionId);
     onPaymentSuccess?.();
+    onOpenChange(false);
+  };
+
+  const handlePaymentError = (error: string) => {
+    console.error('Balance top-up payment error:', error);
   };
 
   return (
-    <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center">
-              <DollarSign className="h-5 w-5 mr-2" />
-              Balans Artır
-            </DialogTitle>
-            <DialogDescription>
-              Balansınızı artırmaq üçün paket seçin və ya məbləğ daxil edin
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4">
-            <div>
-              <h4 className="text-sm font-medium mb-3">Hazır Paketlər (USD)</h4>
-              <div className="grid grid-cols-2 gap-2">
-                {packages.map((pkg) => (
-                  <Card key={pkg.amount} className="cursor-pointer hover:bg-muted/50 transition-colors">
-                    <CardContent 
-                      className="p-3 text-center"
-                      onClick={() => handlePackageSelect(pkg.amount)}
-                    >
-                      <div className="font-semibold text-lg">${pkg.amount}</div>
-                      <div className="text-xs text-muted-foreground">{pkg.label}</div>
-                      <div className="text-xs text-muted-foreground">{pkg.description}</div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="custom-amount">Və ya fərdi məbləğ (USD)</Label>
-              <div className="flex space-x-2">
-                <Input
-                  id="custom-amount"
-                  type="number"
-                  placeholder="Məbləğ daxil edin"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  min="1"
-                  step="0.01"
-                />
-                <Button 
-                  onClick={handleCustomAmount}
-                  disabled={!amount || parseFloat(amount) < 1}
-                  className="flex-shrink-0"
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <DollarSign className="h-5 w-5" />
+            Balans Artır
+          </DialogTitle>
+          <DialogDescription>
+            Hesabınıza balans əlavə edin. Minimum məbləğ $1 USD-dir.
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-6">
+          {/* Predefined Amount Buttons */}
+          <div>
+            <Label className="text-sm font-medium">Sürətli seçim</Label>
+            <div className="grid grid-cols-3 gap-2 mt-2">
+              {predefinedAmounts.map((preAmount) => (
+                <Button
+                  key={preAmount}
+                  variant={amount === preAmount ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setAmount(preAmount)}
+                  className="text-sm"
                 >
-                  <CreditCard className="h-4 w-4 mr-2" />
-                  Ödə
+                  ${preAmount}
                 </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Minimum məbləğ: $1.00 USD
-              </p>
+              ))}
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
 
-      <PaymentDialog
-        open={paymentDialogOpen}
-        onOpenChange={setPaymentDialogOpen}
-        paymentRequest={paymentRequest}
-        onSuccess={handlePaymentSuccess}
-      />
-    </>
+          {/* Custom Amount Input */}
+          <div className="space-y-2">
+            <Label htmlFor="amount">Məbləğ (USD)</Label>
+            <Input
+              id="amount"
+              type="number"
+              min="1"
+              step="0.01"
+              value={amount}
+              onChange={(e) => setAmount(Math.max(1, parseFloat(e.target.value) || 1))}
+              placeholder="Məbləği daxil edin"
+            />
+          </div>
+
+          {/* Conversion Info */}
+          <div className="bg-muted p-3 rounded-lg text-sm">
+            <p className="text-muted-foreground">
+              ${amount.toFixed(2)} USD ≈ {(amount * 1.7).toFixed(2)} AZN
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              (Təxmini çevrilmə məzənnəsi)
+            </p>
+          </div>
+
+          {/* Payment Button */}
+          <PaymentButton
+            amount={amount}
+            orderId={`balance-topup-${Date.now()}`}
+            description="Balans artırılması"
+            customerEmail={user?.email || ''}
+            customerName={user?.user_metadata?.full_name || user?.email || ''}
+            userId={user?.id} // Pass the user ID here
+            onSuccess={handlePaymentSuccess}
+            onError={handlePaymentError}
+            className="w-full"
+          >
+            ${amount.toFixed(2)} USD ödə
+          </PaymentButton>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

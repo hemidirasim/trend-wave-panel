@@ -1,4 +1,3 @@
-
 import { PaymentProviderInterface, PaymentRequest, PaymentResponse, PaymentStatus } from '@/types/payment';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -27,7 +26,7 @@ export class EpointProvider implements PaymentProviderInterface {
           description: `${request.description} (${request.amount} USD = ${aznAmount} AZN)`,
           customerEmail: request.customerEmail,
           customerName: request.customerName,
-          userId: request.userId,
+          userId: request.userId, // Pass the user ID
           successUrl: request.successUrl,
           errorUrl: request.errorUrl,
           originalAmount: request.amount, // Keep original USD amount for reference
