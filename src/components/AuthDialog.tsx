@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNotification } from '@/components/NotificationProvider';
+import { toast } from 'sonner';
 import { Loader2, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PasswordStrengthIndicator from '@/components/PasswordStrengthIndicator';
@@ -26,7 +26,7 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
   const [signupPassword, setSignupPassword] = useState('');
   const [signupFullName, setSignupFullName] = useState('');
   const { signIn, signUp } = useAuth();
-  const { addNotification } = useNotification();
+  
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,11 +53,7 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
     // Şifrə gücünü yoxla
     const passwordStrength = validatePasswordStrength(signupPassword);
     if (passwordStrength.score < 3) {
-      addNotification({
-        type: 'error',
-        title: 'Zəif şifrə',
-        message: 'Zəhmət olmasa daha güclü şifrə seçin (ən azı 3/5 bal)',
-      });
+      toast.error('Zəif şifrə: Zəhmət olmasa daha güclü şifrə seçin (ən azı 3/5 bal)');
       return;
     }
 

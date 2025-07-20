@@ -5,14 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useNotification } from '@/components/NotificationProvider';
+import { toast } from 'sonner';
 import { Loader2, Zap } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 const ResetPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
-  const { addNotification } = useNotification();
+  
   const navigate = useNavigate();
 
   const handleSendResetEmail = async (e: React.FormEvent) => {
@@ -25,20 +25,11 @@ const ResetPassword = () => {
       });
 
       if (error) {
-        addNotification({
-          type: 'error',
-          title: 'Xəta',
-          message: 'Email göndərilmədi. Zəhmət olmasa yenidən cəhd edin.',
-        });
+        toast.error('Email göndərilmədi. Zəhmət olmasa yenidən cəhd edin.');
         throw error;
       }
 
-      addNotification({
-        type: 'success',
-        title: 'Email göndərildi',
-        message: 'Şifrə yeniləmə linki email ünvanınıza göndərildi',
-        duration: 7000,
-      });
+      toast.success('Şifrə yeniləmə linki email ünvanınıza göndərildi');
     } catch (error) {
       console.error('Reset email error:', error);
     } finally {

@@ -11,7 +11,7 @@ import { Loader2, Zap } from 'lucide-react';
 import { useEffect } from 'react';
 import PasswordStrengthIndicator from '@/components/PasswordStrengthIndicator';
 import { validatePasswordStrength } from '@/utils/passwordValidation';
-import { useNotification } from '@/components/NotificationProvider';
+import { toast } from 'sonner';
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -21,7 +21,7 @@ const Auth = () => {
   const [signupPassword, setSignupPassword] = useState('');
   const [signupFullName, setSignupFullName] = useState('');
   const { signIn, signUp, user } = useAuth();
-  const { addNotification } = useNotification();
+  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -50,11 +50,7 @@ const Auth = () => {
     // Şifrə gücünü yoxla
     const passwordStrength = validatePasswordStrength(signupPassword);
     if (passwordStrength.score < 3) {
-      addNotification({
-        type: 'error',
-        title: 'Zəif şifrə',
-        message: 'Zəhmət olmasa daha güclü şifrə seçin (ən azı 3/5 bal)',
-      });
+      toast.error('Zəif şifrə: Zəhmət olmasa daha güclü şifrə seçin (ən azı 3/5 bal)');
       return;
     }
 
