@@ -1,13 +1,8 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Calculator, DollarSign, Wallet, AlertTriangle } from 'lucide-react';
 import { Service } from '@/types/api';
-import { useCurrency } from '@/contexts/CurrencyContext';
-import { CurrencySelector } from '@/components/CurrencySelector';
-import { useEffect, useState } from 'react';
-
 interface OrderSummaryProps {
   selectedService: Service | null;
   quantity: string;
@@ -20,7 +15,6 @@ interface OrderSummaryProps {
   showBalanceTopUp?: boolean;
   BalanceTopUpComponent?: React.ReactNode;
 }
-
 export function OrderSummary({
   selectedService,
   quantity,
@@ -33,41 +27,18 @@ export function OrderSummary({
   showBalanceTopUp = false,
   BalanceTopUpComponent
 }: OrderSummaryProps) {
-  const { currency, convertAmount, formatAmount, loading: currencyLoading } = useCurrency();
-  const [convertedPrice, setConvertedPrice] = useState<number>(calculatedPrice);
-  const [convertedBalance, setConvertedBalance] = useState<number>(userBalance);
-  
   const quantityNum = parseInt(quantity) || 0;
-  const totalPrice = convertedPrice;
-
-  useEffect(() => {
-    const convertPrices = async () => {
-      if (calculatedPrice > 0) {
-        const converted = await convertAmount(calculatedPrice, 'USD');
-        setConvertedPrice(converted);
-      }
-      
-      if (userBalance > 0) {
-        const convertedBal = await convertAmount(userBalance, 'USD');
-        setConvertedBalance(convertedBal);
-      }
-    };
-
-    convertPrices();
-  }, [calculatedPrice, userBalance, currency, convertAmount]);
-
-  const hasInsufficientBalance = convertedBalance < totalPrice && totalPrice > 0;
-
+  const basePrice = selectedService && quantityNum > 0 ? parseFloat(selectedService.prices?.[0]?.price || '0') * quantityNum / 1000 : 0;
+  const serviceFee = basePrice * (serviceFeePercentage / 100);
+  const totalPrice = calculatedPrice;
+  const hasInsufficientBalance = userBalance < totalPrice && totalPrice > 0;
   return <div className="space-y-6">
       {/* Balance Card */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center justify-between text-lg">
-            <div className="flex items-center">
-              <Wallet className="h-5 w-5 mr-2" />
-              Balans
-            </div>
-            <CurrencySelector />
+          <CardTitle className="flex items-center text-lg">
+            <Wallet className="h-5 w-5 mr-2" />
+            Balans
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -75,17 +46,13 @@ export function OrderSummary({
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Mövcud balans:</span>
               <div className="flex items-center space-x-2">
-                {balanceLoading || currencyLoading ? (
-                  <div className="h-4 w-16 bg-muted animate-pulse rounded" />
-                ) : (
-                  <Badge variant={convertedBalance > 0 ? "default" : "secondary"} className="text-lg font-semibold">
-                    {formatAmount(convertedBalance)}
-                  </Badge>
-                )}
+                {balanceLoading ? <div className="h-4 w-16 bg-muted animate-pulse rounded" /> : <Badge variant={userBalance > 0 ? "default" : "secondary"} className="text-lg font-semibold">
+                    ${userBalance.toFixed(2)}
+                  </Badge>}
               </div>
             </div>
             
-            {convertedBalance === 0 && <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+            {userBalance === 0 && <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
                 <div className="flex items-center space-x-2 text-orange-700">
                   <AlertTriangle className="h-4 w-4" />
                   <span className="text-sm font-medium">Balansınız 0-dır</span>
@@ -98,13 +65,13 @@ export function OrderSummary({
                 </div>
               </div>}
 
-            {hasInsufficientBalance && convertedBalance > 0 && <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+            {hasInsufficientBalance && userBalance > 0 && <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                 <div className="flex items-center space-x-2 text-red-700">
                   <AlertTriangle className="h-4 w-4" />
                   <span className="text-sm font-medium">Kifayət qədər balans yoxdur</span>
                 </div>
                 <p className="text-xs text-red-600 mt-1">
-                  {formatAmount(totalPrice - convertedBalance)} çatışmır
+                  ${(totalPrice - userBalance).toFixed(2)} çatışmır
                 </p>
                 <div className="mt-2">
                   {BalanceTopUpComponent}
@@ -135,20 +102,22 @@ export function OrderSummary({
                   <span className="text-muted-foreground">Miqdar:</span>
                   <span className="font-medium">{quantityNum.toLocaleString()}</span>
                 </div>
+                
+                
+                
+                
+                
+                
               </div>
               
               <Separator />
               
               <div className="flex justify-between items-center">
                 <span className="font-semibold">Cəmi:</span>
-                {currencyLoading ? (
-                  <div className="h-6 w-20 bg-muted animate-pulse rounded" />
-                ) : (
-                  <Badge variant="default" className="text-lg font-bold px-3 py-1">
-                    <DollarSign className="h-4 w-4 mr-1" />
-                    {formatAmount(totalPrice)}
-                  </Badge>
-                )}
+                <Badge variant="default" className="text-lg font-bold px-3 py-1">
+                  <DollarSign className="h-4 w-4 mr-1" />
+                  {totalPrice.toFixed(2)}
+                </Badge>
               </div>
               
               {selectedService.amount_minimum && <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">

@@ -1,9 +1,8 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowUpDown } from 'lucide-react';
 import { Service } from '@/types/api';
-import { useCurrency } from '@/contexts/CurrencyContext';
 
 interface ServiceSelectorProps {
   services: Service[];
@@ -30,87 +29,38 @@ export const ServiceSelector = ({
   onPriceFilterChange,
   error 
 }: ServiceSelectorProps) => {
-  const { currency, convertAmount, formatAmount, loading: currencyLoading } = useCurrency();
-  const [convertedPrices, setConvertedPrices] = useState<Map<string, number>>(new Map());
+  // Filter services based on platform and service type
+  const filteredServices = services.filter(service => {
+    const platformMatch = selectedPlatform ? service.platform?.toLowerCase() === selectedPlatform.toLowerCase() : true;
+    const typeMatch = selectedServiceType ? 
+      (service.type_name && service.type_name.toLowerCase().includes(selectedServiceType.toLowerCase())) ||
+      service.public_name.toLowerCase().includes(selectedServiceType.toLowerCase()) : true;
+    return platformMatch && typeMatch;
+  });
 
-  // Memoize filtered services to prevent unnecessary re-renders
-  const filteredServices = useMemo(() => {
-    return services.filter(service => {
-      const platformMatch = selectedPlatform ? service.platform?.toLowerCase() === selectedPlatform.toLowerCase() : true;
-      const typeMatch = selectedServiceType ? 
-        (service.type_name && service.type_name.toLowerCase().includes(selectedServiceType.toLowerCase())) ||
-        service.public_name.toLowerCase().includes(selectedServiceType.toLowerCase()) : true;
-      return platformMatch && typeMatch;
-    });
-  }, [services, selectedPlatform, selectedServiceType]);
-
-  // Memoize sorted services
-  const sortedServices = useMemo(() => {
-    return [...filteredServices].sort((a, b) => {
-      if (!a.prices || !b.prices || a.prices.length === 0 || b.prices.length === 0) {
-        return 0;
-      }
-      
-      const priceA = parseFloat(a.prices[0].price);
-      const priceB = parseFloat(b.prices[0].price);
-      
-      return priceFilter === 'low-to-high' ? priceA - priceB : priceB - priceA;
-    });
-  }, [filteredServices, priceFilter]);
-
-  // Debounced price conversion to prevent excessive API calls
-  const convertServicePrices = useCallback(async () => {
-    if (currencyLoading || filteredServices.length === 0) return;
-    
-    try {
-      const priceMap = new Map<string, number>();
-      
-      // Process services in smaller batches to avoid blocking
-      const batchSize = 5;
-      for (let i = 0; i < filteredServices.length; i += batchSize) {
-        const batch = filteredServices.slice(i, i + batchSize);
-        
-        for (const service of batch) {
-          if (service.prices && service.prices.length > 0) {
-            const basePrice = parseFloat(service.prices[0].price);
-            const totalCost = (basePrice / 1000) * 1000;
-            const serviceFee = (totalCost * serviceFeePercentage) / 100;
-            const finalPriceUSD = totalCost + serviceFee + baseFee;
-            
-            const convertedPrice = await convertAmount(finalPriceUSD, 'USD');
-            priceMap.set(service.id_service.toString(), convertedPrice);
-          }
-        }
-        
-        // Small delay between batches to prevent blocking
-        if (i + batchSize < filteredServices.length) {
-          await new Promise(resolve => setTimeout(resolve, 10));
-        }
-      }
-      
-      setConvertedPrices(priceMap);
-    } catch (error) {
-      console.error('Error converting prices:', error);
-    }
-  }, [filteredServices, currency, serviceFeePercentage, baseFee, currencyLoading, convertAmount]);
-
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      convertServicePrices();
-    }, 100); // Debounce 100ms
-
-    return () => clearTimeout(timeoutId);
-  }, [convertServicePrices]);
-
-  const getDisplayPrice = (service: Service): string => {
-    const serviceId = service.id_service.toString();
-    const convertedPrice = convertedPrices.get(serviceId);
-    
-    if (currencyLoading || convertedPrice === undefined) {
-      return '...';
+  // Sort services by price
+  const sortedServices = [...filteredServices].sort((a, b) => {
+    if (!a.prices || !b.prices || a.prices.length === 0 || b.prices.length === 0) {
+      return 0;
     }
     
-    return formatAmount(convertedPrice);
+    const priceA = parseFloat(a.prices[0].price);
+    const priceB = parseFloat(b.prices[0].price);
+    
+    return priceFilter === 'low-to-high' ? priceA - priceB : priceB - priceA;
+  });
+
+  const calculateDisplayPrice = (service: Service, quantity: number = 1000) => {
+    if (!service.prices || service.prices.length === 0) {
+      return '0.00';
+    }
+
+    const basePrice = parseFloat(service.prices[0].price);
+    const totalCost = (basePrice / 1000) * quantity;
+    const serviceFee = (totalCost * serviceFeePercentage) / 100;
+    const finalPrice = totalCost + serviceFee + baseFee;
+    
+    return finalPrice.toFixed(2);
   };
 
   const formatStartTime = (startTime?: string) => {
@@ -214,7 +164,7 @@ export const ServiceSelector = ({
               <SelectTrigger className="w-40">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="z-50 bg-background border shadow-lg pointer-events-auto">
+              <SelectContent>
                 <SelectItem value="low-to-high">Qiymət: Azdan Çoxa</SelectItem>
                 <SelectItem value="high-to-low">Qiymət: Çoxdan Aza</SelectItem>
               </SelectContent>
@@ -227,7 +177,7 @@ export const ServiceSelector = ({
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Xidmət seçin..." />
           </SelectTrigger>
-          <SelectContent className="max-h-80 z-50 bg-background border shadow-lg pointer-events-auto">
+          <SelectContent className="max-h-80">
             {sortedServices.map((service) => (
               <SelectItem 
                 key={service.id_service} 
@@ -238,7 +188,7 @@ export const ServiceSelector = ({
                   <div className="flex items-center justify-between w-full mb-1">
                     <span className="font-medium text-sm">{service.public_name}</span>
                     <span className="font-bold text-primary text-lg ml-4">
-                      {getDisplayPrice(service)}
+                      ${calculateDisplayPrice(service)}
                     </span>
                   </div>
                   

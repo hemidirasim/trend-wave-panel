@@ -1,6 +1,8 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 import { HeroSection } from '@/components/HeroSection';
 import { StatsSection } from '@/components/StatsSection';
 import { ServicesSection } from '@/components/ServicesSection';
@@ -22,11 +24,13 @@ const Index = () => {
 
   return (
     <>
-      <div className="bg-background overflow-hidden">
+      <div className="min-h-screen bg-background overflow-hidden">
+        <Header />
         <HeroSection />
         <StatsSection />
         <ServicesSection />
         <FeaturesSection />
+        <Footer />
       </div>
 
       <AuthDialog 

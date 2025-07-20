@@ -106,7 +106,7 @@ export function ServiceFilters({
                   type="single" 
                   value={selectedServiceType} 
                   onValueChange={(value) => onServiceTypeChange(value || '')}
-                  className="flex flex-wrap gap-2 justify-start z-10 pointer-events-auto"
+                  className="flex flex-wrap gap-2 justify-start"
                 >
                   {getUniqueServiceTypes(selectedPlatform).map((type) => {
                     const IconComponent = getServiceTypeIcon(type);
@@ -114,7 +114,7 @@ export function ServiceFilters({
                       <ToggleGroupItem 
                         key={type} 
                         value={type}
-                        className="flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-all bg-background hover:bg-accent pointer-events-auto"
+                        className="flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-all"
                         variant="outline"
                       >
                         <IconComponent className="w-4 h-4" />

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
+import { useNotification } from '@/components/NotificationProvider';
 import { Loader2, Zap } from 'lucide-react';
 import PasswordStrengthIndicator from '@/components/PasswordStrengthIndicator';
 import { validatePasswordStrength } from '@/utils/passwordValidation';
@@ -15,7 +15,7 @@ const PasswordRecovery = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  
+  const { addNotification } = useNotification();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -35,7 +35,11 @@ const PasswordRecovery = () => {
       }).then(({ data, error }) => {
         if (error) {
           console.error('Session təyin edilmədi:', error);
-          toast.error('Link etibarsızdır və ya müddəti bitib');
+          addNotification({
+            type: 'error',
+            title: 'Xəta',
+            message: 'Link etibarsızdır və ya müddəti bitib',
+          });
           navigate('/reset-password');
         } else {
           console.log('Recovery səhifəsində session təyin edildi:', data);
@@ -45,19 +49,27 @@ const PasswordRecovery = () => {
       // Parametrlərin olmaması normal haldır, sadəcə log et
       console.log('Recovery parametrləri tapılmadı, manuel giriş gözlənilir');
     }
-  }, [searchParams, navigate]);
+  }, [searchParams, addNotification, navigate]);
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (newPassword !== confirmPassword) {
-      toast.error('Şifrələr uyğun gəlmir');
+      addNotification({
+        type: 'error',
+        title: 'Xəta',
+        message: 'Şifrələr uyğun gəlmir',
+      });
       return;
     }
 
     const passwordStrength = validatePasswordStrength(newPassword);
     if (passwordStrength.score < 3) {
-      toast.error('Zəif şifrə: Zəhmət olmasa daha güclü şifrə seçin');
+      addNotification({
+        type: 'error',
+        title: 'Zəif şifrə',
+        message: 'Zəhmət olmasa daha güclü şifrə seçin',
+      });
       return;
     }
 
@@ -69,11 +81,19 @@ const PasswordRecovery = () => {
       });
 
       if (error) {
-        toast.error('Şifrə yenilənmədi. Zəhmət olmasa yenidən cəhd edin.');
+        addNotification({
+          type: 'error',
+          title: 'Xəta',
+          message: 'Şifrə yenilənmədi. Zəhmət olmasa yenidən cəhd edin.',
+        });
         throw error;
       }
 
-      toast.success('Şifrəniz uğurla yeniləndi. İndi daxil ola bilərsiniz.');
+      addNotification({
+        type: 'success',
+        title: 'Şifrə yeniləndi',
+        message: 'Şifrəniz uğurla yeniləndi. İndi daxil ola bilərsiniz.',
+      });
 
       // Daxil olma səhifəsinə yönlət
       setTimeout(() => {

@@ -1,8 +1,6 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,8 +9,6 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { Save, Database, Settings, Globe } from 'lucide-react';
 import { AdminLayout } from '@/components/AdminLayout';
-import { CurrencySelector } from '@/components/CurrencySelector';
-import { currencyService } from '@/services/CurrencyService';
 
 interface Settings {
   site_name: string;
@@ -31,9 +27,7 @@ export default function AdminSettings() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [exchangeRates, setExchangeRates] = useState<any[]>([]);
-  const [newRate, setNewRate] = useState<string>('');
-
+  
   const [settings, setSettings] = useState<Settings>({
     site_name: 'HitLoyal',
     site_description: 'Sosial media büyütmə xidmətləri',
@@ -57,7 +51,6 @@ export default function AdminSettings() {
   useEffect(() => {
     fetchStats();
     loadSettings();
-    loadExchangeRates();
   }, []);
 
   const loadSettings = async () => {
@@ -136,54 +129,6 @@ export default function AdminSettings() {
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
-    }
-  };
-
-  const loadExchangeRates = async () => {
-    try {
-      const rates = await currencyService.getAllExchangeRates();
-      setExchangeRates(rates);
-    } catch (error) {
-      console.error('Error loading exchange rates:', error);
-    }
-  };
-
-  const updateExchangeRate = async () => {
-    if (!newRate || isNaN(parseFloat(newRate))) {
-      toast({
-        title: "Xəta",
-        description: "Düzgün məzənnə daxil edin",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from('exchange_rates')
-        .update({ rate: parseFloat(newRate), updated_at: new Date().toISOString() })
-        .eq('from_currency', 'USD')
-        .eq('to_currency', 'AZN');
-
-      if (error) throw error;
-
-      // Clear cache to force refresh
-      currencyService.clearCache();
-      
-      toast({
-        title: "Uğurlu",
-        description: "Məzənnə yeniləndi"
-      });
-      
-      loadExchangeRates();
-      setNewRate('');
-    } catch (error) {
-      console.error('Error updating exchange rate:', error);
-      toast({
-        title: "Xəta",
-        description: "Məzənnə yenilənmədi",
-        variant: "destructive"
-      });
     }
   };
 
@@ -429,46 +374,6 @@ export default function AdminSettings() {
                   Hər sifarişə əlavə olunacaq standart qiymət. Məsələn: $0.50 əlavə haqqı
                 </p>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Exchange Rate Management */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Valyuta Məzənnələri</CardTitle>
-              <CardDescription>USD/AZN məzənnəsini idarə edin</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {exchangeRates.map((rate) => (
-                <div key={rate.id} className="flex items-center justify-between p-3 border rounded">
-                  <div>
-                    <span className="font-medium">{rate.from_currency}/{rate.to_currency}</span>
-                    <p className="text-sm text-muted-foreground">
-                      Son yenilənmə: {new Date(rate.updated_at).toLocaleString('az-AZ')}
-                    </p>
-                  </div>
-                  <Badge variant="outline" className="text-lg font-bold">
-                    {parseFloat(rate.rate).toFixed(4)}
-                  </Badge>
-                </div>
-              ))}
-              
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Yeni məzənnə (məs: 1.7000)"
-                  value={newRate}
-                  onChange={(e) => setNewRate(e.target.value)}
-                  type="number"
-                  step="0.0001"
-                />
-                <Button onClick={updateExchangeRate} disabled={!newRate}>
-                  Yenilə
-                </Button>
-              </div>
-              
-              <p className="text-xs text-muted-foreground">
-                Məzənnə dəyişdikdə bütün qiymətlər avtomatik yenilənəcək
-              </p>
             </CardContent>
           </Card>
         </div>
