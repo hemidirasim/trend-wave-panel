@@ -1,7 +1,5 @@
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Instagram, Youtube, Facebook, Heart, Users, Eye, Share, MessageCircle, Repeat, Star, ChevronDown } from 'lucide-react';
 import { Service } from '@/types/api';
 import { useState } from 'react';
@@ -147,35 +145,36 @@ export function ServiceFilters({
   };
 
   const handleGroupClick = (mainType: string, services: Service[], platform: string) => {
-    // If there's only one service in the group, select it directly
+    // Check if we have only one service - if so, select it directly
     if (services.length === 1) {
       handleServiceSelect(services[0]);
       return;
     }
 
+    // Check if we have multiple services - analyze subgroups
     const subGroups = getSubGroups(services);
     const subGroupKeys = Object.keys(subGroups);
     
-    // If there's only one sub-group and it has only one service, select it directly
+    // If there's only one sub-group with one service, select directly
     if (subGroupKeys.length === 1 && subGroups[subGroupKeys[0]].length === 1) {
       const singleService = subGroups[subGroupKeys[0]][0];
       handleServiceSelect(singleService);
       return;
     }
     
-    // Otherwise, toggle the group to show sub-groups
+    // Otherwise toggle the group
     const groupKey = `${platform}-${mainType}`;
     toggleGroup(groupKey);
   };
 
   const handleSubGroupClick = (mainType: string, subType: string, subServices: Service[], platform: string) => {
-    // If there's only one service in the sub-group, select it directly
+    // If only one service, select it directly
     if (subServices.length === 1) {
       handleServiceSelect(subServices[0]);
       return;
     }
     
-    // Otherwise, toggle the sub-group
+    // Otherwise toggle the sub-group
     const subGroupKey = `${platform}-${mainType}-${subType}`;
     toggleGroup(subGroupKey);
   };
@@ -206,19 +205,14 @@ export function ServiceFilters({
             {Object.entries(getServiceGroups(platform)).map(([mainType, services]) => {
               const groupKey = `${platform}-${mainType}`;
               const IconComponent = getServiceTypeIcon(mainType);
-              const subGroups = getSubGroups(services);
-              const subGroupKeys = Object.keys(subGroups);
-              
-              // Check if this is truly a single service case
-              const isSingleService = services.length === 1 || (subGroupKeys.length === 1 && subGroups[subGroupKeys[0]].length === 1);
+              const isGroupOpen = openGroups[groupKey];
               
               return (
-                <div key={groupKey}>
+                <div key={groupKey} className="border rounded-lg overflow-hidden">
                   <button
-                    className="flex items-center justify-between w-full p-3 bg-muted/50 hover:bg-muted/70 rounded-lg transition-colors text-left"
-                    onClick={() => {
-                      handleGroupClick(mainType, services, platform);
-                    }}
+                    type="button"
+                    className="flex items-center justify-between w-full p-3 bg-muted/50 hover:bg-muted/70 rounded-t-lg transition-colors text-left focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset"
+                    onClick={() => handleGroupClick(mainType, services, platform)}
                   >
                     <div className="flex items-center gap-2">
                       <IconComponent className="w-4 h-4" />
@@ -227,63 +221,64 @@ export function ServiceFilters({
                         {services.length}
                       </span>
                     </div>
-                    {!isSingleService && (
-                      <ChevronDown className={`w-4 h-4 transition-transform ${openGroups[groupKey] ? 'rotate-180' : ''}`} />
-                    )}
+                    <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isGroupOpen ? 'rotate-180' : ''}`} />
                   </button>
                   
-                  {!isSingleService && openGroups[groupKey] && (
-                    <div className="space-y-2 mt-2 pl-4">
-                      {Object.entries(subGroups).map(([subType, subServices]) => {
-                        const subGroupKey = `${groupKey}-${subType}`;
-                        const isSubGroupSingle = subServices.length === 1;
-                        
-                        return (
-                          <div key={subGroupKey}>
-                            <button
-                              className="flex items-center justify-between w-full p-2 bg-background hover:bg-muted/30 rounded-md transition-colors border text-left"
-                              onClick={() => {
-                                handleSubGroupClick(mainType, subType, subServices, platform);
-                              }}
-                            >
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium">{subType}</span>
-                                <span className="text-xs bg-secondary text-secondary-foreground px-1.5 py-0.5 rounded">
-                                  {subServices.length}
-                                </span>
-                              </div>
-                              {!isSubGroupSingle && (
-                                <ChevronDown className={`w-3 h-3 transition-transform ${openGroups[subGroupKey] ? 'rotate-180' : ''}`} />
-                              )}
-                            </button>
-                            
-                            {!isSubGroupSingle && openGroups[subGroupKey] && (
-                              <div className="space-y-1 mt-1 pl-4">
-                                {subServices.map((service) => (
-                                  <button
-                                    key={service.id_service}
-                                    onClick={() => handleServiceSelect(service)}
-                                    className={`w-full text-left p-2 text-sm rounded hover:bg-muted/50 transition-colors border-l-2 ${
-                                      selectedServiceType === `${service.platform}-${service.id_service}` 
-                                        ? 'border-l-primary bg-primary/5 text-primary font-medium' 
-                                        : 'border-l-transparent'
-                                    }`}
-                                  >
-                                    <div className="truncate">
-                                      {service.public_name}
-                                    </div>
-                                    {service.prices && service.prices[0] && (
-                                      <div className="text-xs text-muted-foreground mt-1">
-                                        ${service.prices[0].price}/1000
+                  {isGroupOpen && (
+                    <div className="border-t bg-background">
+                      {(() => {
+                        const subGroups = getSubGroups(services);
+                        return Object.entries(subGroups).map(([subType, subServices]) => {
+                          const subGroupKey = `${groupKey}-${subType}`;
+                          const isSubGroupOpen = openGroups[subGroupKey];
+                          
+                          return (
+                            <div key={subGroupKey} className="border-b last:border-b-0">
+                              <button
+                                type="button"
+                                className="flex items-center justify-between w-full p-3 hover:bg-muted/30 transition-colors text-left focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset"
+                                onClick={() => handleSubGroupClick(mainType, subType, subServices, platform)}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm font-medium">{subType}</span>
+                                  <span className="text-xs bg-secondary text-secondary-foreground px-1.5 py-0.5 rounded">
+                                    {subServices.length}
+                                  </span>
+                                </div>
+                                {subServices.length > 1 && (
+                                  <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isSubGroupOpen ? 'rotate-180' : ''}`} />
+                                )}
+                              </button>
+                              
+                              {subServices.length > 1 && isSubGroupOpen && (
+                                <div className="bg-muted/20">
+                                  {subServices.map((service) => (
+                                    <button
+                                      key={service.id_service}
+                                      type="button"
+                                      onClick={() => handleServiceSelect(service)}
+                                      className={`w-full text-left p-3 text-sm hover:bg-muted/50 transition-colors border-l-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset ${
+                                        selectedServiceType === `${service.platform}-${service.id_service}` 
+                                          ? 'border-l-primary bg-primary/5 text-primary font-medium' 
+                                          : 'border-l-transparent'
+                                      }`}
+                                    >
+                                      <div className="truncate">
+                                        {service.public_name}
                                       </div>
-                                    )}
-                                  </button>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
+                                      {service.prices && service.prices[0] && (
+                                        <div className="text-xs text-muted-foreground mt-1">
+                                          ${service.prices[0].price}/1000
+                                        </div>
+                                      )}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })
+                      })()}
                     </div>
                   )}
                 </div>
