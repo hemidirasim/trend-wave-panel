@@ -12,6 +12,7 @@ import { OrderSummary } from '@/components/order/OrderSummary';
 import { proxyApiService, Service } from '@/components/ProxyApiService';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
 import AuthDialog from '@/components/AuthDialog';
 import { BalanceTopUpDialog } from '@/components/payment/BalanceTopUpDialog';
@@ -20,6 +21,7 @@ import { supabase } from '@/integrations/supabase/client';
 const Order = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const {
     settings,
     loading: settingsLoading
@@ -196,7 +198,7 @@ const Order = () => {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     if (!formData.serviceId) {
-      newErrors.serviceId = 'Xidmət seçmək vacibdir';
+      newErrors.serviceId = t('order.serviceRequired');
     }
     if (!formData.url.trim()) {
       newErrors.url = 'URL daxil etmək vacibdir';
@@ -396,7 +398,7 @@ const Order = () => {
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center">
               <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-              <span className="text-lg">Xidmətlər və parametrlər yüklənir...</span>
+              <span className="text-lg">{t('order.servicesLoading')}</span>
             </div>
           </div>
         </div>
@@ -410,8 +412,8 @@ const Order = () => {
       <section className="bg-gradient-to-br from-primary/5 to-secondary/5 py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">Sifarişinizi Verin</h1>
-            <p className="text-xl text-muted-foreground mb-8">Xidmət seçin və məlumatlarınızı daxil edin</p>
+            <h1 className="text-4xl md:text-5xl font-bold mb-6">{t('order.title')}</h1>
+            <p className="text-xl text-muted-foreground mb-8">{t('order.subtitle')}</p>
           </div>
         </div>
       </section>
@@ -424,9 +426,9 @@ const Order = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <ShoppingCart className="h-5 w-5 mr-2" />
-                    Sifariş Təfərrüatları
+                    {t('order.details')}
                   </CardTitle>
-                  <CardDescription>Sifarişinizi vermək üçün aşağıdakı məlumatları doldurun</CardDescription>
+                  <CardDescription>{t('order.detailsDesc')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-6">

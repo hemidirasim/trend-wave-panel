@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -56,6 +55,12 @@ const translations: Record<string, Language> = {
     'footer.description': 'Peşəkar reklam və marketinq agentliyi. Biznesinizi rəqəmsal dünyada gücləndirir, brendinizi növbəti səviyyəyə çıxarırıq. Google reklamları, SMM, SEO və digər xidmətlərlə uğurunuzu təmin edirik.',
     'footer.copyright': '© 2024 HitLoyal. Bütün hüquqlar qorunur. Bu sayt rəsmi olaraq Midiya Agency MMC-ə aiddir. VOEN: 6402180791',
     'footer.trustedPlatform': '1,500+ müştərimizin etibar etdiyi platform',
+    'order.title': 'Sifarişinizi Verin',
+    'order.subtitle': 'Xidmət seçin və məlumatlarınızı daxil edin',
+    'order.details': 'Sifariş Təfərrüatları',
+    'order.detailsDesc': 'Sifarişinizi vermək üçün aşağıdakı məlumatları doldurun',
+    'order.serviceRequired': 'Xidmət seçmək vacibdir',
+    'order.servicesLoading': 'Xidmətlər və parametrlər yüklənir...',
     // Dashboard
     'dashboard.title': 'İdarə Paneli',
     'dashboard.orders': 'Sifarişlər',
@@ -163,10 +168,6 @@ const translations: Record<string, Language> = {
     'contact.officeLocation': 'Bakı şəhəri, Cəfər Cabbarlı küçəsi 44, Caspian Plaza binasında yerləşirik. Metro stansiyalarına yaxın və əlçatan yerdəyik.',
     'contact.addressFull': 'Cəfər Cabbarlı 44 (Caspian Plaza)',
     'contact.city': 'Bakı, Azərbaycan',
-    // Order Page
-    'order.title': 'Sifariş Et',
-    'order.selectService': 'Xidmət Seçin',
-    'order.placeOrder': 'Sifariş Ver',
     // Blog Page
     'blog.title': 'SMM Bloqu',
     'blog.subtitle': 'Sosial media marketinqi, strategiya və trendlər haqqında ən son məqalələr',
@@ -224,6 +225,12 @@ const translations: Record<string, Language> = {
     'footer.description': 'Profesyonel reklam ve pazarlama ajansı. İşinizi dijital dünyada güçlendiriyor, markanızı bir sonraki seviyeye taşıyoruz. Google reklamları, SMM, SEO ve diğer hizmetlerle başarınızı sağlıyoruz.',
     'footer.copyright': '© 2024 HitLoyal. Tüm hakları saklıdır. Bu site resmi olarak Midiya Agency MMC\'ye aittir. VOEN: 6402180791',
     'footer.trustedPlatform': '1,500+ müşterimizin güvendiği platform',
+    'order.title': 'Siparişinizi Verin',
+    'order.subtitle': 'Hizmet seçin ve bilgilerinizi girin',
+    'order.details': 'Sipariş Detayları',
+    'order.detailsDesc': 'Siparişinizi vermek için aşağıdaki bilgileri doldurun',
+    'order.serviceRequired': 'Hizmet seçmek zorunludur',
+    'order.servicesLoading': 'Hizmetler ve parametreler yükleniyor...',
     // Dashboard
     'dashboard.title': 'Kontrol Paneli',
     'dashboard.orders': 'Siparişler',
@@ -331,10 +338,6 @@ const translations: Record<string, Language> = {
     'contact.officeLocation': 'Bakü şehri, Cəfər Cabbarlı caddesi 44, Caspian Plaza binasında yer alıyoruz. Metro istasyonlarına yakın ve ulaşılabilir konumdayız.',
     'contact.addressFull': 'Cəfər Cabbarlı 44 (Caspian Plaza)',
     'contact.city': 'Bakü, Azerbaycan',
-    // Order Page
-    'order.title': 'Sipariş Ver',
-    'order.selectService': 'Hizmet Seç',
-    'order.placeOrder': 'Sipariş Ver',
     // Blog Page
     'blog.title': 'SMM Blogu',
     'blog.subtitle': 'Sosyal medya pazarlama, strateji ve trendler hakkında en son makaleler',
