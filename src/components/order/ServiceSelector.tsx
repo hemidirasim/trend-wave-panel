@@ -1,8 +1,10 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowUpDown } from 'lucide-react';
+import { ArrowUpDown, Clock, Zap, Users, DollarSign } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { Service } from '@/types/api';
 import { useServiceNames } from '@/hooks/useServiceNames';
 
@@ -31,7 +33,7 @@ export const ServiceSelector = ({
   onPriceFilterChange,
   error 
 }: ServiceSelectorProps) => {
-  const { getCustomServiceName, loading: namesLoading } = useServiceNames();
+  const { getCustomServiceName } = useServiceNames();
 
   console.log('🔥 ServiceSelector: Component rendered with services count:', services.length);
 
@@ -70,39 +72,35 @@ export const ServiceSelector = ({
   };
 
   const formatStartTime = (startTime?: string) => {
-    if (!startTime) return '';
+    if (!startTime) return 'N/A';
     
     const lowerTime = startTime.toLowerCase();
     
-    // Instant/immediate start
     if (lowerTime.includes('instant') || lowerTime.includes('immediate') || lowerTime === '0') {
-      return 'Dərhal başlanır';
+      return 'Dərhal';
     }
     
-    // Hours
     if (lowerTime.includes('hour')) {
       const match = lowerTime.match(/(\d+)\s*hour/);
       if (match) {
         const hours = parseInt(match[1]);
-        return `${hours} saat ərzində`;
+        return `${hours} saat`;
       }
     }
     
-    // Days
     if (lowerTime.includes('day')) {
       const match = lowerTime.match(/(\d+)\s*day/);
       if (match) {
         const days = parseInt(match[1]);
-        return `${days} gün ərzində`;
+        return `${days} gün`;
       }
     }
     
-    // Minutes
     if (lowerTime.includes('minute') || lowerTime.includes('min')) {
       const match = lowerTime.match(/(\d+)\s*(minute|min)/);
       if (match) {
         const minutes = parseInt(match[1]);
-        return `${minutes} dəqiqə ərzində`;
+        return `${minutes} dəqiqə`;
       }
     }
     
@@ -110,25 +108,23 @@ export const ServiceSelector = ({
   };
 
   const formatSpeed = (speed?: string) => {
-    if (!speed) return '';
+    if (!speed) return 'N/A';
     
     const lowerSpeed = speed.toLowerCase();
     
-    // Per day
     if (lowerSpeed.includes('day')) {
       const match = lowerSpeed.match(/(\d+[,\s]*\d*)\s*(?:per\s*)?day/);
       if (match) {
         const amount = match[1].replace(/,/g, '');
-        return `gündə ${parseInt(amount).toLocaleString()}`;
+        return `${parseInt(amount).toLocaleString()}/gün`;
       }
     }
     
-    // Per hour
     if (lowerSpeed.includes('hour')) {
       const match = lowerSpeed.match(/(\d+[,\s]*\d*)\s*(?:per\s*)?hour/);
       if (match) {
         const amount = match[1].replace(/,/g, '');
-        return `saatda ${parseInt(amount).toLocaleString()}`;
+        return `${parseInt(amount).toLocaleString()}/saat`;
       }
     }
     
@@ -179,76 +175,165 @@ export const ServiceSelector = ({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <Select value={selectedServiceId} onValueChange={onServiceSelect}>
-          <SelectTrigger className="w-full min-h-[50px] sm:min-h-[60px]">
-            <SelectValue placeholder="Xidmət seçin..." />
-          </SelectTrigger>
-          <SelectContent className="max-h-[70vh] sm:max-h-96 w-full">
-            {sortedServices.map((service) => {
-              const displayName = getCustomServiceName(service.public_name);
-              console.log('🔥 ServiceSelector: Service name mapping:', service.public_name, '->', displayName);
-              
-              return (
-                <SelectItem 
-                  key={service.id_service} 
-                  value={service.id_service.toString()}
-                  className="py-4 sm:py-6 px-3 sm:px-4 min-h-[80px] sm:min-h-[100px] cursor-pointer hover:bg-muted/50"
-                >
-                  <div className="flex flex-col w-full space-y-2 sm:space-y-3">
-                    <div className="flex items-start justify-between w-full">
-                      <div className="flex-1 pr-3 sm:pr-4">
-                        <h3 className="font-semibold text-sm sm:text-base leading-tight mb-1 sm:mb-2 text-left">
-                          {displayName}
-                        </h3>
-                        
-                        <div className="flex flex-wrap gap-1 sm:gap-3 text-xs sm:text-sm text-muted-foreground">
-                          <span className="bg-blue-50 text-blue-700 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md text-xs">
-                            1000 ədəd üçün
-                          </span>
-                          {service.amount_minimum && (
-                            <span className="bg-green-50 text-green-700 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md text-xs">
-                              Min: {parseInt(service.amount_minimum).toLocaleString()}
-                            </span>
+        {/* Mobile View - Cards */}
+        <div className="block sm:hidden space-y-4">
+          {sortedServices.map((service) => {
+            const displayName = getCustomServiceName(service.public_name);
+            const isSelected = selectedServiceId === service.id_service.toString();
+            
+            return (
+              <Card 
+                key={service.id_service} 
+                className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
+                  isSelected ? 'ring-2 ring-primary bg-primary/5' : ''
+                }`}
+                onClick={() => onServiceSelect(service.id_service.toString())}
+              >
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-start mb-3">
+                    <h3 className="font-semibold text-sm line-clamp-2">{displayName}</h3>
+                    <div className="text-right ml-2">
+                      <div className="text-lg font-bold text-primary">
+                        ${calculateDisplayPrice(service)}
+                      </div>
+                      <div className="text-xs text-muted-foreground">1000 üçün</div>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      <span>{formatStartTime(service.start_time)}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Zap className="h-3 w-3" />
+                      <span>{formatSpeed(service.speed)}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Users className="h-3 w-3" />
+                      <span>Min: {parseInt(service.amount_minimum || '0').toLocaleString()}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Users className="h-3 w-3" />
+                      <span>Max: {parseInt(service.prices?.[0]?.maximum || '0').toLocaleString()}</span>
+                    </div>
+                  </div>
+                  
+                  <Button 
+                    className="w-full mt-3" 
+                    size="sm"
+                    variant={isSelected ? "default" : "outline"}
+                  >
+                    {isSelected ? 'Seçildi' : 'Seç'}
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+
+        {/* Desktop View - Table */}
+        <div className="hidden sm:block">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left py-3 px-2 font-medium text-sm">Xidmət</th>
+                  <th className="text-center py-3 px-2 font-medium text-sm">
+                    <div className="flex items-center justify-center gap-1">
+                      <DollarSign className="h-4 w-4" />
+                      Qiymət
+                    </div>
+                  </th>
+                  <th className="text-center py-3 px-2 font-medium text-sm">
+                    <div className="flex items-center justify-center gap-1">
+                      <Clock className="h-4 w-4" />
+                      Başlama
+                    </div>
+                  </th>
+                  <th className="text-center py-3 px-2 font-medium text-sm">
+                    <div className="flex items-center justify-center gap-1">
+                      <Zap className="h-4 w-4" />
+                      Sürət
+                    </div>
+                  </th>
+                  <th className="text-center py-3 px-2 font-medium text-sm">
+                    <div className="flex items-center justify-center gap-1">
+                      <Users className="h-4 w-4" />
+                      Hədd
+                    </div>
+                  </th>
+                  <th className="text-center py-3 px-2 font-medium text-sm">Əməliyyat</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedServices.map((service) => {
+                  const displayName = getCustomServiceName(service.public_name);
+                  const isSelected = selectedServiceId === service.id_service.toString();
+                  
+                  return (
+                    <tr 
+                      key={service.id_service} 
+                      className={`border-b hover:bg-muted/50 transition-colors ${
+                        isSelected ? 'bg-primary/5 border-primary/20' : ''
+                      }`}
+                    >
+                      <td className="py-4 px-2">
+                        <div>
+                          <div className="font-medium text-sm line-clamp-2 mb-1">{displayName}</div>
+                          {service.description && (
+                            <div className="text-xs text-muted-foreground line-clamp-1">
+                              {service.description}
+                            </div>
                           )}
                         </div>
-                      </div>
+                      </td>
                       
-                      <div className="text-right flex-shrink-0">
-                        <div className="text-lg sm:text-2xl font-bold text-primary">
+                      <td className="py-4 px-2 text-center">
+                        <div className="font-bold text-lg text-primary">
                           ${calculateDisplayPrice(service)}
                         </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-1 sm:gap-2 text-xs text-muted-foreground">
-                      {service.start_time && (
-                        <span className="bg-orange-50 text-orange-700 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md text-xs">
-                          🚀 {formatStartTime(service.start_time)}
-                        </span>
-                      )}
-                      {service.speed && (
-                        <span className="bg-purple-50 text-purple-700 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md text-xs">
-                          ⚡ {formatSpeed(service.speed)}
-                        </span>
-                      )}
-                    </div>
-                    
-                    {service.description && (
-                      <div className="text-xs sm:text-sm text-muted-foreground bg-gray-50 p-2 sm:p-3 rounded-md mt-1 sm:mt-2">
-                        <p className="line-clamp-2 sm:line-clamp-3 text-left">
-                          {service.description}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </SelectItem>
-              );
-            })}
-          </SelectContent>
-        </Select>
+                        <div className="text-xs text-muted-foreground">1000 üçün</div>
+                      </td>
+                      
+                      <td className="py-4 px-2 text-center">
+                        <Badge variant="outline" className="text-xs">
+                          {formatStartTime(service.start_time)}
+                        </Badge>
+                      </td>
+                      
+                      <td className="py-4 px-2 text-center">
+                        <Badge variant="outline" className="text-xs">
+                          {formatSpeed(service.speed)}
+                        </Badge>
+                      </td>
+                      
+                      <td className="py-4 px-2 text-center">
+                        <div className="text-xs">
+                          <div>Min: {parseInt(service.amount_minimum || '0').toLocaleString()}</div>
+                          <div>Max: {parseInt(service.prices?.[0]?.maximum || '0').toLocaleString()}</div>
+                        </div>
+                      </td>
+                      
+                      <td className="py-4 px-2 text-center">
+                        <Button 
+                          size="sm"
+                          variant={isSelected ? "default" : "outline"}
+                          onClick={() => onServiceSelect(service.id_service.toString())}
+                        >
+                          {isSelected ? 'Seçildi' : 'Seç'}
+                        </Button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
         
         {error && (
-          <p className="text-sm text-red-500 mt-2">
+          <p className="text-sm text-red-500 mt-4">
             {error}
           </p>
         )}
