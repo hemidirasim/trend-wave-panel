@@ -32,6 +32,7 @@ import AdminUsers from '@/pages/AdminUsers';
 import AdminServices from '@/pages/AdminServices';
 import AdminSettings from '@/pages/AdminSettings';
 import AdminBlog from '@/pages/AdminBlog';
+import AdminContactMessages from '@/pages/AdminContactMessages';
 
 import ProtectedRoute from '@/components/ProtectedRoute';
 import ProtectedAdminRoute from '@/components/ProtectedAdminRoute';
@@ -117,6 +118,14 @@ function App() {
                         </ProtectedAdminRoute>
                       } 
                     />
+                    <Route 
+                      path="/:lang/admin/contact-messages" 
+                      element={
+                        <ProtectedAdminRoute>
+                          <AdminContactMessages />
+                        </ProtectedAdminRoute>
+                      } 
+                    />
                     
                     {/* Fallback routes without language */}
                     <Route path="/" element={<Index />} />
@@ -180,6 +189,14 @@ function App() {
                       element={
                         <ProtectedAdminRoute>
                           <AdminBlog />
+                        </ProtectedAdminRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/contact-messages" 
+                      element={
+                        <ProtectedAdminRoute>
+                          <AdminContactMessages />
                         </ProtectedAdminRoute>
                       } 
                     />

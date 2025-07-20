@@ -8,15 +8,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 const Contact = () => {
   const { t } = useLanguage();
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     subject: '',
     message: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -25,10 +29,54 @@ const Contact = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission logic here
-    console.log('Form submitted:', formData);
+    setIsSubmitting(true);
+
+    try {
+      console.log('Form məlumatları göndərilir:', formData);
+      
+      const { data, error } = await supabase
+        .from('contact_messages')
+        .insert([
+          {
+            name: formData.name,
+            email: formData.email,
+            subject: formData.subject,
+            message: formData.message,
+            status: 'new'
+          }
+        ]);
+
+      if (error) {
+        console.error('Verilənlər bazasına əlavə edərkən xəta:', error);
+        throw error;
+      }
+
+      console.log('Məlumat uğurla əlavə edildi:', data);
+
+      toast({
+        title: "Mesaj göndərildi",
+        description: "Mesajınız uğurla göndərildi. Tezliklə sizinlə əlaqə saxlayacağıq.",
+      });
+
+      // Formu təmizlə
+      setFormData({
+        name: '',
+        email: '',
+        subject: '',
+        message: ''
+      });
+    } catch (error) {
+      console.error('Mesaj göndərərkən xəta:', error);
+      toast({
+        title: "Xəta",
+        description: "Mesaj göndərərkən xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactInfo = [
@@ -156,6 +204,7 @@ const Contact = () => {
                         value={formData.name}
                         onChange={handleChange}
                         placeholder={t('contact.namePlaceholder')}
+                        disabled={isSubmitting}
                       />
                     </div>
                     <div>
@@ -170,6 +219,7 @@ const Contact = () => {
                         value={formData.email}
                         onChange={handleChange}
                         placeholder={t('contact.emailPlaceholder')}
+                        disabled={isSubmitting}
                       />
                     </div>
                   </div>
@@ -186,6 +236,7 @@ const Contact = () => {
                       value={formData.subject}
                       onChange={handleChange}
                       placeholder={t('contact.subjectPlaceholder')}
+                      disabled={isSubmitting}
                     />
                   </div>
                   
@@ -201,12 +252,13 @@ const Contact = () => {
                       onChange={handleChange}
                       placeholder={t('contact.messagePlaceholder')}
                       rows={6}
+                      disabled={isSubmitting}
                     />
                   </div>
                   
-                  <Button type="submit" size="lg" className="w-full">
+                  <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
                     <Send className="h-4 w-4 mr-2" />
-                    {t('contact.sendMessage')}
+                    {isSubmitting ? 'Göndərilir...' : t('contact.sendMessage')}
                   </Button>
                 </form>
               </CardContent>
