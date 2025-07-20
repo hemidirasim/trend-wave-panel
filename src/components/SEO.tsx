@@ -1,6 +1,8 @@
+
 import { Helmet } from 'react-helmet-async';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 
 interface SEOProps {
   title?: string;
@@ -51,8 +53,13 @@ export const SEO = ({
   const pageDescription = description || currentSeo.defaultDescription;
   const canonicalUrl = canonical || currentUrl;
 
+  // Force re-render when language changes
+  useEffect(() => {
+    // This will trigger a re-render of the Helmet component when language changes
+  }, [language]);
+
   return (
-    <Helmet>
+    <Helmet key={language}>
       {/* Basic Meta Tags */}
       <html lang={language} />
       <title>{pageTitle}</title>
