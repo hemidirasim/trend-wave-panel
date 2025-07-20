@@ -49,6 +49,10 @@ export interface OrderResponse {
     id: number;
     message: string;
   }> | string;
+  messages?: Array<{
+    id: number;
+    message: string;
+  }>;
 }
 
 export interface OrderStatus {
