@@ -209,6 +209,8 @@ serve(async (req) => {
           .update({ 
             status: 'completed',
             transaction_id: transactionId,
+            converted_amount: amountValue,
+            converted_currency: 'AZN',
             completed_at: new Date().toISOString()
           })
           .eq('order_id', orderId)
@@ -295,14 +297,18 @@ serve(async (req) => {
             }
 
             const oldBalance = parseFloat(profileToUpdate.balance || '0');
-            const newBalance = oldBalance + amountValue;
+            // Convert from AZN to USD (assuming the original amount was in USD)
+            const usdAmount = transaction.amount; // This is the original USD amount
+            const addAmount = parseFloat(usdAmount.toString());
+            const newBalance = oldBalance + addAmount;
             
             console.log('💳 BALANCE UPDATE DETAILS:');
             console.log('💳 User ID:', profileToUpdate.id);
             console.log('💳 Email:', profileToUpdate.email);
-            console.log('💳 Old Balance:', oldBalance);
-            console.log('💳 Amount to Add:', amountValue);
-            console.log('💳 New Balance:', newBalance);
+            console.log('💳 Old Balance (USD):', oldBalance);
+            console.log('💳 Amount to Add (USD):', addAmount);
+            console.log('💳 New Balance (USD):', newBalance);
+            console.log('💳 AZN Amount Paid:', amountValue);
             console.log('💳 Transaction ID:', transactionId);
             console.log('💳 RRN:', rrn);
             console.log('💳 Card Info:', { cardName, cardMask });

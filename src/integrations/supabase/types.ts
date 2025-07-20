@@ -122,6 +122,36 @@ export type Database = {
         }
         Relationships: []
       }
+      exchange_rates: {
+        Row: {
+          created_at: string | null
+          from_currency: string
+          id: string
+          is_active: boolean
+          rate: number
+          to_currency: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          from_currency?: string
+          id?: string
+          is_active?: boolean
+          rate: number
+          to_currency?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          from_currency?: string
+          id?: string
+          is_active?: boolean
+          rate?: number
+          to_currency?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       faq_items: {
         Row: {
           active: boolean
@@ -207,6 +237,8 @@ export type Database = {
         Row: {
           amount: number
           completed_at: string | null
+          converted_amount: number | null
+          converted_currency: string | null
           created_at: string | null
           currency: string
           customer_email: string | null
@@ -222,6 +254,8 @@ export type Database = {
         Insert: {
           amount: number
           completed_at?: string | null
+          converted_amount?: number | null
+          converted_currency?: string | null
           created_at?: string | null
           currency?: string
           customer_email?: string | null
@@ -237,6 +271,8 @@ export type Database = {
         Update: {
           amount?: number
           completed_at?: string | null
+          converted_amount?: number | null
+          converted_currency?: string | null
           created_at?: string | null
           currency?: string
           customer_email?: string | null
@@ -258,6 +294,7 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          preferred_currency: string | null
           updated_at: string | null
         }
         Insert: {
@@ -266,6 +303,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id: string
+          preferred_currency?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -274,6 +312,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          preferred_currency?: string | null
           updated_at?: string | null
         }
         Relationships: []
