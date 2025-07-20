@@ -44,9 +44,9 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <NotificationProvider>
         <AuthProvider>
-          <LanguageProvider>
-            <SettingsProvider>
-              <Router>
+          <SettingsProvider>
+            <Router>
+              <LanguageProvider>
                 <div className="min-h-screen bg-background text-foreground">
                   <Routes>
                     {/* Language-specific routes */}
@@ -189,9 +189,9 @@ function App() {
                   
                   <Toaster />
                 </div>
-              </Router>
-            </SettingsProvider>
-          </LanguageProvider>
+              </LanguageProvider>
+            </Router>
+          </SettingsProvider>
         </AuthProvider>
       </NotificationProvider>
     </QueryClientProvider>
