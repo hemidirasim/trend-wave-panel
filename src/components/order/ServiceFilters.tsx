@@ -1,6 +1,8 @@
 
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Instagram, Youtube, Facebook, Heart, Users, Eye, Share, MessageCircle, Repeat, Star, ChevronDown } from 'lucide-react';
 import { Service } from '@/types/api';
 import { useState } from 'react';
@@ -53,11 +55,31 @@ export function ServiceFilters({
     return icons[type] || Star;
   };
 
+  const getServiceTypeFromName = (serviceName: string): string => {
+    const name = serviceName.toLowerCase();
+    if (name.includes('like') || name.includes('bəyən')) return 'Like';
+    if (name.includes('follow') || name.includes('izləyici')) return 'Followers';
+    if (name.includes('view') || name.includes('baxış')) return 'Views';
+    if (name.includes('share') || name.includes('paylaş')) return 'Shares';
+    if (name.includes('comment') || name.includes('şərh')) return 'Comments';
+    if (name.includes('repost') || name.includes('retweet')) return 'Reposts';
+    return 'Other';
+  };
+
   const getUniquePlatforms = () => {
     const platforms = services
       .map(service => service.platform.toLowerCase())
       .filter(platform => allowedPlatforms.includes(platform));
     return [...new Set(platforms)];
+  };
+
+  // Extract service base name (before first dash)
+  const getServiceBaseName = (serviceName: string): string => {
+    const dashIndex = serviceName.indexOf(' - ');
+    if (dashIndex !== -1) {
+      return serviceName.substring(0, dashIndex).trim();
+    }
+    return serviceName;
   };
 
   const getServiceGroups = (platform: string) => {
@@ -68,28 +90,60 @@ export function ServiceFilters({
     const groups: Record<string, Service[]> = {};
     
     platformServices.forEach(service => {
-      let groupName = 'Other';
-      const serviceName = service.public_name.toLowerCase();
+      // Use base name (before first dash) as the group key
+      const baseName = getServiceBaseName(service.public_name);
       
-      if (serviceName.includes('like') || serviceName.includes('bəyən')) {
-        groupName = 'Likes';
-      } else if (serviceName.includes('follow') || serviceName.includes('izləyici')) {
-        groupName = 'Followers';
-      } else if (serviceName.includes('view') || serviceName.includes('baxış')) {
-        groupName = 'Views';
-      } else if (serviceName.includes('share') || serviceName.includes('paylaş')) {
-        groupName = 'Shares';
-      } else if (serviceName.includes('comment') || serviceName.includes('şərh')) {
-        groupName = 'Comments';
+      if (!groups[baseName]) {
+        groups[baseName] = [];
       }
-      
-      if (!groups[groupName]) {
-        groups[groupName] = [];
-      }
-      groups[groupName].push(service);
+      groups[baseName].push(service);
     });
     
     return groups;
+  };
+
+  const getSubGroups = (services: Service[]) => {
+    const subGroups: Record<string, Service[]> = {};
+    
+    services.forEach(service => {
+      const name = service.public_name.toLowerCase();
+      let subType = 'Other';
+      
+      // Extract the part after the dash as sub-type
+      const dashIndex = service.public_name.indexOf(' - ');
+      if (dashIndex !== -1) {
+        subType = service.public_name.substring(dashIndex + 3).trim();
+        // Clean up common patterns
+        subType = subType.replace(/^\[|\]$/g, ''); // Remove brackets
+      } else {
+        // Fallback to old logic if no dash
+        if (service.platform.toLowerCase() === 'instagram') {
+          if (name.includes('post') && name.includes('like')) subType = 'Post Likes';
+          else if (name.includes('comment') && name.includes('like')) subType = 'Comment Likes';
+          else if (name.includes('story') && name.includes('like')) subType = 'Story Likes';
+          else if (name.includes('reel') && name.includes('like')) subType = 'Reel Likes';
+          else if (name.includes('video') && name.includes('like')) subType = 'Video Likes';
+          else if (name.includes('like')) subType = 'General Likes';
+          else if (name.includes('follow')) subType = 'Followers';
+          else if (name.includes('view')) subType = 'Views';
+          else if (name.includes('comment') && !name.includes('like')) subType = 'Comments';
+        }
+        else if (service.platform.toLowerCase() === 'youtube') {
+          if (name.includes('subscribe')) subType = 'Subscribers';
+          else if (name.includes('like')) subType = 'Likes';
+          else if (name.includes('view')) subType = 'Views';
+          else if (name.includes('comment')) subType = 'Comments';
+          else if (name.includes('share')) subType = 'Shares';
+        }
+      }
+      
+      if (!subGroups[subType]) {
+        subGroups[subType] = [];
+      }
+      subGroups[subType].push(service);
+    });
+    
+    return subGroups;
   };
 
   const toggleGroup = (groupKey: string) => {
@@ -100,6 +154,7 @@ export function ServiceFilters({
   };
 
   const handleServiceSelect = (service: Service) => {
+    // Set the service type to the specific service ID or name for filtering
     onServiceTypeChange(`${service.platform}-${service.id_service}`);
   };
 
@@ -126,54 +181,75 @@ export function ServiceFilters({
 
         {getUniquePlatforms().map((platform) => (
           <TabsContent key={platform} value={platform} className="space-y-3">
-            {Object.entries(getServiceGroups(platform)).map(([groupName, groupServices]) => {
-              const groupKey = `${platform}-${groupName}`;
-              const IconComponent = getServiceTypeIcon(groupName);
-              const isOpen = openGroups[groupKey];
+            {Object.entries(getServiceGroups(platform)).map(([mainType, services]) => {
+              const groupKey = `${platform}-${mainType}`;
+              const IconComponent = getServiceTypeIcon(mainType);
+              const subGroups = getSubGroups(services);
               
               return (
-                <div key={groupKey} className="border rounded-lg overflow-hidden">
-                  <button
-                    type="button"
-                    className="flex items-center justify-between w-full p-3 bg-muted/50 hover:bg-muted/70 transition-colors text-left"
-                    onClick={() => toggleGroup(groupKey)}
-                  >
+                <Collapsible
+                  key={groupKey}
+                  open={openGroups[groupKey]}
+                  onOpenChange={() => toggleGroup(groupKey)}
+                >
+                  <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-muted/50 hover:bg-muted/70 rounded-lg transition-colors">
                     <div className="flex items-center gap-2">
                       <IconComponent className="w-4 h-4" />
-                      <span className="font-medium">{groupName}</span>
+                      <span className="font-medium">{mainType}</span>
                       <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                        {groupServices.length}
+                        {services.length}
                       </span>
                     </div>
-                    <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
-                  </button>
+                    <ChevronDown className={`w-4 h-4 transition-transform ${openGroups[groupKey] ? 'rotate-180' : ''}`} />
+                  </CollapsibleTrigger>
                   
-                  {isOpen && (
-                    <div className="border-t bg-background">
-                      {groupServices.map((service) => (
-                        <button
-                          key={service.id_service}
-                          type="button"
-                          onClick={() => handleServiceSelect(service)}
-                          className={`w-full text-left p-3 text-sm hover:bg-muted/50 transition-colors border-l-2 ${
-                            selectedServiceType === `${service.platform}-${service.id_service}` 
-                              ? 'border-l-primary bg-primary/5 text-primary font-medium' 
-                              : 'border-l-transparent'
-                          }`}
+                  <CollapsibleContent className="space-y-2 mt-2 pl-4">
+                    {Object.entries(subGroups).map(([subType, subServices]) => {
+                      const subGroupKey = `${groupKey}-${subType}`;
+                      
+                      return (
+                        <Collapsible
+                          key={subGroupKey}
+                          open={openGroups[subGroupKey]}
+                          onOpenChange={() => toggleGroup(subGroupKey)}
                         >
-                          <div className="truncate">
-                            {service.public_name}
-                          </div>
-                          {service.prices && service.prices[0] && (
-                            <div className="text-xs text-muted-foreground mt-1">
-                              ${service.prices[0].price}/1000
+                          <CollapsibleTrigger className="flex items-center justify-between w-full p-2 bg-background hover:bg-muted/30 rounded-md transition-colors border">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium">{subType}</span>
+                              <span className="text-xs bg-secondary text-secondary-foreground px-1.5 py-0.5 rounded">
+                                {subServices.length}
+                              </span>
                             </div>
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                            <ChevronDown className={`w-3 h-3 transition-transform ${openGroups[subGroupKey] ? 'rotate-180' : ''}`} />
+                          </CollapsibleTrigger>
+                          
+                          <CollapsibleContent className="space-y-1 mt-1 pl-4">
+                            {subServices.map((service) => (
+                              <button
+                                key={service.id_service}
+                                onClick={() => handleServiceSelect(service)}
+                                className={`w-full text-left p-2 text-sm rounded hover:bg-muted/50 transition-colors border-l-2 ${
+                                  selectedServiceType === `${service.platform}-${service.id_service}` 
+                                    ? 'border-l-primary bg-primary/5 text-primary font-medium' 
+                                    : 'border-l-transparent'
+                                }`}
+                              >
+                                <div className="truncate">
+                                  {service.public_name}
+                                </div>
+                                {service.prices && service.prices[0] && (
+                                  <div className="text-xs text-muted-foreground mt-1">
+                                    ${service.prices[0].price}/1000
+                                  </div>
+                                )}
+                              </button>
+                            ))}
+                          </CollapsibleContent>
+                        </Collapsible>
+                      );
+                    })}
+                  </CollapsibleContent>
+                </Collapsible>
               );
             })}
           </TabsContent>
