@@ -1,3 +1,4 @@
+
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -7,8 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 
 const Contact = () => {
   const { t } = useLanguage();
@@ -18,7 +17,6 @@ const Contact = () => {
     subject: '',
     message: ''
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -27,39 +25,10 @@ const Contact = () => {
     });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      const { error } = await supabase
-        .from('contact_messages')
-        .insert([
-          {
-            name: formData.name,
-            email: formData.email,
-            subject: formData.subject,
-            message: formData.message
-          }
-        ]);
-
-      if (error) {
-        throw error;
-      }
-
-      toast.success(t('contact.messageSent'));
-      setFormData({
-        name: '',
-        email: '',
-        subject: '',
-        message: ''
-      });
-    } catch (error) {
-      console.error('Error sending message:', error);
-      toast.error(t('contact.messageError'));
-    } finally {
-      setIsSubmitting(false);
-    }
+    // Handle form submission logic here
+    console.log('Form submitted:', formData);
   };
 
   const contactInfo = [
@@ -187,7 +156,6 @@ const Contact = () => {
                         value={formData.name}
                         onChange={handleChange}
                         placeholder={t('contact.namePlaceholder')}
-                        disabled={isSubmitting}
                       />
                     </div>
                     <div>
@@ -202,7 +170,6 @@ const Contact = () => {
                         value={formData.email}
                         onChange={handleChange}
                         placeholder={t('contact.emailPlaceholder')}
-                        disabled={isSubmitting}
                       />
                     </div>
                   </div>
@@ -219,7 +186,6 @@ const Contact = () => {
                       value={formData.subject}
                       onChange={handleChange}
                       placeholder={t('contact.subjectPlaceholder')}
-                      disabled={isSubmitting}
                     />
                   </div>
                   
@@ -235,13 +201,12 @@ const Contact = () => {
                       onChange={handleChange}
                       placeholder={t('contact.messagePlaceholder')}
                       rows={6}
-                      disabled={isSubmitting}
                     />
                   </div>
                   
-                  <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
+                  <Button type="submit" size="lg" className="w-full">
                     <Send className="h-4 w-4 mr-2" />
-                    {isSubmitting ? t('contact.sending') : t('contact.sendMessage')}
+                    {t('contact.sendMessage')}
                   </Button>
                 </form>
               </CardContent>

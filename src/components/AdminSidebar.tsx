@@ -10,8 +10,7 @@ import {
   X,
   LogOut,
   Package,
-  ShoppingCart,
-  Mail
+  ShoppingCart
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -55,12 +54,6 @@ export const AdminSidebar = ({ collapsed, setCollapsed }: AdminSidebarProps) => 
       name: 'FAQ',
       href: '/admin/faq',
       icon: HelpCircle,
-      exact: false
-    },
-    {
-      name: 'Əlaqə Mesajları',
-      href: '/admin/contact-messages',
-      icon: Mail,
       exact: false
     },
     {
