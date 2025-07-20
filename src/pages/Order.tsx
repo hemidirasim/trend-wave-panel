@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 import AuthDialog from '@/components/AuthDialog';
 import { BalanceTopUpDialog } from '@/components/payment/BalanceTopUpDialog';
 import { supabase } from '@/integrations/supabase/client';
+
 const Order = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -383,10 +384,11 @@ const Order = () => {
     }
     return null;
   };
-  const handleBalanceTopUpSuccess = (transactionId: string) => {
+  const handleBalanceTopUpSuccess = () => {
     toast.success('Balans uğurla artırıldı!');
     fetchUserBalance();
   };
+
   if (loading || settingsLoading || authLoading) {
     return <div className="min-h-screen bg-background">
         <Header />
@@ -408,7 +410,7 @@ const Order = () => {
       <section className="bg-gradient-to-br from-primary/5 to-secondary/5 py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">Sifarišinizi Verin</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-6">Sifarişinizi Verin</h1>
             <p className="text-xl text-muted-foreground mb-8">Xidmət seçin və məlumatlarınızı daxil edin</p>
           </div>
         </div>
@@ -424,7 +426,7 @@ const Order = () => {
                     <ShoppingCart className="h-5 w-5 mr-2" />
                     Sifariş Təfərrüatları
                   </CardTitle>
-                  <CardDescription>Sifarišinizi vermək üçün aşağıdakı məlumatları doldurun</CardDescription>
+                  <CardDescription>Sifarişinizi vermək üçün aşağıdakı məlumatları doldurun</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-6">
@@ -458,8 +460,15 @@ const Order = () => {
 
       <Footer />
 
+      <BalanceTopUpDialog
+        open={false}
+        onOpenChange={() => {}}
+        onPaymentSuccess={handleBalanceTopUpSuccess}
+      />
+
       <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} />
     </div>
   );
 };
+
 export default Order;

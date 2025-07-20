@@ -126,7 +126,7 @@ const Dashboard = () => {
     }
   }, [user, searchParams]);
 
-  const handlePaymentSuccess = async (transactionId: string) => {
+  const handlePaymentSuccess = async () => {
     toast.success('Ödəniş prosesi başladı. Balansınız tezliklə yenilənəcək.');
     setTimeout(() => {
       fetchUserData();
@@ -341,10 +341,7 @@ const Dashboard = () => {
       <BalanceTopUpDialog
         open={balanceTopUpOpen}
         onOpenChange={setBalanceTopUpOpen}
-        onPaymentSuccess={() => {
-          handlePaymentSuccess('');
-          setBalanceTopUpOpen(false);
-        }}
+        onPaymentSuccess={handlePaymentSuccess}
       />
     </div>
   );
