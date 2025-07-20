@@ -1,4 +1,3 @@
-
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -36,7 +35,7 @@ const Contact = () => {
     try {
       console.log('Form məlumatları göndərilir:', formData);
       
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('contact_messages')
         .insert([
           {

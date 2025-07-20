@@ -49,7 +49,7 @@ const AdminContactMessages = () => {
     try {
       console.log('Əlaqə mesajları yüklənir...');
       
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('contact_messages')
         .select('*')
         .order('created_at', { ascending: false });
@@ -75,7 +75,7 @@ const AdminContactMessages = () => {
 
   const updateMessageStatus = async (id: string, status: 'read' | 'replied') => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('contact_messages')
         .update({ status })
         .eq('id', id);
@@ -104,7 +104,7 @@ const AdminContactMessages = () => {
     if (!confirm('Bu mesajı silmək istədiyinizə əminsiniz?')) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('contact_messages')
         .delete()
         .eq('id', id);
