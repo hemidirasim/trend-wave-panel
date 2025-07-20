@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowUpDown } from 'lucide-react';
 import { Service } from '@/types/api';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 interface ServiceSelectorProps {
   services: Service[];
@@ -29,6 +30,9 @@ export const ServiceSelector = ({
   onPriceFilterChange,
   error 
 }: ServiceSelectorProps) => {
+  const { currency, convertAmount, formatAmount, loading: currencyLoading } = useCurrency();
+  const [convertedPrices, setConvertedPrices] = useState<Map<string, number>>(new Map());
+
   // Filter services based on platform and service type
   const filteredServices = services.filter(service => {
     const platformMatch = selectedPlatform ? service.platform?.toLowerCase() === selectedPlatform.toLowerCase() : true;
@@ -50,17 +54,39 @@ export const ServiceSelector = ({
     return priceFilter === 'low-to-high' ? priceA - priceB : priceB - priceA;
   });
 
-  const calculateDisplayPrice = (service: Service, quantity: number = 1000) => {
-    if (!service.prices || service.prices.length === 0) {
-      return '0.00';
-    }
+  useEffect(() => {
+    const convertServicePrices = async () => {
+      const priceMap = new Map<string, number>();
+      
+      for (const service of filteredServices) {
+        if (service.prices && service.prices.length > 0) {
+          const basePrice = parseFloat(service.prices[0].price);
+          const totalCost = (basePrice / 1000) * 1000;
+          const serviceFee = (totalCost * serviceFeePercentage) / 100;
+          const finalPriceUSD = totalCost + serviceFee + baseFee;
+          
+          const convertedPrice = await convertAmount(finalPriceUSD, 'USD');
+          priceMap.set(service.id_service.toString(), convertedPrice);
+        }
+      }
+      
+      setConvertedPrices(priceMap);
+    };
 
-    const basePrice = parseFloat(service.prices[0].price);
-    const totalCost = (basePrice / 1000) * quantity;
-    const serviceFee = (totalCost * serviceFeePercentage) / 100;
-    const finalPrice = totalCost + serviceFee + baseFee;
+    if (filteredServices.length > 0) {
+      convertServicePrices();
+    }
+  }, [filteredServices, currency, serviceFeePercentage, baseFee, convertAmount]);
+
+  const getDisplayPrice = (service: Service): string => {
+    const serviceId = service.id_service.toString();
+    const convertedPrice = convertedPrices.get(serviceId);
     
-    return finalPrice.toFixed(2);
+    if (currencyLoading || convertedPrice === undefined) {
+      return '...';
+    }
+    
+    return formatAmount(convertedPrice);
   };
 
   const formatStartTime = (startTime?: string) => {
@@ -188,7 +214,7 @@ export const ServiceSelector = ({
                   <div className="flex items-center justify-between w-full mb-1">
                     <span className="font-medium text-sm">{service.public_name}</span>
                     <span className="font-bold text-primary text-lg ml-4">
-                      ${calculateDisplayPrice(service)}
+                      {getDisplayPrice(service)}
                     </span>
                   </div>
                   
