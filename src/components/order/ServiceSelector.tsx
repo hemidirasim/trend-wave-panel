@@ -174,41 +174,61 @@ export const ServiceSelector = ({
       </CardHeader>
       <CardContent>
         <Select value={selectedServiceId} onValueChange={onServiceSelect}>
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="w-full min-h-[60px]">
             <SelectValue placeholder="Xidmət seçin..." />
           </SelectTrigger>
-          <SelectContent className="max-h-80">
+          <SelectContent className="max-h-96 w-full">
             {sortedServices.map((service) => (
               <SelectItem 
                 key={service.id_service} 
                 value={service.id_service.toString()}
-                className="py-4"
+                className="py-6 px-4 min-h-[100px] cursor-pointer hover:bg-muted/50"
               >
-                <div className="flex flex-col w-full">
-                  <div className="flex items-center justify-between w-full mb-1">
-                    <span className="font-medium text-sm">{service.public_name}</span>
-                    <span className="font-bold text-primary text-lg ml-4">
-                      ${calculateDisplayPrice(service)}
-                    </span>
+                <div className="flex flex-col w-full space-y-3">
+                  <div className="flex items-start justify-between w-full">
+                    <div className="flex-1 pr-4">
+                      <h3 className="font-semibold text-base leading-tight mb-2 text-left">
+                        {service.public_name}
+                      </h3>
+                      
+                      <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+                        <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded-md">
+                          1000 ədəd üçün
+                        </span>
+                        {service.amount_minimum && (
+                          <span className="bg-green-50 text-green-700 px-2 py-1 rounded-md">
+                            Min: {parseInt(service.amount_minimum).toLocaleString()}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="text-right flex-shrink-0">
+                      <div className="text-2xl font-bold text-primary">
+                        ${calculateDisplayPrice(service)}
+                      </div>
+                    </div>
                   </div>
                   
                   <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                    <span>1000 ədəd üçün</span>
-                    {service.amount_minimum && (
-                      <span>• Minimum sifariş: {parseInt(service.amount_minimum).toLocaleString()}</span>
-                    )}
                     {service.start_time && (
-                      <span>• {formatStartTime(service.start_time)}</span>
+                      <span className="bg-orange-50 text-orange-700 px-2 py-1 rounded-md">
+                        🚀 {formatStartTime(service.start_time)}
+                      </span>
                     )}
                     {service.speed && (
-                      <span>• Sürət: {formatSpeed(service.speed)}</span>
+                      <span className="bg-purple-50 text-purple-700 px-2 py-1 rounded-md">
+                        ⚡ {formatSpeed(service.speed)}
+                      </span>
                     )}
                   </div>
                   
                   {service.description && (
-                    <span className="text-xs text-muted-foreground mt-1 line-clamp-2 max-w-full">
-                      {service.description}
-                    </span>
+                    <div className="text-sm text-muted-foreground bg-gray-50 p-3 rounded-md mt-2">
+                      <p className="line-clamp-3 text-left">
+                        {service.description}
+                      </p>
+                    </div>
                   )}
                 </div>
               </SelectItem>
