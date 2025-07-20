@@ -1,9 +1,7 @@
 
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Instagram, Youtube, Facebook, Heart, Users, Eye, Share, MessageCircle, Repeat, Star, ChevronDown } from 'lucide-react';
+import { Instagram, Youtube, Facebook, Heart, Users, Eye, Share, MessageCircle, Repeat, Star } from 'lucide-react';
 import { Service } from '@/types/api';
 import { useState } from 'react';
 import OrderForm from '@/components/order/OrderForm';
@@ -45,7 +43,7 @@ export function ServiceFilters({
   serviceFeePercentage,
   baseFee
 }: ServiceFiltersProps) {
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+  const [selectedGroupName, setSelectedGroupName] = useState<string>('');
 
   const getPlatformIcon = (platform: string) => {
     const icons: Record<string, any> = {
@@ -124,6 +122,11 @@ export function ServiceFilters({
   };
 
   const handleServiceGroupSelect = (groupName: string, platform: string, groupServices: Service[]) => {
+    console.log('Service group selected:', groupName, 'Platform:', platform);
+    
+    // Set selected group name for showing the form
+    setSelectedGroupName(`${platform}-${groupName}`);
+    
     // Sort by price and get the cheapest one
     const sortedServices = [...groupServices].sort((a, b) => {
       if (!a.prices || !b.prices || a.prices.length === 0 || b.prices.length === 0) {
@@ -136,17 +139,10 @@ export function ServiceFilters({
     
     if (sortedServices.length > 0) {
       const cheapestService = sortedServices[0];
+      console.log('Cheapest service selected:', cheapestService.public_name);
       onServiceTypeChange(`${cheapestService.platform}-${cheapestService.id_service}`);
     }
   };
-
-  const toggleGroup = (groupKey: string) => {
-    setOpenGroups(prev => ({
-      ...prev,
-      [groupKey]: !prev[groupKey]
-    }));
-  };
-
 
   return (
     <div className="space-y-4">
@@ -172,10 +168,11 @@ export function ServiceFilters({
         {getUniquePlatforms().map((platform) => (
           <TabsContent key={platform} value={platform} className="space-y-3">
             {Object.entries(getServiceGroups(platform))
-              .sort(([, a], [, b]) => b.length - a.length) // Ən çox variantı olan üstdə
+              .sort(([, a], [, b]) => b.length - a.length)
               .map(([groupName, groupServices]) => {
               const IconComponent = getServiceTypeIcon(groupName);
-              const isSelected = selectedServiceType.includes(groupName);
+              const groupKey = `${platform}-${groupName}`;
+              const isSelected = selectedGroupName === groupKey;
               
               return (
                 <div key={groupName} className="space-y-3">
@@ -210,7 +207,7 @@ export function ServiceFilters({
                     </div>
                   </button>
                   
-                  {/* OrderForm seçilən xidmətin altında göstər */}
+                  {/* OrderForm seçilən xidmətin düz altında göstər */}
                   {isSelected && selectedService && formData && onUpdateFormData && onUpdateAdditionalParam && onPlaceOrder && (
                     <div className="ml-4 p-4 bg-background rounded-lg border-l-4 border-primary">
                       <OrderForm
@@ -219,7 +216,7 @@ export function ServiceFilters({
                         errors={errors || {}}
                         onUpdateFormData={onUpdateFormData}
                         onUpdateAdditionalParam={onUpdateAdditionalParam}
-                        onPlaceOrder={() => onPlaceOrder({} as React.FormEvent)}
+                        onPlaceOrder={onPlaceOrder}
                         placing={placing || false}
                         calculatedPrice={calculatedPrice || 0}
                       />
