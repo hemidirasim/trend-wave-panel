@@ -224,26 +224,43 @@ export function ServiceFilters({
                           </CollapsibleTrigger>
                           
                           <CollapsibleContent className="space-y-1 mt-1 pl-4">
-                            {subServices.map((service) => (
-                              <button
-                                key={service.id_service}
-                                onClick={() => handleServiceSelect(service)}
-                                className={`w-full text-left p-2 text-sm rounded hover:bg-muted/50 transition-colors border-l-2 ${
-                                  selectedServiceType === `${service.platform}-${service.id_service}` 
-                                    ? 'border-l-primary bg-primary/5 text-primary font-medium' 
-                                    : 'border-l-transparent'
-                                }`}
-                              >
-                                <div className="truncate">
-                                  {service.public_name}
-                                </div>
-                                {service.prices && service.prices[0] && (
-                                  <div className="text-xs text-muted-foreground mt-1">
-                                    ${service.prices[0].price}/1000
+                            {/* Only show the cheapest service for each sub-group */}
+                            {(() => {
+                              const sortedServices = [...subServices].sort((a, b) => {
+                                if (!a.prices || !b.prices || a.prices.length === 0 || b.prices.length === 0) {
+                                  return 0;
+                                }
+                                const priceA = parseFloat(a.prices[0].price);
+                                const priceB = parseFloat(b.prices[0].price);
+                                return priceA - priceB;
+                              });
+                              
+                              const cheapestService = sortedServices[0];
+                              
+                              return (
+                                <button
+                                  key={cheapestService.id_service}
+                                  onClick={() => handleServiceSelect(cheapestService)}
+                                  className={`w-full text-left p-2 text-sm rounded hover:bg-muted/50 transition-colors border-l-2 ${
+                                    selectedServiceType === `${cheapestService.platform}-${cheapestService.id_service}` 
+                                      ? 'border-l-primary bg-primary/5 text-primary font-medium' 
+                                      : 'border-l-transparent'
+                                  }`}
+                                >
+                                  <div className="truncate flex items-center justify-between">
+                                    <span>{cheapestService.public_name}</span>
+                                    <span className="text-xs bg-yellow-100 text-yellow-800 px-1.5 py-0.5 rounded ml-2">
+                                      Ən ucuz
+                                    </span>
                                   </div>
-                                )}
-                              </button>
-                            ))}
+                                  {cheapestService.prices && cheapestService.prices[0] && (
+                                    <div className="text-xs text-muted-foreground mt-1">
+                                      ${cheapestService.prices[0].price}/1000
+                                    </div>
+                                  )}
+                                </button>
+                              );
+                            })()}
                           </CollapsibleContent>
                         </Collapsible>
                       );
