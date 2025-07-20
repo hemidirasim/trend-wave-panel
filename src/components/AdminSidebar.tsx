@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { 
   LayoutDashboard, 
@@ -161,14 +162,16 @@ export const AdminSidebar = ({ collapsed, setCollapsed }: AdminSidebarProps) => 
       </div>
 
       {/* Mobile menu button */}
-      <Button
-        variant="outline"
-        size="sm"
-        className="fixed top-4 left-4 z-40 lg:hidden"
-        onClick={() => setCollapsed(false)}
-      >
-        <Menu className="h-4 w-4" />
-      </Button>
+      {collapsed && (
+        <Button
+          variant="outline"
+          size="sm"
+          className="fixed top-4 left-4 z-40 lg:hidden"
+          onClick={() => setCollapsed(false)}
+        >
+          <Menu className="h-4 w-4" />
+        </Button>
+      )}
     </>
   );
 };
