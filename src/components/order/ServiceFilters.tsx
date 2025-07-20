@@ -150,7 +150,9 @@ export function ServiceFilters({
 
         {getUniquePlatforms().map((platform) => (
           <TabsContent key={platform} value={platform} className="space-y-3">
-            {Object.entries(getServiceGroups(platform)).map(([groupName, groupServices]) => {
+            {Object.entries(getServiceGroups(platform))
+              .sort(([, a], [, b]) => b.length - a.length) // Ən çox variantı olan üstdə
+              .map(([groupName, groupServices]) => {
               const IconComponent = getServiceTypeIcon(groupName);
               
               return (
@@ -167,9 +169,6 @@ export function ServiceFilters({
                     <IconComponent className="w-5 h-5" />
                     <div className="text-left">
                       <span className="font-medium text-base">{groupName}</span>
-                      <div className="text-sm text-muted-foreground">
-                        {groupServices.length} variant mövcuddur
-                      </div>
                     </div>
                   </div>
                   <div className="text-right">
