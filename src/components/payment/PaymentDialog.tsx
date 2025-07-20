@@ -23,7 +23,7 @@ export function PaymentDialog({
   onSuccess,
   onError
 }: PaymentDialogProps) {
-  const [selectedProvider, setSelectedProvider] = useState('payriff');
+  const [selectedProvider, setSelectedProvider] = useState('epoint');
   const [loading, setLoading] = useState(false);
 
   const availableProviders = paymentService.getAvailableProviders();
@@ -99,9 +99,7 @@ export function PaymentDialog({
                 {availableProviders.map(provider => (
                   <SelectItem key={provider.id} value={provider.id} disabled={!provider.isActive}>
                     {provider.name}
-                    {provider.id === 'epoint' && (
-                      <span className="text-xs text-muted-foreground ml-2">(AZN-ə konvert ediləcək)</span>
-                    )}
+                    <span className="text-xs text-muted-foreground ml-2">(USD-dən AZN-ə konvert ediləcək)</span>
                   </SelectItem>
                 ))}
               </SelectContent>
