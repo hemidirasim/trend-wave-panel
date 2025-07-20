@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Target, Instagram, Music, Youtube, Facebook } from 'lucide-react';
 import { proxyApiService, Service } from './ProxyApiService';
 import { useSettings } from '@/contexts/SettingsContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Link } from 'react-router-dom';
 
 interface Platform {
@@ -20,6 +21,7 @@ const platformIcons: Record<string, any> = {
 };
 
 export const ServicesSection = () => {
+  const { t, language } = useLanguage();
   const { settings } = useSettings();
   const [apiServices, setApiServices] = useState<Platform[]>([]);
   const [loading, setLoading] = useState(false);
@@ -74,7 +76,7 @@ export const ServicesSection = () => {
             Sosial Media Xidmətləri
           </Badge>
           <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary via-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Populyar Xidmətlər
+            {t('services.popular')}
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             Sosial media hesablarınızı böyütmək üçün keyfiyyətli xidmətlər
@@ -107,7 +109,7 @@ export const ServicesSection = () => {
                 const color = colors[index % colors.length];
                 
                 return (
-                  <Link key={platform.name} to={`/order?platform=${platform.name?.toLowerCase()}`}>
+                  <Link key={platform.name} to={`/${language}/order?platform=${platform.name?.toLowerCase()}`}>
                     <div className="group cursor-pointer">
                       <div className={`w-24 h-24 bg-gradient-to-br ${color} rounded-2xl mx-auto mb-4 flex items-center justify-center text-white group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}>
                         <IconComponent className="h-12 w-12" />

@@ -1,6 +1,7 @@
 
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useState } from 'react';
 
 const Contact = () => {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -64,18 +66,17 @@ const Contact = () => {
         {/* Hero Section */}
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Bizimlə Əlaqə
+            {t('contact.title')}
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Suallarınız var? Bizə müraciət edin və peşəkar komandamız sizə kömək etsin. 
-            24/7 dəstək xidməti ilə həmişə yanınızdayıq.
+            {t('contact.description')}
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Contact Information */}
           <div>
-            <h2 className="text-3xl font-bold mb-8">Əlaqə Məlumatları</h2>
+            <h2 className="text-3xl font-bold mb-8">{t('contact.info')}</h2>
             <div className="space-y-6 mb-8">
               {contactInfo.map((info, index) => (
                 <Card key={index} className="p-6 hover:shadow-lg transition-shadow">
@@ -135,7 +136,7 @@ const Contact = () => {
           <div>
             <Card>
               <CardHeader>
-                <CardTitle className="text-2xl">Bizə Yazın</CardTitle>
+                <CardTitle className="text-2xl">{t('contact.writeToUs')}</CardTitle>
                 <p className="text-muted-foreground">
                   Sualınızı göndərin və tezliklə sizinlə əlaqə saxlayaq.
                 </p>
@@ -205,7 +206,7 @@ const Contact = () => {
                   
                   <Button type="submit" size="lg" className="w-full">
                     <Send className="h-4 w-4 mr-2" />
-                    Mesajı Göndər
+                    {t('contact.sendMessage')}
                   </Button>
                 </form>
               </CardContent>

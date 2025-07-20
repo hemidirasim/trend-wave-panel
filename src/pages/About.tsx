@@ -1,10 +1,12 @@
 
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Shield, Users, Target, Award, Zap, Globe } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 const About = () => {
+  const { t } = useLanguage();
   const features = [
     {
       icon: Shield,
@@ -53,11 +55,10 @@ const About = () => {
         {/* Hero Section */}
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            HitLoyal Haqqında
+            {t('about.title')}
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Biz rəqəmsal marketinq sahəsində aparıcı agentliklərdən biriyik. 2020-ci ildən bəri müştərilərimizə 
-            keyfiyyətli sosial media marketinq, reklam və brendinq xidmətləri təqdim edirik.
+            {t('about.description')}
           </p>
         </div>
 
@@ -80,7 +81,7 @@ const About = () => {
         {/* Mission Section */}
         <div className="mb-16">
           <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 rounded-2xl p-8 md:p-12">
-            <h2 className="text-3xl font-bold mb-6 text-center">Bizim Missiyamız</h2>
+            <h2 className="text-3xl font-bold mb-6 text-center">{t('about.ourMission')}</h2>
             <p className="text-lg text-muted-foreground text-center max-w-4xl mx-auto leading-relaxed">
               Hər bir müştərimizin rəqəmsal dünyada uğur qazanmasına kömək etmək və onların brendlərini 
               gücləndiməkdir. Biz innovativ həllər, şəffaf proseslər və müştəri məmnuniyyətini prioritet 
@@ -92,7 +93,7 @@ const About = () => {
 
         {/* Features Section */}
         <div className="mb-16">
-          <h2 className="text-3xl font-bold text-center mb-12">Niyə Məhz Bizi Seçməlisiniz?</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">{t('about.whyChooseUs')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
               <Card key={index} className="p-6 hover:shadow-lg transition-shadow">
@@ -114,7 +115,7 @@ const About = () => {
 
         {/* Company Info */}
         <div className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 rounded-2xl p-8 md:p-12">
-          <h2 className="text-3xl font-bold mb-6 text-center">Şirkət Haqqında</h2>
+          <h2 className="text-3xl font-bold mb-6 text-center">{t('about.companyInfo')}</h2>
           <div className="max-w-4xl mx-auto text-center">
             <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
               HitLoyal, Midiya Agency MMC-nin nəzarəti altında fəaliyyət göstərən rəqəmsal marketinq platformasıdır. 

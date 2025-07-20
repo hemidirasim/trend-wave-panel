@@ -97,7 +97,25 @@ const translations: Record<string, Language> = {
     'account.passwordMismatch': 'Yeni şifrələr uyğun gəlmir',
     'account.passwordMinLength': 'Şifrə ən azı 6 simvol olmalıdır',
     'account.passwordUpdated': 'Şifrə uğurla yeniləndi',
-    'account.passwordUpdateError': 'Şifrə yenilənərkən xəta baş verdi'
+    'account.passwordUpdateError': 'Şifrə yenilənərkən xəta baş verdi',
+    // Popular Services
+    'services.popular': 'Populyar Xidmətlər',
+    // About Page
+    'about.title': 'HitLoyal Haqqında',
+    'about.description': 'Biz rəqəmsal marketinq sahəsində aparıcı agentliklərdən biriyik. 2020-ci ildən bəri müştərilərimizə keyfiyyətli sosial media marketinq, reklam və brendinq xidmətləri təqdim edirik.',
+    'about.ourMission': 'Bizim Missiyamız',
+    'about.whyChooseUs': 'Niyə Məhz Bizi Seçməlisiniz?',
+    'about.companyInfo': 'Şirkət Haqqında',
+    // Contact Page  
+    'contact.title': 'Bizimlə Əlaqə',
+    'contact.description': 'Suallarınız var? Bizə müraciət edin və peşəkar komandamız sizə kömək etsin. 24/7 dəstək xidməti ilə həmişə yanınızdayıq.',
+    'contact.info': 'Əlaqə Məlumatları',
+    'contact.writeToUs': 'Bizə Yazın',
+    'contact.sendMessage': 'Mesajı Göndər',
+    // Order Page
+    'order.title': 'Sifariş Et',
+    'order.selectService': 'Xidmət Seçin',
+    'order.placeOrder': 'Sifariş Ver'
   },
   tr: {
     'nav.home': 'Ana Sayfa',
@@ -181,7 +199,25 @@ const translations: Record<string, Language> = {
     'account.passwordMismatch': 'Yeni şifreler eşleşmiyor',
     'account.passwordMinLength': 'Şifre en az 6 karakter olmalıdır',
     'account.passwordUpdated': 'Şifre başarıyla güncellendi',
-    'account.passwordUpdateError': 'Şifre güncellenirken hata oluştu'
+    'account.passwordUpdateError': 'Şifre güncellenirken hata oluştu',
+    // Popular Services
+    'services.popular': 'Popüler Hizmetler',
+    // About Page
+    'about.title': 'HitLoyal Hakkında',
+    'about.description': 'Dijital pazarlama alanında önde gelen ajanslardan biriyiz. 2020\'den beri müşterilerimize kaliteli sosyal medya pazarlama, reklam ve branding hizmetleri sunuyoruz.',
+    'about.ourMission': 'Misyonumuz',
+    'about.whyChooseUs': 'Neden Bizi Seçmelisiniz?',
+    'about.companyInfo': 'Şirket Hakkında',
+    // Contact Page
+    'contact.title': 'Bizimle İletişime Geçin',
+    'contact.description': 'Sorularınız mı var? Bize ulaşın ve profesyonel ekibimiz size yardımcı olsun. 7/24 destek hizmeti ile her zaman yanınızdayız.',
+    'contact.info': 'İletişim Bilgileri',
+    'contact.writeToUs': 'Bize Yazın',
+    'contact.sendMessage': 'Mesajı Gönder',
+    // Order Page
+    'order.title': 'Sipariş Ver',
+    'order.selectService': 'Hizmet Seç',
+    'order.placeOrder': 'Sipariş Ver'
   }
 };
 
