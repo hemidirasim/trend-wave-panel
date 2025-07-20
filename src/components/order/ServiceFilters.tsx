@@ -147,6 +147,12 @@ export function ServiceFilters({
   };
 
   const handleGroupClick = (mainType: string, services: Service[], platform: string) => {
+    // If there's only one service in the group, select it directly
+    if (services.length === 1) {
+      handleServiceSelect(services[0]);
+      return;
+    }
+
     const subGroups = getSubGroups(services);
     const subGroupKeys = Object.keys(subGroups);
     
@@ -190,7 +196,7 @@ export function ServiceFilters({
               const IconComponent = getServiceTypeIcon(mainType);
               const subGroups = getSubGroups(services);
               const subGroupKeys = Object.keys(subGroups);
-              const isSingleService = subGroupKeys.length === 1 && subGroups[subGroupKeys[0]].length === 1;
+              const isSingleService = services.length === 1 || (subGroupKeys.length === 1 && subGroups[subGroupKeys[0]].length === 1);
               
               return (
                 <Collapsible
