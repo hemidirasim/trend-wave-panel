@@ -172,10 +172,10 @@ const OrderForm = ({
         return;
       }
 
-      // Check for messages array with errors
-      if (orderResponse.messages && Array.isArray(orderResponse.messages)) {
-        console.log('❌ API returned messages array');
-        const errorMessages = orderResponse.messages.map((msg: any) => msg.message || msg).join(', ');
+      // Check for message array with errors (using correct property name)
+      if (orderResponse.message && Array.isArray(orderResponse.message)) {
+        console.log('❌ API returned message array');
+        const errorMessages = orderResponse.message.map((msg: any) => msg.message || msg).join(', ');
         toast.error(errorMessages);
         return;
       }
