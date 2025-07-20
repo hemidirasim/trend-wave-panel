@@ -327,7 +327,7 @@ const translations: Record<string, Language> = {
     'contact.personalizedSolutions': 'Kişiselleştirilmiş çözümler',
     'contact.transparentPricing': 'Şeffaf fiyatlandırma',
     'contact.formDesc': 'Sorunuzu gönderin ve kısa sürede sizinle iletişime geçelim.',
-    'contact.fullName': 'Ad ve Soyad',
+    'contact.fullName': 'İsim ve Soy isim',
     'contact.subject': 'Konu',
     'contact.message': 'Mesaj',
     'contact.namePlaceholder': 'Adınızı girin',
