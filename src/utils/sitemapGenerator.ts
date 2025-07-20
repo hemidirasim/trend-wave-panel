@@ -7,92 +7,242 @@ export interface SitemapUrl {
 }
 
 export const generateSitemap = (urls: SitemapUrl[]): string => {
-  const urlEntries = urls.map(url => `  <url>
+  const urlEntries = urls.map(url => `  <sitemap>
     <loc>${url.loc}</loc>
     ${url.lastmod ? `<lastmod>${url.lastmod}</lastmod>` : ''}
-    ${url.changefreq ? `<changefreq>${url.changefreq}</changefreq>` : ''}
-    ${url.priority ? `<priority>${url.priority}</priority>` : ''}
-  </url>`).join('\n');
+  </sitemap>`).join('\n');
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap.xml">
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urlEntries}
-</urlset>`;
+</sitemapindex>`;
 };
 
 export const getSitemapUrls = (): SitemapUrl[] => {
+  const baseUrl = 'https://hitloyal.com';
+  const currentDate = new Date().toISOString();
+  
+  const sitemaps: SitemapUrl[] = [
+    // Ana sitemap
+    {
+      loc: `${baseUrl}/sitemap-main.xml`,
+      lastmod: currentDate
+    },
+    // Xidmətlər kategoriyası
+    {
+      loc: `${baseUrl}/sitemap-services.xml`, 
+      lastmod: currentDate
+    },
+    // Blog kategoriyası  
+    {
+      loc: `${baseUrl}/sitemap-blog.xml`,
+      lastmod: currentDate
+    },
+    // Azərbaycan dili üçün blog
+    {
+      loc: `${baseUrl}/sitemap-blog-az.xml`,
+      lastmod: currentDate
+    },
+    // Türk dili üçün blog
+    {
+      loc: `${baseUrl}/sitemap-blog-tr.xml`,
+      lastmod: currentDate
+    },
+    // Əlaqə və digər səhifələr
+    {
+      loc: `${baseUrl}/sitemap-pages.xml`,
+      lastmod: currentDate
+    }
+  ];
+
+  return sitemaps;
+};
+
+// Ana sitemap generatoru
+export const generateMainSitemap = (): string => {
   const baseUrl = 'https://hitloyal.com';
   const currentDate = new Date().toISOString().split('T')[0];
   
   const pages = [
     { path: '', priority: 1.0, changefreq: 'daily' as const },
-    { path: '/services', priority: 0.9, changefreq: 'weekly' as const },
-    { path: '/blog', priority: 0.8, changefreq: 'weekly' as const },
-    { path: '/about', priority: 0.7, changefreq: 'monthly' as const },
-    { path: '/contact', priority: 0.7, changefreq: 'monthly' as const },
-    { path: '/terms', priority: 0.5, changefreq: 'yearly' as const },
-    { path: '/privacy', priority: 0.5, changefreq: 'yearly' as const },
-    { path: '/track', priority: 0.6, changefreq: 'monthly' as const }
+    { path: '/az', priority: 1.0, changefreq: 'daily' as const },
+    { path: '/tr', priority: 1.0, changefreq: 'daily' as const }
   ];
 
-  const languages = ['az', 'tr'];
-  const urls: SitemapUrl[] = [];
+  const urlEntries = pages.map(page => `  <url>
+    <loc>${baseUrl}${page.path}</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>${page.changefreq}</changefreq>
+    <priority>${page.priority}</priority>
+  </url>`).join('\n');
 
-  // Ana səhifə (dil prefix-i olmadan)
-  pages.forEach(page => {
-    urls.push({
-      loc: `${baseUrl}${page.path}`,
-      lastmod: currentDate,
-      changefreq: page.changefreq,
-      priority: page.priority
-    });
-  });
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urlEntries}
+</urlset>`;
+};
 
-  // Dil-spesifik səhifələr
-  languages.forEach(lang => {
-    pages.forEach(page => {
-      urls.push({
-        loc: `${baseUrl}/${lang}${page.path}`,
-        lastmod: currentDate,
-        changefreq: page.changefreq,
-        priority: page.priority
-      });
-    });
-  });
+// Xidmətlər sitemap generatoru
+export const generateServicesSitemap = (): string => {
+  const baseUrl = 'https://hitloyal.com';
+  const currentDate = new Date().toISOString().split('T')[0];
+  
+  const servicePages = [
+    '/services',
+    '/az/services', 
+    '/tr/services'
+  ];
 
-  // Blog yazıları (dinamik)
+  const urlEntries = servicePages.map(path => `  <url>
+    <loc>${baseUrl}${path}</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>`).join('\n');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urlEntries}
+</urlset>`;
+};
+
+// Blog sitemap generatoru
+export const generateBlogSitemap = (): string => {
+  const baseUrl = 'https://hitloyal.com';
+  const currentDate = new Date().toISOString().split('T')[0];
+  
+  const blogPages = [
+    '/blog',
+    '/about',
+    '/contact',
+    '/terms',
+    '/privacy',
+    '/track'
+  ];
+
+  const urlEntries = blogPages.map(path => `  <url>
+    <loc>${baseUrl}${path}</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`).join('\n');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urlEntries}
+</urlset>`;
+};
+
+// Azərbaycan dili blog sitemap
+export const generateBlogAzSitemap = (): string => {
+  const baseUrl = 'https://hitloyal.com';
+  const currentDate = new Date().toISOString().split('T')[0];
+  
   const blogPosts = [
-    'instagram-takipci-artirma-yollari',
-    'tiktok-algoritmi-viral-olmaq',
-    'youtube-seo-strategiyalari',
-    'facebook-marketing-strategiyalari',
-    'sosial-media-analitikasi',
-    'influencer-marketing-strategiyalari'
+    '/az/blog/instagram-takipci-artirma-yollari',
+    '/az/blog/tiktok-algoritmi-viral-olmaq',
+    '/az/blog/youtube-seo-strategiyalari',
+    '/az/blog/facebook-marketing-strategiyalari',
+    '/az/blog/sosial-media-analitikasi',
+    '/az/blog/influencer-marketing-strategiyalari'
   ];
 
-  // Əsas dil üçün blog yazıları
-  blogPosts.forEach(slug => {
-    urls.push({
-      loc: `${baseUrl}/blog/${slug}`,
-      lastmod: currentDate,
-      changefreq: 'monthly',
-      priority: 0.6
-    });
-  });
+  const pages = [
+    '/az/blog',
+    '/az/about', 
+    '/az/contact',
+    '/az/terms',
+    '/az/privacy',
+    '/az/track'
+  ];
 
-  // Dil-spesifik blog yazıları
-  languages.forEach(lang => {
-    blogPosts.forEach(slug => {
-      urls.push({
-        loc: `${baseUrl}/${lang}/blog/${slug}`,
-        lastmod: currentDate,
-        changefreq: 'monthly',
-        priority: 0.6
-      });
-    });
-  });
+  const allUrls = [...pages, ...blogPosts];
+  
+  const urlEntries = allUrls.map(path => `  <url>
+    <loc>${baseUrl}${path}</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>`).join('\n');
 
-  return urls;
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urlEntries}
+</urlset>`;
+};
+
+// Türk dili blog sitemap
+export const generateBlogTrSitemap = (): string => {
+  const baseUrl = 'https://hitloyal.com';
+  const currentDate = new Date().toISOString().split('T')[0];
+  
+  const blogPosts = [
+    '/tr/blog/instagram-takipci-artirma-yollari',
+    '/tr/blog/tiktok-algoritmi-viral-olmaq', 
+    '/tr/blog/youtube-seo-strategiyalari',
+    '/tr/blog/facebook-marketing-strategiyalari',
+    '/tr/blog/sosial-media-analitikasi',
+    '/tr/blog/influencer-marketing-strategiyalari'
+  ];
+
+  const pages = [
+    '/tr/blog',
+    '/tr/about',
+    '/tr/contact', 
+    '/tr/terms',
+    '/tr/privacy',
+    '/tr/track'
+  ];
+
+  const allUrls = [...pages, ...blogPosts];
+  
+  const urlEntries = allUrls.map(path => `  <url>
+    <loc>${baseUrl}${path}</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>`).join('\n');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urlEntries}
+</urlset>`;
+};
+
+// Səhifələr sitemap generatoru
+export const generatePagesSitemap = (): string => {
+  const baseUrl = 'https://hitloyal.com';
+  const currentDate = new Date().toISOString().split('T')[0];
+  
+  const pages = [
+    '/about',
+    '/contact', 
+    '/terms',
+    '/privacy',
+    '/track',
+    '/az/about',
+    '/az/contact',
+    '/az/terms', 
+    '/az/privacy',
+    '/az/track',
+    '/tr/about',
+    '/tr/contact',
+    '/tr/terms',
+    '/tr/privacy', 
+    '/tr/track'
+  ];
+
+  const urlEntries = pages.map(path => `  <url>
+    <loc>${baseUrl}${path}</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`).join('\n');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urlEntries}
+</urlset>`;
 };
 
 // Robots.txt generatoru
