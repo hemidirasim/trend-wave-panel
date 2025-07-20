@@ -56,6 +56,8 @@ export const ServiceSelector = ({
 
   useEffect(() => {
     const convertServicePrices = async () => {
+      if (currencyLoading) return;
+      
       const priceMap = new Map<string, number>();
       
       for (const service of filteredServices) {
@@ -73,10 +75,10 @@ export const ServiceSelector = ({
       setConvertedPrices(priceMap);
     };
 
-    if (filteredServices.length > 0) {
+    if (filteredServices.length > 0 && !currencyLoading) {
       convertServicePrices();
     }
-  }, [filteredServices, currency, serviceFeePercentage, baseFee, convertAmount]);
+  }, [filteredServices, currency, serviceFeePercentage, baseFee]);
 
   const getDisplayPrice = (service: Service): string => {
     const serviceId = service.id_service.toString();
