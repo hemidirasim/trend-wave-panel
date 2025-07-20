@@ -168,7 +168,7 @@ export function ServiceFilters({
       return;
     }
     
-    // Otherwise, toggle the group
+    // Otherwise, toggle the group to show sub-groups
     const groupKey = `${platform}-${mainType}`;
     console.log('🔥 Toggling group:', groupKey);
     toggleGroup(groupKey);
@@ -218,18 +218,15 @@ export function ServiceFilters({
               const IconComponent = getServiceTypeIcon(mainType);
               const subGroups = getSubGroups(services);
               const subGroupKeys = Object.keys(subGroups);
+              
+              // Check if this is truly a single service case
               const isSingleService = services.length === 1 || (subGroupKeys.length === 1 && subGroups[subGroupKeys[0]].length === 1);
               
               return (
-                <Collapsible
-                  key={groupKey}
-                  open={openGroups[groupKey]}
-                  onOpenChange={() => toggleGroup(groupKey)}
-                >
-                  <CollapsibleTrigger 
-                    className="flex items-center justify-between w-full p-3 bg-muted/50 hover:bg-muted/70 rounded-lg transition-colors"
-                    onClick={(e) => {
-                      e.preventDefault();
+                <div key={groupKey}>
+                  <button
+                    className="flex items-center justify-between w-full p-3 bg-muted/50 hover:bg-muted/70 rounded-lg transition-colors text-left"
+                    onClick={() => {
                       handleGroupClick(mainType, services, platform);
                     }}
                   >
@@ -243,23 +240,19 @@ export function ServiceFilters({
                     {!isSingleService && (
                       <ChevronDown className={`w-4 h-4 transition-transform ${openGroups[groupKey] ? 'rotate-180' : ''}`} />
                     )}
-                  </CollapsibleTrigger>
+                  </button>
                   
-                  {!isSingleService && (
-                    <CollapsibleContent className="space-y-2 mt-2 pl-4">
+                  {!isSingleService && openGroups[groupKey] && (
+                    <div className="space-y-2 mt-2 pl-4">
                       {Object.entries(subGroups).map(([subType, subServices]) => {
                         const subGroupKey = `${groupKey}-${subType}`;
+                        const isSubGroupSingle = subServices.length === 1;
                         
                         return (
-                          <Collapsible
-                            key={subGroupKey}
-                            open={openGroups[subGroupKey]}
-                            onOpenChange={() => toggleGroup(subGroupKey)}
-                          >
-                            <CollapsibleTrigger 
-                              className="flex items-center justify-between w-full p-2 bg-background hover:bg-muted/30 rounded-md transition-colors border"
-                              onClick={(e) => {
-                                e.preventDefault();
+                          <div key={subGroupKey}>
+                            <button
+                              className="flex items-center justify-between w-full p-2 bg-background hover:bg-muted/30 rounded-md transition-colors border text-left"
+                              onClick={() => {
                                 handleSubGroupClick(mainType, subType, subServices, platform);
                               }}
                             >
@@ -269,13 +262,13 @@ export function ServiceFilters({
                                   {subServices.length}
                                 </span>
                               </div>
-                              {subServices.length > 1 && (
+                              {!isSubGroupSingle && (
                                 <ChevronDown className={`w-3 h-3 transition-transform ${openGroups[subGroupKey] ? 'rotate-180' : ''}`} />
                               )}
-                            </CollapsibleTrigger>
+                            </button>
                             
-                            {subServices.length > 1 && (
-                              <CollapsibleContent className="space-y-1 mt-1 pl-4">
+                            {!isSubGroupSingle && openGroups[subGroupKey] && (
+                              <div className="space-y-1 mt-1 pl-4">
                                 {subServices.map((service) => (
                                   <button
                                     key={service.id_service}
@@ -296,14 +289,14 @@ export function ServiceFilters({
                                     )}
                                   </button>
                                 ))}
-                              </CollapsibleContent>
+                              </div>
                             )}
-                          </Collapsible>
+                          </div>
                         );
                       })}
-                    </CollapsibleContent>
+                    </div>
                   )}
-                </Collapsible>
+                </div>
               );
             })}
           </TabsContent>
