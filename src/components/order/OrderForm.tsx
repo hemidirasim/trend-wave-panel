@@ -151,7 +151,7 @@ const OrderForm = ({
 
       console.log('📥 API Response received:', orderResponse);
 
-      // Check if order was successful
+      // Check if order was successful - more comprehensive checks
       if (!orderResponse) {
         console.log('❌ No API response received');
         toast.error('API cavab vermədi. Yenidən cəhd edin.');
@@ -160,10 +160,12 @@ const OrderForm = ({
 
       // Check for explicit error status
       if (orderResponse.status === 'error') {
-        console.log('❌ API returned error status');
+        console.log('❌ API returned error status:', orderResponse);
         let errorMessage = 'Sifariş verilmədi. Yenidən cəhd edin.';
         
-        if (orderResponse.message) {
+        if (orderResponse.messages && Array.isArray(orderResponse.messages)) {
+          errorMessage = orderResponse.messages.map((msg: any) => msg.message || msg).join(', ');
+        } else if (orderResponse.message) {
           if (Array.isArray(orderResponse.message)) {
             errorMessage = orderResponse.message.map((msg: any) => msg.message || msg).join(', ');
           } else if (typeof orderResponse.message === 'string') {
@@ -176,17 +178,23 @@ const OrderForm = ({
       }
 
       // Check for message array with errors (using correct property name)
-      if (orderResponse.message && Array.isArray(orderResponse.message)) {
-        console.log('❌ API returned message array');
-        const errorMessages = orderResponse.message.map((msg: any) => msg.message || msg).join(', ');
-        toast.error(errorMessages);
-        return;
+      if (orderResponse.messages && Array.isArray(orderResponse.messages)) {
+        const hasErrors = orderResponse.messages.some((msg: any) => msg.id && msg.id !== 100);
+        if (hasErrors) {
+          console.log('❌ API returned error messages');
+          const errorMessages = orderResponse.messages
+            .filter((msg: any) => msg.id && msg.id !== 100)
+            .map((msg: any) => msg.message || msg)
+            .join(', ');
+          toast.error(errorMessages);
+          return;
+        }
       }
 
       // Check if we have a valid submission ID (success indicator)
       if (!orderResponse.id_service_submission) {
         console.log('❌ No submission ID received');
-        toast.error('Sifariş ID alınamadı. Yenidən cəhd edin.');
+        toast.error('Sifariş ID alınmadı. Yenidən cəhd edin.');
         return;
       }
 
