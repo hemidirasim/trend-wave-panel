@@ -432,29 +432,82 @@ const Order = () => {
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-6">
-                    <ServiceFilters services={services} selectedPlatform={selectedPlatform} selectedServiceType={selectedServiceType} onPlatformChange={handlePlatformChange} onServiceTypeChange={handleServiceTypeChange} allowedPlatforms={allowedPlatforms} />
+                    <ServiceFilters 
+                      services={services} 
+                      selectedPlatform={selectedPlatform} 
+                      selectedServiceType={selectedServiceType} 
+                      onPlatformChange={handlePlatformChange} 
+                      onServiceTypeChange={handleServiceTypeChange} 
+                      allowedPlatforms={allowedPlatforms} 
+                    />
                     
-                    {errors.serviceId && <p className="text-sm text-red-500 flex items-center">
+                    {errors.serviceId && (
+                      <p className="text-sm text-red-500 flex items-center">
                         <AlertCircle className="h-4 w-4 mr-1" />
                         {errors.serviceId}
-                      </p>}
+                      </p>
+                    )}
 
-                    <ServiceSelector services={services} selectedPlatform={selectedPlatform} selectedServiceType={selectedServiceType} selectedServiceId={formData.serviceId} priceFilter={priceFilter} serviceFeePercentage={settings.service_fee} baseFee={settings.base_fee} onServiceSelect={handleServiceSelect} onPriceFilterChange={setPriceFilter} error={errors.serviceId} />
+                    <ServiceSelector 
+                      services={services} 
+                      selectedPlatform={selectedPlatform} 
+                      selectedServiceType={selectedServiceType} 
+                      selectedServiceId={formData.serviceId} 
+                      priceFilter={priceFilter} 
+                      serviceFeePercentage={settings.service_fee} 
+                      baseFee={settings.base_fee} 
+                      onServiceSelect={handleServiceSelect} 
+                      onPriceFilterChange={setPriceFilter} 
+                      error={errors.serviceId} 
+                    />
 
-                    {selectedService && <ServiceInfo serviceDescription={getServiceDescription()} loading={loadingServiceDetails} />}
+                    {selectedService && (
+                      <ServiceInfo 
+                        serviceDescription={getServiceDescription()} 
+                        loading={loadingServiceDetails} 
+                      />
+                    )}
 
                     {!selectedPlatform}
 
                     {selectedPlatform && !selectedServiceType}
 
-                    {selectedService && <OrderForm service={selectedService} formData={formData} errors={errors} calculatedPrice={calculatedPrice} placing={placing} onUpdateFormData={updateFormData} onUpdateAdditionalParam={updateAdditionalParam} onPlaceOrder={() => handleSubmit(new Event('submit') as any)} />}
+                    {selectedService && (
+                      <OrderForm 
+                        service={selectedService} 
+                        formData={formData} 
+                        errors={errors} 
+                        calculatedPrice={calculatedPrice} 
+                        placing={placing} 
+                        onUpdateFormData={updateFormData} 
+                        onUpdateAdditionalParam={updateAdditionalParam} 
+                        onPlaceOrder={() => handleSubmit(new Event('submit') as any)} 
+                      />
+                    )}
                   </form>
                 </CardContent>
               </Card>
             </div>
 
             <div className="lg:col-span-1">
-              <OrderSummary selectedService={selectedService} quantity={formData.quantity} calculatedPrice={calculatedPrice} serviceFeePercentage={settings.service_fee} baseFee={settings.base_fee} userBalance={userBalance} balanceLoading={balanceLoading} onBalanceTopUp={() => {}} showBalanceTopUp={user && userBalance < calculatedPrice} BalanceTopUpComponent={<BalanceTopUpDialog open={false} onOpenChange={() => {}} onPaymentSuccess={handleBalanceTopUpSuccess} />} />
+              <OrderSummary 
+                selectedService={selectedService} 
+                quantity={formData.quantity} 
+                calculatedPrice={calculatedPrice} 
+                serviceFeePercentage={settings.service_fee} 
+                baseFee={settings.base_fee} 
+                userBalance={userBalance} 
+                balanceLoading={balanceLoading} 
+                onBalanceTopUp={() => {}} 
+                showBalanceTopUp={user && userBalance < calculatedPrice} 
+                BalanceTopUpComponent={<BalanceTopUpDialog open={false} onOpenChange={() => {}} onPaymentSuccess={handleBalanceTopUpSuccess} />}
+                formData={selectedService ? formData : undefined}
+                errors={selectedService ? errors : undefined}
+                placing={selectedService ? placing : undefined}
+                onUpdateFormData={selectedService ? updateFormData : undefined}
+                onUpdateAdditionalParam={selectedService ? updateAdditionalParam : undefined}
+                onPlaceOrder={selectedService ? () => handleSubmit(new Event('submit') as any) : undefined}
+              />
             </div>
           </div>
         </div>
