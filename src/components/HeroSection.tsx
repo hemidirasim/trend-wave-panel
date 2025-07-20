@@ -3,24 +3,27 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Sparkles, Rocket, Check, Clock, Shield, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export const HeroSection = () => {
+  const { t } = useLanguage();
+  
   const guarantees = [
     {
       icon: Check,
-      title: "Nəticə Zəmanəti"
+      title: t('guarantees.resultGuarantee')
     },
     {
       icon: Shield,
-      title: "Məmnuniyyət Zəmanəti"
+      title: t('guarantees.satisfactionGuarantee')
     },
     {
       icon: Clock,
-      title: "24/7 Müştəri Dəstəyi"
+      title: t('guarantees.support247')
     },
     {
       icon: RefreshCw,
-      title: "Pul Geri Qaytarma"
+      title: t('guarantees.moneyBack')
     }
   ];
 
@@ -38,10 +41,10 @@ export const HeroSection = () => {
               #1 SMM Xidmətləri Platforması
             </Badge>
             <h1 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-primary via-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight">
-              HitLoyal ilə Brendinizi Gücləndirin
+              {t('hero.title')}
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
-              Instagram, TikTok, YouTube və digər sosial media platformalarında hesablarınızı böyütmək üçün ən keyfiyyətli xidmətlər. Organik böyümə və təhlükəsiz yanaşma ilə real nəticələr əldə edin.
+              {t('hero.subtitle')}
             </p>
 
             {/* Guarantees Grid */}
@@ -73,7 +76,7 @@ export const HeroSection = () => {
                 }}
               >
                 <Rocket className="mr-2 h-5 w-5" />
-                Xidmətləri Gör
+                {t('hero.viewServices')}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </div>

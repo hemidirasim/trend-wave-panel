@@ -23,9 +23,9 @@ export const Header = () => {
   const { user, signOut } = useAuth();
 
   const navigation = [
-    { name: 'Haqqımızda', href: '/about' },
+    { name: t('nav.about'), href: '/about' },
     { name: t('nav.blog'), href: '/blog' },
-    { name: 'Əlaqə', href: '/contact' },
+    { name: t('nav.contact'), href: '/contact' },
   ];
 
   useEffect(() => {
@@ -55,7 +55,7 @@ export const Header = () => {
   const isActive = (href: string) => location.pathname === href;
 
   const toggleLanguage = () => {
-    const newLang = language === 'az' ? 'az' : 'az';
+    const newLang = language === 'az' ? 'tr' : 'az';
     setLanguage(newLang);
   };
 
@@ -94,13 +94,13 @@ export const Header = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="text-sm font-semibold leading-6 text-foreground hover:text-primary">
-                  Sosial Media
+                  {t('nav.socialMedia')}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56 bg-background border border-border shadow-lg">
                 <div className="p-2">
                   <h3 className="mb-2 text-sm font-medium leading-none text-muted-foreground">
-                    Sosial Şəbəkələr
+                    {t('nav.socialNetworks')}
                   </h3>
                   {socialPlatforms.map((platform) => (
                     <DropdownMenuItem key={platform} asChild>
@@ -191,7 +191,7 @@ export const Header = () => {
                 <div className="space-y-2 py-6">
                    <div className="space-y-1">
                      <div className="px-3 py-2 text-base font-semibold leading-7 text-foreground">
-                       Sosial Şəbəkələr
+                       {t('nav.socialNetworks')}
                      </div>
                      {socialPlatforms.map((platform) => (
                        <Link

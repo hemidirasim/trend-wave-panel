@@ -5,7 +5,8 @@ import { Languages } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const languages = [
-  { code: 'az', name: 'Azərbaycan', flag: '🇦🇿' }
+  { code: 'az', name: 'Azərbaycan', flag: '🇦🇿' },
+  { code: 'tr', name: 'Türkçe', flag: '🇹🇷' }
 ];
 
 export const LanguageSelector = () => {

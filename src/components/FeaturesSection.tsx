@@ -1,8 +1,11 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Target, BarChart3, BookOpen, Award } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export const FeaturesSection = () => {
+  const { t } = useLanguage();
+  
   const features = [
     {
       icon: <Target className="h-8 w-8 text-yellow-500" />,
@@ -35,10 +38,10 @@ export const FeaturesSection = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-20">
           <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-            Niyə HitLoyal?
+            {t('features.whyUs')}
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Sosial media xidmətlərimizlə hesablarınızı güclü şəkildə inkişaf etdirin və real nəticələr əldə edin
+            {t('features.subtitle')}
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">

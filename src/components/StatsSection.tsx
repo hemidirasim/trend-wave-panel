@@ -1,12 +1,15 @@
 
 import { TrendingUp, Target, Star, Clock } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export const StatsSection = () => {
+  const { t } = useLanguage();
+  
   const stats = [
-    { number: "50K+", label: "Tamamlanmış Sifarişlər", icon: <TrendingUp className="h-6 w-6" /> },
-    { number: "15K+", label: "Məmnun Müştərilər", icon: <Target className="h-6 w-6" /> },
-    { number: "98%", label: "Müştəri Məmnuniyyəti", icon: <Star className="h-6 w-6" /> },
-    { number: "24/7", label: "Dəstək Xidməti", icon: <Clock className="h-6 w-6" /> }
+    { number: "50K+", label: t('stats.completedOrders'), icon: <TrendingUp className="h-6 w-6" /> },
+    { number: "15K+", label: t('stats.happyCustomers'), icon: <Target className="h-6 w-6" /> },
+    { number: "98%", label: t('stats.customerSatisfaction'), icon: <Star className="h-6 w-6" /> },
+    { number: "24/7", label: t('stats.support247'), icon: <Clock className="h-6 w-6" /> }
   ];
 
   return (

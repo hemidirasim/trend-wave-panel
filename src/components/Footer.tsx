@@ -1,8 +1,11 @@
 
 import { Link } from 'react-router-dom';
 import { Shield, Zap, Clock } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export const Footer = () => {
+  const { t } = useLanguage();
+  
   return (
     <footer className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
       <div className="container mx-auto px-6 py-16">
@@ -15,17 +18,17 @@ export const Footer = () => {
               </span>
             </div>
             <p className="text-slate-300 leading-relaxed max-w-sm">
-              Peşəkar reklam və marketinq agentliyi. Biznesinizi rəqəmsal dünyada gücləndirir, brendinizi növbəti səviyyəyə çıxarırıq. Google reklamları, SMM, SEO və digər xidmətlərlə uğurunuzu təmin edirik.
+              {t('footer.description')}
             </p>
           </div>
 
           {/* Company Section */}
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-white">Şirkət</h3>
+            <h3 className="text-xl font-semibold text-white">{t('footer.company')}</h3>
             <ul className="space-y-3">
               <li>
                 <Link to="/blog" className="text-slate-300 hover:text-primary transition-colors duration-300">
-                  Bloq
+                  {t('nav.blog')}
                 </Link>
               </li>
               <li>
@@ -43,19 +46,19 @@ export const Footer = () => {
 
           {/* Features Section */}
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-white">Niyə Bizimlə?</h3>
+            <h3 className="text-xl font-semibold text-white">{t('footer.whyUs')}</h3>
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
                 <Shield className="h-5 w-5 text-green-400 flex-shrink-0" />
-                <span className="text-slate-300 text-sm">Təhlükəsiz və Etibarlı</span>
+                <span className="text-slate-300 text-sm">{t('footer.secureReliable')}</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Zap className="h-5 w-5 text-yellow-400 flex-shrink-0" />
-                <span className="text-slate-300 text-sm">Sürətli Xidmət</span>
+                <span className="text-slate-300 text-sm">{t('footer.fastService')}</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Clock className="h-5 w-5 text-blue-400 flex-shrink-0" />
-                <span className="text-slate-300 text-sm">24/7 Dəstək</span>
+                <span className="text-slate-300 text-sm">{t('footer.support247')}</span>
               </div>
             </div>
           </div>
@@ -65,10 +68,10 @@ export const Footer = () => {
         <div className="border-t border-slate-700 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-slate-400 text-sm">
-              © 2024 HitLoyal. Bütün hüquqlar qorunur. Bu sayt rəsmi olaraq Midiya Agency MMC-ə aiddir. VOEN: 6402180791
+              {t('footer.copyright')}
             </div>
             <div className="text-slate-400 text-sm">
-              1,500+ müştərimizin etibar etdiyi platform
+              {t('footer.trustedPlatform')}
             </div>
           </div>
         </div>
