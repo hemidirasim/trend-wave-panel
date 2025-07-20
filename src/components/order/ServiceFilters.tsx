@@ -158,6 +158,28 @@ export function ServiceFilters({
     onServiceTypeChange(`${service.platform}-${service.id_service}`);
   };
 
+  // Handle group click - if only one service, select it directly
+  const handleGroupClick = (services: Service[], groupKey: string) => {
+    if (services.length === 1) {
+      // Directly select the single service
+      handleServiceSelect(services[0]);
+    } else {
+      // Toggle the group as usual
+      toggleGroup(groupKey);
+    }
+  };
+
+  // Handle sub-group click - if only one service, select it directly
+  const handleSubGroupClick = (subServices: Service[], subGroupKey: string) => {
+    if (subServices.length === 1) {
+      // Directly select the single service
+      handleServiceSelect(subServices[0]);
+    } else {
+      // Toggle the sub-group as usual
+      toggleGroup(subGroupKey);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <Tabs value={selectedPlatform} onValueChange={onPlatformChange} className="w-full">
@@ -190,7 +212,7 @@ export function ServiceFilters({
                 <Collapsible
                   key={groupKey}
                   open={openGroups[groupKey]}
-                  onOpenChange={() => toggleGroup(groupKey)}
+                  onOpenChange={() => handleGroupClick(services, groupKey)}
                 >
                   <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-muted/50 hover:bg-muted/70 rounded-lg transition-colors">
                     <div className="flex items-center gap-2">
@@ -200,55 +222,63 @@ export function ServiceFilters({
                         {services.length}
                       </span>
                     </div>
-                    <ChevronDown className={`w-4 h-4 transition-transform ${openGroups[groupKey] ? 'rotate-180' : ''}`} />
+                    {services.length > 1 && (
+                      <ChevronDown className={`w-4 h-4 transition-transform ${openGroups[groupKey] ? 'rotate-180' : ''}`} />
+                    )}
                   </CollapsibleTrigger>
                   
-                  <CollapsibleContent className="space-y-2 mt-2 pl-4">
-                    {Object.entries(subGroups).map(([subType, subServices]) => {
-                      const subGroupKey = `${groupKey}-${subType}`;
-                      
-                      return (
-                        <Collapsible
-                          key={subGroupKey}
-                          open={openGroups[subGroupKey]}
-                          onOpenChange={() => toggleGroup(subGroupKey)}
-                        >
-                          <CollapsibleTrigger className="flex items-center justify-between w-full p-2 bg-background hover:bg-muted/30 rounded-md transition-colors border">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium">{subType}</span>
-                              <span className="text-xs bg-secondary text-secondary-foreground px-1.5 py-0.5 rounded">
-                                {subServices.length}
-                              </span>
-                            </div>
-                            <ChevronDown className={`w-3 h-3 transition-transform ${openGroups[subGroupKey] ? 'rotate-180' : ''}`} />
-                          </CollapsibleTrigger>
-                          
-                          <CollapsibleContent className="space-y-1 mt-1 pl-4">
-                            {subServices.map((service) => (
-                              <button
-                                key={service.id_service}
-                                onClick={() => handleServiceSelect(service)}
-                                className={`w-full text-left p-2 text-sm rounded hover:bg-muted/50 transition-colors border-l-2 ${
-                                  selectedServiceType === `${service.platform}-${service.id_service}` 
-                                    ? 'border-l-primary bg-primary/5 text-primary font-medium' 
-                                    : 'border-l-transparent'
-                                }`}
-                              >
-                                <div className="truncate">
-                                  {service.public_name}
-                                </div>
-                                {service.prices && service.prices[0] && (
-                                  <div className="text-xs text-muted-foreground mt-1">
-                                    ${service.prices[0].price}/1000
-                                  </div>
-                                )}
-                              </button>
-                            ))}
-                          </CollapsibleContent>
-                        </Collapsible>
-                      );
-                    })}
-                  </CollapsibleContent>
+                  {services.length > 1 && (
+                    <CollapsibleContent className="space-y-2 mt-2 pl-4">
+                      {Object.entries(subGroups).map(([subType, subServices]) => {
+                        const subGroupKey = `${groupKey}-${subType}`;
+                        
+                        return (
+                          <Collapsible
+                            key={subGroupKey}
+                            open={openGroups[subGroupKey]}
+                            onOpenChange={() => handleSubGroupClick(subServices, subGroupKey)}
+                          >
+                            <CollapsibleTrigger className="flex items-center justify-between w-full p-2 bg-background hover:bg-muted/30 rounded-md transition-colors border">
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium">{subType}</span>
+                                <span className="text-xs bg-secondary text-secondary-foreground px-1.5 py-0.5 rounded">
+                                  {subServices.length}
+                                </span>
+                              </div>
+                              {subServices.length > 1 && (
+                                <ChevronDown className={`w-3 h-3 transition-transform ${openGroups[subGroupKey] ? 'rotate-180' : ''}`} />
+                              )}
+                            </CollapsibleTrigger>
+                            
+                            {subServices.length > 1 && (
+                              <CollapsibleContent className="space-y-1 mt-1 pl-4">
+                                {subServices.map((service) => (
+                                  <button
+                                    key={service.id_service}
+                                    onClick={() => handleServiceSelect(service)}
+                                    className={`w-full text-left p-2 text-sm rounded hover:bg-muted/50 transition-colors border-l-2 ${
+                                      selectedServiceType === `${service.platform}-${service.id_service}` 
+                                        ? 'border-l-primary bg-primary/5 text-primary font-medium' 
+                                        : 'border-l-transparent'
+                                    }`}
+                                  >
+                                    <div className="truncate">
+                                      {service.public_name}
+                                    </div>
+                                    {service.prices && service.prices[0] && (
+                                      <div className="text-xs text-muted-foreground mt-1">
+                                        ${service.prices[0].price}/1000
+                                      </div>
+                                    )}
+                                  </button>
+                                ))}
+                              </CollapsibleContent>
+                            )}
+                          </Collapsible>
+                        );
+                      })}
+                    </CollapsibleContent>
+                  )}
                 </Collapsible>
               );
             })}
