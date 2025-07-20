@@ -151,28 +151,44 @@ export function ServiceFilters({
   };
 
   const handleGroupClick = (services: Service[], groupKey: string) => {
+    console.log('🔥 Group clicked:', groupKey, 'Services count:', services.length);
+    
     if (services.length === 1) {
       // Directly select the single service
+      console.log('🔥 Auto-selecting single service:', services[0].public_name);
       handleServiceSelect(services[0]);
     } else {
       // Toggle the group as usual
-      setOpenGroups(prev => ({
-        ...prev,
-        [groupKey]: !prev[groupKey]
-      }));
+      console.log('🔥 Toggling group:', groupKey, 'Current state:', openGroups[groupKey]);
+      setOpenGroups(prev => {
+        const newState = {
+          ...prev,
+          [groupKey]: !prev[groupKey]
+        };
+        console.log('🔥 New openGroups state:', newState);
+        return newState;
+      });
     }
   };
 
   const handleSubGroupClick = (subServices: Service[], subGroupKey: string) => {
+    console.log('🔥 Sub-group clicked:', subGroupKey, 'Services count:', subServices.length);
+    
     if (subServices.length === 1) {
       // Directly select the single service
+      console.log('🔥 Auto-selecting single sub-service:', subServices[0].public_name);
       handleServiceSelect(subServices[0]);
     } else {
       // Toggle the sub-group as usual
-      setOpenGroups(prev => ({
-        ...prev,
-        [subGroupKey]: !prev[subGroupKey]
-      }));
+      console.log('🔥 Toggling sub-group:', subGroupKey, 'Current state:', openGroups[subGroupKey]);
+      setOpenGroups(prev => {
+        const newState = {
+          ...prev,
+          [subGroupKey]: !prev[subGroupKey]
+        };
+        console.log('🔥 New sub openGroups state:', newState);
+        return newState;
+      });
     }
   };
 
