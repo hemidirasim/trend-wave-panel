@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Menu, X, Globe } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
@@ -99,7 +100,7 @@ export const Header = () => {
               <DropdownMenuContent className="w-56 bg-background border border-border shadow-lg">
                 <div className="p-2">
                   <h3 className="mb-2 text-sm font-medium leading-none text-muted-foreground">
-                    Hesab
+                    Sosial Şəbəkələr
                   </h3>
                   {socialPlatforms.map((platform) => (
                     <DropdownMenuItem key={platform} asChild>
@@ -190,7 +191,7 @@ export const Header = () => {
                 <div className="space-y-2 py-6">
                    <div className="space-y-1">
                      <div className="px-3 py-2 text-base font-semibold leading-7 text-foreground">
-                       Hesab
+                       Sosial Şəbəkələr
                      </div>
                      {socialPlatforms.map((platform) => (
                        <Link
