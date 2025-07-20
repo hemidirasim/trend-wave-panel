@@ -20,6 +20,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { AdminLayout } from '@/components/AdminLayout';
+import { ServiceNamesManager } from '@/components/admin/ServiceNamesManager';
 
 interface Service {
   id: string;
@@ -138,7 +139,6 @@ export default function AdminServices() {
     }
   };
 
-  // Yerli xidmətləri qiymətə görə filtrelə
   const getSortedServices = (servicesList: Service[]) => {
     if (!priceFilter) return servicesList;
     
@@ -154,7 +154,6 @@ export default function AdminServices() {
     });
   };
 
-  // API xidmətlərini qiymətə görə filtrelə
   const getSortedApiServices = (servicesList: ApiService[]) => {
     if (!priceFilter) return servicesList;
     
@@ -291,6 +290,7 @@ export default function AdminServices() {
           <TabsList>
             <TabsTrigger value="local">Yerli Xidmətlər</TabsTrigger>
             <TabsTrigger value="api">API Xidmətləri</TabsTrigger>
+            <TabsTrigger value="names">Xidmət Adları</TabsTrigger>
           </TabsList>
           
           <TabsContent value="local" className="space-y-6">
@@ -545,6 +545,10 @@ export default function AdminServices() {
                 ))}
               </div>
             )}
+          </TabsContent>
+          
+          <TabsContent value="names" className="space-y-6">
+            <ServiceNamesManager />
           </TabsContent>
         </Tabs>
       </div>

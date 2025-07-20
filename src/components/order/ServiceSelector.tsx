@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowUpDown } from 'lucide-react';
 import { Service } from '@/types/api';
+import { useServiceNames } from '@/hooks/useServiceNames';
 
 interface ServiceSelectorProps {
   services: Service[];
@@ -29,6 +30,8 @@ export const ServiceSelector = ({
   onPriceFilterChange,
   error 
 }: ServiceSelectorProps) => {
+  const { getCustomServiceName } = useServiceNames();
+
   // Filter services based on platform and service type
   const filteredServices = services.filter(service => {
     const platformMatch = selectedPlatform ? service.platform?.toLowerCase() === selectedPlatform.toLowerCase() : true;
@@ -157,7 +160,7 @@ export const ServiceSelector = ({
     <Card>
       <CardHeader className="pb-3 sm:pb-6">
         <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <span className="text-base sm:text-lg">Xidmət seçin *</span>
+          <span className="text-sm sm:text-lg">Xidmət seçin *</span>
           <div className="flex items-center gap-2">
             <ArrowUpDown className="h-4 w-4" />
             <Select value={priceFilter} onValueChange={onPriceFilterChange}>
@@ -188,7 +191,7 @@ export const ServiceSelector = ({
                   <div className="flex items-start justify-between w-full">
                     <div className="flex-1 pr-3 sm:pr-4">
                       <h3 className="font-semibold text-sm sm:text-base leading-tight mb-1 sm:mb-2 text-left">
-                        {service.public_name}
+                        {getCustomServiceName(service.public_name)}
                       </h3>
                       
                       <div className="flex flex-wrap gap-1 sm:gap-3 text-xs sm:text-sm text-muted-foreground">
