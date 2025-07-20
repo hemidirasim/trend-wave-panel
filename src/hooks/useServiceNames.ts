@@ -42,47 +42,28 @@ export const useServiceNames = () => {
   };
 
   const getCustomServiceName = (apiServiceName: string): string => {
-    console.log('🔥 useServiceNames: Looking for match for API service:', apiServiceName);
-    console.log('🔥 useServiceNames: Available custom names:', customNames.map(c => c.api_service_name));
+    console.log('🔥 useServiceNames: Looking for contains match for:', apiServiceName);
+    console.log('🔥 useServiceNames: Available custom names:', customNames);
     
-    // First try exact match
-    let customName = customNames.find(
-      item => item.api_service_name.toLowerCase() === apiServiceName.toLowerCase()
+    // Find custom name where API service name contains the database name
+    const customName = customNames.find(
+      item => apiServiceName.includes(item.api_service_name)
     );
     
-    if (customName) {
-      console.log('🔥 useServiceNames: Found exact match:', customName.api_service_name, '->', customName.custom_name);
-      return customName.custom_name;
-    }
-    
-    // Then try contains match - API service name contains the database name
-    customName = customNames.find(
-      item => apiServiceName.toLowerCase().includes(item.api_service_name.toLowerCase())
-    );
+    let result = apiServiceName;
     
     if (customName) {
-      console.log('🔥 useServiceNames: Found contains match:', customName.api_service_name, 'in', apiServiceName);
       // Replace the matched part with custom name
-      const result = apiServiceName.replace(
-        new RegExp(customName.api_service_name, 'gi'), 
-        customName.custom_name
-      );
-      console.log('🔥 useServiceNames: Replaced result:', result);
-      return result;
+      result = apiServiceName.replace(customName.api_service_name, customName.custom_name);
     }
     
-    // Finally try reverse contains - database name contains API service name
-    customName = customNames.find(
-      item => item.api_service_name.toLowerCase().includes(apiServiceName.toLowerCase())
-    );
+    console.log('🔥 useServiceNames: Result:', {
+      input: apiServiceName,
+      matched: customName?.api_service_name || 'none',
+      output: result
+    });
     
-    if (customName) {
-      console.log('🔥 useServiceNames: Found reverse contains match:', apiServiceName, 'in', customName.api_service_name);
-      return customName.custom_name;
-    }
-    
-    console.log('🔥 useServiceNames: No match found for:', apiServiceName);
-    return apiServiceName;
+    return result;
   };
 
   return {
