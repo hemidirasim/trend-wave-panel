@@ -430,84 +430,52 @@ const Order = () => {
       </section>
 
       <section className="py-12">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <div className="lg:col-span-3">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <ShoppingCart className="h-5 w-5 mr-2" />
-                    {t('order.details')}
-                  </CardTitle>
-                  <CardDescription>{t('order.detailsDesc')}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <ServiceFilters 
-                      services={services} 
-                      selectedPlatform={selectedPlatform} 
-                      selectedServiceType={selectedServiceType} 
-                      onPlatformChange={handlePlatformChange} 
-                      onServiceTypeChange={handleServiceTypeChange} 
-                      allowedPlatforms={allowedPlatforms}
-                      selectedService={selectedService}
-                      formData={formData}
-                      errors={errors}
-                      onUpdateFormData={updateFormData}
-                      onUpdateAdditionalParam={updateAdditionalParam}
-                      onPlaceOrder={handleSubmit}
-                      placing={placing}
-                      calculatedPrice={calculatedPrice}
-                      serviceFeePercentage={settings.service_fee}
-                      baseFee={settings.base_fee}
-                    />
-                    
-                    {errors.serviceId && (
-                      <p className="text-sm text-red-500 flex items-center">
-                        <AlertCircle className="h-4 w-4 mr-1" />
-                        {errors.serviceId}
-                      </p>
-                    )}
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <ShoppingCart className="h-5 w-5 mr-2" />
+                {t('order.details')}
+              </CardTitle>
+              <CardDescription>{t('order.detailsDesc')}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <ServiceFilters 
+                  services={services} 
+                  selectedPlatform={selectedPlatform} 
+                  selectedServiceType={selectedServiceType} 
+                  onPlatformChange={handlePlatformChange} 
+                  onServiceTypeChange={handleServiceTypeChange} 
+                  allowedPlatforms={allowedPlatforms}
+                  selectedService={selectedService}
+                  formData={formData}
+                  errors={errors}
+                  onUpdateFormData={updateFormData}
+                  onUpdateAdditionalParam={updateAdditionalParam}
+                  onPlaceOrder={handleSubmit}
+                  placing={placing}
+                  calculatedPrice={calculatedPrice}
+                  serviceFeePercentage={settings.service_fee}
+                  baseFee={settings.base_fee}
+                />
+                
+                {errors.serviceId && (
+                  <p className="text-sm text-red-500 flex items-center">
+                    <AlertCircle className="h-4 w-4 mr-1" />
+                    {errors.serviceId}
+                  </p>
+                )}
 
-                    {/* ServiceSelector komponentini gizlə - avtomatik seçim olur */}
-
-                    {selectedService && (
-                      <ServiceInfo 
-                        serviceDescription={getServiceDescription()} 
-                        loading={loadingServiceDetails} 
-                      />
-                    )}
-
-                    {!selectedPlatform}
-
-                    {selectedPlatform && !selectedServiceType}
-
-                  </form>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="lg:col-span-1">
-              <OrderSummary 
-                selectedService={selectedService} 
-                quantity={formData.quantity} 
-                calculatedPrice={calculatedPrice} 
-                serviceFeePercentage={settings.service_fee} 
-                baseFee={settings.base_fee} 
-                userBalance={userBalance} 
-                balanceLoading={balanceLoading} 
-                onBalanceTopUp={() => {}} 
-                showBalanceTopUp={user && userBalance < calculatedPrice} 
-                BalanceTopUpComponent={<BalanceTopUpDialog open={false} onOpenChange={() => {}} onPaymentSuccess={handleBalanceTopUpSuccess} />}
-                formData={selectedService ? formData : undefined}
-                errors={selectedService ? errors : undefined}
-                placing={selectedService ? placing : undefined}
-                onUpdateFormData={selectedService ? updateFormData : undefined}
-                onUpdateAdditionalParam={selectedService ? updateAdditionalParam : undefined}
-                onPlaceOrder={selectedService ? () => handleSubmit(new Event('submit') as any) : undefined}
-              />
-            </div>
-          </div>
+                {selectedService && (
+                  <ServiceInfo 
+                    serviceDescription={getServiceDescription()} 
+                    loading={loadingServiceDetails} 
+                  />
+                )}
+              </form>
+            </CardContent>
+          </Card>
         </div>
       </section>
 

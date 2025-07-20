@@ -124,8 +124,16 @@ export function ServiceFilters({
   const handleServiceGroupSelect = (groupName: string, platform: string, groupServices: Service[]) => {
     console.log('Service group selected:', groupName, 'Platform:', platform);
     
+    const groupKey = `${platform}-${groupName}`;
+    
+    // Toggle functionality - if already selected, close it
+    if (selectedGroupName === groupKey) {
+      setSelectedGroupName('');
+      return;
+    }
+    
     // Set selected group name for showing the form
-    setSelectedGroupName(`${platform}-${groupName}`);
+    setSelectedGroupName(groupKey);
     
     // Sort by price and get the cheapest one
     const sortedServices = [...groupServices].sort((a, b) => {
