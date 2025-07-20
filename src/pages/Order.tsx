@@ -53,6 +53,11 @@ const Order = () => {
   const urlPlatform = searchParams.get('platform');
   const allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook'];
 
+  // Clear any existing toasts when component mounts
+  useEffect(() => {
+    toast.dismiss();
+  }, []);
+
   // Scroll to top when component mounts or when loading starts
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -254,6 +259,9 @@ const Order = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Clear any existing toasts before starting
+    toast.dismiss();
+    
     if (!user) {
       setAuthDialogOpen(true);
       return;
@@ -341,8 +349,10 @@ const Order = () => {
         }
 
         toast.success('Sifariş uğurla verildi!');
-        // Redirect immediately to dashboard instead of waiting
-        navigate('/dashboard');
+        // Small delay to ensure user sees the success message before redirect
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 1500);
       } else {
         console.error('Order failed:', response);
         toast.error('Sifariş verilmədi. Yenidən cəhd edin.');

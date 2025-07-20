@@ -115,6 +115,9 @@ const OrderForm = ({
   const handlePlaceOrder = async () => {
     console.log('🚀 handlePlaceOrder called');
     
+    // Clear any existing toasts before starting
+    toast.dismiss();
+    
     try {
       // Double-check for existing orders before placing
       if (formData.url && service?.platform) {
@@ -240,10 +243,14 @@ const OrderForm = ({
         }
       }
 
-      // Show success message and redirect
+      // Show success message and redirect with a small delay to ensure user sees the success message
       console.log('🎉 Order completed successfully!');
       toast.success('Sifariş uğurla verildi!');
-      navigate('/dashboard');
+      
+      // Small delay to ensure user sees the success message before redirect
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 1500);
 
     } catch (error: any) {
       console.error('❌ Order placement error:', error);
