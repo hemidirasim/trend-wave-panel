@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { useNotification } from '@/components/NotificationProvider';
+import { toast } from 'sonner';
 
 interface AuthContextType {
   user: User | null;
@@ -27,7 +27,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const { addNotification } = useNotification();
 
   useEffect(() => {
     // Get initial session
@@ -58,7 +57,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     return () => subscription.unsubscribe();
-  }, [addNotification]);
+  }, []);
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -68,30 +67,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (error) {
-        addNotification({
-          type: 'error',
-          title: 'Giriş xətası',
-          message: error.message,
-        });
+        toast.error('Giriş xətası: ' + error.message);
         return { error };
       }
 
       if (data.user) {
-        addNotification({
-          type: 'success',
-          title: 'Uğurlu giriş',
-          message: 'Hesabınıza uğurla daxil oldunuz',
-        });
+        toast.success('Hesabınıza uğurla daxil oldunuz');
       }
 
       return { error: null };
     } catch (error) {
       console.error('Sign in error:', error);
-      addNotification({
-        type: 'error',
-        title: 'Xəta',
-        message: 'Giriş zamanı xəta baş verdi',
-      });
+      toast.error('Giriş zamanı xəta baş verdi');
       return { error };
     }
   };
@@ -110,30 +97,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (error) {
-        addNotification({
-          type: 'error',
-          title: 'Qeydiyyat xətası',
-          message: error.message,
-        });
+        toast.error('Qeydiyyat xətası: ' + error.message);
         return { error };
       }
 
       if (data.user) {
-        addNotification({
-          type: 'success',
-          title: 'Qeydiyyat uğurludur',
-          message: 'Hesabınız uğurla yaradıldı',
-        });
+        toast.success('Hesabınız uğurla yaradıldı');
       }
 
       return { error: null };
     } catch (error) {
       console.error('Sign up error:', error);
-      addNotification({
-        type: 'error',
-        title: 'Xəta',
-        message: 'Qeydiyyat zamanı xəta baş verdi',
-      });
+      toast.error('Qeydiyyat zamanı xəta baş verdi');
       return { error };
     }
   };
