@@ -92,11 +92,16 @@ export function ServiceFilters({
           })}
         </TabsList>
 
+        {selectedPlatform && (
+          <div className="mb-6">
+            <Label className="text-base font-medium mb-3 block">Xidmət növünü seçin *</Label>
+          </div>
+        )}
+
         {getUniquePlatforms().map((platform) => (
           <TabsContent key={platform} value={platform}>
             {selectedPlatform && (
               <div className="mb-6">
-                <Label className="text-base font-medium mb-3 block">Xidmət növünü seçin *</Label>
                 <ToggleGroup 
                   type="single" 
                   value={selectedServiceType} 
