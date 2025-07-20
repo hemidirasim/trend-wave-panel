@@ -19,7 +19,7 @@ const translations: Record<string, Language> = {
     'nav.services': 'Xidmətlər',
     'nav.blog': 'Bloq',
     'nav.faq': 'Suallar',
-    'nav.dashboard': 'Dashboard',
+    'nav.dashboard': 'Hesab',
     'nav.signIn': 'Daxil ol',
     'nav.signOut': 'Çıxış',
   }
