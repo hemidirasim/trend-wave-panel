@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -70,6 +71,7 @@ const Dashboard = () => {
         console.error('Error fetching profile:', profileError);
       } else {
         setProfile(profileData);
+        console.log('Profile loaded with balance:', profileData?.balance);
       }
 
       // Fetch user orders
@@ -100,12 +102,58 @@ const Dashboard = () => {
     }
   }, [user, fetchUserData]);
 
+  // Real-time balance updates
+  useEffect(() => {
+    if (!user?.id) return;
+
+    console.log('Setting up real-time balance updates for user:', user.id);
+
+    const channel = supabase
+      .channel('profile-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'profiles',
+          filter: `id=eq.${user.id}`,
+        },
+        (payload) => {
+          console.log('Real-time profile update received:', payload);
+          
+          if (payload.eventType === 'UPDATE' && payload.new) {
+            const updatedProfile = payload.new as Profile;
+            setProfile(updatedProfile);
+            console.log('Balance updated in real-time:', updatedProfile.balance);
+            
+            // Show notification for balance updates
+            if (payload.old && payload.new.balance !== payload.old.balance) {
+              const oldBalance = parseFloat(payload.old.balance || '0');
+              const newBalance = parseFloat(payload.new.balance || '0');
+              const difference = newBalance - oldBalance;
+              
+              if (difference > 0) {
+                toast.success(`Balansınız yeniləndi! +$${difference.toFixed(2)} əlavə edildi`);
+              }
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('Cleaning up real-time subscription');
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id]);
+
   // Check for payment success/error on component mount
   useEffect(() => {
     const paymentStatus = searchParams.get('payment');
     
     if (paymentStatus === 'success') {
       toast.success('Ödəniş uğurla tamamlandı! Balansınız yenilənəcək.');
+      // Force refresh profile after 3 seconds
       setTimeout(() => {
         fetchUserData();
       }, 3000);
@@ -127,10 +175,11 @@ const Dashboard = () => {
   }, [user, searchParams]);
 
   const handlePaymentSuccess = async () => {
-    toast.success('Ödəniş prosesi başladı. Balansınız tezliklə yenilənəcək.');
+    toast.success('Ödəniş prosesi başladı. Balansınız avtomatik yenilənəcək.');
+    // Force refresh after 2 seconds
     setTimeout(() => {
       fetchUserData();
-    }, 5000);
+    }, 2000);
   };
 
   const handlePaymentError = (error: string) => {
