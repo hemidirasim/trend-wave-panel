@@ -7,20 +7,20 @@ export const SitemapRoute = () => {
     const urls = getSitemapUrls();
     const sitemapXml = generateSitemap(urls);
     
-    // Set proper content type and headers
-    const response = new Response(sitemapXml, {
-      headers: {
-        'Content-Type': 'application/xml; charset=utf-8',
-        'Cache-Control': 'public, max-age=3600'
-      }
-    });
-    
-    // Replace the entire document with XML content
-    document.open();
+    // Clear the document and write XML content
+    document.open('application/xml', 'replace');
     document.write(sitemapXml);
     document.close();
+    
+    // Set the content type header if possible
+    if (document.contentType) {
+      try {
+        (document as any).contentType = 'application/xml';
+      } catch (e) {
+        // Ignore if we can't set content type
+      }
+    }
   }, []);
 
-  // Return null to prevent React from rendering anything
   return null;
 };
