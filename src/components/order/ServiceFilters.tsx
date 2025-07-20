@@ -73,8 +73,17 @@ export function ServiceFilters({
     return [...new Set(platforms)];
   };
 
-  // Group services by type (Likes, Followers, Views, etc.)
-  const getServiceTypeGroups = (platform: string) => {
+  // Extract service base name (before first dash) for grouping
+  const getServiceBaseName = (serviceName: string): string => {
+    const dashIndex = serviceName.indexOf(' - ');
+    if (dashIndex !== -1) {
+      return serviceName.substring(0, dashIndex).trim();
+    }
+    return serviceName;
+  };
+
+  // Group services by their base names
+  const getServiceGroups = (platform: string) => {
     const platformServices = services.filter(service => 
       service.platform.toLowerCase() === platform.toLowerCase()
     );
@@ -82,26 +91,20 @@ export function ServiceFilters({
     const groups: Record<string, Service[]> = {};
     
     platformServices.forEach(service => {
-      const serviceType = getServiceTypeFromName(service.public_name);
+      const baseName = getServiceBaseName(service.public_name);
       
-      if (!groups[serviceType]) {
-        groups[serviceType] = [];
+      if (!groups[baseName]) {
+        groups[baseName] = [];
       }
-      groups[serviceType].push(service);
+      groups[baseName].push(service);
     });
     
     return groups;
   };
 
-  const handleServiceTypeSelect = (serviceType: string, platform: string) => {
-    // Find all services of this type for this platform
-    const typeServices = services.filter(service => 
-      service.platform.toLowerCase() === platform.toLowerCase() && 
-      getServiceTypeFromName(service.public_name) === serviceType
-    );
-    
+  const handleServiceGroupSelect = (groupName: string, platform: string, groupServices: Service[]) => {
     // Sort by price and get the cheapest one
-    const sortedServices = [...typeServices].sort((a, b) => {
+    const sortedServices = [...groupServices].sort((a, b) => {
       if (!a.prices || !b.prices || a.prices.length === 0 || b.prices.length === 0) {
         return 0;
       }
@@ -147,15 +150,15 @@ export function ServiceFilters({
 
         {getUniquePlatforms().map((platform) => (
           <TabsContent key={platform} value={platform} className="space-y-3">
-            {Object.entries(getServiceTypeGroups(platform)).map(([serviceType, typeServices]) => {
-              const IconComponent = getServiceTypeIcon(serviceType);
+            {Object.entries(getServiceGroups(platform)).map(([groupName, groupServices]) => {
+              const IconComponent = getServiceTypeIcon(groupName);
               
               return (
                 <button
-                  key={serviceType}
-                  onClick={() => handleServiceTypeSelect(serviceType, platform)}
+                  key={groupName}
+                  onClick={() => handleServiceGroupSelect(groupName, platform, groupServices)}
                   className={`w-full flex items-center justify-between p-4 bg-muted/50 hover:bg-muted/70 rounded-lg transition-colors border-2 ${
-                    selectedServiceType.includes(serviceType) 
+                    selectedServiceType.includes(groupName) 
                       ? 'border-primary bg-primary/5' 
                       : 'border-transparent'
                   }`}
@@ -163,9 +166,9 @@ export function ServiceFilters({
                   <div className="flex items-center gap-3">
                     <IconComponent className="w-5 h-5" />
                     <div className="text-left">
-                      <span className="font-medium text-base">{serviceType}</span>
+                      <span className="font-medium text-base">{groupName}</span>
                       <div className="text-sm text-muted-foreground">
-                        {typeServices.length} variant mövcuddur
+                        {groupServices.length} variant mövcuddur
                       </div>
                     </div>
                   </div>
@@ -173,7 +176,7 @@ export function ServiceFilters({
                     <div className="text-sm text-muted-foreground">Ən ucuz qiymət</div>
                     {(() => {
                       const cheapestPrice = Math.min(
-                        ...typeServices
+                        ...groupServices
                           .filter(s => s.prices && s.prices.length > 0)
                           .map(s => parseFloat(s.prices[0].price))
                       );
