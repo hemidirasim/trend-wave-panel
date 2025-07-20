@@ -80,13 +80,14 @@ export function ServiceFilters({
   return (
     <div className="space-y-4">
       <Tabs value={selectedPlatform} onValueChange={onPlatformChange} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 mb-6">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-6">
           {getUniquePlatforms().map((platform) => {
             const IconComponent = getPlatformIcon(platform);
             return (
-              <TabsTrigger key={platform} value={platform} className="capitalize flex items-center gap-2">
-                {IconComponent && <IconComponent className="w-4 h-4" />}
-                {platform}
+              <TabsTrigger key={platform} value={platform} className="capitalize flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+                {IconComponent && <IconComponent className="w-3 h-3 sm:w-4 sm:h-4" />}
+                <span className="hidden sm:inline">{platform}</span>
+                <span className="sm:hidden">{platform.slice(0, 3)}</span>
               </TabsTrigger>
             );
           })}
@@ -114,11 +115,11 @@ export function ServiceFilters({
                       <ToggleGroupItem 
                         key={type} 
                         value={type}
-                        className="flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-all"
+                        className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 text-xs sm:text-sm rounded-lg border-2 transition-all min-w-0 flex-shrink-0"
                         variant="outline"
                       >
-                        <IconComponent className="w-4 h-4" />
-                        {type}
+                        <IconComponent className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                        <span className="truncate">{type}</span>
                       </ToggleGroupItem>
                     );
                   })}
