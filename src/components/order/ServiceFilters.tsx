@@ -212,7 +212,18 @@ export function ServiceFilters({
                 <Collapsible
                   key={groupKey}
                   open={openGroups[groupKey]}
-                  onOpenChange={() => handleGroupClick(services, groupKey)}
+                  onOpenChange={(isOpen) => {
+                    if (services.length === 1) {
+                      // If only one service, select it directly
+                      handleServiceSelect(services[0]);
+                    } else {
+                      // Toggle the group
+                      setOpenGroups(prev => ({
+                        ...prev,
+                        [groupKey]: isOpen
+                      }));
+                    }
+                  }}
                 >
                   <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-muted/50 hover:bg-muted/70 rounded-lg transition-colors">
                     <div className="flex items-center gap-2">
@@ -236,7 +247,18 @@ export function ServiceFilters({
                           <Collapsible
                             key={subGroupKey}
                             open={openGroups[subGroupKey]}
-                            onOpenChange={() => handleSubGroupClick(subServices, subGroupKey)}
+                            onOpenChange={(isOpen) => {
+                              if (subServices.length === 1) {
+                                // If only one service, select it directly
+                                handleServiceSelect(subServices[0]);
+                              } else {
+                                // Toggle the sub-group
+                                setOpenGroups(prev => ({
+                                  ...prev,
+                                  [subGroupKey]: isOpen
+                                }));
+                              }
+                            }}
                           >
                             <CollapsibleTrigger className="flex items-center justify-between w-full p-2 bg-background hover:bg-muted/30 rounded-md transition-colors border">
                               <div className="flex items-center gap-2">
