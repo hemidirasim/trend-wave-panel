@@ -47,19 +47,10 @@ Allow: /terms/
 Allow: /privacy/
 Allow: /track/`;
 
-    // Text kimi təqdim et
-    const response = new Response(robotsTxt, {
-      headers: {
-        'Content-Type': 'text/plain',
-        'Cache-Control': 'max-age=86400' // 24 saat cache
-      }
-    });
-    
     // Text məzmunu göstər
     document.open();
     document.write(`<pre>${robotsTxt}</pre>`);
     document.close();
-    document.contentType = 'text/plain';
   }, []);
 
   return null;
