@@ -219,6 +219,7 @@ export function ServiceFilters({
               const groupKey = `${platform}-${mainType}`;
               const IconComponent = getServiceTypeIcon(mainType);
               const subGroups = getSubGroups(services);
+              const isGroupOpen = openGroups[groupKey] || false;
               
               return (
                 <div key={groupKey}>
@@ -234,14 +235,15 @@ export function ServiceFilters({
                       </span>
                     </div>
                     {services.length > 1 && (
-                      <ChevronDown className={`w-4 h-4 transition-transform ${openGroups[groupKey] ? 'rotate-180' : ''}`} />
+                      <ChevronDown className={`w-4 h-4 transition-transform ${isGroupOpen ? 'rotate-180' : ''}`} />
                     )}
                   </button>
                   
-                  {services.length > 1 && openGroups[groupKey] && (
+                  {services.length > 1 && isGroupOpen && (
                     <div className="space-y-2 mt-2 pl-4">
                       {Object.entries(subGroups).map(([subType, subServices]) => {
                         const subGroupKey = `${groupKey}-${subType}`;
+                        const isSubGroupOpen = openGroups[subGroupKey] || false;
                         
                         return (
                           <div key={subGroupKey}>
@@ -256,11 +258,11 @@ export function ServiceFilters({
                                 </span>
                               </div>
                               {subServices.length > 1 && (
-                                <ChevronDown className={`w-3 h-3 transition-transform ${openGroups[subGroupKey] ? 'rotate-180' : ''}`} />
+                                <ChevronDown className={`w-3 h-3 transition-transform ${isSubGroupOpen ? 'rotate-180' : ''}`} />
                               )}
                             </button>
                             
-                            {subServices.length > 1 && openGroups[subGroupKey] && (
+                            {subServices.length > 1 && isSubGroupOpen && (
                               <div className="space-y-1 mt-1 pl-4">
                                 {subServices.map((service) => (
                                   <button
