@@ -6,6 +6,8 @@ import {
 } from "react-router-dom";
 import {
   Home,
+  About,
+  Order,
   Pricing,
   Contact,
   FAQ,
@@ -32,15 +34,6 @@ import {
   AdminBlog,
   AdminCreateBlogPost,
   AdminEditBlogPost,
-  AdminConsultations,
-  AdminCreateFaq,
-  AdminEditFaq,
-  AdminFaqs,
-  ConsultationPage,
-  AffiliateProgram,
-  AdminAffiliates,
-  AdminCreateAffiliate,
-  AdminEditAffiliate,
 } from "@/pages";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
@@ -69,15 +62,16 @@ function App() {
                         {/* Public Routes */}
                         <Route element={<PublicLayout />}>
                           <Route path="/" element={<Home />} />
-                          <Route path="/pricing" element={<Pricing />} />
+                          <Route path="/about" element={<About />} />
+                          <Route path="/services" element={<Pricing />} />
+                          <Route path="/order" element={<Order />} />
                           <Route path="/contact" element={<Contact />} />
                           <Route path="/faq" element={<FAQ />} />
                           <Route path="/terms" element={<TermsOfService />} />
                           <Route path="/privacy" element={<PrivacyPolicy />} />
                           <Route path="/blog" element={<Blog />} />
                           <Route path="/blog/:slug" element={<BlogPost />} />
-                          <Route path="/consultation" element={<ConsultationPage />} />
-                          <Route path="/affiliate" element={<AffiliateProgram />} />
+                          <Route path="/support" element={<Support />} />
                         </Route>
 
                         {/* Payment Status Routes */}
@@ -103,13 +97,6 @@ function App() {
                         <Route path="/admin/blog" element={<AdminBlog />} />
                         <Route path="/admin/blog/create" element={<AdminCreateBlogPost />} />
                         <Route path="/admin/blog/edit/:id" element={<AdminEditBlogPost />} />
-                        <Route path="/admin/consultations" element={<AdminConsultations />} />
-                        <Route path="/admin/faqs" element={<AdminFaqs />} />
-                        <Route path="/admin/faqs/create" element={<AdminCreateFaq />} />
-                        <Route path="/admin/faqs/edit/:id" element={<AdminEditFaq />} />
-                        <Route path="/admin/affiliates" element={<AdminAffiliates />} />
-                        <Route path="/admin/affiliates/create" element={<AdminCreateAffiliate />} />
-                        <Route path="/admin/affiliates/edit/:id" element={<AdminEditAffiliate />} />
 
                         {/* Not Found Route */}
                         <Route path="*" element={<NotFound />} />

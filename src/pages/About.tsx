@@ -1,135 +1,77 @@
-
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
-import { Shield, Users, Target, Award, Zap, Globe } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-
 const About = () => {
-  const features = [
-    {
-      icon: Shield,
-      title: 'Təhlükəsizlik',
-      description: 'Bütün məlumatlarınız və sifarişləriniz tam təhlükəsizlik altındadır.'
-    },
-    {
-      icon: Zap,
-      title: 'Sürətli Xidmət',
-      description: 'Sifarişləriniz ən qısa müddətdə yerinə yetirilir.'
-    },
-    {
-      icon: Users,
-      title: 'Peşəkar Komanda',
-      description: 'Təcrübəli mütəxəssislərdən ibarət komandamız sizə yardım edir.'
-    },
-    {
-      icon: Target,
-      title: 'Məqsədyönlü',
-      description: 'Hər layihəyə fərdi yanaşma və maksimal nəticə əldə edirik.'
-    },
-    {
-      icon: Award,
-      title: 'Keyfiyyət',
-      description: 'Yüksək keyfiyyətli xidmət və müştəri məmnuniyyəti prioritetimizdir.'
-    },
-    {
-      icon: Globe,
-      title: 'Global Əhatə',
-      description: 'Dünya üzrə müxtəlif platformalarda xidmət göstəririk.'
-    }
-  ];
-
-  const stats = [
-    { number: '1,500+', label: 'Məmnun Müştəri' },
-    { number: '10,000+', label: 'Tamamlanmış Sifariş' },
-    { number: '99.9%', label: 'Uğur Nisbəti' },
-    { number: '24/7', label: 'Dəstək Xidməti' }
-  ];
-
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <main className="container mx-auto px-4 py-12">
-        {/* Hero Section */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            HitLoyal Haqqında
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Biz rəqəmsal marketinq sahəsində aparıcı agentliklərdən biriyik. 2020-ci ildən bəri müştərilərimizə 
-            keyfiyyətli sosial media marketinq, reklam və brendinq xidmətləri təqdim edirik.
-          </p>
-        </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-4xl font-bold text-center mb-8">Haqqımızda</h1>
+        
+        <div className="space-y-8">
+          <div className="text-center">
+            <p className="text-lg text-muted-foreground">
+              Sosial media xidmətlərində lider platformaya xoş gəlmisiniz
+            </p>
+          </div>
 
-        {/* Stats Section */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
-          {stats.map((stat, index) => (
-            <Card key={index} className="text-center p-6">
-              <CardContent className="p-0">
-                <div className="text-3xl md:text-4xl font-bold text-primary mb-2">
-                  {stat.number}
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="space-y-4">
+              <h2 className="text-2xl font-semibold">Missiyamız</h2>
+              <p className="text-muted-foreground">
+                Müştərilərimizə yüksək keyfiyyətli sosial media xidmətləri təqdim etmək və 
+                onların rəqəmsal mövcudluğunu güclündirmək məqsədilə fəaliyyət göstəririk.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <h2 className="text-2xl font-semibold">Viziyamız</h2>
+              <p className="text-muted-foreground">
+                Sosial media sahəsində ən etibarlı və innovativ xidmət təminatçısı olmaq, 
+                müştərilərimizin uğuruna töhfə vermək.
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-card p-8 rounded-lg border">
+            <h2 className="text-2xl font-semibold mb-4">Niyə Bizi Seçməlisiniz?</h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="text-center">
+                <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">🚀</span>
                 </div>
-                <div className="text-muted-foreground">
-                  {stat.label}
+                <h3 className="font-semibold mb-2">Sürətli Çatdırılma</h3>
+                <p className="text-sm text-muted-foreground">
+                  Sifarişləriniz ən qısa zamanda yerinə yetirilir
+                </p>
+              </div>
+
+              <div className="text-center">
+                <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">🔒</span>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                <h3 className="font-semibold mb-2">Təhlükəsizlik</h3>
+                <p className="text-sm text-muted-foreground">
+                  Məlumatlarınızın təhlükəsizliyi bizim prioritetimizdir
+                </p>
+              </div>
 
-        {/* Mission Section */}
-        <div className="mb-16">
-          <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 rounded-2xl p-8 md:p-12">
-            <h2 className="text-3xl font-bold mb-6 text-center">Bizim Missiyamız</h2>
-            <p className="text-lg text-muted-foreground text-center max-w-4xl mx-auto leading-relaxed">
-              Hər bir müştərimizin rəqəmsal dünyada uğur qazanmasına kömək etmək və onların brendlərini 
-              gücləndiməkdir. Biz innovativ həllər, şəffaf proseslər və müştəri məmnuniyyətini prioritet 
-              olaraq götürürük. Məqsədimiz Azərbaycanda və regionda rəqəmsal marketinq sahəsində 
-              liderlik mövqeyini qorumaq və daha da möhkəmləndirməkdir.
+              <div className="text-center">
+                <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">💬</span>
+                </div>
+                <h3 className="font-semibold mb-2">24/7 Dəstək</h3>
+                <p className="text-sm text-muted-foreground">
+                  Hər zaman sizin yanınızda dəstək xidməti
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center">
+            <h2 className="text-2xl font-semibold mb-4">Bizə Qatılın</h2>
+            <p className="text-muted-foreground mb-6">
+              Minlərlə məmnun müştərimizin arasına qatılaraq sosial media uğurunuzu bizimlə qurşalayın
             </p>
           </div>
         </div>
-
-        {/* Features Section */}
-        <div className="mb-16">
-          <h2 className="text-3xl font-bold text-center mb-12">Niyə Məhz Bizi Seçməlisiniz?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <Card key={index} className="p-6 hover:shadow-lg transition-shadow">
-                <CardContent className="p-0">
-                  <div className="flex items-center mb-4">
-                    <div className="p-3 bg-primary/10 rounded-lg mr-4">
-                      <feature.icon className="h-6 w-6 text-primary" />
-                    </div>
-                    <h3 className="text-xl font-semibold">{feature.title}</h3>
-                  </div>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {feature.description}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        {/* Company Info */}
-        <div className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 rounded-2xl p-8 md:p-12">
-          <h2 className="text-3xl font-bold mb-6 text-center">Şirkət Haqqında</h2>
-          <div className="max-w-4xl mx-auto text-center">
-            <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
-              HitLoyal, Midiya Agency MMC-nin nəzarəti altında fəaliyyət göstərən rəqəmsal marketinq platformasıdır. 
-              Şirkətimiz rəsmi olaraq qeydiyyatdan keçmişdir və VOEN: 6402180791 nömrəsi ilə tanınır.
-            </p>
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              Biz sosial media platformalarında organic və ödənişli reklam kampaniyaları, SEO optimallaşdırması, 
-              kontent marketinqi və brendinq xidmətləri təqdim edirik. Komandamız müasir texnologiyalar və 
-              ən son marketinq trendləri ilə işləyir.
-            </p>
-          </div>
-        </div>
-      </main>
-
-      <Footer />
+      </div>
     </div>
   );
 };

@@ -1,9 +1,11 @@
 
 // Export all pages from their respective files
 export { default as Home } from './Index';
+export { default as About } from './About';
+export { default as Order } from './Order';
 export { default as Pricing } from './Services';
 export { default as Contact } from './Contact';
-export { default as FAQ } from './Contact';
+export { default as FAQ } from './FAQ';
 export { default as TermsOfService } from './Terms';
 export { default as PrivacyPolicy } from './Privacy';
 export { default as Dashboard } from './Dashboard';
@@ -27,12 +29,3 @@ export { default as BlogPost } from './BlogPost';
 export { default as AdminBlog } from './AdminBlog';
 export { default as AdminCreateBlogPost } from './AdminBlog';
 export { default as AdminEditBlogPost } from './AdminBlog';
-export { default as AdminConsultations } from './Support';
-export { default as AdminCreateFaq } from './Support';
-export { default as AdminEditFaq } from './Support';
-export { default as AdminFaqs } from './Support';
-export { default as ConsultationPage } from './Support';
-export { default as AffiliateProgram } from './Support';
-export { default as AdminAffiliates } from './Support';
-export { default as AdminCreateAffiliate } from './Support';
-export { default as AdminEditAffiliate } from './Support';
