@@ -2,8 +2,6 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, Loader2, ShoppingCart } from 'lucide-react';
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
 import { ServiceFilters } from '@/components/order/ServiceFilters';
 import { ServiceSelector } from '@/components/order/ServiceSelector';
 import { ServiceInfo } from '@/components/order/ServiceInfo';
@@ -401,7 +399,6 @@ const Order = () => {
   };
   if (loading || settingsLoading || authLoading) {
     return <div className="min-h-screen bg-background">
-        <Header />
         <div className="container mx-auto px-4 py-20">
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center">
@@ -412,9 +409,7 @@ const Order = () => {
         </div>
       </div>;
   }
-  return <div className="min-h-screen bg-background">
-      <Header />
-      
+  return <div className="min-h-screen bg-background">      
       <section className="bg-gradient-to-br from-primary/5 to-secondary/5 py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
@@ -466,7 +461,7 @@ const Order = () => {
         </div>
       </section>
 
-      <Footer />
+      
 
       <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} />
     </div>;
