@@ -147,25 +147,47 @@ export function ServiceFilters({
   };
 
   const handleGroupClick = (mainType: string, services: Service[], platform: string) => {
+    console.log('🔥 handleGroupClick called:', { mainType, servicesCount: services.length });
+    
     // If there's only one service in the group, select it directly
     if (services.length === 1) {
+      console.log('🔥 Single service in group, selecting directly:', services[0].public_name);
       handleServiceSelect(services[0]);
       return;
     }
 
     const subGroups = getSubGroups(services);
     const subGroupKeys = Object.keys(subGroups);
+    console.log('🔥 Sub groups:', subGroupKeys, 'Count:', subGroupKeys.length);
     
     // If there's only one sub-group and it has only one service, select it directly
     if (subGroupKeys.length === 1 && subGroups[subGroupKeys[0]].length === 1) {
       const singleService = subGroups[subGroupKeys[0]][0];
+      console.log('🔥 Single service in single sub-group, selecting directly:', singleService.public_name);
       handleServiceSelect(singleService);
       return;
     }
     
     // Otherwise, toggle the group
     const groupKey = `${platform}-${mainType}`;
+    console.log('🔥 Toggling group:', groupKey);
     toggleGroup(groupKey);
+  };
+
+  const handleSubGroupClick = (mainType: string, subType: string, subServices: Service[], platform: string) => {
+    console.log('🔥 handleSubGroupClick called:', { mainType, subType, servicesCount: subServices.length });
+    
+    // If there's only one service in the sub-group, select it directly
+    if (subServices.length === 1) {
+      console.log('🔥 Single service in sub-group, selecting directly:', subServices[0].public_name);
+      handleServiceSelect(subServices[0]);
+      return;
+    }
+    
+    // Otherwise, toggle the sub-group
+    const subGroupKey = `${platform}-${mainType}-${subType}`;
+    console.log('🔥 Toggling sub-group:', subGroupKey);
+    toggleGroup(subGroupKey);
   };
 
   return (
@@ -234,38 +256,48 @@ export function ServiceFilters({
                             open={openGroups[subGroupKey]}
                             onOpenChange={() => toggleGroup(subGroupKey)}
                           >
-                            <CollapsibleTrigger className="flex items-center justify-between w-full p-2 bg-background hover:bg-muted/30 rounded-md transition-colors border">
+                            <CollapsibleTrigger 
+                              className="flex items-center justify-between w-full p-2 bg-background hover:bg-muted/30 rounded-md transition-colors border"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleSubGroupClick(mainType, subType, subServices, platform);
+                              }}
+                            >
                               <div className="flex items-center gap-2">
                                 <span className="text-sm font-medium">{subType}</span>
                                 <span className="text-xs bg-secondary text-secondary-foreground px-1.5 py-0.5 rounded">
                                   {subServices.length}
                                 </span>
                               </div>
-                              <ChevronDown className={`w-3 h-3 transition-transform ${openGroups[subGroupKey] ? 'rotate-180' : ''}`} />
+                              {subServices.length > 1 && (
+                                <ChevronDown className={`w-3 h-3 transition-transform ${openGroups[subGroupKey] ? 'rotate-180' : ''}`} />
+                              )}
                             </CollapsibleTrigger>
                             
-                            <CollapsibleContent className="space-y-1 mt-1 pl-4">
-                              {subServices.map((service) => (
-                                <button
-                                  key={service.id_service}
-                                  onClick={() => handleServiceSelect(service)}
-                                  className={`w-full text-left p-2 text-sm rounded hover:bg-muted/50 transition-colors border-l-2 ${
-                                    selectedServiceType === `${service.platform}-${service.id_service}` 
-                                      ? 'border-l-primary bg-primary/5 text-primary font-medium' 
-                                      : 'border-l-transparent'
-                                  }`}
-                                >
-                                  <div className="truncate">
-                                    {service.public_name}
-                                  </div>
-                                  {service.prices && service.prices[0] && (
-                                    <div className="text-xs text-muted-foreground mt-1">
-                                      ${service.prices[0].price}/1000
+                            {subServices.length > 1 && (
+                              <CollapsibleContent className="space-y-1 mt-1 pl-4">
+                                {subServices.map((service) => (
+                                  <button
+                                    key={service.id_service}
+                                    onClick={() => handleServiceSelect(service)}
+                                    className={`w-full text-left p-2 text-sm rounded hover:bg-muted/50 transition-colors border-l-2 ${
+                                      selectedServiceType === `${service.platform}-${service.id_service}` 
+                                        ? 'border-l-primary bg-primary/5 text-primary font-medium' 
+                                        : 'border-l-transparent'
+                                    }`}
+                                  >
+                                    <div className="truncate">
+                                      {service.public_name}
                                     </div>
-                                  )}
-                                </button>
-                              ))}
-                            </CollapsibleContent>
+                                    {service.prices && service.prices[0] && (
+                                      <div className="text-xs text-muted-foreground mt-1">
+                                        ${service.prices[0].price}/1000
+                                      </div>
+                                    )}
+                                  </button>
+                                ))}
+                              </CollapsibleContent>
+                            )}
                           </Collapsible>
                         );
                       })}
