@@ -71,7 +71,7 @@ const Services = () => {
                         <span>Qiymət:</span>
                         <Badge variant="secondary">
                           {service.prices && service.prices.length > 0 
-                            ? `${formatAmount(service.prices[0].price)} / ${service.prices[0].pricing_per}`
+                            ? `${formatAmount(Number(service.prices[0].price))} / ${service.prices[0].pricing_per}`
                             : 'N/A'
                           }
                         </Badge>
