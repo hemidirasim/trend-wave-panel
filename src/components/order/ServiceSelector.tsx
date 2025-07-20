@@ -190,7 +190,7 @@ export const ServiceSelector = ({
               <SelectTrigger className="w-40">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-50 bg-background border shadow-lg pointer-events-auto">
                 <SelectItem value="low-to-high">Qiymət: Azdan Çoxa</SelectItem>
                 <SelectItem value="high-to-low">Qiymət: Çoxdan Aza</SelectItem>
               </SelectContent>
@@ -203,7 +203,7 @@ export const ServiceSelector = ({
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Xidmət seçin..." />
           </SelectTrigger>
-          <SelectContent className="max-h-80">
+          <SelectContent className="max-h-80 z-50 bg-background border shadow-lg pointer-events-auto">
             {sortedServices.map((service) => (
               <SelectItem 
                 key={service.id_service} 
