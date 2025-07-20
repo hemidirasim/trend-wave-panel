@@ -1,6 +1,6 @@
-
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { SEO } from '@/components/SEO';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -165,113 +165,119 @@ const Blog = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <div className="container mx-auto px-4 py-8">
-        {/* Hero Section */}
-        <div className="text-center mb-12">
-          <div className="flex justify-center mb-4">
-            <BookText className="h-16 w-16 text-primary" />
+    <>
+      <SEO 
+        title={t('blog.title')}
+        description={t('blog.subtitle')}
+      />
+      <div className="min-h-screen bg-background">
+        <Header />
+        
+        <div className="container mx-auto px-4 py-8">
+          {/* Hero Section */}
+          <div className="text-center mb-12">
+            <div className="flex justify-center mb-4">
+              <BookText className="h-16 w-16 text-primary" />
+            </div>
+            <h1 className="text-4xl font-bold mb-4">
+              {t('blog.title')}
+            </h1>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              {t('blog.subtitle')}
+            </p>
           </div>
-          <h1 className="text-4xl font-bold mb-4">
-            {t('blog.title')}
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            {t('blog.subtitle')}
-          </p>
-        </div>
 
-        {/* Stats Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <Card className="text-center">
-            <CardHeader>
-              <TrendingUp className="h-8 w-8 text-primary mx-auto mb-2" />
-              <CardTitle>{t('blog.latestTrends')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                {t('blog.latestTrendsDesc')}
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card className="text-center">
-            <CardHeader>
-              <Target className="h-8 w-8 text-primary mx-auto mb-2" />
-              <CardTitle>{t('blog.practicalTips')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                {t('blog.practicalTipsDesc')}
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card className="text-center">
-            <CardHeader>
-              <BarChart className="h-8 w-8 text-primary mx-auto mb-2" />
-              <CardTitle>{t('blog.analytics')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                {t('blog.analyticsDesc')}
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-
-        {/* Blog Posts Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {blogPosts.map((post) => (
-            <Card key={post.id} className="hover:shadow-lg transition-shadow cursor-pointer group">
-              <Link to={`/${language}/blog/${post.slug}`}>
-                <div className="aspect-video bg-muted rounded-t-lg relative overflow-hidden">
-                  <img 
-                    src={post.image} 
-                    alt={post.title[language as keyof typeof post.title]}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                  />
-                  <Badge className={`absolute top-4 left-4 ${getCategoryColor(post.category)} text-white`}>
-                    {post.category}
-                  </Badge>
-                </div>
-                
-                <CardHeader>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      {post.date[language as keyof typeof post.date]}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <User className="h-3 w-3" />
-                      {post.author}
-                    </div>
-                    <Badge variant="secondary">{post.readTime[language as keyof typeof post.readTime]}</Badge>
-                  </div>
-                  <CardTitle className="text-xl group-hover:text-primary transition-colors">
-                    {post.title[language as keyof typeof post.title]}
-                  </CardTitle>
-                  <CardDescription className="text-base">
-                    {post.excerpt[language as keyof typeof post.excerpt]}
-                  </CardDescription>
-                </CardHeader>
-                
-                <CardContent>
-                  <Button variant="ghost" className="w-full justify-between group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    {t('blog.readArticle')}
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </CardContent>
-              </Link>
+          {/* Stats Section */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <Card className="text-center">
+              <CardHeader>
+                <TrendingUp className="h-8 w-8 text-primary mx-auto mb-2" />
+                <CardTitle>{t('blog.latestTrends')}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  {t('blog.latestTrendsDesc')}
+                </p>
+              </CardContent>
             </Card>
-          ))}
-        </div>
-      </div>
+            
+            <Card className="text-center">
+              <CardHeader>
+                <Target className="h-8 w-8 text-primary mx-auto mb-2" />
+                <CardTitle>{t('blog.practicalTips')}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  {t('blog.practicalTipsDesc')}
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card className="text-center">
+              <CardHeader>
+                <BarChart className="h-8 w-8 text-primary mx-auto mb-2" />
+                <CardTitle>{t('blog.analytics')}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  {t('blog.analyticsDesc')}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
 
-      <Footer />
-    </div>
+
+          {/* Blog Posts Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {blogPosts.map((post) => (
+              <Card key={post.id} className="hover:shadow-lg transition-shadow cursor-pointer group">
+                <Link to={`/${language}/blog/${post.slug}`}>
+                  <div className="aspect-video bg-muted rounded-t-lg relative overflow-hidden">
+                    <img 
+                      src={post.image} 
+                      alt={post.title[language as keyof typeof post.title]}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                    />
+                    <Badge className={`absolute top-4 left-4 ${getCategoryColor(post.category)} text-white`}>
+                      {post.category}
+                    </Badge>
+                  </div>
+                  
+                  <CardHeader>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3" />
+                        {post.date[language as keyof typeof post.date]}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <User className="h-3 w-3" />
+                        {post.author}
+                      </div>
+                      <Badge variant="secondary">{post.readTime[language as keyof typeof post.readTime]}</Badge>
+                    </div>
+                    <CardTitle className="text-xl group-hover:text-primary transition-colors">
+                      {post.title[language as keyof typeof post.title]}
+                    </CardTitle>
+                    <CardDescription className="text-base">
+                      {post.excerpt[language as keyof typeof post.excerpt]}
+                    </CardDescription>
+                  </CardHeader>
+                  
+                  <CardContent>
+                    <Button variant="ghost" className="w-full justify-between group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                      {t('blog.readArticle')}
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </CardContent>
+                </Link>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        <Footer />
+      </div>
+    </>
   );
 };
 

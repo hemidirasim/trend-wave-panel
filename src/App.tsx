@@ -1,6 +1,6 @@
-
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { HelmetProvider } from 'react-helmet-async';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { LanguageProvider } from '@/contexts/LanguageContext';
@@ -42,176 +42,178 @@ const queryClient = new QueryClient();
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <NotificationProvider>
-        <AuthProvider>
-          <SettingsProvider>
-            <Router>
-              <LanguageProvider>
-                <div className="min-h-screen bg-background text-foreground">
-                  <Routes>
-                    {/* Language-specific routes */}
-                    <Route path="/:lang/" element={<Index />} />
-                    <Route path="/:lang/auth" element={<Auth />} />
-                    <Route path="/:lang/reset-password" element={<ResetPassword />} />
-                    <Route path="/:lang/password-recovery" element={<PasswordRecovery />} />
-                    <Route path="/:lang/services" element={<Services />} />
-                    <Route path="/:lang/service/:id" element={<ServiceDetail />} />
-                    <Route path="/:lang/order" element={<Order />} />
-                    <Route path="/:lang/track" element={<Track />} />
-                    <Route path="/:lang/blog" element={<Blog />} />
-                    <Route path="/:lang/blog/:slug" element={<BlogPost />} />
-                    <Route path="/:lang/about" element={<About />} />
-                    <Route path="/:lang/contact" element={<Contact />} />
-                    <Route path="/:lang/terms" element={<Terms />} />
-                    <Route path="/:lang/privacy" element={<Privacy />} />
-                    <Route path="/:lang/payment-success" element={<PaymentSuccess />} />
-                    <Route path="/:lang/payment-error" element={<PaymentError />} />
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <NotificationProvider>
+          <AuthProvider>
+            <SettingsProvider>
+              <Router>
+                <LanguageProvider>
+                  <div className="min-h-screen bg-background text-foreground">
+                    <Routes>
+                      {/* Language-specific routes */}
+                      <Route path="/:lang/" element={<Index />} />
+                      <Route path="/:lang/auth" element={<Auth />} />
+                      <Route path="/:lang/reset-password" element={<ResetPassword />} />
+                      <Route path="/:lang/password-recovery" element={<PasswordRecovery />} />
+                      <Route path="/:lang/services" element={<Services />} />
+                      <Route path="/:lang/service/:id" element={<ServiceDetail />} />
+                      <Route path="/:lang/order" element={<Order />} />
+                      <Route path="/:lang/track" element={<Track />} />
+                      <Route path="/:lang/blog" element={<Blog />} />
+                      <Route path="/:lang/blog/:slug" element={<BlogPost />} />
+                      <Route path="/:lang/about" element={<About />} />
+                      <Route path="/:lang/contact" element={<Contact />} />
+                      <Route path="/:lang/terms" element={<Terms />} />
+                      <Route path="/:lang/privacy" element={<Privacy />} />
+                      <Route path="/:lang/payment-success" element={<PaymentSuccess />} />
+                      <Route path="/:lang/payment-error" element={<PaymentError />} />
+                      
+                      <Route 
+                        path="/:lang/dashboard" 
+                        element={
+                          <ProtectedRoute>
+                            <Dashboard />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      
+                      {/* Admin Routes */}
+                      <Route 
+                        path="/:lang/admin" 
+                        element={
+                          <ProtectedAdminRoute>
+                            <Admin />
+                          </ProtectedAdminRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/:lang/admin/users" 
+                        element={
+                          <ProtectedAdminRoute>
+                            <AdminUsers />
+                          </ProtectedAdminRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/:lang/admin/services" 
+                        element={
+                          <ProtectedAdminRoute>
+                            <AdminServices />
+                          </ProtectedAdminRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/:lang/admin/settings" 
+                        element={
+                          <ProtectedAdminRoute>
+                            <AdminSettings />
+                          </ProtectedAdminRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/:lang/admin/blog" 
+                        element={
+                          <ProtectedAdminRoute>
+                            <AdminBlog />
+                          </ProtectedAdminRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/:lang/admin/contact-messages" 
+                        element={
+                          <ProtectedAdminRoute>
+                            <AdminContactMessages />
+                          </ProtectedAdminRoute>
+                        } 
+                      />
+                      
+                      {/* Fallback routes without language */}
+                      <Route path="/" element={<Index />} />
+                      <Route path="/auth" element={<Auth />} />
+                      <Route path="/reset-password" element={<ResetPassword />} />
+                      <Route path="/password-recovery" element={<PasswordRecovery />} />
+                      <Route path="/services" element={<Services />} />
+                      <Route path="/service/:id" element={<ServiceDetail />} />
+                      <Route path="/order" element={<Order />} />
+                      <Route path="/track" element={<Track />} />
+                      <Route path="/blog" element={<Blog />} />
+                      <Route path="/blog/:slug" element={<BlogPost />} />
+                      <Route path="/about" element={<About />} />
+                      <Route path="/contact" element={<Contact />} />
+                      <Route path="/terms" element={<Terms />} />
+                      <Route path="/privacy" element={<Privacy />} />
+                      <Route path="/payment-success" element={<PaymentSuccess />} />
+                      <Route path="/payment-error" element={<PaymentError />} />
+                      <Route 
+                        path="/dashboard" 
+                        element={
+                          <ProtectedRoute>
+                            <Dashboard />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/admin" 
+                        element={
+                          <ProtectedAdminRoute>
+                            <Admin />
+                          </ProtectedAdminRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/admin/users" 
+                        element={
+                          <ProtectedAdminRoute>
+                            <AdminUsers />
+                          </ProtectedAdminRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/admin/services" 
+                        element={
+                          <ProtectedAdminRoute>
+                            <AdminServices />
+                          </ProtectedAdminRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/admin/settings" 
+                        element={
+                          <ProtectedAdminRoute>
+                            <AdminSettings />
+                          </ProtectedAdminRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/admin/blog" 
+                        element={
+                          <ProtectedAdminRoute>
+                            <AdminBlog />
+                          </ProtectedAdminRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/admin/contact-messages" 
+                        element={
+                          <ProtectedAdminRoute>
+                            <AdminContactMessages />
+                          </ProtectedAdminRoute>
+                        } 
+                      />
+                      
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
                     
-                    <Route 
-                      path="/:lang/dashboard" 
-                      element={
-                        <ProtectedRoute>
-                          <Dashboard />
-                        </ProtectedRoute>
-                      } 
-                    />
-                    
-                    {/* Admin Routes */}
-                    <Route 
-                      path="/:lang/admin" 
-                      element={
-                        <ProtectedAdminRoute>
-                          <Admin />
-                        </ProtectedAdminRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/:lang/admin/users" 
-                      element={
-                        <ProtectedAdminRoute>
-                          <AdminUsers />
-                        </ProtectedAdminRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/:lang/admin/services" 
-                      element={
-                        <ProtectedAdminRoute>
-                          <AdminServices />
-                        </ProtectedAdminRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/:lang/admin/settings" 
-                      element={
-                        <ProtectedAdminRoute>
-                          <AdminSettings />
-                        </ProtectedAdminRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/:lang/admin/blog" 
-                      element={
-                        <ProtectedAdminRoute>
-                          <AdminBlog />
-                        </ProtectedAdminRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/:lang/admin/contact-messages" 
-                      element={
-                        <ProtectedAdminRoute>
-                          <AdminContactMessages />
-                        </ProtectedAdminRoute>
-                      } 
-                    />
-                    
-                    {/* Fallback routes without language */}
-                    <Route path="/" element={<Index />} />
-                    <Route path="/auth" element={<Auth />} />
-                    <Route path="/reset-password" element={<ResetPassword />} />
-                    <Route path="/password-recovery" element={<PasswordRecovery />} />
-                    <Route path="/services" element={<Services />} />
-                    <Route path="/service/:id" element={<ServiceDetail />} />
-                    <Route path="/order" element={<Order />} />
-                    <Route path="/track" element={<Track />} />
-                    <Route path="/blog" element={<Blog />} />
-                    <Route path="/blog/:slug" element={<BlogPost />} />
-                    <Route path="/about" element={<About />} />
-                    <Route path="/contact" element={<Contact />} />
-                    <Route path="/terms" element={<Terms />} />
-                    <Route path="/privacy" element={<Privacy />} />
-                    <Route path="/payment-success" element={<PaymentSuccess />} />
-                    <Route path="/payment-error" element={<PaymentError />} />
-                    <Route 
-                      path="/dashboard" 
-                      element={
-                        <ProtectedRoute>
-                          <Dashboard />
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/admin" 
-                      element={
-                        <ProtectedAdminRoute>
-                          <Admin />
-                        </ProtectedAdminRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/admin/users" 
-                      element={
-                        <ProtectedAdminRoute>
-                          <AdminUsers />
-                        </ProtectedAdminRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/admin/services" 
-                      element={
-                        <ProtectedAdminRoute>
-                          <AdminServices />
-                        </ProtectedAdminRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/admin/settings" 
-                      element={
-                        <ProtectedAdminRoute>
-                          <AdminSettings />
-                        </ProtectedAdminRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/admin/blog" 
-                      element={
-                        <ProtectedAdminRoute>
-                          <AdminBlog />
-                        </ProtectedAdminRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/admin/contact-messages" 
-                      element={
-                        <ProtectedAdminRoute>
-                          <AdminContactMessages />
-                        </ProtectedAdminRoute>
-                      } 
-                    />
-                    
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                  
-                  <Toaster />
-                </div>
-              </LanguageProvider>
-            </Router>
-          </SettingsProvider>
-        </AuthProvider>
-      </NotificationProvider>
-    </QueryClientProvider>
+                    <Toaster />
+                  </div>
+                </LanguageProvider>
+              </Router>
+            </SettingsProvider>
+          </AuthProvider>
+        </NotificationProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
   );
 }
 

@@ -7,6 +7,7 @@ import { HeroSection } from '@/components/HeroSection';
 import { StatsSection } from '@/components/StatsSection';
 import { ServicesSection } from '@/components/ServicesSection';
 import { FeaturesSection } from '@/components/FeaturesSection';
+import { SEO } from '@/components/SEO';
 import AuthDialog from '@/components/AuthDialog';
 
 const Index = () => {
@@ -14,16 +15,15 @@ const Index = () => {
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
 
   useEffect(() => {
-    // Əgər auth=required parametri varsa, AuthDialog-u aç
     if (searchParams.get('auth') === 'required') {
       setIsAuthDialogOpen(true);
-      // URL-dən parametri təmizlə
       setSearchParams({});
     }
   }, [searchParams, setSearchParams]);
 
   return (
     <>
+      <SEO />
       <div className="min-h-screen bg-background overflow-hidden">
         <Header />
         <HeroSection />

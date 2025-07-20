@@ -1,8 +1,8 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { SEO } from '@/components/SEO';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -148,115 +148,132 @@ const BlogPost = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex justify-center items-center min-h-[400px]">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p>{t('blog.loading')}</p>
+      <>
+        <SEO title={t('blog.loading')} noindex />
+        <div className="min-h-screen bg-background">
+          <Header />
+          <div className="container mx-auto px-4 py-8">
+            <div className="flex justify-center items-center min-h-[400px]">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                <p>{t('blog.loading')}</p>
+              </div>
             </div>
           </div>
+          <Footer />
         </div>
-        <Footer />
-      </div>
+      </>
     );
   }
 
   if (!post) {
     return (
+      <>
+        <SEO 
+          title={t('blog.articleNotFound')} 
+          description={t('blog.articleNotFoundDesc')}
+          noindex 
+        />
+        <div className="min-h-screen bg-background">
+          <Header />
+          <div className="container mx-auto px-4 py-8">
+            <div className="text-center py-12">
+              <h1 className="text-4xl font-bold mb-4">{t('blog.articleNotFound')}</h1>
+              <p className="text-muted-foreground mb-8">{t('blog.articleNotFoundDesc')}</p>
+              <Link to={`/${language}/blog`}>
+                <Button>
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  {t('blog.backToBlog')}
+                </Button>
+              </Link>
+            </div>
+          </div>
+          <Footer />
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <SEO 
+        title={post.title[language as keyof typeof post.title]}
+        description={post.excerpt[language as keyof typeof post.excerpt]}
+        type="article"
+      />
       <div className="min-h-screen bg-background">
         <Header />
+        
         <div className="container mx-auto px-4 py-8">
-          <div className="text-center py-12">
-            <h1 className="text-4xl font-bold mb-4">{t('blog.articleNotFound')}</h1>
-            <p className="text-muted-foreground mb-8">{t('blog.articleNotFoundDesc')}</p>
+          {/* Back Button */}
+          <div className="mb-6">
             <Link to={`/${language}/blog`}>
-              <Button>
+              <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 {t('blog.backToBlog')}
               </Button>
             </Link>
           </div>
+
+          {/* Article Header */}
+          <div className="max-w-4xl mx-auto">
+            <div className="mb-8">
+              <Badge className={`${getCategoryColor(post.category)} text-white mb-4`}>
+                {post.category}
+              </Badge>
+              
+              <h1 className="text-4xl font-bold mb-4 leading-tight">
+                {post.title[language as keyof typeof post.title]}
+              </h1>
+              
+              <div className="flex items-center gap-6 text-muted-foreground mb-6">
+                <div className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  {post.author}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  {post.date[language as keyof typeof post.date]}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  {post.readTime[language as keyof typeof post.readTime]}
+                </div>
+              </div>
+
+              <div className="aspect-video bg-muted rounded-lg overflow-hidden mb-8">
+                <img 
+                  src={post.image} 
+                  alt={post.title[language as keyof typeof post.title]}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+
+            {/* Article Content */}
+            <Card>
+              <CardContent className="p-8">
+                <div 
+                  className="prose prose-lg max-w-none dark:prose-invert"
+                  dangerouslySetInnerHTML={{ __html: post.content[language as keyof typeof post.content] }}
+                />
+              </CardContent>
+            </Card>
+
+            {/* Related Articles or CTA can be added here */}
+            <div className="mt-8 text-center">
+              <Link to={`/${language}/blog`}>
+                <Button size="lg">
+                  {t('blog.readOtherArticles')}
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
+
         <Footer />
       </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
-      <div className="container mx-auto px-4 py-8">
-        {/* Back Button */}
-        <div className="mb-6">
-          <Link to={`/${language}/blog`}>
-            <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              {t('blog.backToBlog')}
-            </Button>
-          </Link>
-        </div>
-
-        {/* Article Header */}
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-8">
-            <Badge className={`${getCategoryColor(post.category)} text-white mb-4`}>
-              {post.category}
-            </Badge>
-            
-            <h1 className="text-4xl font-bold mb-4 leading-tight">
-              {post.title[language as keyof typeof post.title]}
-            </h1>
-            
-            <div className="flex items-center gap-6 text-muted-foreground mb-6">
-              <div className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                {post.author}
-              </div>
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                {post.date[language as keyof typeof post.date]}
-              </div>
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4" />
-                {post.readTime[language as keyof typeof post.readTime]}
-              </div>
-            </div>
-
-            <div className="aspect-video bg-muted rounded-lg overflow-hidden mb-8">
-              <img 
-                src={post.image} 
-                alt={post.title[language as keyof typeof post.title]}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </div>
-
-          {/* Article Content */}
-          <Card>
-            <CardContent className="p-8">
-              <div 
-                className="prose prose-lg max-w-none dark:prose-invert"
-                dangerouslySetInnerHTML={{ __html: post.content[language as keyof typeof post.content] }}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Related Articles or CTA can be added here */}
-          <div className="mt-8 text-center">
-            <Link to={`/${language}/blog`}>
-              <Button size="lg">
-                {t('blog.readOtherArticles')}
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      <Footer />
-    </div>
+    </>
   );
 };
 
