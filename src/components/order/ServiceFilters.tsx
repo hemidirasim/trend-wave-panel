@@ -1,3 +1,4 @@
+
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
@@ -78,8 +79,6 @@ export function ServiceFilters({
 
   return (
     <div className="space-y-4">
-      <Label>Platform Seçin *</Label>
-      
       <Tabs value={selectedPlatform} onValueChange={onPlatformChange} className="w-full">
         <TabsList className="grid w-full grid-cols-4 mb-6">
           {getUniquePlatforms().map((platform) => {
