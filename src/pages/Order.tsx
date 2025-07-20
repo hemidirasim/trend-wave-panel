@@ -366,9 +366,20 @@ const Order = () => {
   };
   const handleServiceTypeChange = (serviceType: string) => {
     setSelectedServiceType(serviceType);
-    setSelectedService(null);
-    setServiceDetails(null);
-    updateFormData('serviceId', '');
+    
+    // serviceType formatı: "platform-serviceId" olduğunda avtomatik seçim
+    if (serviceType.includes('-') && serviceType.split('-').length === 2) {
+      const [platform, serviceId] = serviceType.split('-');
+      const service = services.find(s => s.id_service.toString() === serviceId);
+      if (service) {
+        updateFormData('serviceId', serviceId);
+        handleServiceSelection(service);
+      }
+    } else {
+      setSelectedService(null);
+      setServiceDetails(null);
+      updateFormData('serviceId', '');
+    }
   };
   const handleServiceSelect = (serviceId: string) => {
     updateFormData('serviceId', serviceId);
