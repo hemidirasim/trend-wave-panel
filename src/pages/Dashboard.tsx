@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Loader2, Package, Clock, CheckCircle, XCircle, Wallet, LifeBuoy, Settings } from 'lucide-react';
+import { Loader2, Package, Clock, CheckCircle, XCircle, Wallet, LifeBuoy, Settings, ShoppingCart } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import Support from '@/components/Support';
@@ -207,6 +207,15 @@ const Dashboard = () => {
                 </div>
               </CardContent>
             </Card>
+            
+            {/* Order Button */}
+            <Button 
+              onClick={() => navigate('/order')} 
+              className="bg-primary hover:bg-primary/90"
+            >
+              <ShoppingCart className="h-4 w-4 mr-2" />
+              Sifariş Et
+            </Button>
             
             <Button variant="outline" onClick={handleSignOut}>
               Çıxış
