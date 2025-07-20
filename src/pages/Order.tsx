@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 import AuthDialog from '@/components/AuthDialog';
 import { BalanceTopUpDialog } from '@/components/payment/BalanceTopUpDialog';
 import { supabase } from '@/integrations/supabase/client';
+
 const Order = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -133,22 +134,33 @@ const Order = () => {
 
   // Calculate price when quantity changes
   useEffect(() => {
-    if (selectedService && formData.quantity && !settingsLoading) {
-      const quantity = parseInt(formData.quantity);
-      if (!isNaN(quantity) && quantity > 0) {
-        console.log('🔥 Order: Calculating price with settings:', {
-          serviceFee: settings.service_fee,
-          baseFee: settings.base_fee,
-          quantity,
-          serviceName: selectedService.public_name
-        });
-        const price = proxyApiService.calculatePrice(selectedService, quantity, settings.service_fee, settings.base_fee);
-        setCalculatedPrice(price);
-      } else {
-        setCalculatedPrice(0);
+    const calculatePriceAsync = async () => {
+      if (selectedService && formData.quantity && !settingsLoading) {
+        const quantity = parseInt(formData.quantity);
+        if (!isNaN(quantity) && quantity > 0) {
+          console.log('🔥 Order: Calculating price with settings:', {
+            serviceFee: settings.service_fee,
+            baseFee: settings.base_fee,
+            quantity,
+            serviceName: selectedService.public_name
+          });
+          
+          try {
+            const price = await proxyApiService.calculatePrice(selectedService, quantity, settings.service_fee, settings.base_fee);
+            setCalculatedPrice(price);
+          } catch (error) {
+            console.error('Error calculating price:', error);
+            setCalculatedPrice(0);
+          }
+        } else {
+          setCalculatedPrice(0);
+        }
       }
-    }
+    };
+
+    calculatePriceAsync();
   }, [selectedService, formData.quantity, settings.service_fee, settings.base_fee, settingsLoading]);
+
   const fetchServices = async () => {
     try {
       setLoading(true);
@@ -459,4 +471,5 @@ const Order = () => {
       <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} />
     </div>;
 };
+
 export default Order;
