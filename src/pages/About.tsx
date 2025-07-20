@@ -10,41 +10,41 @@ const About = () => {
   const features = [
     {
       icon: Shield,
-      title: 'Təhlükəsizlik',
-      description: 'Bütün məlumatlarınız və sifarişləriniz tam təhlükəsizlik altındadır.'
+      title: t('about.security'),
+      description: t('about.securityDesc')
     },
     {
       icon: Zap,
-      title: 'Sürətli Xidmət',
-      description: 'Sifarişləriniz ən qısa müddətdə yerinə yetirilir.'
+      title: t('about.fastService'),
+      description: t('about.fastServiceDesc')
     },
     {
       icon: Users,
-      title: 'Peşəkar Komanda',
-      description: 'Təcrübəli mütəxəssislərdən ibarət komandamız sizə yardım edir.'
+      title: t('about.professionalTeam'),
+      description: t('about.professionalTeamDesc')
     },
     {
       icon: Target,
-      title: 'Məqsədyönlü',
-      description: 'Hər layihəyə fərdi yanaşma və maksimal nəticə əldə edirik.'
+      title: t('about.targeted'),
+      description: t('about.targetedDesc')
     },
     {
       icon: Award,
-      title: 'Keyfiyyət',
-      description: 'Yüksək keyfiyyətli xidmət və müştəri məmnuniyyəti prioritetimizdir.'
+      title: t('about.quality'),
+      description: t('about.qualityDesc')
     },
     {
       icon: Globe,
-      title: 'Global Əhatə',
-      description: 'Dünya üzrə müxtəlif platformalarda xidmət göstəririk.'
+      title: t('about.globalReach'),
+      description: t('about.globalReachDesc')
     }
   ];
 
   const stats = [
-    { number: '1,500+', label: 'Məmnun Müştəri' },
-    { number: '10,000+', label: 'Tamamlanmış Sifariş' },
-    { number: '99.9%', label: 'Uğur Nisbəti' },
-    { number: '24/7', label: 'Dəstək Xidməti' }
+    { number: '1,500+', label: t('about.happyCustomers') },
+    { number: '10,000+', label: t('about.completedOrders') },
+    { number: '99.9%', label: t('about.successRate') },
+    { number: '24/7', label: t('about.supportService') }
   ];
 
   return (
@@ -83,10 +83,7 @@ const About = () => {
           <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 rounded-2xl p-8 md:p-12">
             <h2 className="text-3xl font-bold mb-6 text-center">{t('about.ourMission')}</h2>
             <p className="text-lg text-muted-foreground text-center max-w-4xl mx-auto leading-relaxed">
-              Hər bir müştərimizin rəqəmsal dünyada uğur qazanmasına kömək etmək və onların brendlərini 
-              gücləndiməkdir. Biz innovativ həllər, şəffaf proseslər və müştəri məmnuniyyətini prioritet 
-              olaraq götürürük. Məqsədimiz Azərbaycanda və regionda rəqəmsal marketinq sahəsində 
-              liderlik mövqeyini qorumaq və daha da möhkəmləndirməkdir.
+              {t('about.missionText')}
             </p>
           </div>
         </div>
@@ -118,13 +115,10 @@ const About = () => {
           <h2 className="text-3xl font-bold mb-6 text-center">{t('about.companyInfo')}</h2>
           <div className="max-w-4xl mx-auto text-center">
             <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
-              HitLoyal, Midiya Agency MMC-nin nəzarəti altında fəaliyyət göstərən rəqəmsal marketinq platformasıdır. 
-              Şirkətimiz rəsmi olaraq qeydiyyatdan keçmişdir və VOEN: 6402180791 nömrəsi ilə tanınır.
+              {t('about.companyDescription')}
             </p>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Biz sosial media platformalarında organic və ödənişli reklam kampaniyaları, SEO optimallaşdırması, 
-              kontent marketinqi və brendinq xidmətləri təqdim edirik. Komandamız müasir texnologiyalar və 
-              ən son marketinq trendləri ilə işləyir.
+              {t('about.companyServices')}
             </p>
           </div>
         </div>
