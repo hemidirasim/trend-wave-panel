@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { 
   LayoutDashboard, 
@@ -9,7 +8,8 @@ import {
   Menu,
   X,
   LogOut,
-  Package
+  Package,
+  ShoppingCart
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -30,6 +30,12 @@ export const AdminSidebar = ({ collapsed, setCollapsed }: AdminSidebarProps) => 
       href: '/admin',
       icon: LayoutDashboard,
       exact: true
+    },
+    {
+      name: 'Sifariş Et',
+      href: '/order',
+      icon: ShoppingCart,
+      exact: false
     },
     {
       name: 'Xidmətlər',

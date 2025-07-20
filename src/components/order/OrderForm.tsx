@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -126,16 +125,16 @@ const OrderForm = ({
           .in('status', ['pending', 'processing', 'in_progress', 'active', 'running']);
 
         if (existingOrders && existingOrders.length > 0) {
-          console.log('🚫 Existing order found, showing error toast');
+          console.log('🚫 Existing order found');
           toast.error('Bu URL üçün aktiv sifariş mövcuddur');
           return;
         }
       }
 
-      console.log('Placing order with service:', service);
-      console.log('Form data:', formData);
+      console.log('📤 Placing order with service:', service);
+      console.log('📤 Form data:', formData);
 
-      // Place the order via API FIRST - don't touch balance yet
+      // Place the order via API FIRST
       const orderResponse = await apiClient.placeOrder(
         formData.serviceId,
         formData.url,
@@ -143,17 +142,18 @@ const OrderForm = ({
         formData.additionalParams
       );
 
-      console.log('Order API response:', orderResponse);
+      console.log('📥 Order API response:', orderResponse);
 
-      // Check if order was successful - handle all possible error scenarios
+      // Check if order was successful
       if (!orderResponse) {
-        console.log('🚫 No API response, showing error toast');
+        console.log('❌ No API response received');
         toast.error('API cavab vermədi. Yenidən cəhd edin.');
         return;
       }
 
-      // Check for explicit error status
+      // Check for explicit error status or error field
       if (orderResponse.status === 'error' || orderResponse.error) {
+        console.log('❌ API returned error status');
         let errorMessage = 'Sifariş verilmədi. Yenidən cəhd edin.';
         
         if (orderResponse.error) {
@@ -166,23 +166,24 @@ const OrderForm = ({
           }
         }
         
-        console.log('🚫 API Error detected, showing error toast:', errorMessage);
         toast.error(errorMessage);
         return;
       }
 
       // Check if we have a valid submission ID (success indicator)
       if (!orderResponse.id_service_submission) {
-        console.log('🚫 No submission ID, showing error toast');
+        console.log('❌ No submission ID received');
         toast.error('Sifariş ID alınamadı. Yenidən cəhd edin.');
         return;
       }
 
+      console.log('✅ Order API call successful, processing...');
+      
       // Extract external_order_id from successful response
       const externalOrderId = orderResponse.id_service_submission;
-      console.log('✅ Extracted external_order_id:', externalOrderId);
+      console.log('✅ External order ID:', externalOrderId);
 
-      // Only if API call was successful, then deduct balance and save to database
+      // Save to database
       const orderData = {
         user_id: user?.id,
         service_id: formData.serviceId,
@@ -196,7 +197,7 @@ const OrderForm = ({
         external_order_id: externalOrderId
       };
 
-      console.log('Saving order to database with data:', orderData);
+      console.log('💾 Saving order to database:', orderData);
 
       const { data: insertedOrder, error: insertError } = await supabase
         .from('orders')
@@ -205,15 +206,14 @@ const OrderForm = ({
         .single();
 
       if (insertError) {
-        console.error('Database insert error:', insertError);
-        console.log('🚫 Database error, showing error toast');
+        console.error('❌ Database insert error:', insertError);
         toast.error('Sifarişi yadda saxlamaq mümkün olmadı');
         return;
       }
 
-      console.log('Order saved successfully:', insertedOrder);
+      console.log('✅ Order saved to database:', insertedOrder);
 
-      // Update user balance only after successful order placement and database save
+      // Update user balance
       if (profile) {
         const newBalance = (profile.balance || 0) - calculatedPrice;
         const { error: balanceError } = await supabase
@@ -222,24 +222,23 @@ const OrderForm = ({
           .eq('id', user?.id);
 
         if (balanceError) {
-          console.error('Balance update error:', balanceError);
-          console.log('🚫 Balance update error, showing error toast');
+          console.error('❌ Balance update error:', balanceError);
           toast.error('Balansı yeniləmək mümkün olmadı');
           return;
         } else {
-          console.log('Balance updated successfully. New balance:', newBalance);
+          console.log('✅ Balance updated successfully. New balance:', newBalance);
         }
       }
 
-      // Show success message and redirect immediately to dashboard
-      console.log('✅ Order completed successfully, showing success toast');
+      // Show success message and redirect
+      console.log('🎉 Order completed successfully!');
       toast.success('Sifariş uğurla verildi!');
       navigate('/dashboard');
 
     } catch (error: any) {
-      console.error('Order placement error:', error);
+      console.error('❌ Order placement error:', error);
       
-      // Show user-friendly error message for different error types
+      // Show user-friendly error message
       let errorMessage = 'Sifariş verərkən xəta baş verdi';
       
       if (error.message) {
@@ -252,7 +251,6 @@ const OrderForm = ({
         }
       }
       
-      console.log('🚫 Catch block error, showing error toast:', errorMessage);
       toast.error(errorMessage);
     }
   };
