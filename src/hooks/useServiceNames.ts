@@ -42,15 +42,21 @@ export const useServiceNames = () => {
   };
 
   const getCustomServiceName = (apiServiceName: string): string => {
-    console.log('🔥 useServiceNames: Looking for exact match for:', apiServiceName);
+    console.log('🔥 useServiceNames: Looking for contains match for:', apiServiceName);
     console.log('🔥 useServiceNames: Available custom names:', customNames);
     
-    // Only exact match - no partial matching
+    // Find custom name where API service name contains the database name
     const customName = customNames.find(
-      item => item.api_service_name === apiServiceName
+      item => apiServiceName.includes(item.api_service_name)
     );
     
-    const result = customName ? customName.custom_name : apiServiceName;
+    let result = apiServiceName;
+    
+    if (customName) {
+      // Replace the matched part with custom name
+      result = apiServiceName.replace(customName.api_service_name, customName.custom_name);
+    }
+    
     console.log('🔥 useServiceNames: Result:', {
       input: apiServiceName,
       matched: customName?.api_service_name || 'none',
