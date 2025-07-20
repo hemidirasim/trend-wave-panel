@@ -448,18 +448,7 @@ const Order = () => {
                       </p>
                     )}
 
-                    <ServiceSelector 
-                      services={services} 
-                      selectedPlatform={selectedPlatform} 
-                      selectedServiceType={selectedServiceType} 
-                      selectedServiceId={formData.serviceId} 
-                      priceFilter={priceFilter} 
-                      serviceFeePercentage={settings.service_fee} 
-                      baseFee={settings.base_fee} 
-                      onServiceSelect={handleServiceSelect} 
-                      onPriceFilterChange={setPriceFilter} 
-                      error={errors.serviceId} 
-                    />
+                    {/* ServiceSelector komponentini gizlə - avtomatik seçim olur */}
 
                     {selectedService && (
                       <ServiceInfo 

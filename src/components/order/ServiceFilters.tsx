@@ -57,8 +57,8 @@ export function ServiceFilters({
 
   const getServiceTypeFromName = (serviceName: string): string => {
     const name = serviceName.toLowerCase();
-    if (name.includes('like') || name.includes('bəyən')) return 'Like';
-    if (name.includes('follow') || name.includes('izləyici')) return 'Followers';
+    if (name.includes('like') || name.includes('bəyən')) return 'Likes';
+    if (name.includes('follow') || name.includes('izləyici') || name.includes('subscriber')) return 'Followers';
     if (name.includes('view') || name.includes('baxış')) return 'Views';
     if (name.includes('share') || name.includes('paylaş')) return 'Shares';
     if (name.includes('comment') || name.includes('şərh')) return 'Comments';
@@ -73,16 +73,8 @@ export function ServiceFilters({
     return [...new Set(platforms)];
   };
 
-  // Extract service base name (before first dash)
-  const getServiceBaseName = (serviceName: string): string => {
-    const dashIndex = serviceName.indexOf(' - ');
-    if (dashIndex !== -1) {
-      return serviceName.substring(0, dashIndex).trim();
-    }
-    return serviceName;
-  };
-
-  const getServiceGroups = (platform: string) => {
+  // Group services by type (Likes, Followers, Views, etc.)
+  const getServiceTypeGroups = (platform: string) => {
     const platformServices = services.filter(service => 
       service.platform.toLowerCase() === platform.toLowerCase()
     );
@@ -90,60 +82,38 @@ export function ServiceFilters({
     const groups: Record<string, Service[]> = {};
     
     platformServices.forEach(service => {
-      // Use base name (before first dash) as the group key
-      const baseName = getServiceBaseName(service.public_name);
+      const serviceType = getServiceTypeFromName(service.public_name);
       
-      if (!groups[baseName]) {
-        groups[baseName] = [];
+      if (!groups[serviceType]) {
+        groups[serviceType] = [];
       }
-      groups[baseName].push(service);
+      groups[serviceType].push(service);
     });
     
     return groups;
   };
 
-  const getSubGroups = (services: Service[]) => {
-    const subGroups: Record<string, Service[]> = {};
+  const handleServiceTypeSelect = (serviceType: string, platform: string) => {
+    // Find all services of this type for this platform
+    const typeServices = services.filter(service => 
+      service.platform.toLowerCase() === platform.toLowerCase() && 
+      getServiceTypeFromName(service.public_name) === serviceType
+    );
     
-    services.forEach(service => {
-      const name = service.public_name.toLowerCase();
-      let subType = 'Other';
-      
-      // Extract the part after the dash as sub-type
-      const dashIndex = service.public_name.indexOf(' - ');
-      if (dashIndex !== -1) {
-        subType = service.public_name.substring(dashIndex + 3).trim();
-        // Clean up common patterns
-        subType = subType.replace(/^\[|\]$/g, ''); // Remove brackets
-      } else {
-        // Fallback to old logic if no dash
-        if (service.platform.toLowerCase() === 'instagram') {
-          if (name.includes('post') && name.includes('like')) subType = 'Post Likes';
-          else if (name.includes('comment') && name.includes('like')) subType = 'Comment Likes';
-          else if (name.includes('story') && name.includes('like')) subType = 'Story Likes';
-          else if (name.includes('reel') && name.includes('like')) subType = 'Reel Likes';
-          else if (name.includes('video') && name.includes('like')) subType = 'Video Likes';
-          else if (name.includes('like')) subType = 'General Likes';
-          else if (name.includes('follow')) subType = 'Followers';
-          else if (name.includes('view')) subType = 'Views';
-          else if (name.includes('comment') && !name.includes('like')) subType = 'Comments';
-        }
-        else if (service.platform.toLowerCase() === 'youtube') {
-          if (name.includes('subscribe')) subType = 'Subscribers';
-          else if (name.includes('like')) subType = 'Likes';
-          else if (name.includes('view')) subType = 'Views';
-          else if (name.includes('comment')) subType = 'Comments';
-          else if (name.includes('share')) subType = 'Shares';
-        }
+    // Sort by price and get the cheapest one
+    const sortedServices = [...typeServices].sort((a, b) => {
+      if (!a.prices || !b.prices || a.prices.length === 0 || b.prices.length === 0) {
+        return 0;
       }
-      
-      if (!subGroups[subType]) {
-        subGroups[subType] = [];
-      }
-      subGroups[subType].push(service);
+      const priceA = parseFloat(a.prices[0].price);
+      const priceB = parseFloat(b.prices[0].price);
+      return priceA - priceB;
     });
     
-    return subGroups;
+    if (sortedServices.length > 0) {
+      const cheapestService = sortedServices[0];
+      onServiceTypeChange(`${cheapestService.platform}-${cheapestService.id_service}`);
+    }
   };
 
   const toggleGroup = (groupKey: string) => {
@@ -153,10 +123,6 @@ export function ServiceFilters({
     }));
   };
 
-  const handleServiceSelect = (service: Service) => {
-    // Set the service type to the specific service ID or name for filtering
-    onServiceTypeChange(`${service.platform}-${service.id_service}`);
-  };
 
   return (
     <div className="space-y-4">
@@ -181,92 +147,44 @@ export function ServiceFilters({
 
         {getUniquePlatforms().map((platform) => (
           <TabsContent key={platform} value={platform} className="space-y-3">
-            {Object.entries(getServiceGroups(platform)).map(([mainType, services]) => {
-              const groupKey = `${platform}-${mainType}`;
-              const IconComponent = getServiceTypeIcon(mainType);
-              const subGroups = getSubGroups(services);
+            {Object.entries(getServiceTypeGroups(platform)).map(([serviceType, typeServices]) => {
+              const IconComponent = getServiceTypeIcon(serviceType);
               
               return (
-                <Collapsible
-                  key={groupKey}
-                  open={openGroups[groupKey]}
-                  onOpenChange={() => toggleGroup(groupKey)}
+                <button
+                  key={serviceType}
+                  onClick={() => handleServiceTypeSelect(serviceType, platform)}
+                  className={`w-full flex items-center justify-between p-4 bg-muted/50 hover:bg-muted/70 rounded-lg transition-colors border-2 ${
+                    selectedServiceType.includes(serviceType) 
+                      ? 'border-primary bg-primary/5' 
+                      : 'border-transparent'
+                  }`}
                 >
-                  <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-muted/50 hover:bg-muted/70 rounded-lg transition-colors">
-                    <div className="flex items-center gap-2">
-                      <IconComponent className="w-4 h-4" />
-                      <span className="font-medium">{mainType}</span>
-                      <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                        {services.length}
-                      </span>
+                  <div className="flex items-center gap-3">
+                    <IconComponent className="w-5 h-5" />
+                    <div className="text-left">
+                      <span className="font-medium text-base">{serviceType}</span>
+                      <div className="text-sm text-muted-foreground">
+                        {typeServices.length} variant mövcuddur
+                      </div>
                     </div>
-                    <ChevronDown className={`w-4 h-4 transition-transform ${openGroups[groupKey] ? 'rotate-180' : ''}`} />
-                  </CollapsibleTrigger>
-                  
-                  <CollapsibleContent className="space-y-2 mt-2 pl-4">
-                    {Object.entries(subGroups).map(([subType, subServices]) => {
-                      const subGroupKey = `${groupKey}-${subType}`;
-                      
-                      return (
-                        <Collapsible
-                          key={subGroupKey}
-                          open={openGroups[subGroupKey]}
-                          onOpenChange={() => toggleGroup(subGroupKey)}
-                        >
-                          <CollapsibleTrigger className="flex items-center justify-between w-full p-2 bg-background hover:bg-muted/30 rounded-md transition-colors border">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium">{subType}</span>
-                              <span className="text-xs bg-secondary text-secondary-foreground px-1.5 py-0.5 rounded">
-                                {subServices.length}
-                              </span>
-                            </div>
-                            <ChevronDown className={`w-3 h-3 transition-transform ${openGroups[subGroupKey] ? 'rotate-180' : ''}`} />
-                          </CollapsibleTrigger>
-                          
-                          <CollapsibleContent className="space-y-1 mt-1 pl-4">
-                            {/* Only show the cheapest service for each sub-group */}
-                            {(() => {
-                              const sortedServices = [...subServices].sort((a, b) => {
-                                if (!a.prices || !b.prices || a.prices.length === 0 || b.prices.length === 0) {
-                                  return 0;
-                                }
-                                const priceA = parseFloat(a.prices[0].price);
-                                const priceB = parseFloat(b.prices[0].price);
-                                return priceA - priceB;
-                              });
-                              
-                              const cheapestService = sortedServices[0];
-                              
-                              return (
-                                <button
-                                  key={cheapestService.id_service}
-                                  onClick={() => handleServiceSelect(cheapestService)}
-                                  className={`w-full text-left p-2 text-sm rounded hover:bg-muted/50 transition-colors border-l-2 ${
-                                    selectedServiceType === `${cheapestService.platform}-${cheapestService.id_service}` 
-                                      ? 'border-l-primary bg-primary/5 text-primary font-medium' 
-                                      : 'border-l-transparent'
-                                  }`}
-                                >
-                                  <div className="truncate flex items-center justify-between">
-                                    <span>{cheapestService.public_name}</span>
-                                    <span className="text-xs bg-yellow-100 text-yellow-800 px-1.5 py-0.5 rounded ml-2">
-                                      Ən ucuz
-                                    </span>
-                                  </div>
-                                  {cheapestService.prices && cheapestService.prices[0] && (
-                                    <div className="text-xs text-muted-foreground mt-1">
-                                      ${cheapestService.prices[0].price}/1000
-                                    </div>
-                                  )}
-                                </button>
-                              );
-                            })()}
-                          </CollapsibleContent>
-                        </Collapsible>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm text-muted-foreground">Ən ucuz qiymət</div>
+                    {(() => {
+                      const cheapestPrice = Math.min(
+                        ...typeServices
+                          .filter(s => s.prices && s.prices.length > 0)
+                          .map(s => parseFloat(s.prices[0].price))
                       );
-                    })}
-                  </CollapsibleContent>
-                </Collapsible>
+                      return (
+                        <div className="font-bold text-primary">
+                          ${cheapestPrice.toFixed(2)}/1000
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </button>
               );
             })}
           </TabsContent>
