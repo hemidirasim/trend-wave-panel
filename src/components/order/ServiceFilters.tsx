@@ -147,46 +147,36 @@ export function ServiceFilters({
   };
 
   const handleGroupClick = (mainType: string, services: Service[], platform: string) => {
-    console.log('🔥 handleGroupClick called:', { mainType, servicesCount: services.length });
-    
     // If there's only one service in the group, select it directly
     if (services.length === 1) {
-      console.log('🔥 Single service in group, selecting directly:', services[0].public_name);
       handleServiceSelect(services[0]);
       return;
     }
 
     const subGroups = getSubGroups(services);
     const subGroupKeys = Object.keys(subGroups);
-    console.log('🔥 Sub groups:', subGroupKeys, 'Count:', subGroupKeys.length);
     
     // If there's only one sub-group and it has only one service, select it directly
     if (subGroupKeys.length === 1 && subGroups[subGroupKeys[0]].length === 1) {
       const singleService = subGroups[subGroupKeys[0]][0];
-      console.log('🔥 Single service in single sub-group, selecting directly:', singleService.public_name);
       handleServiceSelect(singleService);
       return;
     }
     
     // Otherwise, toggle the group to show sub-groups
     const groupKey = `${platform}-${mainType}`;
-    console.log('🔥 Toggling group:', groupKey);
     toggleGroup(groupKey);
   };
 
   const handleSubGroupClick = (mainType: string, subType: string, subServices: Service[], platform: string) => {
-    console.log('🔥 handleSubGroupClick called:', { mainType, subType, servicesCount: subServices.length });
-    
     // If there's only one service in the sub-group, select it directly
     if (subServices.length === 1) {
-      console.log('🔥 Single service in sub-group, selecting directly:', subServices[0].public_name);
       handleServiceSelect(subServices[0]);
       return;
     }
     
     // Otherwise, toggle the sub-group
     const subGroupKey = `${platform}-${mainType}-${subType}`;
-    console.log('🔥 Toggling sub-group:', subGroupKey);
     toggleGroup(subGroupKey);
   };
 
