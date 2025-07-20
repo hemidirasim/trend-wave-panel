@@ -9,26 +9,26 @@ export const FeaturesSection = () => {
   const features = [
     {
       icon: <Target className="h-8 w-8 text-yellow-500" />,
-      title: 'Sürətli və Keyfiyyətli',
-      description: 'Real istifadəçilərlə işləyərək sosial media hesablarınızı sürətli və təhlükəsiz şəkildə inkişaf etdiririk.',
+      title: t('features.fastQuality'),
+      description: t('features.fastQualityDesc'),
       gradient: 'from-yellow-100 to-amber-100'
     },
     {
       icon: <BarChart3 className="h-8 w-8 text-green-500" />,
-      title: '24/7 Dəstək Xidməti',
-      description: 'Peşəkar müştəri dəstəyi komandamız həftənin 7 günü sizin xidmətinizdədir.',
+      title: t('features.support247'),
+      description: t('features.support247Desc'),
       gradient: 'from-green-100 to-emerald-100'
     },
     {
       icon: <BookOpen className="h-8 w-8 text-blue-500" />,
-      title: 'Təhlükəsiz Ödəniş',
-      description: 'Bütün ödənişləriniz SSL şifrələməsi ilə qorunur və müxtəlif ödəniş üsullarını dəstəkləyirik.',
+      title: t('features.securePayment'),
+      description: t('features.securePaymentDesc'),
       gradient: 'from-blue-100 to-sky-100'
     },
     {
       icon: <Award className="h-8 w-8 text-purple-500" />,
-      title: 'Zəmanət və Keyfiyyət',
-      description: 'Bütün xidmətlərimiz 100% zəmanətlidir və keyfiyyət standartlarımıza uyğundur.',
+      title: t('features.guarantee'),
+      description: t('features.guaranteeDesc'),
       gradient: 'from-purple-100 to-violet-100'
     }
   ];
