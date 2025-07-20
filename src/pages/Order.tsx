@@ -16,18 +16,23 @@ import { toast } from 'sonner';
 import AuthDialog from '@/components/AuthDialog';
 import { BalanceTopUpDialog } from '@/components/payment/BalanceTopUpDialog';
 import { supabase } from '@/integrations/supabase/client';
-
 const Order = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { settings, loading: settingsLoading } = useSettings();
-  const { user, loading: authLoading } = useAuth();
-  
+  const {
+    settings,
+    loading: settingsLoading
+  } = useSettings();
+  const {
+    user,
+    loading: authLoading
+  } = useAuth();
+
   // Auth and balance states
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [userBalance, setUserBalance] = useState<number>(0);
   const [balanceLoading, setBalanceLoading] = useState(false);
-  
+
   // State management
   const [services, setServices] = useState<Service[]>([]);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
@@ -35,7 +40,7 @@ const Order = () => {
   const [loading, setLoading] = useState(true);
   const [loadingServiceDetails, setLoadingServiceDetails] = useState(false);
   const [placing, setPlacing] = useState(false);
-  
+
   // Form state
   const [formData, setFormData] = useState({
     serviceId: searchParams.get('service') || '',
@@ -43,13 +48,11 @@ const Order = () => {
     quantity: '',
     additionalParams: {} as Record<string, any>
   });
-  
   const [calculatedPrice, setCalculatedPrice] = useState(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [selectedPlatform, setSelectedPlatform] = useState<string>('');
   const [selectedServiceType, setSelectedServiceType] = useState<string>('');
   const [priceFilter, setPriceFilter] = useState<'low-to-high' | 'high-to-low'>('low-to-high');
-
   const urlPlatform = searchParams.get('platform');
   const allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook'];
 
@@ -60,13 +63,19 @@ const Order = () => {
 
   // Scroll to top when component mounts or when loading starts
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   }, []);
 
   // Also scroll to top when loading state changes
   useEffect(() => {
     if (loading) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
     }
   }, [loading]);
 
@@ -83,18 +92,14 @@ const Order = () => {
       fetchUserBalance();
     }
   }, [user, authLoading]);
-
   const fetchUserBalance = async () => {
     if (!user) return;
-    
     try {
       setBalanceLoading(true);
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('balance')
-        .eq('id', user.id)
-        .single();
-      
+      const {
+        data,
+        error
+      } = await supabase.from('profiles').select('balance').eq('id', user.id).single();
       if (error) {
         console.error('Error fetching balance:', error);
         setUserBalance(0);
@@ -137,32 +142,20 @@ const Order = () => {
           quantity,
           serviceName: selectedService.public_name
         });
-        
-        const price = proxyApiService.calculatePrice(
-          selectedService, 
-          quantity, 
-          settings.service_fee,
-          settings.base_fee
-        );
+        const price = proxyApiService.calculatePrice(selectedService, quantity, settings.service_fee, settings.base_fee);
         setCalculatedPrice(price);
       } else {
         setCalculatedPrice(0);
       }
     }
   }, [selectedService, formData.quantity, settings.service_fee, settings.base_fee, settingsLoading]);
-
   const fetchServices = async () => {
     try {
       setLoading(true);
       const data = await proxyApiService.getServices();
-      
       const filteredData = data.filter(service => {
-        return service && 
-               service.platform && 
-               service.id_service && 
-               allowedPlatforms.includes(service.platform.toLowerCase());
+        return service && service.platform && service.id_service && allowedPlatforms.includes(service.platform.toLowerCase());
       });
-      
       setServices(filteredData);
     } catch (error) {
       console.error('Error fetching services:', error);
@@ -171,7 +164,6 @@ const Order = () => {
       setLoading(false);
     }
   };
-
   const fetchServiceDetails = async (serviceId: string) => {
     try {
       setLoadingServiceDetails(true);
@@ -184,19 +176,13 @@ const Order = () => {
       setLoadingServiceDetails(false);
     }
   };
-
   const handleServiceSelection = (service: Service) => {
     setSelectedService(service);
     setSelectedPlatform(service.platform.toLowerCase());
-    
-    const serviceType = service.type_name && service.type_name.trim() !== '' 
-      ? service.type_name 
-      : getServiceTypeFromName(service.public_name);
+    const serviceType = service.type_name && service.type_name.trim() !== '' ? service.type_name : getServiceTypeFromName(service.public_name);
     setSelectedServiceType(serviceType);
-    
     fetchServiceDetails(service.id_service.toString());
   };
-
   const getServiceTypeFromName = (serviceName: string): string => {
     const name = serviceName.toLowerCase();
     if (name.includes('like') || name.includes('bəyən')) return 'Likes';
@@ -206,20 +192,16 @@ const Order = () => {
     if (name.includes('comment') || name.includes('şərh')) return 'Comments';
     return 'Other';
   };
-
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    
     if (!formData.serviceId) {
       newErrors.serviceId = 'Xidmət seçmək vacibdir';
     }
-    
     if (!formData.url.trim()) {
       newErrors.url = 'URL daxil etmək vacibdir';
     } else if (!proxyApiService.validateUrl(selectedPlatform, formData.url)) {
       newErrors.url = 'Düzgün URL formatı daxil edin';
     }
-    
     if (!formData.quantity.trim()) {
       newErrors.quantity = 'Miqdar daxil etmək vacibdir';
     } else {
@@ -231,7 +213,6 @@ const Order = () => {
         if (quantity < minAmount) {
           newErrors.quantity = `Minimum miqdar: ${minAmount}`;
         }
-        
         if (selectedService.prices && selectedService.prices.length > 0) {
           const maxAmount = parseInt(selectedService.prices[0].maximum);
           if (quantity > maxAmount) {
@@ -240,7 +221,6 @@ const Order = () => {
         }
       }
     }
-    
     if (selectedService && selectedService.params) {
       selectedService.params.forEach(param => {
         if (param.field_validators.includes('required')) {
@@ -251,31 +231,25 @@ const Order = () => {
         }
       });
     }
-    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Clear any existing toasts before starting
     toast.dismiss();
-    
     if (!user) {
       setAuthDialogOpen(true);
       return;
     }
-
     if (userBalance < calculatedPrice) {
       toast.error('Kifayət qədər balansınız yoxdur. Balansınızı artırın.');
       return;
     }
-
     if (!validateForm()) {
       return;
     }
-
     try {
       setPlacing(true);
       console.log('Placing order with data:', {
@@ -284,21 +258,13 @@ const Order = () => {
         quantity: parseInt(formData.quantity),
         additionalParams: formData.additionalParams
       });
-
-      const response = await proxyApiService.placeOrder(
-        formData.serviceId,
-        formData.url,
-        parseInt(formData.quantity),
-        formData.additionalParams
-      );
-      
+      const response = await proxyApiService.placeOrder(formData.serviceId, formData.url, parseInt(formData.quantity), formData.additionalParams);
       console.log('Order API response:', response);
-      
+
       // Check if order was successful
       if (!response || response.status === 'error' || response.error) {
         // Handle API error - don't deduct balance or redirect
         let errorMessage = 'Sifariş verilmədi. Yenidən cəhd edin.';
-        
         if (response?.message) {
           if (Array.isArray(response.message)) {
             errorMessage = response.message.map(msg => msg.message || msg).join(', ');
@@ -308,7 +274,6 @@ const Order = () => {
         } else if (response?.error) {
           errorMessage = response.error;
         }
-        
         toast.error(errorMessage);
         return; // Don't proceed with balance deduction or database save
       }
@@ -317,11 +282,11 @@ const Order = () => {
       if (response.status === 'success' && response.id_service_submission) {
         // Update user balance
         const newBalance = userBalance - calculatedPrice;
-        const { error: balanceError } = await supabase
-          .from('profiles')
-          .update({ balance: newBalance })
-          .eq('id', user.id);
-
+        const {
+          error: balanceError
+        } = await supabase.from('profiles').update({
+          balance: newBalance
+        }).eq('id', user.id);
         if (balanceError) {
           console.error('Error updating balance:', balanceError);
         } else {
@@ -329,25 +294,23 @@ const Order = () => {
         }
 
         // Save order to local database
-        const { error: orderError } = await supabase
-          .from('orders')
-          .insert({
-            user_id: user.id,
-            service_id: formData.serviceId,
-            service_name: selectedService?.public_name || '',
-            platform: selectedService?.platform || '',
-            service_type: selectedServiceType,
-            quantity: parseInt(formData.quantity),
-            price: calculatedPrice,
-            link: formData.url,
-            status: 'pending',
-            external_order_id: response.id_service_submission
-          });
-
+        const {
+          error: orderError
+        } = await supabase.from('orders').insert({
+          user_id: user.id,
+          service_id: formData.serviceId,
+          service_name: selectedService?.public_name || '',
+          platform: selectedService?.platform || '',
+          service_type: selectedServiceType,
+          quantity: parseInt(formData.quantity),
+          price: calculatedPrice,
+          link: formData.url,
+          status: 'pending',
+          external_order_id: response.id_service_submission
+        });
         if (orderError) {
           console.error('Error saving order:', orderError);
         }
-
         toast.success('Sifariş uğurla verildi!');
         // Small delay to ensure user sees the success message before redirect
         setTimeout(() => {
@@ -364,24 +327,33 @@ const Order = () => {
       setPlacing(false);
     }
   };
-
   const updateFormData = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+      setErrors(prev => ({
+        ...prev,
+        [field]: ''
+      }));
     }
   };
-
   const updateAdditionalParam = (paramName: string, value: any) => {
     setFormData(prev => ({
       ...prev,
-      additionalParams: { ...prev.additionalParams, [paramName]: value }
+      additionalParams: {
+        ...prev.additionalParams,
+        [paramName]: value
+      }
     }));
     if (errors[paramName]) {
-      setErrors(prev => ({ ...prev, [paramName]: '' }));
+      setErrors(prev => ({
+        ...prev,
+        [paramName]: ''
+      }));
     }
   };
-
   const handlePlatformChange = (platform: string) => {
     setSelectedPlatform(platform);
     setSelectedServiceType('');
@@ -389,14 +361,12 @@ const Order = () => {
     setServiceDetails(null);
     updateFormData('serviceId', '');
   };
-
   const handleServiceTypeChange = (serviceType: string) => {
     setSelectedServiceType(serviceType);
     setSelectedService(null);
     setServiceDetails(null);
     updateFormData('serviceId', '');
   };
-
   const handleServiceSelect = (serviceId: string) => {
     updateFormData('serviceId', serviceId);
     const service = services.find(s => s.id_service.toString() === serviceId);
@@ -404,7 +374,6 @@ const Order = () => {
       handleServiceSelection(service);
     }
   };
-
   const getServiceDescription = () => {
     if (serviceDetails?.description && serviceDetails.description.trim()) {
       return serviceDetails.description;
@@ -414,15 +383,12 @@ const Order = () => {
     }
     return null;
   };
-
   const handleBalanceTopUpSuccess = (transactionId: string) => {
     toast.success('Balans uğurla artırıldı!');
     fetchUserBalance();
   };
-
   if (loading || settingsLoading || authLoading) {
-    return (
-      <div className="min-h-screen bg-background">
+    return <div className="min-h-screen bg-background">
         <Header />
         <div className="container mx-auto px-4 py-20">
           <div className="flex items-center justify-center min-h-[60vh]">
@@ -432,12 +398,9 @@ const Order = () => {
             </div>
           </div>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Header />
       
       <section className="bg-gradient-to-br from-primary/5 to-secondary/5 py-16">
@@ -463,88 +426,29 @@ const Order = () => {
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-6">
-                    <ServiceFilters
-                      services={services}
-                      selectedPlatform={selectedPlatform}
-                      selectedServiceType={selectedServiceType}
-                      onPlatformChange={handlePlatformChange}
-                      onServiceTypeChange={handleServiceTypeChange}
-                      allowedPlatforms={allowedPlatforms}
-                    />
+                    <ServiceFilters services={services} selectedPlatform={selectedPlatform} selectedServiceType={selectedServiceType} onPlatformChange={handlePlatformChange} onServiceTypeChange={handleServiceTypeChange} allowedPlatforms={allowedPlatforms} />
                     
-                    {errors.serviceId && (
-                      <p className="text-sm text-red-500 flex items-center">
+                    {errors.serviceId && <p className="text-sm text-red-500 flex items-center">
                         <AlertCircle className="h-4 w-4 mr-1" />
                         {errors.serviceId}
-                      </p>
-                    )}
+                      </p>}
 
-                    <ServiceSelector
-                      services={services}
-                      selectedPlatform={selectedPlatform}
-                      selectedServiceType={selectedServiceType}
-                      selectedServiceId={formData.serviceId}
-                      priceFilter={priceFilter}
-                      serviceFeePercentage={settings.service_fee}
-                      baseFee={settings.base_fee}
-                      onServiceSelect={handleServiceSelect}
-                      onPriceFilterChange={setPriceFilter}
-                      error={errors.serviceId}
-                    />
+                    <ServiceSelector services={services} selectedPlatform={selectedPlatform} selectedServiceType={selectedServiceType} selectedServiceId={formData.serviceId} priceFilter={priceFilter} serviceFeePercentage={settings.service_fee} baseFee={settings.base_fee} onServiceSelect={handleServiceSelect} onPriceFilterChange={setPriceFilter} error={errors.serviceId} />
 
-                    {selectedService && (
-                      <ServiceInfo
-                        serviceDescription={getServiceDescription()}
-                        loading={loadingServiceDetails}
-                      />
-                    )}
+                    {selectedService && <ServiceInfo serviceDescription={getServiceDescription()} loading={loadingServiceDetails} />}
 
-                    {!selectedPlatform && (
-                      <div className="text-center py-6 text-muted-foreground">Platform seçin</div>
-                    )}
+                    {!selectedPlatform}
 
-                    {selectedPlatform && !selectedServiceType && (
-                      <div className="text-center py-6 text-muted-foreground">Xidmət növünü seçin</div>
-                    )}
+                    {selectedPlatform && !selectedServiceType}
 
-                    {selectedService && (
-                      <OrderForm
-                        service={selectedService}
-                        formData={formData}
-                        errors={errors}
-                        calculatedPrice={calculatedPrice}
-                        placing={placing}
-                        onUpdateFormData={updateFormData}
-                        onUpdateAdditionalParam={updateAdditionalParam}
-                        onPlaceOrder={() => handleSubmit(new Event('submit') as any)}
-                      />
-                    )}
+                    {selectedService && <OrderForm service={selectedService} formData={formData} errors={errors} calculatedPrice={calculatedPrice} placing={placing} onUpdateFormData={updateFormData} onUpdateAdditionalParam={updateAdditionalParam} onPlaceOrder={() => handleSubmit(new Event('submit') as any)} />}
                   </form>
                 </CardContent>
               </Card>
             </div>
 
             <div className="lg:col-span-1">
-              <OrderSummary
-                selectedService={selectedService}
-                quantity={formData.quantity}
-                calculatedPrice={calculatedPrice}
-                serviceFeePercentage={settings.service_fee}
-                baseFee={settings.base_fee}
-                userBalance={userBalance}
-                balanceLoading={balanceLoading}
-                onBalanceTopUp={() => {}}
-                showBalanceTopUp={user && userBalance < calculatedPrice}
-                BalanceTopUpComponent={
-                  <BalanceTopUpDialog
-                    customerEmail={user?.email}
-                    customerName={user?.user_metadata?.full_name}
-                    userId={user?.id}
-                    onSuccess={handleBalanceTopUpSuccess}
-                    onError={(error) => toast.error('Balans artırma zamanı xəta: ' + error)}
-                  />
-                }
-              />
+              <OrderSummary selectedService={selectedService} quantity={formData.quantity} calculatedPrice={calculatedPrice} serviceFeePercentage={settings.service_fee} baseFee={settings.base_fee} userBalance={userBalance} balanceLoading={balanceLoading} onBalanceTopUp={() => {}} showBalanceTopUp={user && userBalance < calculatedPrice} BalanceTopUpComponent={<BalanceTopUpDialog customerEmail={user?.email} customerName={user?.user_metadata?.full_name} userId={user?.id} onSuccess={handleBalanceTopUpSuccess} onError={error => toast.error('Balans artırma zamanı xəta: ' + error)} />} />
             </div>
           </div>
         </div>
@@ -552,12 +456,7 @@ const Order = () => {
 
       <Footer />
 
-      <AuthDialog
-        open={authDialogOpen}
-        onOpenChange={setAuthDialogOpen}
-      />
-    </div>
-  );
+      <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} />
+    </div>;
 };
-
 export default Order;
