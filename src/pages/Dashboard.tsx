@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Loader2, Package, Clock, CheckCircle, XCircle, Wallet, LifeBuoy, Settings, ShoppingCart, DollarSign } from 'lucide-react';
@@ -40,6 +41,7 @@ interface Profile {
 
 const Dashboard = () => {
   const { user, signOut, loading: authLoading } = useAuth();
+  const { t, language } = useLanguage();
   const [orders, setOrders] = useState<Order[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -227,7 +229,7 @@ const Dashboard = () => {
         {/* Header with Balance prominently displayed */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold">Dashboard</h1>
+            <h1 className="text-3xl font-bold">{t('dashboard.title')}</h1>
             <p className="text-muted-foreground">
               Xoş gəlmisiniz, {profile?.full_name || user?.email}
             </p>
@@ -241,7 +243,7 @@ const Dashboard = () => {
                     <Wallet className="h-5 w-5 text-green-600" />
                   </div>
                   <div>
-                    <p className="text-sm text-green-600 font-medium">Balans</p>
+                    <p className="text-sm text-green-600 font-medium">{t('dashboard.balance')}</p>
                     <p className="text-2xl font-bold text-green-700">
                       ${profile?.balance?.toFixed(2) || '0.00'}
                     </p>
@@ -252,14 +254,14 @@ const Dashboard = () => {
                     className="bg-green-600 hover:bg-green-700"
                   >
                     <DollarSign className="h-4 w-4 mr-1" />
-                    Artır
+                    {t('dashboard.topUp')}
                   </Button>
                 </div>
               </CardContent>
             </Card>
             
             <Button variant="outline" onClick={handleSignOut}>
-              Çıxış
+              {t('nav.signOut')}
             </Button>
           </div>
         </div>
@@ -312,23 +314,23 @@ const Dashboard = () => {
           <TabsList className="grid w-full grid-cols-5 mb-8">
             <TabsTrigger value="orders" className="flex items-center gap-2">
               <Package className="h-4 w-4" />
-              Bütün Sifarişlər
+              {t('dashboard.allOrders')}
             </TabsTrigger>
             <TabsTrigger value="completed" className="flex items-center gap-2">
               <CheckCircle className="h-4 w-4" />
-              Tamamlananlar
+              {t('dashboard.completed')}
             </TabsTrigger>
             <TabsTrigger value="payments" className="flex items-center gap-2">
               <Wallet className="h-4 w-4" />
-              Ödənişlər
+              {t('dashboard.paymentHistory')}
             </TabsTrigger>
             <TabsTrigger value="support" className="flex items-center gap-2">
               <LifeBuoy className="h-4 w-4" />
-              Dəstək
+              {t('dashboard.support')}
             </TabsTrigger>
             <TabsTrigger value="settings" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
-              Hesab Ayarları
+              {t('dashboard.settings')}
             </TabsTrigger>
           </TabsList>
 
@@ -343,7 +345,7 @@ const Dashboard = () => {
                     </CardDescription>
                   </div>
                   <Button 
-                    onClick={() => navigate('/order')} 
+                    onClick={() => navigate(`/${language}/order`)} 
                     className="bg-primary hover:bg-primary/90"
                   >
                     <ShoppingCart className="h-4 w-4 mr-2" />

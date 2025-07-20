@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
 import { User, Lock, Mail, Save } from 'lucide-react';
 
@@ -25,6 +26,7 @@ interface AccountSettingsProps {
 
 const AccountSettings = ({ profile, onProfileUpdate }: AccountSettingsProps) => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [profileData, setProfileData] = useState({
     full_name: profile?.full_name || '',
@@ -38,7 +40,7 @@ const AccountSettings = ({ profile, onProfileUpdate }: AccountSettingsProps) => 
 
   const updateProfile = async () => {
     if (!profileData.full_name.trim()) {
-      toast.error('Ad Soyad sahəsi mütləqdir');
+      toast.error(t('account.fullNameRequired'));
       return;
     }
 
@@ -54,14 +56,14 @@ const AccountSettings = ({ profile, onProfileUpdate }: AccountSettingsProps) => 
 
       if (error) {
         console.error('Error updating profile:', error);
-        toast.error('Profil yenilənərkən xəta baş verdi');
+        toast.error(t('account.profileUpdateError'));
       } else {
-        toast.success('Profil uğurla yeniləndi');
+        toast.success(t('account.profileUpdated'));
         onProfileUpdate();
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Profil yenilənərkən xəta baş verdi');
+      toast.error(t('account.profileUpdateError'));
     } finally {
       setLoading(false);
     }
@@ -69,17 +71,17 @@ const AccountSettings = ({ profile, onProfileUpdate }: AccountSettingsProps) => 
 
   const updatePassword = async () => {
     if (!passwordData.new_password.trim() || !passwordData.confirm_password.trim()) {
-      toast.error('Bütün şifrə sahələri mütləqdir');
+      toast.error(t('account.passwordRequired'));
       return;
     }
 
     if (passwordData.new_password !== passwordData.confirm_password) {
-      toast.error('Yeni şifrələr uyğun gəlmir');
+      toast.error(t('account.passwordMismatch'));
       return;
     }
 
     if (passwordData.new_password.length < 6) {
-      toast.error('Şifrə ən azı 6 simvol olmalıdır');
+      toast.error(t('account.passwordMinLength'));
       return;
     }
 
@@ -91,9 +93,9 @@ const AccountSettings = ({ profile, onProfileUpdate }: AccountSettingsProps) => 
 
       if (error) {
         console.error('Error updating password:', error);
-        toast.error('Şifrə yenilənərkən xəta baş verdi');
+        toast.error(t('account.passwordUpdateError'));
       } else {
-        toast.success('Şifrə uğurla yeniləndi');
+        toast.success(t('account.passwordUpdated'));
         setPasswordData({
           current_password: '',
           new_password: '',
@@ -102,7 +104,7 @@ const AccountSettings = ({ profile, onProfileUpdate }: AccountSettingsProps) => 
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Şifrə yenilənərkən xəta baş verdi');
+      toast.error(t('account.passwordUpdateError'));
     } finally {
       setLoading(false);
     }
@@ -140,7 +142,7 @@ const AccountSettings = ({ profile, onProfileUpdate }: AccountSettingsProps) => 
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="full_name">Ad Soyad</Label>
+                <Label htmlFor="full_name">{t('account.fullName')}</Label>
                 <Input
                   id="full_name"
                   placeholder="Ad Soyadınızı daxil edin"
@@ -195,7 +197,7 @@ const AccountSettings = ({ profile, onProfileUpdate }: AccountSettingsProps) => 
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="new_password">Yeni Şifrə</Label>
+                <Label htmlFor="new_password">{t('account.newPassword')}</Label>
                 <Input
                   id="new_password"
                   type="password"

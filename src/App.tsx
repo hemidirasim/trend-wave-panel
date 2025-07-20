@@ -49,6 +49,76 @@ function App() {
               <Router>
                 <div className="min-h-screen bg-background text-foreground">
                   <Routes>
+                    {/* Language-specific routes */}
+                    <Route path="/:lang/" element={<Index />} />
+                    <Route path="/:lang/auth" element={<Auth />} />
+                    <Route path="/:lang/reset-password" element={<ResetPassword />} />
+                    <Route path="/:lang/password-recovery" element={<PasswordRecovery />} />
+                    <Route path="/:lang/services" element={<Services />} />
+                    <Route path="/:lang/service/:id" element={<ServiceDetail />} />
+                    <Route path="/:lang/order" element={<Order />} />
+                    <Route path="/:lang/track" element={<Track />} />
+                    <Route path="/:lang/blog" element={<Blog />} />
+                    <Route path="/:lang/blog/:slug" element={<BlogPost />} />
+                    <Route path="/:lang/about" element={<About />} />
+                    <Route path="/:lang/contact" element={<Contact />} />
+                    <Route path="/:lang/terms" element={<Terms />} />
+                    <Route path="/:lang/privacy" element={<Privacy />} />
+                    <Route path="/:lang/payment-success" element={<PaymentSuccess />} />
+                    <Route path="/:lang/payment-error" element={<PaymentError />} />
+                    
+                    <Route 
+                      path="/:lang/dashboard" 
+                      element={
+                        <ProtectedRoute>
+                          <Dashboard />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    
+                    {/* Admin Routes */}
+                    <Route 
+                      path="/:lang/admin" 
+                      element={
+                        <ProtectedAdminRoute>
+                          <Admin />
+                        </ProtectedAdminRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/:lang/admin/users" 
+                      element={
+                        <ProtectedAdminRoute>
+                          <AdminUsers />
+                        </ProtectedAdminRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/:lang/admin/services" 
+                      element={
+                        <ProtectedAdminRoute>
+                          <AdminServices />
+                        </ProtectedAdminRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/:lang/admin/settings" 
+                      element={
+                        <ProtectedAdminRoute>
+                          <AdminSettings />
+                        </ProtectedAdminRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/:lang/admin/blog" 
+                      element={
+                        <ProtectedAdminRoute>
+                          <AdminBlog />
+                        </ProtectedAdminRoute>
+                      } 
+                    />
+                    
+                    {/* Fallback routes without language */}
                     <Route path="/" element={<Index />} />
                     <Route path="/auth" element={<Auth />} />
                     <Route path="/reset-password" element={<ResetPassword />} />
@@ -65,7 +135,6 @@ function App() {
                     <Route path="/privacy" element={<Privacy />} />
                     <Route path="/payment-success" element={<PaymentSuccess />} />
                     <Route path="/payment-error" element={<PaymentError />} />
-                    
                     <Route 
                       path="/dashboard" 
                       element={
@@ -74,8 +143,6 @@ function App() {
                         </ProtectedRoute>
                       } 
                     />
-                    
-                    {/* Admin Routes */}
                     <Route 
                       path="/admin" 
                       element={

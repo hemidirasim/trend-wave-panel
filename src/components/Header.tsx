@@ -23,9 +23,9 @@ export const Header = () => {
   const { user, signOut } = useAuth();
 
   const navigation = [
-    { name: t('nav.about'), href: '/about' },
-    { name: t('nav.blog'), href: '/blog' },
-    { name: t('nav.contact'), href: '/contact' },
+    { name: t('nav.about'), href: `/${language}/about` },
+    { name: t('nav.blog'), href: `/${language}/blog` },
+    { name: t('nav.contact'), href: `/${language}/contact` },
   ];
 
   useEffect(() => {
@@ -104,10 +104,10 @@ export const Header = () => {
                   </h3>
                   {socialPlatforms.map((platform) => (
                     <DropdownMenuItem key={platform} asChild>
-                      <Link
-                        to={`/order?platform=${platform.toLowerCase()}`}
-                        className="block w-full text-left px-2 py-1.5 text-sm capitalize cursor-pointer hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                      >
+                       <Link
+                         to={`/${language}/order?platform=${platform.toLowerCase()}`}
+                         className="block w-full text-left px-2 py-1.5 text-sm capitalize cursor-pointer hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                       >
                         {platform}
                       </Link>
                     </DropdownMenuItem>
@@ -132,7 +132,7 @@ export const Header = () => {
           <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center lg:gap-4">
             {user ? (
               <div className="flex items-center gap-4">
-                <Link to="/dashboard">
+                <Link to={`/${language}/dashboard`}>
                   <Button variant="outline" size="sm">
                     {t('nav.dashboard')}
                   </Button>
@@ -194,12 +194,12 @@ export const Header = () => {
                        {t('nav.socialNetworks')}
                      </div>
                      {socialPlatforms.map((platform) => (
-                       <Link
-                         key={platform}
-                         to={`/order?platform=${platform.toLowerCase()}`}
-                         className="block rounded-lg px-6 py-2 text-sm leading-7 text-muted-foreground hover:bg-muted hover:text-foreground capitalize"
-                         onClick={() => setIsMenuOpen(false)}
-                       >
+                        <Link
+                          key={platform}
+                          to={`/${language}/order?platform=${platform.toLowerCase()}`}
+                          className="block rounded-lg px-6 py-2 text-sm leading-7 text-muted-foreground hover:bg-muted hover:text-foreground capitalize"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
                          {platform}
                        </Link>
                      ))}
@@ -230,7 +230,7 @@ export const Header = () => {
                   
                   {user ? (
                     <div className="space-y-2">
-                      <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
+                      <Link to={`/${language}/dashboard`} onClick={() => setIsMenuOpen(false)}>
                         <Button variant="outline" className="w-full">
                           {t('nav.dashboard')}
                         </Button>

@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Clock, CheckCircle, XCircle, ExternalLink, AlertTriangle, StopCircle, RotateCcw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Order {
   id: string;
@@ -25,6 +26,7 @@ interface OrdersTableProps {
 }
 
 const OrdersTable = ({ orders, onOrdersUpdate }: OrdersTableProps) => {
+  const { t } = useLanguage();
   useEffect(() => {
     // Set up real-time subscription for order status updates
     const channel = supabase
@@ -51,22 +53,22 @@ const OrdersTable = ({ orders, onOrdersUpdate }: OrdersTableProps) => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="outline" className="text-yellow-600"><Clock className="h-3 w-3 mr-1" />Gözlənir</Badge>;
+        return <Badge variant="outline" className="text-yellow-600"><Clock className="h-3 w-3 mr-1" />{t('orders.pending')}</Badge>;
       case 'processing':
       case 'in_progress':
       case 'active':
       case 'running':
-        return <Badge variant="outline" className="text-blue-600"><Clock className="h-3 w-3 mr-1" />İşlənir</Badge>;
+        return <Badge variant="outline" className="text-blue-600"><Clock className="h-3 w-3 mr-1" />{t('orders.processing')}</Badge>;
       case 'completed':
-        return <Badge variant="outline" className="text-green-600"><CheckCircle className="h-3 w-3 mr-1" />Tamamlandı</Badge>;
+        return <Badge variant="outline" className="text-green-600"><CheckCircle className="h-3 w-3 mr-1" />{t('orders.completed')}</Badge>;
       case 'error':
-        return <Badge variant="outline" className="text-red-600"><XCircle className="h-3 w-3 mr-1" />Xəta</Badge>;
+        return <Badge variant="outline" className="text-red-600"><XCircle className="h-3 w-3 mr-1" />{t('orders.error')}</Badge>;
       case 'refunded':
-        return <Badge variant="outline" className="text-purple-600"><RotateCcw className="h-3 w-3 mr-1" />Geri qaytarıldı</Badge>;
+        return <Badge variant="outline" className="text-purple-600"><RotateCcw className="h-3 w-3 mr-1" />{t('orders.refunded')}</Badge>;
       case 'stopped':
-        return <Badge variant="outline" className="text-orange-600"><StopCircle className="h-3 w-3 mr-1" />Dayandırıldı</Badge>;
+        return <Badge variant="outline" className="text-orange-600"><StopCircle className="h-3 w-3 mr-1" />{t('orders.stopped')}</Badge>;
       case 'cancelled':
-        return <Badge variant="outline" className="text-red-600"><XCircle className="h-3 w-3 mr-1" />Ləğv edildi</Badge>;
+        return <Badge variant="outline" className="text-red-600"><XCircle className="h-3 w-3 mr-1" />{t('orders.cancelled')}</Badge>;
       default:
         return <Badge variant="outline"><AlertTriangle className="h-3 w-3 mr-1" />{status}</Badge>;
     }
@@ -86,9 +88,9 @@ const OrdersTable = ({ orders, onOrdersUpdate }: OrdersTableProps) => {
     return (
       <div className="text-center py-8">
         <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-        <h3 className="text-lg font-semibold mb-2">Sifariş tapılmadı</h3>
+        <h3 className="text-lg font-semibold mb-2">{t('dashboard.noOrders')}</h3>
         <p className="text-muted-foreground">
-          Bu kateqoriyada sifariş yoxdur
+          {t('dashboard.noOrdersDesc')}
         </p>
       </div>
     );
