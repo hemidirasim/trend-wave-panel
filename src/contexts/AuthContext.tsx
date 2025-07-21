@@ -23,6 +23,25 @@ export const useAuth = () => {
   return context;
 };
 
+// Auth state cleanup utility
+const cleanupAuthState = () => {
+  console.log('Cleaning up auth state...');
+  
+  // Clear session storage
+  sessionStorage.clear();
+  
+  // Clear localStorage auth keys
+  Object.keys(localStorage).forEach((key) => {
+    if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+      localStorage.removeItem(key);
+    }
+  });
+  
+  // Clear specific auth tokens
+  localStorage.removeItem('supabase.auth.token');
+  localStorage.removeItem('supabase.auth.refresh_token');
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -30,14 +49,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { addNotification } = useNotification();
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    // Listen for auth changes
+    // Set up auth state listener first
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -47,25 +59,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
 
       if (event === 'SIGNED_IN' && session?.user) {
-        // Set flag to show login notification only once
         sessionStorage.setItem('just_logged_in', 'true');
       }
 
       if (event === 'SIGNED_OUT') {
-        // Clear any auth-related session storage
-        sessionStorage.removeItem('just_logged_in');
-        // Force page reload to clear any cached data
+        console.log('User signed out, cleaning up...');
+        cleanupAuthState();
+        // Small delay before redirect to ensure cleanup
         setTimeout(() => {
           window.location.href = '/';
         }, 100);
       }
     });
 
+    // Then get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
     return () => subscription.unsubscribe();
-  }, [addNotification]);
+  }, []);
 
   const signIn = async (email: string, password: string) => {
     try {
+      // Clean up any existing state first
+      cleanupAuthState();
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -146,45 +167,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log('Starting sign out process...');
       
-      // Clear any session storage first
-      sessionStorage.clear();
+      // Clear local state immediately
+      setUser(null);
+      setSession(null);
       
-      // Sign out from Supabase
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        console.error('Error signing out:', error);
-        addNotification({
-          type: 'error',
-          title: 'Çıxış xətası',
-          message: 'Çıxış zamanı xəta baş verdi',
-        });
-        throw error;
-      }
-
-      console.log('Sign out successful');
-      
-      // Show success notification
+      // Show notification
       addNotification({
         type: 'success',
-        title: 'Uğurla çıxış',
+        title: 'Çıxış edildi',
         message: 'Hesabınızdan uğurla çıxış etdiniz',
       });
-
-      // Force reload to clear all state
+      
+      // Clean up auth state
+      cleanupAuthState();
+      
+      // Sign out from Supabase (don't wait for response)
+      supabase.auth.signOut({ scope: 'global' }).catch(error => {
+        console.error('Error signing out:', error);
+      });
+      
+      // Force reload immediately
       setTimeout(() => {
         window.location.href = '/';
-      }, 500);
+      }, 100);
       
     } catch (error) {
       console.error('Sign out error:', error);
-      // Even if there's an error, clear local state and redirect
-      setUser(null);
-      setSession(null);
-      sessionStorage.clear();
+      // Even if there's an error, force cleanup and redirect
+      cleanupAuthState();
       setTimeout(() => {
         window.location.href = '/';
-      }, 500);
+      }, 100);
     }
   };
 
