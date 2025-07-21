@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Target, Instagram, Music, Youtube, Facebook } from 'lucide-react';
+import { Target, Instagram, Music, Youtube, Facebook, Linkedin } from 'lucide-react';
 import { proxyApiService, Service } from './ProxyApiService';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useLanguage } from '@/contexts/LanguageContext';
