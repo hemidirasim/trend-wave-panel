@@ -18,6 +18,7 @@ export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [apiServices, setApiServices] = useState<Service[]>([]);
+  const [isSigningOut, setIsSigningOut] = useState(false);
   const location = useLocation();
   const { language, setLanguage, t } = useLanguage();
   const { user, signOut } = useAuth();
@@ -60,10 +61,16 @@ export const Header = () => {
   };
 
   const handleSignOut = async () => {
+    if (isSigningOut) return; // Prevent multiple clicks
+    
     try {
+      setIsSigningOut(true);
+      console.log('Sign out button clicked');
       await signOut();
     } catch (error) {
       console.error('Error signing out:', error);
+    } finally {
+      setIsSigningOut(false);
     }
   };
 
@@ -137,8 +144,13 @@ export const Header = () => {
                     {t('nav.dashboard')}
                   </Button>
                 </Link>
-                <Button onClick={handleSignOut} variant="ghost" size="sm">
-                  {t('nav.signOut')}
+                <Button 
+                  onClick={handleSignOut} 
+                  variant="ghost" 
+                  size="sm"
+                  disabled={isSigningOut}
+                >
+                  {isSigningOut ? 'Çıxılır...' : t('nav.signOut')}
                 </Button>
               </div>
             ) : (
@@ -235,8 +247,13 @@ export const Header = () => {
                           {t('nav.dashboard')}
                         </Button>
                       </Link>
-                      <Button onClick={handleSignOut} variant="ghost" className="w-full">
-                        {t('nav.signOut')}
+                      <Button 
+                        onClick={handleSignOut} 
+                        variant="ghost" 
+                        className="w-full"
+                        disabled={isSigningOut}
+                      >
+                        {isSigningOut ? 'Çıxılır...' : t('nav.signOut')}
                       </Button>
                     </div>
                   ) : (

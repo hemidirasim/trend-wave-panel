@@ -54,6 +54,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (event === 'SIGNED_OUT') {
         // Clear any auth-related session storage
         sessionStorage.removeItem('just_logged_in');
+        // Force page reload to clear any cached data
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 100);
       }
     });
 
@@ -139,10 +143,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error('Error signing out:', error);
-      throw error;
+    try {
+      console.log('Starting sign out process...');
+      
+      // Clear any session storage first
+      sessionStorage.clear();
+      
+      // Sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Error signing out:', error);
+        addNotification({
+          type: 'error',
+          title: 'Çıxış xətası',
+          message: 'Çıxış zamanı xəta baş verdi',
+        });
+        throw error;
+      }
+
+      console.log('Sign out successful');
+      
+      // Show success notification
+      addNotification({
+        type: 'success',
+        title: 'Uğurla çıxış',
+        message: 'Hesabınızdan uğurla çıxış etdiniz',
+      });
+
+      // Force reload to clear all state
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 500);
+      
+    } catch (error) {
+      console.error('Sign out error:', error);
+      // Even if there's an error, clear local state and redirect
+      setUser(null);
+      setSession(null);
+      sessionStorage.clear();
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 500);
     }
   };
 

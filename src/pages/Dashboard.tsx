@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -49,6 +48,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const hasShownLoginNotification = useRef(false);
   const [balanceTopUpOpen, setBalanceTopUpOpen] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -189,11 +189,17 @@ const Dashboard = () => {
   };
 
   const handleSignOut = async () => {
+    if (isSigningOut) return; // Prevent multiple clicks
+    
     try {
+      setIsSigningOut(true);
+      console.log('Dashboard sign out button clicked');
       await signOut();
-      navigate('/');
     } catch (error) {
+      console.error('Error signing out from dashboard:', error);
       toast.error('Çıxış zamanı xəta baş verdi');
+    } finally {
+      setIsSigningOut(false);
     }
   };
 
@@ -260,8 +266,12 @@ const Dashboard = () => {
               </CardContent>
             </Card>
             
-            <Button variant="outline" onClick={handleSignOut}>
-              {t('nav.signOut')}
+            <Button 
+              variant="outline" 
+              onClick={handleSignOut}
+              disabled={isSigningOut}
+            >
+              {isSigningOut ? 'Çıxılır...' : t('nav.signOut')}
             </Button>
           </div>
         </div>

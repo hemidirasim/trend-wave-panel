@@ -25,6 +25,7 @@ interface AdminSidebarProps {
 export const AdminSidebar = ({ collapsed, setCollapsed }: AdminSidebarProps) => {
   const location = useLocation();
   const { signOut } = useAuth();
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   const navigation = [
     {
@@ -85,12 +86,18 @@ export const AdminSidebar = ({ collapsed, setCollapsed }: AdminSidebarProps) => 
   }
 
   async function handleSignOut() {
+    if (isSigningOut) return; // Prevent multiple clicks
+    
     try {
+      setIsSigningOut(true);
+      console.log('Admin sidebar sign out clicked');
       await signOut();
     } catch (error) {
-      console.error('Error signing out:', error);
+      console.error('Error signing out from admin:', error);
+    } finally {
+      setIsSigningOut(false);
     }
-  };
+  }
 
   return (
     <>
@@ -161,9 +168,10 @@ export const AdminSidebar = ({ collapsed, setCollapsed }: AdminSidebarProps) => 
             variant="ghost"
             className={`w-full justify-start ${collapsed ? 'px-3' : ''}`}
             onClick={handleSignOut}
+            disabled={isSigningOut}
           >
             <LogOut className="h-4 w-4" />
-            {!collapsed && <span className="ml-3">Çıxış</span>}
+            {!collapsed && <span className="ml-3">{isSigningOut ? 'Çıxılır...' : 'Çıxış'}</span>}
           </Button>
         </div>
       </div>
