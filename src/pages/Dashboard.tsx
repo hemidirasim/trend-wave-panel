@@ -195,6 +195,9 @@ const Dashboard = () => {
       setIsSigningOut(true);
       console.log('Dashboard sign out button clicked');
       await signOut();
+      
+      // Directly navigate to home page without auth parameter
+      navigate('/');
     } catch (error) {
       console.error('Error signing out from dashboard:', error);
       toast.error('Çıxış zamanı xəta baş verdi');
