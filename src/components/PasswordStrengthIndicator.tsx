@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { validatePasswordStrength, getPasswordStrengthColor } from '@/utils/passwordValidation';
 import { Check, X } from 'lucide-react';
 
@@ -12,9 +12,10 @@ const PasswordStrengthIndicator: React.FC<PasswordStrengthIndicatorProps> = ({
   password,
   showRequirements = true,
 }) => {
-  const strength = validatePasswordStrength(password);
+  // Memoize the strength calculation to prevent unnecessary re-calculations
+  const strength = useMemo(() => validatePasswordStrength(password), [password]);
 
-  if (!password) return null;
+  if (!password || password.length < 3) return null;
 
   return (
     <div className="space-y-2">

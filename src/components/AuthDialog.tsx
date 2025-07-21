@@ -29,10 +29,15 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
   const [signupFullName, setSignupFullName] = useState('');
   const [activeTab, setActiveTab] = useState('login');
 
-  // Reset tab to login when dialog opens/closes
+  // Reset form data and tab when dialog closes
   useEffect(() => {
     if (!open) {
       setActiveTab('login');
+      setLoginEmail('');
+      setLoginPassword('');
+      setSignupEmail('');
+      setSignupPassword('');
+      setSignupFullName('');
     }
   }, [open]);
   const { signIn, signUp } = useAuth();
@@ -199,8 +204,10 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
                     required
                     className="h-9"
                   />
-                  {signupPassword && (
-                    <PasswordStrengthIndicator password={signupPassword} />
+                  {signupPassword && signupPassword.length > 2 && (
+                    <div className="mt-2">
+                      <PasswordStrengthIndicator password={signupPassword} />
+                    </div>
                   )}
                 </div>
                 <Button type="submit" className="w-full h-9" disabled={isLoading}>
