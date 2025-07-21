@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Target, Instagram, Music, Youtube, Facebook, Linkedin, Twitter, Telegram } from 'lucide-react';
+import { Target, Instagram, Music, Youtube, Facebook, Linkedin, Twitter, Send } from 'lucide-react';
 import { proxyApiService, Service } from './ProxyApiService';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -20,7 +19,7 @@ const platformIcons: Record<string, any> = {
   facebook: Facebook,
   linkedin: Linkedin,
   twitter: Twitter,
-  telegram: Telegram
+  telegram: Send
 };
 
 export const ServicesSection = () => {
