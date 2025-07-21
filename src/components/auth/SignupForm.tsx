@@ -24,7 +24,7 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
   const { signUp } = useAuth();
   const { addNotification } = useNotification();
 
-  // Check if email exists in database
+  // Email existence check
   const checkEmailExists = useCallback(async (emailToCheck: string) => {
     const trimmedEmail = emailToCheck?.trim().toLowerCase();
     
@@ -37,93 +37,42 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
     setEmailStatus('checking');
 
     try {
-      console.log('Starting email check for:', trimmedEmail);
-      
       // Check profiles table for existing email
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('email')
         .eq('email', trimmedEmail);
 
-      console.log('Profile query result:', { 
-        profileData, 
-        profileError,
-        dataLength: profileData?.length
-      });
-
-      // Check auth.users table by attempting to sign up with the email (this will fail if email exists)
-      // We'll try a different approach - check if signup would fail
-      let emailExistsInAuth = false;
-      
-      try {
-        // Try to sign up with a dummy password to check if email exists
-        // This will return an error if email already exists
-        const { error: signUpError } = await supabase.auth.signUp({
-          email: trimmedEmail,
-          password: 'dummy_password_for_check_only',
-          options: {
-            emailRedirectTo: `${window.location.origin}/`,
-          }
-        });
-        
-        console.log('SignUp test result:', signUpError);
-        
-        // If error contains "already been registered" or similar, email exists
-        if (signUpError && (
-          signUpError.message.includes('already been registered') ||
-          signUpError.message.includes('already exists') ||
-          signUpError.message.includes('User already registered')
-        )) {
-          emailExistsInAuth = true;
-          console.log('Email exists in auth.users:', trimmedEmail);
-        }
-      } catch (authError) {
-        console.log('Auth check error (might be normal):', authError);
-      }
-
-      // Handle profile query errors
       if (profileError) {
         console.error('Profile email check error:', profileError);
         setEmailStatus('idle');
         return;
       }
 
-      // Check if email exists in either profiles table or auth.users
-      const emailExistsInProfiles = profileData && Array.isArray(profileData) && profileData.length > 0;
-      const emailExists = emailExistsInProfiles || emailExistsInAuth;
+      // Check if email exists in profiles table
+      const emailExists = profileData && Array.isArray(profileData) && profileData.length > 0;
       
-      console.log('Final email check result:', {
-        emailExists,
-        emailExistsInProfiles,
-        emailExistsInAuth,
-        profileDataLength: profileData?.length
-      });
-
       if (emailExists) {
-        console.log('Email is taken:', trimmedEmail);
         setEmailStatus('taken');
       } else {
-        console.log('Email is available:', trimmedEmail);
         setEmailStatus('available');
       }
       
     } catch (error) {
-      console.error('Email check failed with exception:', error);
+      console.error('Email check failed:', error);
       setEmailStatus('idle');
     } finally {
       setCheckingEmail(false);
     }
   }, []);
 
-  // Debounced email validation using useEffect
+  // Debounced email validation
   useEffect(() => {
     if (!email || !email.includes('@')) {
       setEmailStatus('idle');
       return;
     }
 
-    setEmailStatus('idle'); // Reset while waiting
-    
     const timeoutId = setTimeout(() => {
       checkEmailExists(email);
     }, 800);
@@ -136,7 +85,7 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
     const passwordStrength = validatePasswordStrength(password);
     const isEmailValid = email.length > 0 && email.includes('@') && emailStatus === 'available';
     const isPasswordValid = passwordStrength.score >= 3;
-    const isNameValid = fullName.trim().length >= 2;
+    const isNameValid = fullName.trim().length >= 3; // Minimum 3 characters
     
     return {
       isValid: isEmailValid && isPasswordValid && isNameValid && !checkingEmail,
@@ -153,7 +102,7 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
       addNotification({
         type: 'error',
         title: 'Form xətası',
-        message: 'Zəhmət olmasa bütün tələbləri doldurun',
+        message: 'Zəhmət olmasa bütün tələbləri yerinə yetirin',
       });
       return;
     }
@@ -201,12 +150,15 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
             <Input
               id="signup-name"
               type="text"
-              placeholder="Ad Soyad"
+              placeholder="Ad Soyad (minimum 3 hərf)"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               className="h-9"
               autoComplete="name"
             />
+            {fullName.length > 0 && fullName.trim().length < 3 && (
+              <p className="text-sm text-red-500">Ad minimum 3 hərf olmalıdır</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="signup-email" className="text-sm">Email</Label>

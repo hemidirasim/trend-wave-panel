@@ -17,8 +17,14 @@ export const LoginForm = ({ onClose }: LoginFormProps) => {
   const [password, setPassword] = useState('');
   const { signIn } = useAuth();
 
+  // Form validation - both fields must be filled
+  const isFormValid = email.trim().length > 0 && password.length > 0;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!isFormValid) return;
+    
     setIsLoading(true);
 
     try {
@@ -46,26 +52,24 @@ export const LoginForm = ({ onClose }: LoginFormProps) => {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-sm">Email</Label>
+            <Label htmlFor="login-email" className="text-sm">Email</Label>
             <Input
-              id="email"
+              id="login-email"
               type="email"
               placeholder="example@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
               className="h-9"
               autoComplete="email"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-sm">Şifrə</Label>
+            <Label htmlFor="login-password" className="text-sm">Şifrə</Label>
             <Input
-              id="password"
+              id="login-password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
               className="h-9"
               autoComplete="current-password"
             />
@@ -74,12 +78,15 @@ export const LoginForm = ({ onClose }: LoginFormProps) => {
             <Link
               to="/reset-password"
               className="text-sm text-primary hover:underline"
-              onClick={onClose}
             >
               Şifrəmi unutdum
             </Link>
           </div>
-          <Button type="submit" className="w-full h-9" disabled={isLoading}>
+          <Button 
+            type="submit" 
+            className="w-full h-9" 
+            disabled={isLoading || !isFormValid}
+          >
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Daxil ol
           </Button>
