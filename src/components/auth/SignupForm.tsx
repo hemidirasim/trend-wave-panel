@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNotification } from '@/components/NotificationProvider';
 import { Loader2 } from 'lucide-react';
 import { validatePasswordStrength } from '@/utils/passwordValidation';
+import PasswordStrengthIndicator from '@/components/PasswordStrengthIndicator';
 
 interface SignupFormProps {
   onClose: () => void;
@@ -51,8 +52,6 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
     }
   }, [email, password, fullName, signUp, onClose, addNotification]);
 
-  // Show password indicator only when user starts typing
-  const showPasswordIndicator = password.length > 2;
 
   return (
     <Card>
@@ -100,13 +99,10 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
               className="h-9"
               autoComplete="new-password"
             />
-            {showPasswordIndicator && (
-              <div className="mt-2">
-                <div className="text-xs text-muted-foreground">
-                  Şifrə gücü: {validatePasswordStrength(password).message}
-                </div>
-              </div>
-            )}
+            <PasswordStrengthIndicator 
+              password={password} 
+              showRequirements={password.length > 0} 
+            />
           </div>
           <Button type="submit" className="w-full h-9" disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

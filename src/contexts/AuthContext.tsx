@@ -121,10 +121,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (error) {
+        let errorMessage = error.message;
+        
+        // Handle specific error cases
+        if (error.message.includes('User already registered') || 
+            error.message.includes('already been registered') ||
+            error.message.includes('already exists')) {
+          errorMessage = 'Bu email ünvanı artıq qeydiyyatdan keçmişdir. Giriş etməyi yoxlayın.';
+        } else if (error.message.includes('Invalid email')) {
+          errorMessage = 'Email ünvanı düzgün deyil';
+        } else if (error.message.includes('Password')) {
+          errorMessage = 'Şifrə çox zəifdir';
+        }
+        
         addNotification({
           type: 'error',
           title: 'Qeydiyyat xətası',
-          message: error.message,
+          message: errorMessage,
         });
         return { error };
       }
