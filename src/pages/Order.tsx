@@ -14,7 +14,7 @@ import { useSettings } from '@/contexts/SettingsContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
-import AuthDialog from '@/components/AuthDialog';
+import AuthDialog from '@/components/auth/AuthDialog';
 import { BalanceTopUpDialog } from '@/components/payment/BalanceTopUpDialog';
 import { supabase } from '@/integrations/supabase/client';
 

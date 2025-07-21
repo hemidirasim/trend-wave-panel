@@ -7,7 +7,7 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ConsultationDialog } from '@/components/ConsultationDialog';
 import { useAuth } from '@/contexts/AuthContext';
-import AuthDialog from '@/components/AuthDialog';
+import AuthDialog from '@/components/auth/AuthDialog';
 import { useNavigate } from 'react-router-dom';
 import { Star, Shield, Clock, Zap, Search, Youtube, TrendingUp, PenTool, Code, Tv, Facebook, Instagram, Users, Heart, Eye, MessageCircle, Share2, Play, ArrowRight, CheckCircle, Megaphone, Monitor, Briefcase, Globe, Video, UserPlus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';

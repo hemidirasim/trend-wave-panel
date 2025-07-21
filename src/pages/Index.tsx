@@ -8,7 +8,7 @@ import { StatsSection } from '@/components/StatsSection';
 import { ServicesSection } from '@/components/ServicesSection';
 import { FeaturesSection } from '@/components/FeaturesSection';
 import { SEO } from '@/components/SEO';
-import AuthDialog from '@/components/AuthDialog';
+import AuthDialog from '@/components/auth/AuthDialog';
 
 const Index = () => {
   const [searchParams, setSearchParams] = useSearchParams();

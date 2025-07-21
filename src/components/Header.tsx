@@ -12,7 +12,7 @@ import {
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { proxyApiService, Service } from './ProxyApiService';
-import AuthDialog from './AuthDialog';
+import AuthDialog from './auth/AuthDialog';
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
