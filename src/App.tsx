@@ -38,7 +38,6 @@ import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
 import { RobotsRoute } from "./components/RobotsRoute";
 import { SitemapRoute } from "./components/SitemapRoute";
 import { LanguageProvider } from "@/contexts/LanguageContext";
-import LanguageWidget from "./components/LanguageWidget";
 
 const queryClient = new QueryClient();
 
@@ -54,7 +53,6 @@ function App() {
                 <Sonner />
                 <BrowserRouter>
                   <LanguageProvider>
-                    <LanguageWidget />
                     <Routes>
                       {/* Public routes */}
                       <Route path="/" element={<Index />} />
