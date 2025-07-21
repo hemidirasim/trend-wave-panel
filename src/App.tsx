@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { NotificationProvider } from "@/components/NotificationProvider";
 import { SettingsProvider } from "@/contexts/SettingsContext";
+import { HelmetProvider } from "react-helmet-async";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Services from "./pages/Services";
@@ -43,89 +44,91 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <NotificationProvider>
-          <AuthProvider>
-            <SettingsProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <LanguageProvider>
-                  <Routes>
-                    {/* Public routes */}
-                    <Route path="/" element={<Index />} />
-                    <Route path="/auth" element={<Auth />} />
-                    <Route path="/password-recovery" element={<PasswordRecovery />} />
-                    <Route path="/reset-password" element={<ResetPassword />} />
-                    <Route path="/payment-success" element={<PaymentSuccess />} />
-                    <Route path="/payment-error" element={<PaymentError />} />
-                    <Route path="/robots.txt" element={<RobotsRoute />} />
-                    <Route path="/sitemap.xml" element={<SitemapRoute />} />
-                    <Route path="/terms" element={<Terms />} />
-                    <Route path="/privacy" element={<Privacy />} />
-                    <Route path="/track" element={<Track />} />
-                    
-                    {/* Language-specific routes */}
-                    <Route path="/:lang" element={<Index />} />
-                    <Route path="/:lang/about" element={<About />} />
-                    <Route path="/:lang/services" element={<Services />} />
-                    <Route path="/:lang/services/:platform" element={<ServiceDetail />} />
-                    <Route path="/:lang/contact" element={<Contact />} />
-                    <Route path="/:lang/blog" element={<Blog />} />
-                    <Route path="/:lang/blog/:slug" element={<BlogPost />} />
-                    <Route path="/:lang/order" element={<Order />} />
-                    <Route path="/:lang/dashboard" element={
-                      <ProtectedRoute>
-                        <Dashboard />
-                      </ProtectedRoute>
-                    } />
-                    
-                    {/* Admin routes */}
-                    <Route path="/admin" element={
-                      <ProtectedAdminRoute>
-                        <Admin />
-                      </ProtectedAdminRoute>
-                    } />
-                    <Route path="/admin/users" element={
-                      <ProtectedAdminRoute>
-                        <AdminUsers />
-                      </ProtectedAdminRoute>
-                    } />
-                    <Route path="/admin/services" element={
-                      <ProtectedAdminRoute>
-                        <AdminServices />
-                      </ProtectedAdminRoute>
-                    } />
-                    <Route path="/admin/service-names" element={
-                      <ProtectedAdminRoute>
-                        <AdminServiceNames />
-                      </ProtectedAdminRoute>
-                    } />
-                    <Route path="/admin/blog" element={
-                      <ProtectedAdminRoute>
-                        <AdminBlog />
-                      </ProtectedAdminRoute>
-                    } />
-                    <Route path="/admin/contact-messages" element={
-                      <ProtectedAdminRoute>
-                        <AdminContactMessages />
-                      </ProtectedAdminRoute>
-                    } />
-                    <Route path="/admin/settings" element={
-                      <ProtectedAdminRoute>
-                        <AdminSettings />
-                      </ProtectedAdminRoute>
-                    } />
-                    
-                    {/* 404 route */}
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </LanguageProvider>
-              </BrowserRouter>
-            </SettingsProvider>
-          </AuthProvider>
-        </NotificationProvider>
-      </TooltipProvider>
+      <HelmetProvider>
+        <TooltipProvider>
+          <NotificationProvider>
+            <AuthProvider>
+              <SettingsProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <LanguageProvider>
+                    <Routes>
+                      {/* Public routes */}
+                      <Route path="/" element={<Index />} />
+                      <Route path="/auth" element={<Auth />} />
+                      <Route path="/password-recovery" element={<PasswordRecovery />} />
+                      <Route path="/reset-password" element={<ResetPassword />} />
+                      <Route path="/payment-success" element={<PaymentSuccess />} />
+                      <Route path="/payment-error" element={<PaymentError />} />
+                      <Route path="/robots.txt" element={<RobotsRoute />} />
+                      <Route path="/sitemap.xml" element={<SitemapRoute />} />
+                      <Route path="/terms" element={<Terms />} />
+                      <Route path="/privacy" element={<Privacy />} />
+                      <Route path="/track" element={<Track />} />
+                      
+                      {/* Language-specific routes */}
+                      <Route path="/:lang" element={<Index />} />
+                      <Route path="/:lang/about" element={<About />} />
+                      <Route path="/:lang/services" element={<Services />} />
+                      <Route path="/:lang/services/:platform" element={<ServiceDetail />} />
+                      <Route path="/:lang/contact" element={<Contact />} />
+                      <Route path="/:lang/blog" element={<Blog />} />
+                      <Route path="/:lang/blog/:slug" element={<BlogPost />} />
+                      <Route path="/:lang/order" element={<Order />} />
+                      <Route path="/:lang/dashboard" element={
+                        <ProtectedRoute>
+                          <Dashboard />
+                        </ProtectedRoute>
+                      } />
+                      
+                      {/* Admin routes */}
+                      <Route path="/admin" element={
+                        <ProtectedAdminRoute>
+                          <Admin />
+                        </ProtectedAdminRoute>
+                      } />
+                      <Route path="/admin/users" element={
+                        <ProtectedAdminRoute>
+                          <AdminUsers />
+                        </ProtectedAdminRoute>
+                      } />
+                      <Route path="/admin/services" element={
+                        <ProtectedAdminRoute>
+                          <AdminServices />
+                        </ProtectedAdminRoute>
+                      } />
+                      <Route path="/admin/service-names" element={
+                        <ProtectedAdminRoute>
+                          <AdminServiceNames />
+                        </ProtectedAdminRoute>
+                      } />
+                      <Route path="/admin/blog" element={
+                        <ProtectedAdminRoute>
+                          <AdminBlog />
+                        </ProtectedAdminRoute>
+                      } />
+                      <Route path="/admin/contact-messages" element={
+                        <ProtectedAdminRoute>
+                          <AdminContactMessages />
+                        </ProtectedAdminRoute>
+                      } />
+                      <Route path="/admin/settings" element={
+                        <ProtectedAdminRoute>
+                          <AdminSettings />
+                        </ProtectedAdminRoute>
+                      } />
+                      
+                      {/* 404 route */}
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </LanguageProvider>
+                </BrowserRouter>
+              </SettingsProvider>
+            </AuthProvider>
+          </NotificationProvider>
+        </TooltipProvider>
+      </HelmetProvider>
     </QueryClientProvider>
   );
 }
