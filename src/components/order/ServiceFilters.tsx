@@ -124,9 +124,26 @@ export function ServiceFilters({
     return groups;
   };
 
-  // Calculate price with admin fees included
-  const calculatePriceWithFees = (service: Service, quantity: number = 1000): number => {
-    return calculatePrice(service, quantity, settings.service_fee, settings.base_fee);
+  // Helper function to determine if a service is a comment service
+  const isCommentService = (serviceName: string): boolean => {
+    const name = serviceName.toLowerCase();
+    return name.includes('comment') || name.includes('şərh');
+  };
+
+  // Calculate price with admin fees included - use appropriate default quantity
+  const calculatePriceWithFees = (service: Service): number => {
+    // Use service-specific default quantity
+    let defaultQuantity = 1000;
+    
+    // For comment services, use a smaller default quantity that fits their range
+    if (isCommentService(service.public_name) && service.prices && service.prices.length > 0) {
+      const minAmount = parseInt(service.prices[0].minimum);
+      const maxAmount = parseInt(service.prices[0].maximum);
+      // Use a quantity that's within the service's range
+      defaultQuantity = Math.min(Math.max(minAmount, 10), maxAmount);
+    }
+    
+    return calculatePrice(service, defaultQuantity, settings.service_fee, settings.base_fee);
   };
 
   const handleServiceGroupSelect = (groupName: string, platform: string, groupServices: Service[]) => {
@@ -231,10 +248,15 @@ export function ServiceFilters({
                         
                         if (cheapestService) {
                           // Calculate price with admin fees included
-                          const finalPrice = calculatePriceWithFees(cheapestService, 1000);
+                          const finalPrice = calculatePriceWithFees(cheapestService);
+                          
+                          // Show appropriate unit based on service type
+                          const isComment = isCommentService(cheapestService.public_name);
+                          const unit = isComment ? '10' : '1000';
+                          
                           return (
                             <div className="font-bold text-primary">
-                              ${finalPrice.toFixed(2)}/1000
+                              ${finalPrice.toFixed(2)}/{unit}
                             </div>
                           );
                         }

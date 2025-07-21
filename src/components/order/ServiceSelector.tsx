@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -33,6 +34,12 @@ export const ServiceSelector = ({
   const { getCustomServiceName, loading: namesLoading } = useServiceNames();
 
   console.log('🔥 ServiceSelector: Component rendered with services count:', services.length);
+
+  // Helper function to determine if a service is a comment service
+  const isCommentService = (serviceName: string): boolean => {
+    const name = serviceName.toLowerCase();
+    return name.includes('comment') || name.includes('şərh');
+  };
 
   // Filter services based on hierarchical selection
   const getFilteredServices = () => {
@@ -74,17 +81,34 @@ export const ServiceSelector = ({
     return priceFilter === 'low-to-high' ? priceA - priceB : priceB - priceA;
   });
 
-  const calculateDisplayPrice = (service: Service, quantity: number = 1000) => {
+  const calculateDisplayPrice = (service: Service): { price: string; unit: string } => {
     if (!service.prices || service.prices.length === 0) {
-      return '0.00';
+      return { price: '0.00', unit: '1000' };
     }
 
     const basePrice = parseFloat(service.prices[0].price);
-    const totalCost = (basePrice / 1000) * quantity;
+    const pricingPer = parseFloat(service.prices[0].pricing_per);
+    
+    // For comment services, use appropriate quantity that fits their range
+    const isComment = isCommentService(service.public_name);
+    let displayQuantity = 1000;
+    let displayUnit = '1000';
+    
+    if (isComment) {
+      const minAmount = parseInt(service.amount_minimum);
+      const maxAmount = service.prices[0].maximum ? parseInt(service.prices[0].maximum) : 1000;
+      displayQuantity = Math.min(Math.max(minAmount, 10), maxAmount);
+      displayUnit = displayQuantity.toString();
+    }
+    
+    const totalCost = (basePrice / pricingPer) * displayQuantity;
     const serviceFee = (totalCost * serviceFeePercentage) / 100;
     const finalPrice = totalCost + serviceFee + baseFee;
     
-    return finalPrice.toFixed(2);
+    return {
+      price: finalPrice.toFixed(2),
+      unit: displayUnit
+    };
   };
 
   const formatStartTime = (startTime?: string) => {
@@ -199,6 +223,7 @@ export const ServiceSelector = ({
           {(() => {
             const service = cheapestService;
             const displayName = getCustomServiceName(service.public_name);
+            const { price, unit } = calculateDisplayPrice(service);
             
             return (
               <div className="space-y-3">
@@ -210,7 +235,7 @@ export const ServiceSelector = ({
                     
                     <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
                       <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded-md text-xs">
-                        1000 ədəd üçün
+                        {unit} ədəd üçün
                       </span>
                       {service.amount_minimum && (
                         <span className="bg-green-50 text-green-700 px-2 py-1 rounded-md text-xs">
@@ -225,7 +250,7 @@ export const ServiceSelector = ({
                   
                   <div className="text-right">
                     <div className="text-2xl font-bold text-primary">
-                      ${calculateDisplayPrice(service)}
+                      ${price}
                     </div>
                   </div>
                 </div>
