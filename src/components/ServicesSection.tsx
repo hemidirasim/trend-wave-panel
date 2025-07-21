@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Target, Instagram, Music, Youtube, Facebook, Linkedin } from 'lucide-react';
+import { Target, Instagram, Music, Youtube, Facebook, Linkedin, Twitter } from 'lucide-react';
 import { proxyApiService, Service } from './ProxyApiService';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -18,7 +18,8 @@ const platformIcons: Record<string, any> = {
   tiktok: Music,
   youtube: Youtube,
   facebook: Facebook,
-  linkedin: Linkedin
+  linkedin: Linkedin,
+  twitter: Twitter
 };
 
 export const ServicesSection = () => {
@@ -39,7 +40,7 @@ export const ServicesSection = () => {
       console.log('🔍 Cari xidmət haqqı:', settings.service_fee);
       
       // API-dən gələn sosial media platformalarını çıxarırıq
-      const allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook','linkedin'];
+      const allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook','linkedin','twitter'];
       const platforms = [...new Set(services
         .filter(service => 
           service.platform && 
