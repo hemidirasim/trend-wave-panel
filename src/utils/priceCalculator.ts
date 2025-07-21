@@ -42,17 +42,38 @@ export const calculatePrice = (
     return 0;
   }
 
+  // Check if this is a comment service for debugging
+  const isCommentService = service.public_name.toLowerCase().includes('comment') || 
+                          service.public_name.toLowerCase().includes('şərh');
+  
+  if (isCommentService) {
+    console.log('🔍 Comment service detected:', {
+      serviceName: service.public_name,
+      priceRange: priceRange,
+      pricingPer: priceRange.pricing_per,
+      price: priceRange.price
+    });
+  }
+
   const pricingPer = parseInt(priceRange.pricing_per);
   const priceForPricingPer = parseFloat(priceRange.price);
   
-  // Validate parsed values
+  // Validate parsed values with more detailed logging
   if (isNaN(pricingPer) || pricingPer <= 0) {
-    console.log('❌ Pricing per qiyməti düzgün deyil:', priceRange.pricing_per);
+    console.log('❌ Pricing per qiyməti düzgün deyil:', {
+      serviceName: service.public_name,
+      originalValue: priceRange.pricing_per,
+      parsedValue: pricingPer
+    });
     return 0;
   }
   
   if (isNaN(priceForPricingPer) || priceForPricingPer < 0) {
-    console.log('❌ Qiymət düzgün deyil:', priceRange.price);
+    console.log('❌ Qiymət düzgün deyil:', {
+      serviceName: service.public_name,
+      originalValue: priceRange.price,
+      parsedValue: priceForPricingPer
+    });
     return 0;
   }
 
