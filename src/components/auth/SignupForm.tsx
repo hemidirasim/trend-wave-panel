@@ -91,12 +91,12 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
     const isNameValid = fullName.trim().length >= 3;
     
     return {
-      isValid: isEmailValid && isPasswordValid && isNameValid && !checkingEmail,
+      isValid: isEmailValid && isPasswordValid && isNameValid && !checkingEmail && emailStatus !== 'taken',
       emailValid: isEmailValid,
       passwordValid: isPasswordValid,
       nameValid: isNameValid
     };
-  }, [email, password, fullName, checkingEmail]);
+  }, [email, password, fullName, checkingEmail, emailStatus]);
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,7 +116,7 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
     setIsLoading(true);
 
     try {
-      // Check email existence before attempting signup
+      // Final check for email existence before signup
       const emailExists = await checkEmailExists(email);
       
       if (emailExists) {
@@ -181,6 +181,9 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
             />
             {fullName.length > 0 && fullName.trim().length < 3 && (
               <p className="text-sm text-red-500">Ad minimum 3 hərf olmalıdır</p>
+            )}
+            {fullName.trim().length >= 3 && (
+              <p className="text-sm text-green-600">Ad tələbləri qarşılanır</p>
             )}
           </div>
           
