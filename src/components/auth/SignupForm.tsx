@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,20 +22,18 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
   const [fullName, setFullName] = useState('');
   const [emailStatus, setEmailStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
   const [checkingEmail, setCheckingEmail] = useState(false);
+  const [emailExistsError, setEmailExistsError] = useState('');
   const { signUp } = useAuth();
   const { addNotification } = useNotification();
 
-  // Email existence check
+  // Email existence check function
   const checkEmailExists = useCallback(async (emailToCheck: string) => {
     const trimmedEmail = emailToCheck?.trim().toLowerCase();
     
     if (!trimmedEmail || !trimmedEmail.includes('@')) {
       setEmailStatus('idle');
-      return;
+      return false;
     }
-
-    setCheckingEmail(true);
-    setEmailStatus('checking');
 
     try {
       // Check profiles table for existing email
@@ -45,36 +44,40 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
 
       if (profileError) {
         console.error('Profile email check error:', profileError);
-        setEmailStatus('idle');
-        return;
+        return false;
       }
 
       // Check if email exists in profiles table
       const emailExists = profileData && Array.isArray(profileData) && profileData.length > 0;
+      return emailExists;
       
-      if (emailExists) {
+    } catch (error) {
+      console.error('Email check failed:', error);
+      return false;
+    }
+  }, []);
+
+  // Debounced email validation for real-time checking
+  useEffect(() => {
+    if (!email || !email.includes('@')) {
+      setEmailStatus('idle');
+      setEmailExistsError('');
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      setCheckingEmail(true);
+      setEmailStatus('checking');
+      
+      const exists = await checkEmailExists(email);
+      
+      if (exists) {
         setEmailStatus('taken');
       } else {
         setEmailStatus('available');
       }
       
-    } catch (error) {
-      console.error('Email check failed:', error);
-      setEmailStatus('idle');
-    } finally {
       setCheckingEmail(false);
-    }
-  }, []);
-
-  // Debounced email validation
-  useEffect(() => {
-    if (!email || !email.includes('@')) {
-      setEmailStatus('idle');
-      return;
-    }
-
-    const timeoutId = setTimeout(() => {
-      checkEmailExists(email);
     }, 800);
 
     return () => clearTimeout(timeoutId);
@@ -83,9 +86,9 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
   // Form validation
   const formValidation = useMemo(() => {
     const passwordStrength = validatePasswordStrength(password);
-    const isEmailValid = email.length > 0 && email.includes('@') && emailStatus === 'available';
+    const isEmailValid = email.length > 0 && email.includes('@');
     const isPasswordValid = passwordStrength.score >= 3;
-    const isNameValid = fullName.trim().length >= 3; // Minimum 3 characters
+    const isNameValid = fullName.trim().length >= 3;
     
     return {
       isValid: isEmailValid && isPasswordValid && isNameValid && !checkingEmail,
@@ -93,10 +96,13 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
       passwordValid: isPasswordValid,
       nameValid: isNameValid
     };
-  }, [email, emailStatus, password, fullName, checkingEmail]);
+  }, [email, password, fullName, checkingEmail]);
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Clear previous email error
+    setEmailExistsError('');
     
     if (!formValidation.isValid) {
       addNotification({
@@ -106,34 +112,51 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
       });
       return;
     }
-    
-    // Additional password strength validation
-    const passwordStrength = validatePasswordStrength(password);
-    if (passwordStrength.score < 3) {
-      addNotification({
-        type: 'error',
-        title: 'Zəif şifrə',
-        message: 'Zəhmət olmasa daha güclü şifrə seçin (ən azı 3/5 bal)',
-      });
-      return;
-    }
 
     setIsLoading(true);
 
     try {
+      // Check email existence before attempting signup
+      const emailExists = await checkEmailExists(email);
+      
+      if (emailExists) {
+        setEmailExistsError('Bu email ünvanı artıq mövcuddur');
+        setIsLoading(false);
+        return;
+      }
+
+      // Additional password strength validation
+      const passwordStrength = validatePasswordStrength(password);
+      if (passwordStrength.score < 3) {
+        addNotification({
+          type: 'error',
+          title: 'Zəif şifrə',
+          message: 'Zəhmət olmasa daha güclü şifrə seçin (ən azı 3/5 bal)',
+        });
+        setIsLoading(false);
+        return;
+      }
+
       const { error } = await signUp(email, password, fullName);
-      if (!error) {
+      
+      if (error) {
+        // Check if error is due to email already existing
+        if (error.message?.includes('already') || error.message?.includes('exists')) {
+          setEmailExistsError('Bu email ünvanı artıq mövcuddur');
+        }
+      } else {
         onClose();
         setEmail('');
         setPassword('');
         setFullName('');
+        setEmailExistsError('');
       }
     } catch (error) {
-      // Error notification is handled in AuthContext
+      console.error('Signup error:', error);
     } finally {
       setIsLoading(false);
     }
-  }, [email, password, fullName, signUp, onClose, addNotification, formValidation.isValid]);
+  }, [email, password, fullName, signUp, onClose, addNotification, formValidation.isValid, checkEmailExists]);
 
   return (
     <Card>
@@ -160,6 +183,7 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
               <p className="text-sm text-red-500">Ad minimum 3 hərf olmalıdır</p>
             )}
           </div>
+          
           <div className="space-y-2">
             <Label htmlFor="signup-email" className="text-sm">Email</Label>
             <div className="relative">
@@ -185,7 +209,11 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
             {emailStatus === 'available' && (
               <p className="text-sm text-green-600">Email ünvanı əlçatandır</p>
             )}
+            {emailExistsError && (
+              <p className="text-sm text-red-500">{emailExistsError}</p>
+            )}
           </div>
+          
           <div className="space-y-2">
             <Label htmlFor="signup-password" className="text-sm">Şifrə</Label>
             <Input
@@ -202,6 +230,7 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
               showRequirements={password.length > 0} 
             />
           </div>
+          
           <Button 
             type="submit" 
             className="w-full h-9" 
