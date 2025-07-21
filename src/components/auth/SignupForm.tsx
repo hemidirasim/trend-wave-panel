@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -37,31 +38,30 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
     setEmailStatus('checking');
 
     try {
-      // Check profiles table for existing email
+      // Check profiles table for existing email - use select() without maybeSingle()
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('email')
-        .eq('email', trimmedEmail)
-        .maybeSingle();
+        .eq('email', trimmedEmail);
 
       console.log('Email check for:', trimmedEmail);
       console.log('Profile check result:', { profileData, profileError });
 
-      // Handle errors other than "no rows returned"
-      if (profileError && profileError.code !== 'PGRST116') {
+      // Handle errors
+      if (profileError) {
         console.error('Profile email check error:', profileError);
         setEmailStatus('idle');
         return;
       }
 
-      // If email found in profiles table, it's taken
-      if (profileData && profileData.email) {
-        console.log('Email is taken:', profileData.email);
+      // If email found in profiles table (array has items), it's taken
+      if (profileData && profileData.length > 0) {
+        console.log('Email is taken:', trimmedEmail);
         setEmailStatus('taken');
         return;
       }
 
-      // If no data found, email is available
+      // If no data found (empty array), email is available
       console.log('Email is available');
       setEmailStatus('available');
       
