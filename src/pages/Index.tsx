@@ -15,8 +15,13 @@ const Index = () => {
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
 
   useEffect(() => {
-    if (searchParams.get('auth') === 'required') {
+    // Only open auth dialog if explicitly requested and not from sign-out
+    if (searchParams.get('auth') === 'required' && !searchParams.get('from-signout')) {
       setIsAuthDialogOpen(true);
+    }
+    
+    // Clear URL parameters after checking
+    if (searchParams.get('auth') || searchParams.get('from-signout')) {
       setSearchParams({});
     }
   }, [searchParams, setSearchParams]);

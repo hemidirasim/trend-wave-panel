@@ -196,8 +196,11 @@ const Dashboard = () => {
       console.log('Dashboard sign out button clicked');
       await signOut();
       
-      // Directly navigate to home page without auth parameter
-      navigate('/');
+      // Clear any URL parameters that might trigger auth dialog
+      window.history.replaceState({}, '', window.location.pathname);
+      
+      // Navigate to home page with explicit replace to avoid auth dialog
+      navigate('/', { replace: true });
     } catch (error) {
       console.error('Error signing out from dashboard:', error);
       toast.error('Çıxış zamanı xəta baş verdi');

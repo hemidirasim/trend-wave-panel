@@ -27,6 +27,7 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
   const [signupFullName, setSignupFullName] = useState('');
+  const [activeTab, setActiveTab] = useState('login');
   const { signIn, signUp } = useAuth();
   const { addNotification } = useNotification();
   const isMobile = useIsMobile();
@@ -91,7 +92,7 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
         <span className="text-2xl font-bold">hitloyal</span>
       </div>
 
-      <Tabs defaultValue="login" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="login">Giriş</TabsTrigger>
           <TabsTrigger value="signup">Qeydiyyat</TabsTrigger>
