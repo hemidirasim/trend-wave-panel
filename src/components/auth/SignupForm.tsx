@@ -37,7 +37,7 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
     try {
       // Use the database function to check email existence
       const { data, error } = await supabase.rpc('check_email_exists', {
-        email: trimmedEmail,
+        email_param: trimmedEmail,
       });
 
       if (error) {
