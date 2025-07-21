@@ -23,6 +23,7 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
   const [emailStatus, setEmailStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
   const [checkingEmail, setCheckingEmail] = useState(false);
   const [emailExistsError, setEmailExistsError] = useState('');
+  const [emailCheckError, setEmailCheckError] = useState('');
   const { signUp } = useAuth();
   const { addNotification } = useNotification();
 
@@ -43,11 +44,7 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
 
       if (error) {
         console.error('Email check error:', error);
-        addNotification({
-          type: 'error',
-          title: 'Xəta',
-          message: 'E-poçt yoxlanarkən xəta baş verdi',
-        });
+        setEmailCheckError('E-poçt yoxlanarkən xəta baş verdi');
         return false;
       }
 
@@ -55,11 +52,7 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
       return data;
     } catch (error) {
       console.error('Email check failed:', error);
-      addNotification({
-        type: 'error',
-        title: 'Xəta',
-        message: 'E-poçt yoxlanarkən xəta baş verdi',
-      });
+      setEmailCheckError('E-poçt yoxlanarkən xəta baş verdi');
       return false;
     }
   }, [addNotification]);
@@ -69,6 +62,7 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
     if (!email || !email.includes('@')) {
       setEmailStatus('idle');
       setEmailExistsError('');
+      setEmailCheckError('');
       return;
     }
 
@@ -244,6 +238,9 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
             )}
             {emailExistsError && (
               <p className="text-sm text-red-500">{emailExistsError}</p>
+            )}
+            {emailCheckError && (
+              <p className="text-sm text-red-500">{emailCheckError}</p>
             )}
           </div>
           
