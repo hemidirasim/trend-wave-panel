@@ -57,7 +57,7 @@ const Order = () => {
   const [selectedServiceType, setSelectedServiceType] = useState<string>('');
   const [priceFilter, setPriceFilter] = useState<'low-to-high' | 'high-to-low'>('low-to-high');
   const urlPlatform = searchParams.get('platform');
-  const allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook','linkedin'];
+  const allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook','linkedin','twitter'];
 
   // Clear any existing toasts when component mounts
   useEffect(() => {
