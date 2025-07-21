@@ -82,6 +82,43 @@ function App() {
                         </ProtectedRoute>
                       } />
                       
+                      {/* Language-specific admin routes */}
+                      <Route path="/:lang/admin" element={
+                        <ProtectedAdminRoute>
+                          <Admin />
+                        </ProtectedAdminRoute>
+                      } />
+                      <Route path="/:lang/admin/users" element={
+                        <ProtectedAdminRoute>
+                          <AdminUsers />
+                        </ProtectedAdminRoute>
+                      } />
+                      <Route path="/:lang/admin/services" element={
+                        <ProtectedAdminRoute>
+                          <AdminServices />
+                        </ProtectedAdminRoute>
+                      } />
+                      <Route path="/:lang/admin/service-names" element={
+                        <ProtectedAdminRoute>
+                          <AdminServiceNames />
+                        </ProtectedAdminRoute>
+                      } />
+                      <Route path="/:lang/admin/blog" element={
+                        <ProtectedAdminRoute>
+                          <AdminBlog />
+                        </ProtectedAdminRoute>
+                      } />
+                      <Route path="/:lang/admin/contact-messages" element={
+                        <ProtectedAdminRoute>
+                          <AdminContactMessages />
+                        </ProtectedAdminRoute>
+                      } />
+                      <Route path="/:lang/admin/settings" element={
+                        <ProtectedAdminRoute>
+                          <AdminSettings />
+                        </ProtectedAdminRoute>
+                      } />
+                      
                       {/* Admin routes */}
                       <Route path="/admin" element={
                         <ProtectedAdminRoute>
