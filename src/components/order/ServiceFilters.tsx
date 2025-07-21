@@ -1,7 +1,7 @@
 
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Instagram, Youtube, Facebook, Heart, Users, Eye, Share, MessageCircle, Repeat, Star } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Instagram, Youtube, Facebook, Heart, Users, Eye, Share, MessageCircle, Repeat, Star, Globe } from 'lucide-react';
 import { Service } from '@/types/api';
 import { useState } from 'react';
 import OrderForm from '@/components/order/OrderForm';
@@ -55,7 +55,7 @@ export function ServiceFilters({
       facebook: Facebook,
       tiktok: () => <div className="w-4 h-4 bg-current rounded-sm" />,
     };
-    return icons[platform.toLowerCase()] || null;
+    return icons[platform.toLowerCase()] || Globe;
   };
 
   const getServiceTypeIcon = (type: string) => {
@@ -189,39 +189,47 @@ export function ServiceFilters({
   };
 
   return (
-    <div className="space-y-4">
-      <Tabs value={selectedPlatform} onValueChange={onPlatformChange} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-6">
-          {getUniquePlatforms().map((platform) => {
-            const IconComponent = getPlatformIcon(platform);
-            return (
-              <TabsTrigger key={platform} value={platform} className="capitalize flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
-                {IconComponent && <IconComponent className="w-3 h-3 sm:w-4 sm:h-4" />}
-                {platform}
-              </TabsTrigger>
-            );
-          })}
-        </TabsList>
+    <div className="space-y-6">
+      {/* Platform Selection */}
+      <div className="space-y-3">
+        <Label className="text-base font-medium">Platform seçin *</Label>
+        <Select value={selectedPlatform} onValueChange={onPlatformChange}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Platform seçin..." />
+          </SelectTrigger>
+          <SelectContent>
+            {getUniquePlatforms().map((platform) => {
+              const IconComponent = getPlatformIcon(platform);
+              return (
+                <SelectItem key={platform} value={platform} className="flex items-center gap-2">
+                  <div className="flex items-center gap-2">
+                    <IconComponent className="w-4 h-4" />
+                    <span className="capitalize">{platform}</span>
+                  </div>
+                </SelectItem>
+              );
+            })}
+          </SelectContent>
+        </Select>
+      </div>
 
-        {selectedPlatform && (
-          <div className="mb-6">
-            <Label className="text-base font-medium mb-3 block">Xidmət növünü seçin *</Label>
-          </div>
-        )}
-
-        {getUniquePlatforms().map((platform) => (
-          <TabsContent key={platform} value={platform} className="space-y-3">
-            {Object.entries(getServiceGroups(platform))
+      {/* Service Types */}
+      {selectedPlatform && (
+        <div className="space-y-4">
+          <Label className="text-base font-medium">Xidmət növünü seçin *</Label>
+          
+          <div className="space-y-3">
+            {Object.entries(getServiceGroups(selectedPlatform))
               .sort(([, a], [, b]) => b.length - a.length)
               .map(([groupName, groupServices]) => {
               const IconComponent = getServiceTypeIcon(groupName);
-              const groupKey = `${platform}-${groupName}`;
+              const groupKey = `${selectedPlatform}-${groupName}`;
               const isSelected = selectedGroupName === groupKey;
               
               return (
                 <div key={groupName} className="space-y-3">
                   <button
-                    onClick={() => handleServiceGroupSelect(groupName, platform, groupServices)}
+                    onClick={() => handleServiceGroupSelect(groupName, selectedPlatform, groupServices)}
                     className={`w-full flex items-center justify-between p-4 bg-muted/50 hover:bg-muted/70 rounded-lg transition-colors border-2 ${
                       isSelected 
                         ? 'border-primary bg-primary/5' 
@@ -288,9 +296,9 @@ export function ServiceFilters({
                 </div>
               );
             })}
-          </TabsContent>
-        ))}
-      </Tabs>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
