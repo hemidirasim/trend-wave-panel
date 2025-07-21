@@ -51,11 +51,14 @@ export const calculatePrice = (
       serviceName: service.public_name,
       priceRange: priceRange,
       pricingPer: priceRange.pricing_per,
-      price: priceRange.price
+      price: priceRange.price,
+      rawPricingPer: priceRange.pricing_per,
+      rawPrice: priceRange.price
     });
   }
 
-  const pricingPer = parseInt(priceRange.pricing_per);
+  // Parse pricing_per and price - handle decimal strings properly
+  const pricingPer = parseFloat(priceRange.pricing_per);
   const priceForPricingPer = parseFloat(priceRange.price);
   
   // Validate parsed values with more detailed logging
@@ -63,7 +66,8 @@ export const calculatePrice = (
     console.log('❌ Pricing per qiyməti düzgün deyil:', {
       serviceName: service.public_name,
       originalValue: priceRange.pricing_per,
-      parsedValue: pricingPer
+      parsedValue: pricingPer,
+      typeOfOriginal: typeof priceRange.pricing_per
     });
     return 0;
   }
@@ -72,7 +76,8 @@ export const calculatePrice = (
     console.log('❌ Qiymət düzgün deyil:', {
       serviceName: service.public_name,
       originalValue: priceRange.price,
-      parsedValue: priceForPricingPer
+      parsedValue: priceForPricingPer,
+      typeOfOriginal: typeof priceRange.price
     });
     return 0;
   }
