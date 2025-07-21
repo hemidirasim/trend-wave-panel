@@ -357,7 +357,7 @@ const translations: Record<string, Language> = {
 };
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<string>('az');
+  const [language, setLanguage] = useState<string>('az'); // Default to Azerbaijani
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -370,12 +370,13 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setLanguage(langFromUrl);
       localStorage.setItem('language', langFromUrl);
     } else {
-      // Check localStorage if no language in URL
-      const savedLanguage = localStorage.getItem('language') || 'az';
-      setLanguage(savedLanguage);
+      // Use Azerbaijani as default instead of checking localStorage
+      const defaultLanguage = 'az';
+      setLanguage(defaultLanguage);
+      localStorage.setItem('language', defaultLanguage);
       
-      // Redirect to language-specific URL
-      const newPath = `/${savedLanguage}${location.pathname}${location.search}`;
+      // Redirect to language-specific URL with Azerbaijani as default
+      const newPath = `/${defaultLanguage}${location.pathname}${location.search}`;
       navigate(newPath, { replace: true });
     }
   }, [location.pathname, navigate]);
