@@ -35,7 +35,7 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="login">Giriş</TabsTrigger>
-          <TabsTrigger value="signup">Qeydiyyat</TabsTrigger>
+          <TabsTrigger value="signup">Kayıt</TabsTrigger>
         </TabsList>
 
         <TabsContent value="login" className="mt-4">
@@ -57,7 +57,7 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
           className="h-[95vh] overflow-y-auto p-6"
         >
           <SheetHeader className="sr-only">
-            <SheetTitle>Giriş və Qeydiyyat</SheetTitle>
+            <SheetTitle>Giriş ve Kayıt</SheetTitle>
           </SheetHeader>
           <AuthContent />
         </SheetContent>
@@ -69,7 +69,7 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md w-[95vw] max-w-[425px] max-h-[90vh] overflow-y-auto z-[60] p-6">
         <DialogHeader className="sr-only">
-          <DialogTitle>Giriş və Qeydiyyat</DialogTitle>
+          <DialogTitle>Giriş ve Kayıt</DialogTitle>
         </DialogHeader>
         <AuthContent />
       </DialogContent>

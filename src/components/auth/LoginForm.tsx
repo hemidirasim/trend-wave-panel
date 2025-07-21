@@ -46,7 +46,7 @@ export const LoginForm = ({ onClose }: LoginFormProps) => {
       <CardHeader className="pb-4">
         <CardTitle className="text-lg">Hesaba Giriş</CardTitle>
         <CardDescription className="text-sm">
-          Email və şifrənizi daxil edərək hesabınıza daxil olun
+          E-posta ve şifrenizi girerek hesabınıza giriş yapın
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -64,7 +64,7 @@ export const LoginForm = ({ onClose }: LoginFormProps) => {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="login-password" className="text-sm">Şifrə</Label>
+            <Label htmlFor="login-password" className="text-sm">Şifre</Label>
             <Input
               id="login-password"
               type="password"
@@ -79,7 +79,7 @@ export const LoginForm = ({ onClose }: LoginFormProps) => {
               to="/reset-password"
               className="text-sm text-primary hover:underline"
             >
-              Şifrəmi unutdum
+              Şifremi unuttum
             </Link>
           </div>
           <Button 
@@ -88,7 +88,7 @@ export const LoginForm = ({ onClose }: LoginFormProps) => {
             disabled={isLoading || !isFormValid}
           >
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Daxil ol
+            Giriş Yap
           </Button>
         </form>
       </CardContent>
