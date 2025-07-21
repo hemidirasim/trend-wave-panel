@@ -1,9 +1,12 @@
+
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Instagram, Youtube, Facebook, Heart, Users, Eye, Share, MessageCircle, Repeat, Star } from 'lucide-react';
 import { Service } from '@/types/api';
 import { useState } from 'react';
 import OrderForm from '@/components/order/OrderForm';
+import { useSettings } from '@/contexts/SettingsContext';
+import { calculatePrice } from '@/utils/priceCalculator';
 
 interface ServiceFiltersProps {
   services: Service[];
@@ -43,6 +46,7 @@ export function ServiceFilters({
   baseFee
 }: ServiceFiltersProps) {
   const [selectedGroupName, setSelectedGroupName] = useState<string>('');
+  const { settings } = useSettings();
 
   const getPlatformIcon = (platform: string) => {
     const icons: Record<string, any> = {
@@ -118,6 +122,11 @@ export function ServiceFilters({
     });
     
     return groups;
+  };
+
+  // Calculate price with admin fees included
+  const calculatePriceWithFees = (service: Service, quantity: number = 1000): number => {
+    return calculatePrice(service, quantity, settings.service_fee, settings.base_fee);
   };
 
   const handleServiceGroupSelect = (groupName: string, platform: string, groupServices: Service[]) => {
@@ -211,14 +220,28 @@ export function ServiceFilters({
                     <div className="text-right">
                       <div className="text-sm text-muted-foreground">Ən ucuz qiymət</div>
                       {(() => {
-                        const cheapestPrice = Math.min(
-                          ...groupServices
-                            .filter(s => s.prices && s.prices.length > 0)
-                            .map(s => parseFloat(s.prices[0].price))
-                        );
+                        // Find the cheapest service in the group
+                        const cheapestService = groupServices
+                          .filter(s => s.prices && s.prices.length > 0)
+                          .sort((a, b) => {
+                            const priceA = parseFloat(a.prices[0].price);
+                            const priceB = parseFloat(b.prices[0].price);
+                            return priceA - priceB;
+                          })[0];
+                        
+                        if (cheapestService) {
+                          // Calculate price with admin fees included
+                          const finalPrice = calculatePriceWithFees(cheapestService, 1000);
+                          return (
+                            <div className="font-bold text-primary">
+                              ${finalPrice.toFixed(2)}/1000
+                            </div>
+                          );
+                        }
+                        
                         return (
                           <div className="font-bold text-primary">
-                            ${cheapestPrice.toFixed(2)}/1000
+                            N/A
                           </div>
                         );
                       })()}
