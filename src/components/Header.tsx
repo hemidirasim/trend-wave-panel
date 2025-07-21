@@ -36,7 +36,7 @@ export const Header = () => {
         const services = await proxyApiService.getServices();
         // Filter for social media platforms (without Twitter)
         const socialServices = services.filter(service => 
-          ['instagram', 'tiktok', 'youtube', 'facebook','linkedin','twitter'].some(platform => 
+          ['instagram', 'tiktok', 'youtube', 'facebook','linkedin','twitter','telegram'].some(platform => 
             service.platform?.toLowerCase().includes(platform)
           )
         );
