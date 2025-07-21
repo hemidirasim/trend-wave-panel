@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -46,27 +45,58 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
         .select('email')
         .eq('email', trimmedEmail);
 
-      console.log('Raw profile query result:', { 
+      console.log('Profile query result:', { 
         profileData, 
         profileError,
-        dataLength: profileData?.length,
-        isArray: Array.isArray(profileData)
+        dataLength: profileData?.length
       });
 
-      // Handle errors
+      // Check auth.users table by attempting to sign up with the email (this will fail if email exists)
+      // We'll try a different approach - check if signup would fail
+      let emailExistsInAuth = false;
+      
+      try {
+        // Try to sign up with a dummy password to check if email exists
+        // This will return an error if email already exists
+        const { error: signUpError } = await supabase.auth.signUp({
+          email: trimmedEmail,
+          password: 'dummy_password_for_check_only',
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+          }
+        });
+        
+        console.log('SignUp test result:', signUpError);
+        
+        // If error contains "already been registered" or similar, email exists
+        if (signUpError && (
+          signUpError.message.includes('already been registered') ||
+          signUpError.message.includes('already exists') ||
+          signUpError.message.includes('User already registered')
+        )) {
+          emailExistsInAuth = true;
+          console.log('Email exists in auth.users:', trimmedEmail);
+        }
+      } catch (authError) {
+        console.log('Auth check error (might be normal):', authError);
+      }
+
+      // Handle profile query errors
       if (profileError) {
         console.error('Profile email check error:', profileError);
         setEmailStatus('idle');
         return;
       }
 
-      // Check if email exists - profileData will be an array
-      const emailExists = profileData && Array.isArray(profileData) && profileData.length > 0;
+      // Check if email exists in either profiles table or auth.users
+      const emailExistsInProfiles = profileData && Array.isArray(profileData) && profileData.length > 0;
+      const emailExists = emailExistsInProfiles || emailExistsInAuth;
       
-      console.log('Email exists check:', {
+      console.log('Final email check result:', {
         emailExists,
-        profileDataLength: profileData?.length,
-        firstResult: profileData?.[0]
+        emailExistsInProfiles,
+        emailExistsInAuth,
+        profileDataLength: profileData?.length
       });
 
       if (emailExists) {
