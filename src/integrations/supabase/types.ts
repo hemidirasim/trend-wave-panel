@@ -513,6 +513,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_email_exists: {
+        Args: { email: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _user_id: string

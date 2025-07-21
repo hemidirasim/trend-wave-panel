@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -36,15 +35,13 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
     }
 
     try {
-      // Check profiles table for existing email
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('email')
-        .eq('email', trimmedEmail)
-        .maybeSingle();
+      // Use the database function to check email existence
+      const { data, error } = await supabase.rpc('check_email_exists', {
+        email: trimmedEmail,
+      });
 
-      if (profileError) {
-        console.error('Profile email check error:', profileError);
+      if (error) {
+        console.error('Email check error:', error);
         addNotification({
           type: 'error',
           title: 'Xəta',
@@ -53,8 +50,8 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
         return false;
       }
 
-      // If we found a profile with this email, it exists
-      return !!profileData;
+      // Data returns true if email exists
+      return data;
     } catch (error) {
       console.error('Email check failed:', error);
       addNotification({
