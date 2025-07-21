@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSettings } from '@/contexts/SettingsContext';
 import { toast } from 'sonner';
 import { Loader2, AlertTriangle } from 'lucide-react';
 import { Service } from '@/types/api';
@@ -43,10 +44,39 @@ const OrderForm = ({
   onPlaceOrder 
 }: OrderFormProps) => {
   const { user } = useAuth();
+  const { settings } = useSettings();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
   const [existingOrder, setExistingOrder] = useState<any>(null);
   const [checkingExisting, setCheckingExisting] = useState(false);
+  const [localCalculatedPrice, setLocalCalculatedPrice] = useState(0);
+
+  // Calculate price locally using the proper calculator
+  useEffect(() => {
+    if (service && formData.quantity && !isNaN(parseInt(formData.quantity))) {
+      const quantity = parseInt(formData.quantity);
+      if (quantity > 0) {
+        console.log('🔥 OrderForm: Recalculating price with admin settings:', {
+          serviceFee: settings.service_fee,
+          baseFee: settings.base_fee,
+          quantity,
+          serviceName: service.public_name
+        });
+        
+        const price = calculatePrice(service, quantity, settings.service_fee, settings.base_fee);
+        setLocalCalculatedPrice(price);
+        
+        console.log('🔥 OrderForm: Calculated price:', price);
+      } else {
+        setLocalCalculatedPrice(0);
+      }
+    } else {
+      setLocalCalculatedPrice(0);
+    }
+  }, [service, formData.quantity, settings.service_fee, settings.base_fee]);
+
+  // Use the locally calculated price instead of the prop
+  const finalPrice = localCalculatedPrice || calculatedPrice;
 
   useEffect(() => {
     if (user) {
@@ -113,7 +143,7 @@ const OrderForm = ({
   };
 
   const handlePlaceOrder = async () => {
-    console.log('🚀 handlePlaceOrder called');
+    console.log('🚀 handlePlaceOrder called with final price:', finalPrice);
     
     // Clear any existing toasts before starting
     toast.dismiss();
@@ -204,7 +234,7 @@ const OrderForm = ({
       // Extract external_order_id from successful response
       const externalOrderId = orderResponse.id_service_submission;
 
-      // Save to database
+      // Save to database with the correct calculated price
       const orderData = {
         user_id: user?.id,
         service_id: formData.serviceId,
@@ -213,12 +243,12 @@ const OrderForm = ({
         service_type: service.type_name || 'engagement',
         link: formData.url,
         quantity: parseInt(formData.quantity),
-        price: calculatedPrice,
+        price: finalPrice, // Use the correctly calculated price
         status: 'pending',
         external_order_id: externalOrderId
       };
 
-      console.log('💾 Saving order to database:', orderData);
+      console.log('💾 Saving order to database with final price:', finalPrice);
 
       const { data: insertedOrder, error: insertError } = await supabase
         .from('orders')
@@ -234,9 +264,9 @@ const OrderForm = ({
 
       console.log('✅ Order saved to database:', insertedOrder);
 
-      // Update user balance
+      // Update user balance with the correct calculated price
       if (profile) {
-        const newBalance = (profile.balance || 0) - calculatedPrice;
+        const newBalance = (profile.balance || 0) - finalPrice;
         const { error: balanceError } = await supabase
           .from('profiles')
           .update({ balance: newBalance })
@@ -280,7 +310,7 @@ const OrderForm = ({
     }
   };
 
-  const hasInsufficientBalance = profile && calculatedPrice > (profile.balance || 0);
+  const hasInsufficientBalance = profile && finalPrice > (profile.balance || 0);
   const hasExistingOrder = !!existingOrder;
 
   // Validate quantity against service limits - convert to numbers for comparison
@@ -400,12 +430,35 @@ const OrderForm = ({
           </div>
         ))}
 
+        {/* Price Display with Admin Fee Breakdown */}
+        <div className="bg-gray-50 p-4 rounded-lg">
+          <h4 className="font-semibold mb-2">Qiymət Təfərrüatı</h4>
+          <div className="space-y-1 text-sm">
+            <div className="flex justify-between">
+              <span>Əsas qiymət:</span>
+              <span>${(finalPrice - settings.base_fee - (finalPrice - settings.base_fee) * settings.service_fee / 100).toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Standart haqqı:</span>
+              <span>${settings.base_fee.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Xidmət haqqı ({settings.service_fee}%):</span>
+              <span>${((finalPrice - settings.base_fee) * settings.service_fee / 100).toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between font-semibold border-t pt-1">
+              <span>Ümumi:</span>
+              <span>${finalPrice.toFixed(2)}</span>
+            </div>
+          </div>
+        </div>
+
         {/* Balance Check */}
         {hasInsufficientBalance && (
           <Alert className="border-red-200 bg-red-50">
             <AlertTriangle className="h-4 w-4 text-red-500" />
             <AlertDescription className="text-red-700">
-              Balansınız kifayət etmir. Lazım olan: ${calculatedPrice.toFixed(2)}, Mövcud: ${(profile?.balance || 0).toFixed(2)}
+              Balansınız kifayət etmir. Lazım olan: ${finalPrice.toFixed(2)}, Mövcud: ${(profile?.balance || 0).toFixed(2)}
             </AlertDescription>
           </Alert>
         )}
@@ -430,7 +483,7 @@ const OrderForm = ({
               Sifariş verilir...
             </>
           ) : (
-            `Sifariş ver - $${calculatedPrice.toFixed(2)}`
+            `Sifariş ver - $${finalPrice.toFixed(2)}`
           )}
         </Button>
       </CardContent>
