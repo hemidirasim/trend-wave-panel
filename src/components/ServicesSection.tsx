@@ -17,7 +17,8 @@ const platformIcons: Record<string, any> = {
   instagram: Instagram,
   tiktok: Music,
   youtube: Youtube,
-  facebook: Facebook
+  facebook: Facebook,
+  linkedin: Linkedin
 };
 
 export const ServicesSection = () => {
@@ -38,7 +39,7 @@ export const ServicesSection = () => {
       console.log('🔍 Cari xidmət haqqı:', settings.service_fee);
       
       // API-dən gələn sosial media platformalarını çıxarırıq
-      const allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook'];
+      const allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook','linkedin'];
       const platforms = [...new Set(services
         .filter(service => 
           service.platform && 
