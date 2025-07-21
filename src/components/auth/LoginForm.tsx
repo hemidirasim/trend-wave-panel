@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -16,6 +17,7 @@ export const LoginForm = ({ onClose }: LoginFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { signIn } = useAuth();
+  const { t } = useLanguage();
 
   // Form validation - both fields must be filled
   const isFormValid = email.trim().length > 0 && password.length > 0;
@@ -44,19 +46,19 @@ export const LoginForm = ({ onClose }: LoginFormProps) => {
   return (
     <Card>
       <CardHeader className="pb-4">
-        <CardTitle className="text-lg">Hesaba Giriş</CardTitle>
+        <CardTitle className="text-lg">{t('auth.loginTitle')}</CardTitle>
         <CardDescription className="text-sm">
-          E-posta ve şifrenizi girerek hesabınıza giriş yapın
+          {t('auth.loginDesc')}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="login-email" className="text-sm">Email</Label>
+            <Label htmlFor="login-email" className="text-sm">{t('auth.email')}</Label>
             <Input
               id="login-email"
               type="email"
-              placeholder="example@example.com"
+              placeholder={t('auth.emailPlaceholder')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="h-9"
@@ -64,7 +66,7 @@ export const LoginForm = ({ onClose }: LoginFormProps) => {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="login-password" className="text-sm">Şifre</Label>
+            <Label htmlFor="login-password" className="text-sm">{t('auth.password')}</Label>
             <Input
               id="login-password"
               type="password"
@@ -79,7 +81,7 @@ export const LoginForm = ({ onClose }: LoginFormProps) => {
               to="/reset-password"
               className="text-sm text-primary hover:underline"
             >
-              Şifremi unuttum
+              {t('auth.forgotPassword')}
             </Link>
           </div>
           <Button 
@@ -88,7 +90,7 @@ export const LoginForm = ({ onClose }: LoginFormProps) => {
             disabled={isLoading || !isFormValid}
           >
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Giriş Yap
+            {t('auth.loginButton')}
           </Button>
         </form>
       </CardContent>

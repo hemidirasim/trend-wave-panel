@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNotification } from '@/components/NotificationProvider';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Loader2, AlertCircle, CheckCircle } from 'lucide-react';
 import { validatePasswordStrength } from '@/utils/passwordValidation';
 import PasswordStrengthIndicator from '@/components/PasswordStrengthIndicator';
@@ -29,6 +30,7 @@ export const SignupForm = ({
   const {
     addNotification
   } = useNotification();
+  const { t } = useLanguage();
 
   // Email existence check function
   const checkEmailExists = useCallback(async (emailToCheck: string) => {
@@ -47,7 +49,7 @@ export const SignupForm = ({
       });
       if (error) {
         console.error('Email check error:', error);
-        setEmailCheckError('E-posta kontrol edilirken hata oluştu');
+        setEmailCheckError(t('auth.emailCheckError'));
         return false;
       }
 
@@ -55,7 +57,7 @@ export const SignupForm = ({
       return data;
     } catch (error) {
       console.error('Email check failed:', error);
-      setEmailCheckError('E-posta kontrol edilirken hata oluştu');
+      setEmailCheckError(t('auth.emailCheckError'));
       return false;
     }
   }, [addNotification]);
@@ -74,7 +76,7 @@ export const SignupForm = ({
       const exists = await checkEmailExists(email);
       if (exists) {
         setEmailStatus('taken');
-        setEmailExistsError('Bu e-posta adresi zaten kullanılıyor');
+        setEmailExistsError(t('auth.emailTaken'));
       } else {
         setEmailStatus('available');
         setEmailExistsError('');
@@ -103,8 +105,8 @@ export const SignupForm = ({
     if (!formValidation.isValid) {
       addNotification({
         type: 'error',
-        title: 'Form Hatası',
-        message: 'Lütfen tüm gereksinimleri karşılayın'
+        title: t('auth.formError'),
+        message: t('auth.formErrorMessage')
       });
       return;
     }
@@ -113,11 +115,11 @@ export const SignupForm = ({
       // Final check for email existence before signup
       const emailExists = await checkEmailExists(email);
       if (emailExists) {
-        setEmailExistsError('Bu e-posta adresi zaten kullanılıyor');
+        setEmailExistsError(t('auth.emailTaken'));
         addNotification({
           type: 'error',
-          title: 'Kayıt Hatası',
-          message: 'Bu e-posta adresi zaten kullanılıyor'
+          title: t('auth.signupError'),
+          message: t('auth.emailTaken')
         });
         setIsLoading(false);
         return;
@@ -128,8 +130,8 @@ export const SignupForm = ({
       if (passwordStrength.score < 3) {
         addNotification({
           type: 'error',
-          title: 'Zayıf Şifre',
-          message: 'Lütfen daha güçlü bir şifre seçin (en az 3/5 puan)'
+          title: t('auth.weakPassword'),
+          message: t('auth.weakPasswordMessage')
         });
         setIsLoading(false);
         return;
@@ -139,17 +141,17 @@ export const SignupForm = ({
       } = await signUp(email, password, fullName);
       if (error) {
         if (error.message?.includes('already') || error.message?.includes('exists')) {
-        setEmailExistsError('Bu e-posta adresi zaten kullanılıyor');
+        setEmailExistsError(t('auth.emailTaken'));
           addNotification({
             type: 'error',
-            title: 'Kayıt Hatası',
-            message: 'Bu e-posta adresi zaten kullanılıyor'
+            title: t('auth.signupError'),
+            message: t('auth.emailTaken')
           });
         } else {
           addNotification({
             type: 'error',
-            title: 'Kayıt Hatası',
-            message: error.message || 'Kayıt sırasında hata oluştu'
+            title: t('auth.signupError'),
+            message: error.message || t('auth.signupGeneralError')
           });
         }
       } else {
@@ -165,8 +167,8 @@ export const SignupForm = ({
       console.error('Signup error:', error);
       addNotification({
         type: 'error',
-        title: 'Hata',
-        message: 'Kayıt sırasında hata oluştu'
+        title: t('auth.generalError'),
+        message: t('auth.signupGeneralError')
       });
     } finally {
       setIsLoading(false);
@@ -174,44 +176,44 @@ export const SignupForm = ({
   }, [email, password, fullName, signUp, onClose, addNotification, formValidation.isValid, checkEmailExists]);
   return <Card>
       <CardHeader className="pb-4">
-        <CardTitle className="text-lg">Yeni Hesap</CardTitle>
+        <CardTitle className="text-lg">{t('auth.signupTitle')}</CardTitle>
         <CardDescription className="text-sm">
-          Yeni hesap oluşturmak için bilgilerinizi girin
+          {t('auth.signupDesc')}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="signup-name" className="text-sm">Ad Soyad</Label>
-            <Input id="signup-name" type="text" placeholder="Ad Soyad (minimum 3 harf)" value={fullName} onChange={e => setFullName(e.target.value)} className="h-9" autoComplete="name" />
-            {fullName.length > 0 && fullName.trim().length < 3 && <p className="text-sm text-red-500">Ad minimum 3 harf olmalıdır</p>}
-            {fullName.trim().length >= 3 && <p className="text-sm text-green-600">Ad gereksinimleri karşılanıyor</p>}
+            <Label htmlFor="signup-name" className="text-sm">{t('auth.fullName')}</Label>
+            <Input id="signup-name" type="text" placeholder={t('auth.fullNamePlaceholder')} value={fullName} onChange={e => setFullName(e.target.value)} className="h-9" autoComplete="name" />
+            {fullName.length > 0 && fullName.trim().length < 3 && <p className="text-sm text-red-500">{t('auth.nameRequirement')}</p>}
+            {fullName.trim().length >= 3 && <p className="text-sm text-green-600">{t('auth.nameValid')}</p>}
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="signup-email" className="text-sm">Email</Label>
+            <Label htmlFor="signup-email" className="text-sm">{t('auth.email')}</Label>
             <div className="relative">
-              <Input id="signup-email" type="email" placeholder="example@example.com" value={email} onChange={e => setEmail(e.target.value)} required className="h-9 pr-10" autoComplete="email" />
+              <Input id="signup-email" type="email" placeholder={t('auth.emailPlaceholder')} value={email} onChange={e => setEmail(e.target.value)} required className="h-9 pr-10" autoComplete="email" />
               <div className="absolute inset-y-0 right-0 flex items-center pr-3">
                 {checkingEmail && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
                 {emailStatus === 'available' && <CheckCircle className="h-4 w-4 text-green-500" />}
                 {emailStatus === 'taken' && <AlertCircle className="h-4 w-4 text-red-500" />}
               </div>
             </div>
-            {emailStatus === 'available' && <p className="text-sm text-green-600">Bu e-posta adresi kullanılabilir</p>}
-            {(emailStatus === 'taken' || emailExistsError) && <p className="text-sm text-red-500">Bu e-posta adresi zaten kullanılıyor</p>}
+            {emailStatus === 'available' && <p className="text-sm text-green-600">{t('auth.emailAvailable')}</p>}
+            {(emailStatus === 'taken' || emailExistsError) && <p className="text-sm text-red-500">{t('auth.emailTaken')}</p>}
             {emailCheckError && <p className="text-sm text-red-500">{emailCheckError}</p>}
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="signup-password" className="text-sm">Şifre</Label>
+            <Label htmlFor="signup-password" className="text-sm">{t('auth.password')}</Label>
             <Input id="signup-password" type="password" value={password} onChange={e => setPassword(e.target.value)} required className="h-9" autoComplete="new-password" />
             <PasswordStrengthIndicator password={password} showRequirements={password.length > 0} />
           </div>
           
           <Button type="submit" className="w-full h-9" disabled={isLoading || !formValidation.isValid}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Kayıt Ol
+            {t('auth.signupButton')}
           </Button>
         </form>
       </CardContent>

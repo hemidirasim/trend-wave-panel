@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Zap } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { LoginForm } from './LoginForm';
 import { SignupForm } from './SignupForm';
 
@@ -15,6 +16,7 @@ interface AuthDialogProps {
 export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
   const [activeTab, setActiveTab] = useState('login');
   const isMobile = useIsMobile();
+  const { t } = useLanguage();
 
   // Reset to login tab when dialog closes
   useEffect(() => {
@@ -34,8 +36,8 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="login">Giriş</TabsTrigger>
-          <TabsTrigger value="signup">Kayıt</TabsTrigger>
+          <TabsTrigger value="login">{t('auth.login')}</TabsTrigger>
+          <TabsTrigger value="signup">{t('auth.signup')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="login" className="mt-4">
@@ -57,7 +59,7 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
           className="h-[95vh] overflow-y-auto p-6"
         >
           <SheetHeader className="sr-only">
-            <SheetTitle>Giriş ve Kayıt</SheetTitle>
+            <SheetTitle>{t('auth.login')} ve {t('auth.signup')}</SheetTitle>
           </SheetHeader>
           <AuthContent />
         </SheetContent>
@@ -69,7 +71,7 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md w-[95vw] max-w-[425px] max-h-[90vh] overflow-y-auto z-[60] p-6">
         <DialogHeader className="sr-only">
-          <DialogTitle>Giriş ve Kayıt</DialogTitle>
+          <DialogTitle>{t('auth.login')} ve {t('auth.signup')}</DialogTitle>
         </DialogHeader>
         <AuthContent />
       </DialogContent>
