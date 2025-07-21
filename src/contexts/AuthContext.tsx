@@ -65,10 +65,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (event === 'SIGNED_OUT') {
         console.log('User signed out, cleaning up...');
         cleanupAuthState();
-        // Small delay before redirect to ensure cleanup
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 100);
       }
     });
 
@@ -101,13 +97,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error };
       }
 
-      if (data.user) {
-        addNotification({
-          type: 'success',
-          title: 'Uğurlu giriş',
-          message: 'Hesabınıza uğurla daxil oldunuz',
-        });
-      }
+      // Success notification removed - user will see they're logged in
 
       return { error: null };
     } catch (error) {
@@ -171,33 +161,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(null);
       setSession(null);
       
-      // Show notification
-      addNotification({
-        type: 'success',
-        title: 'Çıxış edildi',
-        message: 'Hesabınızdan uğurla çıxış etdiniz',
-      });
-      
       // Clean up auth state
       cleanupAuthState();
       
-      // Sign out from Supabase (don't wait for response)
-      supabase.auth.signOut({ scope: 'global' }).catch(error => {
-        console.error('Error signing out:', error);
-      });
+      // Sign out from Supabase
+      const { error } = await supabase.auth.signOut({ scope: 'global' });
       
-      // Force reload immediately
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 100);
+      if (error) {
+        console.error('Error signing out:', error);
+        addNotification({
+          type: 'error',
+          title: 'Çıxış xətası',
+          message: 'Çıxış zamanı xəta baş verdi',
+        });
+      }
+      
+      // No success notification - just redirect to home
       
     } catch (error) {
       console.error('Sign out error:', error);
-      // Even if there's an error, force cleanup and redirect
-      cleanupAuthState();
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 100);
+      addNotification({
+        type: 'error',
+        title: 'Xəta',
+        message: 'Çıxış zamanı xəta baş verdi',
+      });
     }
   };
 

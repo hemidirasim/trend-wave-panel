@@ -14,7 +14,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
   useEffect(() => {
     if (!loading && !user) {
-      // Ana səhifəyə yönləndir və AuthDialog açılacaq
+      // Əsas səhifəyə yönləndir və AuthDialog açılacaq
       navigate('/?auth=required');
     }
   }, [user, loading, navigate]);
