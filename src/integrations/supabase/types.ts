@@ -514,7 +514,7 @@ export type Database = {
     }
     Functions: {
       check_email_exists: {
-        Args: { email: string }
+        Args: { email_param: string }
         Returns: boolean
       }
       has_role: {
