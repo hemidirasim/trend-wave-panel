@@ -47,9 +47,36 @@ export const Header = () => {
     fetchApiServices();
   }, []);
 
-  // Get unique platforms from API services (all platforms, no restrictions)
-  const socialPlatforms = [...new Set(apiServices.map(service => service.platform).filter(Boolean))]
-    .slice(0, 12); // Limit to 12 platforms for UI purposes
+  // Get unique platforms from API services with specific ordering
+  const sortPlatforms = (platforms: string[]) => {
+    const priorityOrder = ['instagram', 'tiktok', 'youtube', 'facebook'];
+    const priorityPlatforms: string[] = [];
+    const otherPlatforms: string[] = [];
+
+    platforms.forEach(platform => {
+      const lowerPlatform = platform.toLowerCase();
+      if (priorityOrder.includes(lowerPlatform)) {
+        priorityPlatforms.push(platform);
+      } else {
+        otherPlatforms.push(platform);
+      }
+    });
+
+    // Sort priority platforms according to the defined order
+    priorityPlatforms.sort((a, b) => {
+      const aIndex = priorityOrder.indexOf(a.toLowerCase());
+      const bIndex = priorityOrder.indexOf(b.toLowerCase());
+      return aIndex - bIndex;
+    });
+
+    // Sort other platforms alphabetically
+    otherPlatforms.sort();
+
+    return [...priorityPlatforms, ...otherPlatforms];
+  };
+
+  const uniquePlatforms = [...new Set(apiServices.map(service => service.platform).filter(Boolean))];
+  const socialPlatforms = sortPlatforms(uniquePlatforms).slice(0, 12); // Limit to 12 platforms for UI purposes
 
   const isActive = (href: string) => location.pathname === href;
 
