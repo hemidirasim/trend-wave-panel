@@ -58,10 +58,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(session?.user ?? null);
       setLoading(false);
 
-      if (event === 'SIGNED_IN' && session?.user) {
-        sessionStorage.setItem('just_logged_in', 'true');
-      }
-
       if (event === 'SIGNED_OUT') {
         console.log('User signed out, cleaning up...');
         cleanupAuthState();
@@ -97,7 +93,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error };
       }
 
-      // Success notification removed - user will see they're logged in
+      // No success notification - user will see they're logged in
 
       return { error: null };
     } catch (error) {
