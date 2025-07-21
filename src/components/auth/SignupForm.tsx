@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,13 +36,15 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
     }
 
     try {
-      // Supabase Auth API ilə e-poçt yoxlaması
-      const { data, error } = await supabase.rpc('check_email_exists', {
-        email: trimmedEmail,
-      });
+      // Check profiles table for existing email
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('email', trimmedEmail)
+        .maybeSingle();
 
-      if (error) {
-        console.error('Email check error:', error);
+      if (profileError) {
+        console.error('Profile email check error:', profileError);
         addNotification({
           type: 'error',
           title: 'Xəta',
@@ -50,28 +53,8 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
         return false;
       }
 
-      // Data true qaytarırsa, e-poçt artıq mövcuddur
-      const emailExists = data;
-
-      // Profiles cədvəlində də yoxlama (əgər istifadə olunursa)
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('email')
-        .eq('email', trimmedEmail);
-
-      if (profileError) {
-        console.error('Profile email check error:', profileError);
-        addNotification({
-          type: 'error',
-          title: 'Xəta',
-          message: 'Profil yoxlanarkən xəta baş verdi',
-        });
-        return false;
-      }
-
-      const profileEmailExists = profileData && Array.isArray(profileData) && profileData.length > 0;
-
-      return emailExists || profileEmailExists;
+      // If we found a profile with this email, it exists
+      return !!profileData;
     } catch (error) {
       console.error('Email check failed:', error);
       addNotification({
