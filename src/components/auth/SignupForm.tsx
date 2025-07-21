@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -167,11 +168,13 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
           });
         }
       } else {
-        onClose();
+        // Only reset form and close dialog on successful signup
         setEmail('');
         setPassword('');
         setFullName('');
         setEmailExistsError('');
+        setEmailStatus('idle');
+        onClose();
       }
     } catch (error) {
       console.error('Signup error:', error);
