@@ -30,17 +30,15 @@ export const Header = () => {
   ];
 
   useEffect(() => {
-    // Fetch services from API and group by platform
+    // Fetch services from API and get all available platforms
     const fetchApiServices = async () => {
       try {
         const services = await proxyApiService.getServices();
-        // Filter for social media platforms (without Twitter)
-        const socialServices = services.filter(service => 
-          ['instagram', 'tiktok', 'youtube', 'facebook','linkedin','twitter','telegram'].some(platform => 
-            service.platform?.toLowerCase().includes(platform)
-          )
+        // Get all services that have a platform (no filtering)
+        const servicesWithPlatform = services.filter(service => 
+          service.platform && service.platform.trim() !== ''
         );
-        setApiServices(socialServices);
+        setApiServices(servicesWithPlatform);
       } catch (error) {
         console.error('Error fetching API services:', error);
       }
@@ -49,9 +47,9 @@ export const Header = () => {
     fetchApiServices();
   }, []);
 
-  // Get unique platforms from API services
+  // Get unique platforms from API services (all platforms, no restrictions)
   const socialPlatforms = [...new Set(apiServices.map(service => service.platform).filter(Boolean))]
-    .slice(0, 8); // Limit to 8 platforms
+    .slice(0, 12); // Limit to 12 platforms for UI purposes
 
   const isActive = (href: string) => location.pathname === href;
 
@@ -104,7 +102,7 @@ export const Header = () => {
                   {t('nav.socialMedia')}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 bg-background border border-border shadow-lg">
+              <DropdownMenuContent className="w-56 bg-background border border-border shadow-lg max-h-64 overflow-y-auto">
                 <div className="p-2">
                   <h3 className="mb-2 text-sm font-medium leading-none text-muted-foreground">
                     {t('nav.socialNetworks')}
@@ -205,16 +203,18 @@ export const Header = () => {
                      <div className="px-3 py-2 text-base font-semibold leading-7 text-foreground">
                        {t('nav.socialNetworks')}
                      </div>
-                     {socialPlatforms.map((platform) => (
-                        <Link
-                          key={platform}
-                          to={`/${language}/order?platform=${platform.toLowerCase()}`}
-                          className="block rounded-lg px-6 py-2 text-sm leading-7 text-muted-foreground hover:bg-muted hover:text-foreground capitalize"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                         {platform}
-                       </Link>
-                     ))}
+                     <div className="max-h-48 overflow-y-auto">
+                       {socialPlatforms.map((platform) => (
+                          <Link
+                            key={platform}
+                            to={`/${language}/order?platform=${platform.toLowerCase()}`}
+                            className="block rounded-lg px-6 py-2 text-sm leading-7 text-muted-foreground hover:bg-muted hover:text-foreground capitalize"
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                           {platform}
+                         </Link>
+                       ))}
+                     </div>
                    </div>
 
                   {navigation.map((item) => (

@@ -1,7 +1,8 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Target, Instagram, Music, Youtube, Facebook, Linkedin, Twitter, Send } from 'lucide-react';
+import { Target, Instagram, Music, Youtube, Facebook, Linkedin, Twitter, Send, Globe } from 'lucide-react';
 import { proxyApiService, Service } from './ProxyApiService';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -22,6 +23,11 @@ const platformIcons: Record<string, any> = {
   telegram: Send
 };
 
+// Get icon for platform, fallback to Globe if not found
+const getPlatformIcon = (platform: string) => {
+  return platformIcons[platform.toLowerCase()] || Globe;
+};
+
 export const ServicesSection = () => {
   const { t, language } = useLanguage();
   const { settings } = useSettings();
@@ -39,13 +45,9 @@ export const ServicesSection = () => {
       console.log('🔍 API-dən gələn xidmətlər:', services);
       console.log('🔍 Cari xidmət haqqı:', settings.service_fee);
       
-      // API-dən gələn sosial media platformalarını çıxarırıq
-      const allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook','linkedin','twitter','telegram'];
+      // API-dən gələn bütün platformları çıxarırıq (məhdudiyyət yoxdur)
       const platforms = [...new Set(services
-        .filter(service => 
-          service.platform && 
-          allowedPlatforms.includes(service.platform.toLowerCase())
-        )
+        .filter(service => service.platform && service.platform.trim() !== '')
         .map(service => service.platform.toLowerCase())
       )];
       
@@ -55,7 +57,7 @@ export const ServicesSection = () => {
         displayName: platform.charAt(0).toUpperCase() + platform.slice(1).toLowerCase()
       }));
       
-      console.log('✅ Sosial media platformaları:', formattedPlatforms);
+      console.log('✅ API-dən gələn bütün platformalar:', formattedPlatforms);
       setApiServices(formattedPlatforms);
     } catch (error) {
       console.error('Error fetching API services:', error);
@@ -96,17 +98,19 @@ export const ServicesSection = () => {
           </div>
         ) : (
           <div className="flex justify-center">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 max-w-6xl">
               {apiServices.map((platform, index) => {
                 const platformKey = platform.name?.toLowerCase() || '';
-                const IconComponent = platformIcons[platformKey] || Instagram;
+                const IconComponent = getPlatformIcon(platformKey);
                 const colors = [
                   'from-pink-500 to-rose-500',
                   'from-green-500 to-blue-500', 
                   'from-red-500 to-orange-500',
                   'from-blue-500 to-purple-500',
                   'from-purple-500 to-pink-500',
-                  'from-blue-500 to-teal-500'
+                  'from-blue-500 to-teal-500',
+                  'from-orange-500 to-red-500',
+                  'from-teal-500 to-green-500'
                 ];
                 const color = colors[index % colors.length];
                 

@@ -57,7 +57,9 @@ const Order = () => {
   const [selectedServiceType, setSelectedServiceType] = useState<string>('');
   const [priceFilter, setPriceFilter] = useState<'low-to-high' | 'high-to-low'>('low-to-high');
   const urlPlatform = searchParams.get('platform');
-  const allowedPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook','linkedin','twitter'];
+
+  // Remove allowedPlatforms restriction - now we get all platforms from API
+  const [allowedPlatforms, setAllowedPlatforms] = useState<string[]>([]);
 
   // Clear any existing toasts when component mounts
   useEffect(() => {
@@ -84,7 +86,7 @@ const Order = () => {
 
   // Initialize platform from URL
   useEffect(() => {
-    if (urlPlatform && allowedPlatforms.includes(urlPlatform.toLowerCase())) {
+    if (urlPlatform) {
       setSelectedPlatform(urlPlatform.toLowerCase());
     }
   }, [urlPlatform]);
@@ -95,6 +97,7 @@ const Order = () => {
       fetchUserBalance();
     }
   }, [user, authLoading]);
+
   const fetchUserBalance = async () => {
     if (!user) return;
     try {
@@ -152,12 +155,21 @@ const Order = () => {
       }
     }
   }, [selectedService, formData.quantity, settings.service_fee, settings.base_fee, settingsLoading]);
+
   const fetchServices = async () => {
     try {
       setLoading(true);
       const data = await proxyApiService.getServices();
+      // Get all unique platforms from API (no filtering)
+      const uniquePlatforms = [...new Set(data
+        .filter(service => service && service.platform && service.id_service)
+        .map(service => service.platform.toLowerCase())
+      )];
+      setAllowedPlatforms(uniquePlatforms);
+      
+      // Filter services to only include those with valid platform and id_service
       const filteredData = data.filter(service => {
-        return service && service.platform && service.id_service && allowedPlatforms.includes(service.platform.toLowerCase());
+        return service && service.platform && service.id_service;
       });
       setServices(filteredData);
     } catch (error) {
@@ -167,6 +179,7 @@ const Order = () => {
       setLoading(false);
     }
   };
+
   const fetchServiceDetails = async (serviceId: string) => {
     try {
       setLoadingServiceDetails(true);
@@ -179,6 +192,7 @@ const Order = () => {
       setLoadingServiceDetails(false);
     }
   };
+
   const handleServiceSelection = (service: Service) => {
     setSelectedService(service);
     setSelectedPlatform(service.platform.toLowerCase());
@@ -186,6 +200,7 @@ const Order = () => {
     setSelectedServiceType(serviceType);
     fetchServiceDetails(service.id_service.toString());
   };
+
   const getServiceTypeFromName = (serviceName: string): string => {
     const name = serviceName.toLowerCase();
     if (name.includes('like') || name.includes('bəyən')) return 'Likes';
@@ -195,6 +210,7 @@ const Order = () => {
     if (name.includes('comment') || name.includes('şərh')) return 'Comments';
     return 'Other';
   };
+
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     if (!formData.serviceId) {
@@ -237,6 +253,7 @@ const Order = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -330,6 +347,7 @@ const Order = () => {
       setPlacing(false);
     }
   };
+
   const updateFormData = (field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
@@ -342,6 +360,7 @@ const Order = () => {
       }));
     }
   };
+
   const updateAdditionalParam = (paramName: string, value: any) => {
     setFormData(prev => ({
       ...prev,
@@ -357,6 +376,7 @@ const Order = () => {
       }));
     }
   };
+
   const handlePlatformChange = (platform: string) => {
     setSelectedPlatform(platform);
     setSelectedServiceType('');
@@ -364,6 +384,7 @@ const Order = () => {
     setServiceDetails(null);
     updateFormData('serviceId', '');
   };
+
   const handleServiceTypeChange = (serviceType: string) => {
     setSelectedServiceType(serviceType);
     
@@ -381,6 +402,7 @@ const Order = () => {
       updateFormData('serviceId', '');
     }
   };
+
   const handleServiceSelect = (serviceId: string) => {
     updateFormData('serviceId', serviceId);
     const service = services.find(s => s.id_service.toString() === serviceId);
@@ -388,6 +410,7 @@ const Order = () => {
       handleServiceSelection(service);
     }
   };
+
   const getServiceDescription = () => {
     if (serviceDetails?.description && serviceDetails.description.trim()) {
       return serviceDetails.description;
@@ -397,6 +420,7 @@ const Order = () => {
     }
     return null;
   };
+
   const handleBalanceTopUpSuccess = () => {
     toast.success('Balans uğurla artırıldı!');
     fetchUserBalance();
