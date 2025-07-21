@@ -4,7 +4,6 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { NotificationProvider } from "@/components/NotificationProvider";
 import { SettingsProvider } from "@/contexts/SettingsContext";
@@ -37,6 +36,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
 import { RobotsRoute } from "./components/RobotsRoute";
 import { SitemapRoute } from "./components/SitemapRoute";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
 const queryClient = new QueryClient();
 
@@ -45,12 +45,12 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <NotificationProvider>
-          <LanguageProvider>
-            <AuthProvider>
-              <SettingsProvider>
-                <Toaster />
-                <Sonner />
-                <BrowserRouter>
+          <AuthProvider>
+            <SettingsProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <LanguageProvider>
                   <Routes>
                     {/* Public routes */}
                     <Route path="/" element={<Index />} />
@@ -120,10 +120,10 @@ function App() {
                     {/* 404 route */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
-                </BrowserRouter>
-              </SettingsProvider>
-            </AuthProvider>
-          </LanguageProvider>
+                </LanguageProvider>
+              </BrowserRouter>
+            </SettingsProvider>
+          </AuthProvider>
         </NotificationProvider>
       </TooltipProvider>
     </QueryClientProvider>
