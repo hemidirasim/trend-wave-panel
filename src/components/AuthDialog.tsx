@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -28,6 +28,13 @@ const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
   const [signupPassword, setSignupPassword] = useState('');
   const [signupFullName, setSignupFullName] = useState('');
   const [activeTab, setActiveTab] = useState('login');
+
+  // Reset tab to login when dialog opens/closes
+  useEffect(() => {
+    if (!open) {
+      setActiveTab('login');
+    }
+  }, [open]);
   const { signIn, signUp } = useAuth();
   const { addNotification } = useNotification();
   const isMobile = useIsMobile();

@@ -153,11 +153,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log('Starting sign out process...');
       
-      // Clear local state immediately
-      setUser(null);
-      setSession(null);
-      
-      // Clean up auth state
+      // Clean up auth state first
       cleanupAuthState();
       
       // Sign out from Supabase
@@ -172,7 +168,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       }
       
-      // No success notification - just redirect to home
+      // Force page refresh to ensure clean state
+      window.location.href = '/';
       
     } catch (error) {
       console.error('Sign out error:', error);
@@ -181,6 +178,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         title: 'Xəta',
         message: 'Çıxış zamanı xəta baş verdi',
       });
+      // Force refresh even on error
+      window.location.href = '/';
     }
   };
 
