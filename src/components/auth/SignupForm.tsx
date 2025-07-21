@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,14 +28,32 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
   // Email existence check function
   const checkEmailExists = useCallback(async (emailToCheck: string) => {
     const trimmedEmail = emailToCheck?.trim().toLowerCase();
-    
+
     if (!trimmedEmail || !trimmedEmail.includes('@')) {
       setEmailStatus('idle');
       return false;
     }
 
     try {
-      // Check profiles table for existing email
+      // Supabase Auth API ilə e-poçt yoxlaması
+      const { data, error } = await supabase.rpc('check_email_exists', {
+        email: trimmedEmail,
+      });
+
+      if (error) {
+        console.error('Email check error:', error);
+        addNotification({
+          type: 'error',
+          title: 'Xəta',
+          message: 'E-poçt yoxlanarkən xəta baş verdi',
+        });
+        return false;
+      }
+
+      // Data true qaytarırsa, e-poçt artıq mövcuddur
+      const emailExists = data;
+
+      // Profiles cədvəlində də yoxlama (əgər istifadə olunursa)
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('email')
@@ -44,20 +61,29 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
 
       if (profileError) {
         console.error('Profile email check error:', profileError);
+        addNotification({
+          type: 'error',
+          title: 'Xəta',
+          message: 'Profil yoxlanarkən xəta baş verdi',
+        });
         return false;
       }
 
-      // Check if email exists in profiles table
-      const emailExists = profileData && Array.isArray(profileData) && profileData.length > 0;
-      return emailExists;
-      
+      const profileEmailExists = profileData && Array.isArray(profileData) && profileData.length > 0;
+
+      return emailExists || profileEmailExists;
     } catch (error) {
       console.error('Email check failed:', error);
+      addNotification({
+        type: 'error',
+        title: 'Xəta',
+        message: 'E-poçt yoxlanarkən xəta baş verdi',
+      });
       return false;
     }
-  }, []);
+  }, [addNotification]);
 
-  // Debounced email validation for real-time checking
+  // Debounced email validation
   useEffect(() => {
     if (!email || !email.includes('@')) {
       setEmailStatus('idle');
@@ -68,17 +94,19 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
     const timeoutId = setTimeout(async () => {
       setCheckingEmail(true);
       setEmailStatus('checking');
-      
+
       const exists = await checkEmailExists(email);
-      
+
       if (exists) {
         setEmailStatus('taken');
+        setEmailExistsError('Bu email ünvanı artıq mövcuddur');
       } else {
         setEmailStatus('available');
+        setEmailExistsError('');
       }
-      
+
       setCheckingEmail(false);
-    }, 800);
+    }, 500);
 
     return () => clearTimeout(timeoutId);
   }, [email, checkEmailExists]);
@@ -101,7 +129,6 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Clear previous email error
     setEmailExistsError('');
     
     if (!formValidation.isValid) {
@@ -121,6 +148,11 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
       
       if (emailExists) {
         setEmailExistsError('Bu email ünvanı artıq mövcuddur');
+        addNotification({
+          type: 'error',
+          title: 'Qeydiyyat Xətası',
+          message: 'Bu email ünvanı artıq mövcuddur',
+        });
         setIsLoading(false);
         return;
       }
@@ -140,9 +172,19 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
       const { error } = await signUp(email, password, fullName);
       
       if (error) {
-        // Check if error is due to email already existing
         if (error.message?.includes('already') || error.message?.includes('exists')) {
           setEmailExistsError('Bu email ünvanı artıq mövcuddur');
+          addNotification({
+            type: 'error',
+            title: 'Qeydiyyat Xətası',
+            message: 'Bu email ünvanı artıq mövcuddur',
+          });
+        } else {
+          addNotification({
+            type: 'error',
+            title: 'Qeydiyyat Xətası',
+            message: error.message || 'Qeydiyyat zamanı xəta baş verdi',
+          });
         }
       } else {
         onClose();
@@ -153,6 +195,11 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
       }
     } catch (error) {
       console.error('Signup error:', error);
+      addNotification({
+        type: 'error',
+        title: 'Xəta',
+        message: 'Qeydiyyat zamanı xəta baş verdi',
+      });
     } finally {
       setIsLoading(false);
     }
