@@ -151,9 +151,14 @@ export function ServiceFilters({
     }
   };
 
-  const handleOrderSubmit = (e: React.FormEvent) => {
+  const handleOrderSubmit = () => {
     if (onPlaceOrder) {
-      onPlaceOrder(e);
+      // Create a mock event for the parent handler
+      const mockEvent = {
+        preventDefault: () => {},
+        stopPropagation: () => {},
+      } as React.FormEvent;
+      onPlaceOrder(mockEvent);
     }
   };
 
