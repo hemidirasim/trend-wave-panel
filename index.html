@@ -30,26 +30,5 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    
-    <!-- Language-specific widget scripts -->
-    <script>
-      // Check current language from URL
-      const currentPath = window.location.pathname;
-      const isAzerbaijani = currentPath.startsWith('/az');
-      const isTurkish = currentPath.startsWith('/tr');
-      
-      // Load appropriate script based on language
-      if (isAzerbaijani) {
-        // Azerbaijani version
-        const azScript = document.createElement('script');
-        azScript.src = 'https://ttzioshkresaqmsodhfb.supabase.co/functions/v1/widget-js/96512d35-bc30-409c-b4bd-db0e0915f746';
-        document.body.appendChild(azScript);
-      } else if (isTurkish) {
-        // Turkish version  
-        const trScript = document.createElement('script');
-        trScript.src = 'https://ttzioshkresaqmsodhfb.supabase.co/functions/v1/widget-js/3e2bafc8-aa76-4b81-aacd-4da589904455';
-        document.body.appendChild(trScript);
-      }
-    </script>
   </body>
 </html>
