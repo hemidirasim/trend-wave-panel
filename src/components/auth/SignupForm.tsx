@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -26,7 +26,9 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
 
   // Check if email exists in database
   const checkEmailExists = useCallback(async (emailToCheck: string) => {
-    if (!emailToCheck || !emailToCheck.includes('@')) {
+    const trimmedEmail = emailToCheck?.trim().toLowerCase();
+    
+    if (!trimmedEmail || !trimmedEmail.includes('@')) {
       setEmailStatus('idle');
       return;
     }
@@ -35,19 +37,34 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
     setEmailStatus('checking');
 
     try {
-      const { data, error } = await supabase
+      // Check profiles table for existing email
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('email')
-        .eq('email', emailToCheck.toLowerCase())
+        .eq('email', trimmedEmail)
         .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
-        console.error('Email check error:', error);
+      console.log('Email check for:', trimmedEmail);
+      console.log('Profile check result:', { profileData, profileError });
+
+      // Handle errors other than "no rows returned"
+      if (profileError && profileError.code !== 'PGRST116') {
+        console.error('Profile email check error:', profileError);
         setEmailStatus('idle');
         return;
       }
 
-      setEmailStatus(data ? 'taken' : 'available');
+      // If email found in profiles table, it's taken
+      if (profileData && profileData.email) {
+        console.log('Email is taken:', profileData.email);
+        setEmailStatus('taken');
+        return;
+      }
+
+      // If no data found, email is available
+      console.log('Email is available');
+      setEmailStatus('available');
+      
     } catch (error) {
       console.error('Email check failed:', error);
       setEmailStatus('idle');
@@ -56,17 +73,21 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
     }
   }, []);
 
-  // Debounced email validation
-  const handleEmailChange = useCallback((value: string) => {
-    setEmail(value);
+  // Debounced email validation using useEffect
+  useEffect(() => {
+    if (!email || !email.includes('@')) {
+      setEmailStatus('idle');
+      return;
+    }
+
+    setEmailStatus('idle'); // Reset while waiting
     
-    // Clear previous timeout and create new one
     const timeoutId = setTimeout(() => {
-      checkEmailExists(value);
-    }, 500);
+      checkEmailExists(email);
+    }, 800);
 
     return () => clearTimeout(timeoutId);
-  }, [checkEmailExists]);
+  }, [email, checkEmailExists]);
 
   // Form validation
   const formValidation = useMemo(() => {
@@ -154,7 +175,7 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
                 type="email"
                 placeholder="example@example.com"
                 value={email}
-                onChange={(e) => handleEmailChange(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
                 required
                 className="h-9 pr-10"
                 autoComplete="email"
