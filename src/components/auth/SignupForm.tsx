@@ -43,7 +43,7 @@ export const SignupForm = ({
         data,
         error
       } = await supabase.rpc('check_email_exists', {
-        email: trimmedEmail
+        email_param: trimmedEmail
       });
       if (error) {
         console.error('Email check error:', error);
