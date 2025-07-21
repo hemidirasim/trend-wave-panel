@@ -38,14 +38,20 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
     setEmailStatus('checking');
 
     try {
-      // Check profiles table for existing email - use select() without maybeSingle()
+      console.log('Starting email check for:', trimmedEmail);
+      
+      // Check profiles table for existing email
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('email')
         .eq('email', trimmedEmail);
 
-      console.log('Email check for:', trimmedEmail);
-      console.log('Profile check result:', { profileData, profileError });
+      console.log('Raw profile query result:', { 
+        profileData, 
+        profileError,
+        dataLength: profileData?.length,
+        isArray: Array.isArray(profileData)
+      });
 
       // Handle errors
       if (profileError) {
@@ -54,19 +60,25 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
         return;
       }
 
-      // If email found in profiles table (array has items), it's taken
-      if (profileData && profileData.length > 0) {
+      // Check if email exists - profileData will be an array
+      const emailExists = profileData && Array.isArray(profileData) && profileData.length > 0;
+      
+      console.log('Email exists check:', {
+        emailExists,
+        profileDataLength: profileData?.length,
+        firstResult: profileData?.[0]
+      });
+
+      if (emailExists) {
         console.log('Email is taken:', trimmedEmail);
         setEmailStatus('taken');
-        return;
+      } else {
+        console.log('Email is available:', trimmedEmail);
+        setEmailStatus('available');
       }
-
-      // If no data found (empty array), email is available
-      console.log('Email is available');
-      setEmailStatus('available');
       
     } catch (error) {
-      console.error('Email check failed:', error);
+      console.error('Email check failed with exception:', error);
       setEmailStatus('idle');
     } finally {
       setCheckingEmail(false);
@@ -143,7 +155,6 @@ export const SignupForm = ({ onClose }: SignupFormProps) => {
       setIsLoading(false);
     }
   }, [email, password, fullName, signUp, onClose, addNotification, formValidation.isValid]);
-
 
   return (
     <Card>
