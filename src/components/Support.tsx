@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Plus, MessageSquare, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
 
 interface SupportTicket {
@@ -33,6 +34,7 @@ interface TicketMessage {
 
 const Support = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
   const [messages, setMessages] = useState<TicketMessage[]>([]);
@@ -64,13 +66,13 @@ const Support = () => {
 
       if (error) {
         console.error('Error fetching tickets:', error);
-        toast.error('Biletlər yüklənərkən xəta baş verdi');
+        toast.error(t('support.errorFetchingTickets'));
       } else {
         setTickets(data || []);
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Biletlər yüklənərkən xəta baş verdi');
+      toast.error(t('support.errorFetchingTickets'));
     } finally {
       setLoading(false);
     }
@@ -86,19 +88,19 @@ const Support = () => {
 
       if (error) {
         console.error('Error fetching messages:', error);
-        toast.error('Mesajlar yüklənərkən xəta baş verdi');
+        toast.error(t('support.errorFetchingMessages'));
       } else {
         setMessages(data || []);
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Mesajlar yüklənərkən xəta baş verdi');
+      toast.error(t('support.errorFetchingMessages'));
     }
   };
 
   const createTicket = async () => {
     if (!newTicket.title.trim() || !newTicket.description.trim()) {
-      toast.error('Başlıq və təsvir sahələri mütləqdir');
+      toast.error(t('support.titleDescriptionRequired'));
       return;
     }
 
@@ -116,16 +118,16 @@ const Support = () => {
 
       if (error) {
         console.error('Error creating ticket:', error);
-        toast.error('Bilet yaradılarkən xəta baş verdi');
+        toast.error(t('support.errorCreatingTicket'));
       } else {
-        toast.success('Bilet uğurla yaradıldı');
+        toast.success(t('support.ticketCreatedSuccess'));
         setNewTicket({ title: '', description: '', priority: 'normal' });
         setIsDialogOpen(false);
         fetchTickets();
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Bilet yaradılarkən xəta baş verdi');
+      toast.error(t('support.errorCreatingTicket'));
     }
   };
 
@@ -148,27 +150,27 @@ const Support = () => {
 
       if (error) {
         console.error('Error sending message:', error);
-        toast.error('Mesaj göndərilmədi');
+        toast.error(t('support.messageNotSent'));
       } else {
         setNewMessage('');
         fetchMessages(selectedTicket.id);
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Mesaj göndərilmədi');
+      toast.error(t('support.messageNotSent'));
     }
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'open':
-        return <Badge variant="outline" className="text-green-600"><Clock className="h-3 w-3 mr-1" />Açıq</Badge>;
+        return <Badge variant="outline" className="text-green-600"><Clock className="h-3 w-3 mr-1" />{t('support.statusOpen')}</Badge>;
       case 'in_progress':
-        return <Badge variant="outline" className="text-blue-600"><AlertCircle className="h-3 w-3 mr-1" />İcrada</Badge>;
+        return <Badge variant="outline" className="text-blue-600"><AlertCircle className="h-3 w-3 mr-1" />{t('support.statusInProgress')}</Badge>;
       case 'resolved':
-        return <Badge variant="outline" className="text-purple-600"><CheckCircle className="h-3 w-3 mr-1" />Həll edildi</Badge>;
+        return <Badge variant="outline" className="text-purple-600"><CheckCircle className="h-3 w-3 mr-1" />{t('support.statusResolved')}</Badge>;
       case 'closed':
-        return <Badge variant="outline" className="text-gray-600"><XCircle className="h-3 w-3 mr-1" />Bağlandı</Badge>;
+        return <Badge variant="outline" className="text-gray-600"><XCircle className="h-3 w-3 mr-1" />{t('support.statusClosed')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -177,13 +179,13 @@ const Support = () => {
   const getPriorityBadge = (priority: string) => {
     switch (priority) {
       case 'urgent':
-        return <Badge variant="destructive">Təcili</Badge>;
+        return <Badge variant="destructive">{t('support.priorityUrgent')}</Badge>;
       case 'high':
-        return <Badge variant="secondary" className="bg-orange-100 text-orange-800">Yüksək</Badge>;
+        return <Badge variant="secondary" className="bg-orange-100 text-orange-800">{t('support.priorityHigh')}</Badge>;
       case 'normal':
-        return <Badge variant="outline">Normal</Badge>;
+        return <Badge variant="outline">{t('support.priorityNormal')}</Badge>;
       case 'low':
-        return <Badge variant="outline" className="text-gray-500">Aşağı</Badge>;
+        return <Badge variant="outline" className="text-gray-500">{t('support.priorityLow')}</Badge>;
       default:
         return <Badge variant="outline">{priority}</Badge>;
     }
@@ -204,7 +206,7 @@ const Support = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <Button variant="outline" onClick={() => setSelectedTicket(null)}>
-            ← Geri
+            ← {t('support.back')}
           </Button>
           <div className="flex items-center space-x-2">
             {getStatusBadge(selectedTicket.status)}
@@ -239,7 +241,7 @@ const Support = () => {
 
             <div className="flex space-x-2">
               <Input
-                placeholder="Mesajınızı yazın..."
+                placeholder={t('support.writeYourMessage')}
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
@@ -258,60 +260,60 @@ const Support = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Dəstək Mərkəzi</h2>
-          <p className="text-muted-foreground">Biletlərinizi idarə edin və yardım alın</p>
+          <h2 className="text-2xl font-bold">{t('support.supportCenter')}</h2>
+          <p className="text-muted-foreground">{t('support.manageTicketsGetHelp')}</p>
         </div>
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
-              Yeni Bilet
+              {t('support.newTicket')}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Yeni Dəstək Bileti</DialogTitle>
+              <DialogTitle>{t('support.newSupportTicket')}</DialogTitle>
               <DialogDescription>
-                Probleminizi təsvir edin və dəstək komandamız sizə yardım edəcək
+                {t('support.describeProblem')}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <Label htmlFor="title">Başlıq</Label>
+                <Label htmlFor="title">{t('support.title')}</Label>
                 <Input
                   id="title"
-                  placeholder="Probleminizin qısa başlığı"
+                  placeholder={t('support.shortTitlePlaceholder')}
                   value={newTicket.title}
                   onChange={(e) => setNewTicket({ ...newTicket, title: e.target.value })}
                 />
               </div>
               <div>
-                <Label htmlFor="priority">Prioritet</Label>
+                <Label htmlFor="priority">{t('support.priority')}</Label>
                 <Select value={newTicket.priority} onValueChange={(value) => setNewTicket({ ...newTicket, priority: value })}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="low">Aşağı</SelectItem>
-                    <SelectItem value="normal">Normal</SelectItem>
-                    <SelectItem value="high">Yüksək</SelectItem>
-                    <SelectItem value="urgent">Təcili</SelectItem>
+                    <SelectItem value="low">{t('support.priorityLow')}</SelectItem>
+                    <SelectItem value="normal">{t('support.priorityNormal')}</SelectItem>
+                    <SelectItem value="high">{t('support.priorityHigh')}</SelectItem>
+                    <SelectItem value="urgent">{t('support.priorityUrgent')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label htmlFor="description">Təsvir</Label>
+                <Label htmlFor="description">{t('support.description')}</Label>
                 <Textarea
                   id="description"
-                  placeholder="Probleminizi ətraflı izah edin..."
+                  placeholder={t('support.descriptionPlaceholder')}
                   value={newTicket.description}
                   onChange={(e) => setNewTicket({ ...newTicket, description: e.target.value })}
                   rows={4}
                 />
               </div>
               <Button onClick={createTicket} className="w-full">
-                Bilet Yarat
+                {t('support.createTicket')}
               </Button>
             </div>
           </DialogContent>
@@ -342,7 +344,7 @@ const Support = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Yaradılıb: {formatDate(ticket.created_at)}
+                  {t('support.created')}: {formatDate(ticket.created_at)}
                 </p>
               </CardContent>
             </Card>
@@ -351,9 +353,9 @@ const Support = () => {
           <Card>
             <CardContent className="text-center py-8">
               <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Hələ dəstək bileti yoxdur</h3>
+              <h3 className="text-lg font-semibold mb-2">{t('support.noTicketsYet')}</h3>
               <p className="text-muted-foreground mb-4">
-                Probleminiz varsa, yeni bilet yaradın
+                {t('support.createTicketIfProblem')}
               </p>
             </CardContent>
           </Card>

@@ -113,19 +113,19 @@ const AccountSettings = ({ profile, onProfileUpdate }: AccountSettingsProps) => 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">Hesab Ayarları</h2>
-        <p className="text-muted-foreground">Hesab məlumatlarınızı idarə edin</p>
+        <h2 className="text-2xl font-bold">{t('account.accountSettings')}</h2>
+        <p className="text-muted-foreground">{t('account.manageAccountInfo')}</p>
       </div>
 
       <Tabs defaultValue="profile" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="profile" className="flex items-center gap-2">
             <User className="h-4 w-4" />
-            Profil Məlumatları
+            {t('account.profileInfo')}
           </TabsTrigger>
           <TabsTrigger value="security" className="flex items-center gap-2">
             <Lock className="h-4 w-4" />
-            Təhlükəsizlik
+            {t('account.security')}
           </TabsTrigger>
         </TabsList>
 
@@ -134,10 +134,10 @@ const AccountSettings = ({ profile, onProfileUpdate }: AccountSettingsProps) => 
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <User className="h-5 w-5" />
-                Profil Məlumatları
+                {t('account.profileInfo')}
               </CardTitle>
               <CardDescription>
-                Hesab məlumatlarınızı yeniləyin
+                {t('account.updateAccountInfo')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -145,25 +145,25 @@ const AccountSettings = ({ profile, onProfileUpdate }: AccountSettingsProps) => 
                 <Label htmlFor="full_name">{t('account.fullName')}</Label>
                 <Input
                   id="full_name"
-                  placeholder="Ad Soyadınızı daxil edin"
+                  placeholder={t('account.fullNamePlaceholder')}
                   value={profileData.full_name}
                   onChange={(e) => setProfileData({ ...profileData, full_name: e.target.value })}
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t('account.email')}</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="Email ünvanınız"
+                  placeholder={t('account.emailPlaceholder')}
                   value={profileData.email}
                   onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label>Balans</Label>
+                <Label>{t('account.balance')}</Label>
                 <div className="flex items-center space-x-2">
                   <Input
                     value={`$${profile?.balance?.toFixed(2) || '0.00'}`}
@@ -171,14 +171,14 @@ const AccountSettings = ({ profile, onProfileUpdate }: AccountSettingsProps) => 
                     className="bg-muted"
                   />
                   <Button variant="outline" size="sm">
-                    Balans Artır
+                    {t('account.topUpBalance')}
                   </Button>
                 </div>
               </div>
 
               <Button onClick={updateProfile} disabled={loading} className="w-full">
                 <Save className="h-4 w-4 mr-2" />
-                {loading ? 'Yenilənir...' : 'Dəyişiklikləri Saxla'}
+                {loading ? t('account.updating') : t('account.saveChanges')}
               </Button>
             </CardContent>
           </Card>
@@ -189,10 +189,10 @@ const AccountSettings = ({ profile, onProfileUpdate }: AccountSettingsProps) => 
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Lock className="h-5 w-5" />
-                Şifrə Dəyişdirin
+                {t('account.changePassword')}
               </CardTitle>
               <CardDescription>
-                Hesabınızın təhlükəsizliyi üçün güclü şifrə seçin
+                {t('account.chooseStrongPassword')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -201,18 +201,18 @@ const AccountSettings = ({ profile, onProfileUpdate }: AccountSettingsProps) => 
                 <Input
                   id="new_password"
                   type="password"
-                  placeholder="Yeni şifrənizi daxil edin"
+                  placeholder={t('account.newPasswordPlaceholder')}
                   value={passwordData.new_password}
                   onChange={(e) => setPasswordData({ ...passwordData, new_password: e.target.value })}
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="confirm_password">Şifrəni Təkrar Edin</Label>
+                <Label htmlFor="confirm_password">{t('account.confirmPassword')}</Label>
                 <Input
                   id="confirm_password"
                   type="password"
-                  placeholder="Şifrəni təkrar daxil edin"
+                  placeholder={t('account.confirmPasswordPlaceholder')}
                   value={passwordData.confirm_password}
                   onChange={(e) => setPasswordData({ ...passwordData, confirm_password: e.target.value })}
                 />
@@ -220,7 +220,7 @@ const AccountSettings = ({ profile, onProfileUpdate }: AccountSettingsProps) => 
 
               <Button onClick={updatePassword} disabled={loading} className="w-full">
                 <Lock className="h-4 w-4 mr-2" />
-                {loading ? 'Yenilənir...' : 'Şifrəni Yenilə'}
+                {loading ? t('account.updating') : t('account.updatePassword')}
               </Button>
             </CardContent>
           </Card>
