@@ -76,10 +76,10 @@ export const SEO = ({
       <link rel="sitemap" type="application/xml" href={`${siteUrl}/sitemap.xml`} />
       
       {/* Alternate Languages */}
-      <link rel="alternate" hrefLang="az" href={`${siteUrl}/az${location.pathname.replace(/^\/(az|tr)/, '')}`} />
-      <link rel="alternate" hrefLang="tr" href={`${siteUrl}/tr${location.pathname.replace(/^\/(az|tr)/, '')}`} />
-      <link rel="alternate" hrefLang="en" href={`${siteUrl}${location.pathname.replace(/^\/(az|tr)/, '')}`} />
-      <link rel="alternate" hrefLang="x-default" href={`${siteUrl}${location.pathname.replace(/^\/(az|tr)/, '')}`} />
+      <link rel="alternate" hrefLang="az" href={`${siteUrl}/az${location.pathname.replace(/^\/(az|tr|en)/, '')}`} />
+      <link rel="alternate" hrefLang="tr" href={`${siteUrl}/tr${location.pathname.replace(/^\/(az|tr|en)/, '')}`} />
+      <link rel="alternate" hrefLang="en" href={`${siteUrl}/en${location.pathname.replace(/^\/(az|tr|en)/, '')}`} />
+      <link rel="alternate" hrefLang="x-default" href={`${siteUrl}${location.pathname.replace(/^\/(az|tr|en)/, '')}`} />
       
       {/* Open Graph Tags */}
       <meta property="og:title" content={pageTitle} />
@@ -133,7 +133,7 @@ export const SEO = ({
             "https://instagram.com/hitloyal",
             "https://twitter.com/hitloyal"
           ],
-          "areaServed": ["AZ", "TR"],
+          "areaServed": ["AZ", "TR", "US"],
           "serviceType": [
             "Social Media Marketing",
             "Instagram Marketing", 
@@ -170,7 +170,7 @@ export const SEO = ({
             "name": "HitLoyal"
           },
           "serviceType": "Social Media Marketing",
-          "areaServed": ["Azerbaijan", "Turkey"],
+          "areaServed": ["Azerbaijan", "Turkey", "United States"],
           "hasOfferCatalog": {
             "@type": "OfferCatalog",
             "name": "Social Media Services",

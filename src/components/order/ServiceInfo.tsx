@@ -1,6 +1,8 @@
+
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Loader2, Info } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ServiceInfoProps {
   serviceDescription: string | null;
@@ -8,11 +10,13 @@ interface ServiceInfoProps {
 }
 
 export function ServiceInfo({ serviceDescription, loading }: ServiceInfoProps) {
+  const { t } = useLanguage();
+  
   return (
     <div className="space-y-2">
       <Label className="flex items-center text-base font-medium">
         <Info className="h-4 w-4 mr-2" />
-        Xidmət Haqqında
+        {t('order.serviceInfo')}
         {loading && (
           <Loader2 className="h-4 w-4 ml-2 animate-spin" />
         )}
@@ -23,7 +27,7 @@ export function ServiceInfo({ serviceDescription, loading }: ServiceInfoProps) {
             {loading ? (
               <div className="flex items-center justify-center py-4">
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                Məlumat yüklənir...
+                {t('order.serviceInfoLoading')}
               </div>
             ) : serviceDescription ? (
               <div className="whitespace-pre-line">
@@ -31,7 +35,7 @@ export function ServiceInfo({ serviceDescription, loading }: ServiceInfoProps) {
               </div>
             ) : (
               <span className="italic text-muted-foreground">
-                Bu xidmət üçün ətraflı məlumat mövcud deyil
+                {t('order.serviceInfoNotAvailable')}
               </span>
             )}
           </div>
