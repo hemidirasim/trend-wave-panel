@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from 'react';
-import { Menu, X, Globe } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,6 +12,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { proxyApiService, Service } from './ProxyApiService';
 import AuthDialog from './auth/AuthDialog';
+import { LanguageSelector } from './LanguageSelector';
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,7 +20,7 @@ export const Header = () => {
   const [apiServices, setApiServices] = useState<Service[]>([]);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const location = useLocation();
-  const { language, setLanguage, t } = useLanguage();
+  const { language, t } = useLanguage();
   const { user, signOut } = useAuth();
 
   const navigation = [
@@ -79,11 +79,6 @@ export const Header = () => {
   const socialPlatforms = sortPlatforms(uniquePlatforms).slice(0, 12); // Limit to 12 platforms for UI purposes
 
   const isActive = (href: string) => location.pathname === href;
-
-  const toggleLanguage = () => {
-    const newLang = language === 'az' ? 'tr' : 'az';
-    setLanguage(newLang);
-  };
 
   const handleSignOut = async () => {
     if (isSigningOut) return; // Prevent multiple clicks
@@ -184,15 +179,7 @@ export const Header = () => {
               </Button>
             )}
             
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleLanguage}
-              className="flex items-center gap-2"
-            >
-              <Globe className="h-4 w-4" />
-              {language.toUpperCase()}
-            </Button>
+            <LanguageSelector />
           </div>
         </nav>
       </header>
@@ -258,14 +245,7 @@ export const Header = () => {
                   ))}
                 </div>
                 <div className="py-6 space-y-4">
-                  <Button
-                    variant="ghost"
-                    onClick={toggleLanguage}
-                    className="flex items-center gap-2 w-full justify-start"
-                  >
-                    <Globe className="h-4 w-4" />
-                    {language.toUpperCase()}
-                  </Button>
+                  <LanguageSelector />
                   
                   {user ? (
                     <div className="space-y-2">
