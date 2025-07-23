@@ -25,7 +25,6 @@ export const Header = () => {
 
   const navigation = [
     { name: t('nav.about'), href: `/${language}/about` },
-    { name: t('nav.blog'), href: `/${language}/blog` },
     { name: t('nav.contact'), href: `/${language}/contact` },
   ];
 
