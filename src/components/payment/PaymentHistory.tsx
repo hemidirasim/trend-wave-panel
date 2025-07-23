@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
 import { Loader2, Receipt, CheckCircle, XCircle, Clock } from 'lucide-react';
 
@@ -22,6 +23,7 @@ interface PaymentTransaction {
 
 export function PaymentHistory() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [transactions, setTransactions] = useState<PaymentTransaction[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -42,13 +44,13 @@ export function PaymentHistory() {
 
       if (error) {
         console.error('Error fetching payment history:', error);
-        toast.error('Ödəniş tarixçəsi yüklənərkən xəta baş verdi');
+        toast.error(t('payment.loadingError'));
       } else {
         setTransactions(data || []);
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Ödəniş tarixçəsi yüklənərkən xəta baş verdi');
+      toast.error(t('payment.loadingError'));
     } finally {
       setLoading(false);
     }
@@ -60,14 +62,14 @@ export function PaymentHistory() {
         return (
           <Badge variant="outline" className="text-green-600 border-green-200">
             <CheckCircle className="h-3 w-3 mr-1" />
-            Tamamlandı
+            {t('payment.completed')}
           </Badge>
         );
       case 'pending':
         return (
           <Badge variant="outline" className="text-yellow-600 border-yellow-200">
             <Clock className="h-3 w-3 mr-1" />
-            Gözlənir
+            {t('payment.pending')}
           </Badge>
         );
       case 'failed':
@@ -75,7 +77,7 @@ export function PaymentHistory() {
         return (
           <Badge variant="outline" className="text-red-600 border-red-200">
             <XCircle className="h-3 w-3 mr-1" />
-            {status === 'failed' ? 'Uğursuz' : 'Ləğv edildi'}
+            {status === 'failed' ? t('payment.failed') : t('payment.cancelled')}
           </Badge>
         );
       default:
@@ -95,9 +97,9 @@ export function PaymentHistory() {
 
   const getOrderType = (orderId: string) => {
     if (orderId.startsWith('balance-')) {
-      return 'Balans Artırma';
+      return t('payment.balanceTopup');
     }
-    return 'Sifariş Ödənişi';
+    return t('payment.orderPayment');
   };
 
   if (loading) {
@@ -106,7 +108,7 @@ export function PaymentHistory() {
         <CardContent className="p-8">
           <div className="flex items-center justify-center">
             <Loader2 className="h-6 w-6 animate-spin mr-2" />
-            <span>Ödəniş tarixçəsi yüklənir...</span>
+            <span>{t('payment.loading')}</span>
           </div>
         </CardContent>
       </Card>
@@ -118,10 +120,10 @@ export function PaymentHistory() {
       <CardHeader>
         <CardTitle className="flex items-center">
           <Receipt className="h-5 w-5 mr-2" />
-          Ödəniş Tarixçəsi
+          {t('payment.history')}
         </CardTitle>
         <CardDescription>
-          Son ödənişlərinizin siyahısı və statusu
+          {t('payment.historyDesc')}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -129,12 +131,12 @@ export function PaymentHistory() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Tarix</TableHead>
-                <TableHead>Növ</TableHead>
-                <TableHead>Məbləğ</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Ödəniş Sistemi</TableHead>
-                <TableHead>Tranzaksiya ID</TableHead>
+                <TableHead>{t('payment.date')}</TableHead>
+                <TableHead>{t('payment.type')}</TableHead>
+                <TableHead>{t('payment.amount')}</TableHead>
+                <TableHead>{t('payment.status')}</TableHead>
+                <TableHead>{t('payment.provider')}</TableHead>
+                <TableHead>{t('payment.transactionId')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -165,9 +167,9 @@ export function PaymentHistory() {
         ) : (
           <div className="text-center py-8">
             <Receipt className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Hələ ödəniş yoxdur</h3>
+            <h3 className="text-lg font-semibold mb-2">{t('payment.noPayments')}</h3>
             <p className="text-muted-foreground">
-              İlk ödənişinizi etdikdən sonra burada görünəcək
+              {t('payment.noPaymentsDesc')}
             </p>
           </div>
         )}
