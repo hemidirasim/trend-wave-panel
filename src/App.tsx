@@ -13,8 +13,6 @@ import About from "./pages/About";
 import Services from "./pages/Services";
 import ServiceDetail from "./pages/ServiceDetail";
 import Contact from "./pages/Contact";
-import Blog from "./pages/Blog";
-import BlogPost from "./pages/BlogPost";
 import Order from "./pages/Order";
 import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
@@ -30,7 +28,6 @@ import Admin from "./pages/Admin";
 import AdminUsers from "./pages/AdminUsers";
 import AdminServices from "./pages/AdminServices";
 import AdminServiceNames from "./pages/AdminServiceNames";
-import AdminBlog from "./pages/AdminBlog";
 import AdminContactMessages from "./pages/AdminContactMessages";
 import AdminSettings from "./pages/AdminSettings";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -73,8 +70,6 @@ function App() {
                       <Route path="/:lang/services" element={<Services />} />
                       <Route path="/:lang/services/:platform" element={<ServiceDetail />} />
                       <Route path="/:lang/contact" element={<Contact />} />
-                      <Route path="/:lang/blog" element={<Blog />} />
-                      <Route path="/:lang/blog/:slug" element={<BlogPost />} />
                       <Route path="/:lang/order" element={<Order />} />
                       <Route path="/:lang/dashboard" element={
                         <ProtectedRoute>
@@ -101,11 +96,6 @@ function App() {
                       <Route path="/:lang/admin/service-names" element={
                         <ProtectedAdminRoute>
                           <AdminServiceNames />
-                        </ProtectedAdminRoute>
-                      } />
-                      <Route path="/:lang/admin/blog" element={
-                        <ProtectedAdminRoute>
-                          <AdminBlog />
                         </ProtectedAdminRoute>
                       } />
                       <Route path="/:lang/admin/contact-messages" element={
@@ -138,11 +128,6 @@ function App() {
                       <Route path="/admin/service-names" element={
                         <ProtectedAdminRoute>
                           <AdminServiceNames />
-                        </ProtectedAdminRoute>
-                      } />
-                      <Route path="/admin/blog" element={
-                        <ProtectedAdminRoute>
-                          <AdminBlog />
                         </ProtectedAdminRoute>
                       } />
                       <Route path="/admin/contact-messages" element={
