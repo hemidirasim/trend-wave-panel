@@ -136,7 +136,7 @@ const Dashboard = () => {
               const difference = newBalance - oldBalance;
               
               if (difference > 0) {
-                toast.success(t('dashboard.balanceUpdated', { amount: difference.toFixed(2) }));
+                toast.success(`${t('dashboard.balanceUpdated')} $${difference.toFixed(2)}`);
               }
             }
           }
