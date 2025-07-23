@@ -27,6 +27,7 @@ interface OrdersTableProps {
 
 const OrdersTable = ({ orders, onOrdersUpdate }: OrdersTableProps) => {
   const { t } = useLanguage();
+  
   useEffect(() => {
     // Set up real-time subscription for order status updates
     const channel = supabase
@@ -101,14 +102,14 @@ const OrdersTable = ({ orders, onOrdersUpdate }: OrdersTableProps) => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Xidmət</TableHead>
-            <TableHead>Platform</TableHead>
-            <TableHead>URL</TableHead>
-            <TableHead>Miqdar</TableHead>
-            <TableHead>Qiymət</TableHead>
-            <TableHead>Vəziyyət</TableHead>
-            <TableHead>Tarix</TableHead>
-            <TableHead>External ID</TableHead>
+            <TableHead>{t('orders.service')}</TableHead>
+            <TableHead>{t('orders.platform')}</TableHead>
+            <TableHead>{t('orders.link')}</TableHead>
+            <TableHead>{t('orders.quantity')}</TableHead>
+            <TableHead>{t('orders.price')}</TableHead>
+            <TableHead>{t('orders.status')}</TableHead>
+            <TableHead>{t('orders.date')}</TableHead>
+            <TableHead>{t('orders.externalId')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

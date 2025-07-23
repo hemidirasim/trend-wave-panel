@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -85,18 +86,18 @@ const Dashboard = () => {
 
       if (ordersError) {
         console.error('Error fetching orders:', ordersError);
-        toast.error('Sifarişlər yüklənərkən xəta baş verdi');
+        toast.error(t('dashboard.ordersLoadError'));
       } else {
         setOrders(ordersData || []);
         console.log('Orders loaded:', ordersData?.length || 0);
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Məlumatlar yüklənərkən xəta baş verdi');
+      toast.error(t('dashboard.dataLoadError'));
     } finally {
       setLoading(false);
     }
-  }, [user?.id]);
+  }, [user?.id, t]);
 
   useEffect(() => {
     if (user) {
@@ -135,7 +136,7 @@ const Dashboard = () => {
               const difference = newBalance - oldBalance;
               
               if (difference > 0) {
-                toast.success(`Balansınız yeniləndi! +$${difference.toFixed(2)} əlavə edildi`);
+                toast.success(t('dashboard.balanceUpdated', { amount: difference.toFixed(2) }));
               }
             }
           }
@@ -147,37 +148,37 @@ const Dashboard = () => {
       console.log('Cleaning up real-time subscription');
       supabase.removeChannel(channel);
     };
-  }, [user?.id]);
+  }, [user?.id, t]);
 
   // Check for payment success/error on component mount
   useEffect(() => {
     const paymentStatus = searchParams.get('payment');
     
     if (paymentStatus === 'success') {
-      toast.success('Ödəniş uğurla tamamlandı! Balansınız yenilənəcək.');
+      toast.success(t('dashboard.paymentSuccess'));
       // Force refresh profile after 3 seconds
       setTimeout(() => {
         fetchUserData();
       }, 3000);
     } else if (paymentStatus === 'error') {
-      toast.error('Ödəniş zamanı xəta baş verdi.');
+      toast.error(t('dashboard.paymentError'));
     }
-  }, [searchParams, fetchUserData]);
+  }, [searchParams, fetchUserData, t]);
 
   // Prevent duplicate login notifications when returning to the site
   useEffect(() => {
     if (user && !hasShownLoginNotification.current && !searchParams.get('payment')) {
       const hasJustLoggedIn = sessionStorage.getItem('just_logged_in');
       if (hasJustLoggedIn) {
-        toast.success('Uğurla daxil oldunuz!');
+        toast.success(t('dashboard.loginSuccess'));
         sessionStorage.removeItem('just_logged_in');
         hasShownLoginNotification.current = true;
       }
     }
-  }, [user, searchParams]);
+  }, [user, searchParams, t]);
 
   const handlePaymentSuccess = async () => {
-    toast.success('Ödəniş prosesi başladı. Balansınız avtomatik yenilənəcək.');
+    toast.success(t('dashboard.paymentProcessing'));
     // Force refresh after 2 seconds
     setTimeout(() => {
       fetchUserData();
@@ -185,7 +186,7 @@ const Dashboard = () => {
   };
 
   const handlePaymentError = (error: string) => {
-    toast.error(`Ödəniş xətası: ${error}`);
+    toast.error(`${t('dashboard.paymentError')}: ${error}`);
   };
 
   const handleSignOut = async () => {
@@ -203,7 +204,7 @@ const Dashboard = () => {
       navigate('/', { replace: true });
     } catch (error) {
       console.error('Error signing out from dashboard:', error);
-      toast.error('Çıxış zamanı xəta baş verdi');
+      toast.error(t('dashboard.signOutError'));
     } finally {
       setIsSigningOut(false);
     }
@@ -225,7 +226,7 @@ const Dashboard = () => {
         <div className="container mx-auto px-4 py-20">
           <div className="flex items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin" />
-            <span className="ml-2">Yüklənir...</span>
+            <span className="ml-2">{t('dashboard.loading')}</span>
           </div>
         </div>
         <Footer />
@@ -243,7 +244,7 @@ const Dashboard = () => {
           <div>
             <h1 className="text-3xl font-bold">{t('dashboard.title')}</h1>
             <p className="text-muted-foreground">
-              Xoş gəlmisiniz, {profile?.full_name || user?.email}
+              {t('dashboard.welcome')}, {profile?.full_name || user?.email}
             </p>
           </div>
           <div className="flex items-center space-x-4">
@@ -277,7 +278,7 @@ const Dashboard = () => {
               onClick={handleSignOut}
               disabled={isSigningOut}
             >
-              {isSigningOut ? 'Çıxılır...' : t('nav.signOut')}
+              {isSigningOut ? t('dashboard.signingOut') : t('nav.signOut')}
             </Button>
           </div>
         </div>
@@ -286,7 +287,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Ümumi Sifarişlər</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('dashboard.totalOrders')}</CardTitle>
               <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -296,7 +297,7 @@ const Dashboard = () => {
           
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Aktiv Sifarişlər</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('dashboard.activeOrders')}</CardTitle>
               <Clock className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -306,7 +307,7 @@ const Dashboard = () => {
           
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Tamamlanan</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('dashboard.completedOrders')}</CardTitle>
               <CheckCircle className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -316,7 +317,7 @@ const Dashboard = () => {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Xətalı Sifarişlər</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('dashboard.errorOrders')}</CardTitle>
               <XCircle className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -355,9 +356,9 @@ const Dashboard = () => {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle>Bütün Sifarişlər</CardTitle>
+                    <CardTitle>{t('dashboard.allOrders')}</CardTitle>
                     <CardDescription>
-                      Bütün sifarişlərinizin siyahısı və vəziyyəti (Real-time yenilənmə aktiv)
+                      {t('dashboard.allOrdersDesc')}
                     </CardDescription>
                   </div>
                   <Button 
@@ -365,7 +366,7 @@ const Dashboard = () => {
                     className="bg-primary hover:bg-primary/90"
                   >
                     <ShoppingCart className="h-4 w-4 mr-2" />
-                    Sifariş Et
+                    {t('dashboard.placeOrder')}
                   </Button>
                 </div>
               </CardHeader>
@@ -378,9 +379,9 @@ const Dashboard = () => {
           <TabsContent value="completed">
             <Card>
               <CardHeader>
-                <CardTitle>Tamamlanan Sifarişlər</CardTitle>
+                <CardTitle>{t('dashboard.completedOrders')}</CardTitle>
                 <CardDescription>
-                  Uğurla tamamlanan sifarişləriniz
+                  {t('dashboard.completedDesc')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
