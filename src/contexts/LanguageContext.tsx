@@ -14,6 +14,70 @@ interface LanguageProviderProps {
 
 const translations = {
   az: {
+    // Hero section
+    'hero.title': 'Sosial Media Xidmətləri',
+    'hero.subtitle': 'Instagram, Facebook, TikTok, YouTube və digər sosial media platformalar üçün keyfiyyətli və təhlükəsiz xidmətlər.',
+    'hero.viewServices': 'Xidmətlərə Bax',
+    
+    // Guarantees
+    'guarantees.resultGuarantee': 'Nəticə Zəmanəti',
+    'guarantees.satisfactionGuarantee': 'Məmnuniyyət Zəmanəti',
+    'guarantees.support247': '24/7 Dəstək',
+    'guarantees.moneyBack': 'Geri Qaytarma',
+    
+    // About page
+    'about.title': 'Haqqımızda',
+    'about.description': 'Sosial media sahəsində ən yaxşı xidmətləri təqdim edən platformayıq.',
+    'about.security': 'Təhlükəsizlik',
+    'about.securityDesc': 'Bütün məlumatlarınız təhlükəsiz şəkildə qorunur.',
+    'about.fastService': 'Sürətli Xidmət',
+    'about.fastServiceDesc': 'Sifarişləriniz ən qısa müddətdə tamamlanır.',
+    'about.professionalTeam': 'Peşəkar Komanda',
+    'about.professionalTeamDesc': 'Təcrübəli mütəxəssislər komandası sizə xidmət göstərir.',
+    'about.targeted': 'Hədəfli Xidmət',
+    'about.targetedDesc': 'Məqsədli və effektiv nəticələr əldə edin.',
+    'about.quality': 'Keyfiyyət',
+    'about.qualityDesc': 'Yalnız yüksək keyfiyyətli xidmətlər təqdim edirik.',
+    'about.globalReach': 'Qlobal Əhatə',
+    'about.globalReachDesc': 'Dünyanın istənilən yerindən xidmət ala bilərsiniz.',
+    'about.happyCustomers': 'Məmnun Müştəri',
+    'about.completedOrders': 'Tamamlanmış Sifariş',
+    'about.successRate': 'Uğur Nisbəti',
+    'about.supportService': 'Dəstək Xidməti',
+    'about.ourMission': 'Missiyamız',
+    'about.missionText': 'Sosial media sahəsində ən yaxşı xidmətləri təqdim etməklə müştərilərimizin uğuruna kömək etmək.',
+    'about.whyChooseUs': 'Niyə Bizi Seçəsiniz?',
+    'about.companyInfo': 'Şirkət Haqqında',
+    'about.companyDescription': 'Biz sosial media sahəsində ixtisaslaşmış peşəkar komandayıq.',
+    'about.companyServices': 'Müxtəlif sosial media platformalar üçün geniş xidmət spektri təklif edirik.',
+    
+    // Payment
+    'payment.history': 'Ödəmə Tarixçəsi',
+    'payment.historyDesc': 'Etdiyiniz ödəmələrin tarixçəsi.',
+    'payment.date': 'Tarix',
+    'payment.type': 'Növü',
+    'payment.amount': 'Məbləğ',
+    'payment.status': 'Status',
+    'payment.provider': 'Provayider',
+    'payment.transactionId': 'Əməliyyat ID',
+    'payment.completed': 'Tamamlandı',
+    'payment.pending': 'Gözləyir',
+    'payment.failed': 'Uğursuz',
+    'payment.cancelled': 'Ləğv edildi',
+    'payment.balanceTopup': 'Balans Artırma',
+    'payment.orderPayment': 'Sifariş Ödəməsi',
+    'payment.loading': 'Yüklənir',
+    'payment.loadingError': 'Yükləmə xətası',
+    'payment.noPayments': 'Ödəmə tapılmadı',
+    'payment.noPaymentsDesc': 'Hələlik ödəmə etməmisiniz.',
+    
+    // Navigation
+    'nav.socialMedia': 'Sosial Media',
+    'nav.about': 'Haqqımızda',
+    'nav.contact': 'Əlaqə',
+    'nav.dashboard': 'Panel',
+    'nav.signOut': 'Çıxış',
+    
     'header.home': 'Ana səhifə',
     'header.dashboard': 'İdarə paneli',
     'header.orders': 'Sifarişlər',
@@ -133,8 +197,6 @@ const translations = {
     'order.serviceInfo': 'Xidmət haqqında məlumat',
     'order.serviceInfoLoading': 'Xidmət haqqında məlumat yüklənir...',
     'order.serviceInfoNotAvailable': 'Xidmət haqqında məlumat mövcud deyil',
-    
-    // Order page additional translations
     'order.selectPlatform': 'Platform seçin',
     'order.selectServiceType': 'Xidmət növünü seçin',
     'order.selectedService': 'Seçilmiş xidmət',
@@ -181,6 +243,70 @@ const translations = {
     'order.quantity': 'Miqdar'
   },
   tr: {
+    // Hero section
+    'hero.title': 'Sosyal Medya Hizmetleri',
+    'hero.subtitle': 'Instagram, Facebook, TikTok, YouTube ve diğer sosyal medya platformlar için kaliteli ve güvenli hizmetler.',
+    'hero.viewServices': 'Hizmetleri Görüntüle',
+    
+    // Guarantees
+    'guarantees.resultGuarantee': 'Sonuç Garantisi',
+    'guarantees.satisfactionGuarantee': 'Memnuniyet Garantisi',
+    'guarantees.support247': '7/24 Destek',
+    'guarantees.moneyBack': 'Para İadesi',
+    
+    // About page
+    'about.title': 'Hakkımızda',
+    'about.description': 'Sosyal medya alanında en iyi hizmetleri sunan platformuz.',
+    'about.security': 'Güvenlik',
+    'about.securityDesc': 'Tüm bilgileriniz güvenli şekilde korunur.',
+    'about.fastService': 'Hızlı Hizmet',
+    'about.fastServiceDesc': 'Siparişleriniz en kısa sürede tamamlanır.',
+    'about.professionalTeam': 'Profesyonel Ekip',
+    'about.professionalTeamDesc': 'Deneyimli uzmanlar ekibi size hizmet verir.',
+    'about.targeted': 'Hedefli Hizmet',
+    'about.targetedDesc': 'Hedefli ve etkili sonuçlar elde edin.',
+    'about.quality': 'Kalite',
+    'about.qualityDesc': 'Sadece yüksek kaliteli hizmetler sunuyoruz.',
+    'about.globalReach': 'Küresel Erişim',
+    'about.globalReachDesc': 'Dünyanın her yerinden hizmet alabilirsiniz.',
+    'about.happyCustomers': 'Mutlu Müşteri',
+    'about.completedOrders': 'Tamamlanan Sipariş',
+    'about.successRate': 'Başarı Oranı',
+    'about.supportService': 'Destek Hizmeti',
+    'about.ourMission': 'Misyonumuz',
+    'about.missionText': 'Sosyal medya alanında en iyi hizmetleri sunarak müşterilerimizin başarısına katkıda bulunmak.',
+    'about.whyChooseUs': 'Neden Bizi Seçmelisiniz?',
+    'about.companyInfo': 'Şirket Hakkında',
+    'about.companyDescription': 'Sosyal medya alanında uzmanlaşmış profesyonel ekibiz.',
+    'about.companyServices': 'Çeşitli sosyal medya platformları için geniş hizmet yelpazesi sunuyoruz.',
+    
+    // Payment
+    'payment.history': 'Ödeme Geçmişi',
+    'payment.historyDesc': 'Yaptığınız ödemelerin geçmişi.',
+    'payment.date': 'Tarih',
+    'payment.type': 'Türü',
+    'payment.amount': 'Tutar',
+    'payment.status': 'Durum',
+    'payment.provider': 'Sağlayıcı',
+    'payment.transactionId': 'İşlem ID',
+    'payment.completed': 'Tamamlandı',
+    'payment.pending': 'Bekliyor',
+    'payment.failed': 'Başarısız',
+    'payment.cancelled': 'İptal edildi',
+    'payment.balanceTopup': 'Bakiye Yükleme',
+    'payment.orderPayment': 'Sipariş Ödemesi',
+    'payment.loading': 'Yükleniyor',
+    'payment.loadingError': 'Yükleme hatası',
+    'payment.noPayments': 'Ödeme bulunamadı',
+    'payment.noPaymentsDesc': 'Henüz ödeme yapmadınız.',
+    
+    // Navigation
+    'nav.socialMedia': 'Sosyal Medya',
+    'nav.about': 'Hakkımızda',
+    'nav.contact': 'İletişim',
+    'nav.dashboard': 'Panel',
+    'nav.signOut': 'Çıkış',
+    
     'header.home': 'Anasayfa',
     'header.dashboard': 'Panel',
     'header.orders': 'Siparişler',
@@ -291,7 +417,7 @@ const translations = {
     'common.view': 'Görünüm',
     'common.all': 'Tüm',
     'common.select': 'Seçin',
-     'order.title': 'Sipariş Ver',
+    'order.title': 'Sipariş Ver',
     'order.subtitle': 'Aşağıdaki hizmetlerden birini seçerek siparişinizi verin.',
     'order.details': 'Sipariş Detayları',
     'order.detailsDesc': 'Siparişinizi vermek için hizmet seçin ve bilgileri girin.',
@@ -300,8 +426,6 @@ const translations = {
     'order.serviceInfo': 'Hizmet hakkında bilgi',
     'order.serviceInfoLoading': 'Hizmet hakkında bilgi yükleniyor...',
     'order.serviceInfoNotAvailable': 'Hizmet hakkında bilgi mevcut değil',
-    
-    // Order page additional translations
     'order.selectPlatform': 'Platform seçin',
     'order.selectServiceType': 'Hizmet türünü seçin',
     'order.selectedService': 'Seçilen hizmet',
@@ -348,6 +472,70 @@ const translations = {
     'order.quantity': 'Miktar'
   },
   en: {
+    // Hero section
+    'hero.title': 'Social Media Services',
+    'hero.subtitle': 'Quality and secure services for Instagram, Facebook, TikTok, YouTube and other social media platforms.',
+    'hero.viewServices': 'View Services',
+    
+    // Guarantees
+    'guarantees.resultGuarantee': 'Result Guarantee',
+    'guarantees.satisfactionGuarantee': 'Satisfaction Guarantee',
+    'guarantees.support247': '24/7 Support',
+    'guarantees.moneyBack': 'Money Back',
+    
+    // About page
+    'about.title': 'About Us',
+    'about.description': 'We are a platform that provides the best services in the social media field.',
+    'about.security': 'Security',
+    'about.securityDesc': 'All your data is securely protected.',
+    'about.fastService': 'Fast Service',
+    'about.fastServiceDesc': 'Your orders are completed in the shortest time.',
+    'about.professionalTeam': 'Professional Team',
+    'about.professionalTeamDesc': 'A team of experienced specialists serves you.',
+    'about.targeted': 'Targeted Service',
+    'about.targetedDesc': 'Get targeted and effective results.',
+    'about.quality': 'Quality',
+    'about.qualityDesc': 'We offer only high-quality services.',
+    'about.globalReach': 'Global Reach',
+    'about.globalReachDesc': 'You can receive service from anywhere in the world.',
+    'about.happyCustomers': 'Happy Customers',
+    'about.completedOrders': 'Completed Orders',
+    'about.successRate': 'Success Rate',
+    'about.supportService': 'Support Service',
+    'about.ourMission': 'Our Mission',
+    'about.missionText': 'To help our customers succeed by providing the best services in the social media field.',
+    'about.whyChooseUs': 'Why Choose Us?',
+    'about.companyInfo': 'Company Information',
+    'about.companyDescription': 'We are a professional team specialized in social media.',
+    'about.companyServices': 'We offer a wide range of services for various social media platforms.',
+    
+    // Payment
+    'payment.history': 'Payment History',
+    'payment.historyDesc': 'History of your payments.',
+    'payment.date': 'Date',
+    'payment.type': 'Type',
+    'payment.amount': 'Amount',
+    'payment.status': 'Status',
+    'payment.provider': 'Provider',
+    'payment.transactionId': 'Transaction ID',
+    'payment.completed': 'Completed',
+    'payment.pending': 'Pending',
+    'payment.failed': 'Failed',
+    'payment.cancelled': 'Cancelled',
+    'payment.balanceTopup': 'Balance Top-up',
+    'payment.orderPayment': 'Order Payment',
+    'payment.loading': 'Loading',
+    'payment.loadingError': 'Loading error',
+    'payment.noPayments': 'No payments found',
+    'payment.noPaymentsDesc': 'You have not made any payments yet.',
+    
+    // Navigation
+    'nav.socialMedia': 'Social Media',
+    'nav.about': 'About',
+    'nav.contact': 'Contact',
+    'nav.dashboard': 'Dashboard',
+    'nav.signOut': 'Sign Out',
+    
     'header.home': 'Home',
     'header.dashboard': 'Dashboard',
     'header.orders': 'Orders',
@@ -467,8 +655,6 @@ const translations = {
     'order.serviceInfo': 'Service Information',
     'order.serviceInfoLoading': 'Loading service information...',
     'order.serviceInfoNotAvailable': 'Service information not available',
-    
-    // Order page additional translations
     'order.selectPlatform': 'Select Platform',
     'order.selectServiceType': 'Select Service Type',
     'order.selectedService': 'Selected Service',
