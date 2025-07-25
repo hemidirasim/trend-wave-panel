@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSettings } from '@/contexts/SettingsContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
 import { Loader2, AlertTriangle } from 'lucide-react';
 import { Service } from '@/types/api';
@@ -16,6 +17,7 @@ import { apiClient } from '@/utils/apiClient';
 import { calculatePrice } from '@/utils/priceCalculator';
 import { validateUrl } from '@/utils/urlValidator';
 import { useNavigate } from 'react-router-dom';
+
 interface OrderFormProps {
   service: Service;
   formData: {
@@ -31,6 +33,7 @@ interface OrderFormProps {
   onUpdateAdditionalParam: (paramName: string, value: any) => void;
   onPlaceOrder: () => void;
 }
+
 const OrderForm = ({
   service,
   formData,
@@ -41,12 +44,9 @@ const OrderForm = ({
   onUpdateAdditionalParam,
   onPlaceOrder
 }: OrderFormProps) => {
-  const {
-    user
-  } = useAuth();
-  const {
-    settings
-  } = useSettings();
+  const { user } = useAuth();
+  const { settings } = useSettings();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
   const [existingOrder, setExistingOrder] = useState<any>(null);
@@ -89,6 +89,7 @@ const OrderForm = ({
       setExistingOrder(null);
     }
   }, [formData.url, service]);
+
   const fetchProfile = async () => {
     try {
       const {
@@ -104,6 +105,7 @@ const OrderForm = ({
       console.error('Error:', error);
     }
   };
+
   const checkExistingOrder = async () => {
     if (!formData.url || !service?.platform) return;
     setCheckingExisting(true);
@@ -129,6 +131,7 @@ const OrderForm = ({
       setCheckingExisting(false);
     }
   };
+
   const handlePlaceOrder = async () => {
     console.log('🚀 handlePlaceOrder called with final price:', finalPrice);
 
@@ -270,6 +273,7 @@ const OrderForm = ({
       toast.error(errorMessage);
     }
   };
+
   const hasInsufficientBalance = profile && finalPrice > (profile.balance || 0);
   const hasExistingOrder = !!existingOrder;
 
@@ -278,92 +282,153 @@ const OrderForm = ({
   const minQuantity = parseInt(service?.amount_minimum) || 1;
   const maxQuantity = parseInt(service?.prices?.[0]?.maximum) || 10000;
   const isQuantityInvalid = quantity < minQuantity || quantity > maxQuantity;
-  return <Card>
+
+  return (
+    <Card>
       <CardHeader>
-        <CardTitle>Sifariş Məlumatları</CardTitle>
+        <CardTitle>{t('order.orderDetails')}</CardTitle>
         <CardDescription>
-          Sifarişinizin təfərrüatlarını daxil edin
+          {t('order.orderDetailsDesc')}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* URL Input */}
         <div className="space-y-2">
-          <Label htmlFor="url">URL *</Label>
-          <Input id="url" value={formData.url} onChange={e => onUpdateFormData('url', e.target.value)} placeholder={service?.example || "https://example.com"} className={`${errors.url ? 'border-red-500' : ''} ${hasExistingOrder ? 'border-red-500' : ''}`} />
+          <Label htmlFor="url">{t('order.url')}</Label>
+          <Input
+            id="url"
+            value={formData.url}
+            onChange={(e) => onUpdateFormData('url', e.target.value)}
+            placeholder={service?.example || "https://example.com"}
+            className={`${errors.url ? 'border-red-500' : ''} ${hasExistingOrder ? 'border-red-500' : ''}`}
+          />
           {errors.url && <p className="text-sm text-red-500">{errors.url}</p>}
-          {checkingExisting && <p className="text-sm text-gray-500">Mövcud sifarişlər yoxlanılır...</p>}
-          {hasExistingOrder && <Alert className="border-red-200 bg-red-50">
+          {checkingExisting && (
+            <p className="text-sm text-gray-500">Mövcud sifarişlər yoxlanılır...</p>
+          )}
+          {hasExistingOrder && (
+            <Alert className="border-red-200 bg-red-50">
               <AlertTriangle className="h-4 w-4 text-red-500" />
               <AlertDescription className="text-red-700">
-                Bu URL üçün artıq aktiv sifariş mövcuddur (Status: {existingOrder.status})
+                {t('order.existingOrder')} (Status: {existingOrder.status})
               </AlertDescription>
-            </Alert>}
+            </Alert>
+          )}
         </div>
 
         {/* Quantity Input */}
         <div className="space-y-2">
-          <Label htmlFor="quantity">Miqdar *</Label>
-          <Input id="quantity" type="number" value={formData.quantity} onChange={e => onUpdateFormData('quantity', e.target.value)} min={minQuantity} max={maxQuantity} step={parseInt(service?.amount_increment) || 1} className={`${errors.quantity ? 'border-red-500' : ''} ${isQuantityInvalid ? 'border-red-500' : ''}`} />
+          <Label htmlFor="quantity">{t('order.quantity')}</Label>
+          <Input
+            id="quantity"
+            type="number"
+            value={formData.quantity}
+            onChange={(e) => onUpdateFormData('quantity', e.target.value)}
+            min={minQuantity}
+            max={maxQuantity}
+            step={parseInt(service?.amount_increment) || 1}
+            className={`${errors.quantity ? 'border-red-500' : ''} ${isQuantityInvalid ? 'border-red-500' : ''}`}
+          />
           {errors.quantity && <p className="text-sm text-red-500">{errors.quantity}</p>}
-          {isQuantityInvalid && formData.quantity && <p className="text-sm text-red-500">
-              Miqdar {minQuantity} - {maxQuantity.toLocaleString()} aralığında olmalıdır
-            </p>}
+          {isQuantityInvalid && formData.quantity && (
+            <p className="text-sm text-red-500">
+              {t('order.quantityRange').replace('{min}', minQuantity.toString()).replace('{max}', maxQuantity.toLocaleString())}
+            </p>
+          )}
           <p className="text-sm text-gray-500">
-            Min: {minQuantity.toLocaleString()}, Max: {maxQuantity.toLocaleString()}
+            {t('order.min')} {minQuantity.toLocaleString()}, {t('order.max')} {maxQuantity.toLocaleString()}
           </p>
         </div>
 
         {/* Additional Parameters */}
-        {service?.params?.map(param => <div key={param.field_name} className="space-y-2">
+        {service?.params?.map((param) => (
+          <div key={param.field_name} className="space-y-2">
             <Label htmlFor={param.field_name}>
               {param.field_label} {param.field_validators?.includes('required') && '*'}
             </Label>
             
-            {param.field_type === 'dropdown' && param.options ? <Select value={formData.additionalParams[param.field_name] || ''} onValueChange={value => onUpdateAdditionalParam(param.field_name, value)}>
+            {param.field_type === 'dropdown' && param.options ? (
+              <Select
+                value={formData.additionalParams[param.field_name] || ''}
+                onValueChange={(value) => onUpdateAdditionalParam(param.field_name, value)}
+              >
                 <SelectTrigger className={errors[param.field_name] ? 'border-red-500' : ''}>
                   <SelectValue placeholder={param.field_placeholder || 'Seçin'} />
                 </SelectTrigger>
                 <SelectContent>
-                  {param.options.map(option => <SelectItem key={option.value} value={option.value}>
+                  {param.options.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
                       {option.name}
-                    </SelectItem>)}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
-              </Select> : param.field_type === 'textarea' ? <Textarea id={param.field_name} value={formData.additionalParams[param.field_name] || ''} onChange={e => onUpdateAdditionalParam(param.field_name, e.target.value)} placeholder={param.field_placeholder} className={errors[param.field_name] ? 'border-red-500' : ''} /> : <Input id={param.field_name} value={formData.additionalParams[param.field_name] || ''} onChange={e => onUpdateAdditionalParam(param.field_name, e.target.value)} placeholder={param.field_placeholder} className={errors[param.field_name] ? 'border-red-500' : ''} />}
+              </Select>
+            ) : param.field_type === 'textarea' ? (
+              <Textarea
+                id={param.field_name}
+                value={formData.additionalParams[param.field_name] || ''}
+                onChange={(e) => onUpdateAdditionalParam(param.field_name, e.target.value)}
+                placeholder={param.field_placeholder}
+                className={errors[param.field_name] ? 'border-red-500' : ''}
+              />
+            ) : (
+              <Input
+                id={param.field_name}
+                value={formData.additionalParams[param.field_name] || ''}
+                onChange={(e) => onUpdateAdditionalParam(param.field_name, e.target.value)}
+                placeholder={param.field_placeholder}
+                className={errors[param.field_name] ? 'border-red-500' : ''}
+              />
+            )}
             
-            {param.field_descr && <p className="text-sm text-gray-500">{param.field_descr}</p>}
-            {errors[param.field_name] && <p className="text-sm text-red-500">{errors[param.field_name]}</p>}
-          </div>)}
+            {param.field_descr && (
+              <p className="text-sm text-gray-500">{param.field_descr}</p>
+            )}
+            {errors[param.field_name] && (
+              <p className="text-sm text-red-500">{errors[param.field_name]}</p>
+            )}
+          </div>
+        ))}
 
         {/* Price Display with Admin Fee Breakdown */}
         <div className="bg-gray-50 p-4 rounded-lg">
-          <h4 className="font-semibold mb-2">Qiymət Təfərrüatı</h4>
+          <h4 className="font-semibold mb-2">{t('order.priceDetails')}</h4>
           <div className="space-y-1 text-sm">
-            
-            
-            
             <div className="flex justify-between font-semibold border-t pt-1">
-              <span>Ümumi:</span>
+              <span>{t('order.total')}</span>
               <span>${finalPrice.toFixed(2)}</span>
             </div>
           </div>
         </div>
 
         {/* Balance Check */}
-        {hasInsufficientBalance && <Alert className="border-red-200 bg-red-50">
+        {hasInsufficientBalance && (
+          <Alert className="border-red-200 bg-red-50">
             <AlertTriangle className="h-4 w-4 text-red-500" />
             <AlertDescription className="text-red-700">
-              Balansınız kifayət etmir. Lazım olan: ${finalPrice.toFixed(2)}, Mövcud: ${(profile?.balance || 0).toFixed(2)}
+              {t('order.insufficientBalance')}. Lazım olan: ${finalPrice.toFixed(2)}, Mövcud: ${(profile?.balance || 0).toFixed(2)}
             </AlertDescription>
-          </Alert>}
+          </Alert>
+        )}
 
         {/* Order Button */}
-        <Button onClick={handlePlaceOrder} disabled={placing || hasInsufficientBalance || hasExistingOrder || !formData.url || !formData.quantity || isQuantityInvalid || Object.keys(errors).length > 0} className="w-full">
-          {placing ? <>
+        <Button
+          onClick={handlePlaceOrder}
+          disabled={placing || hasInsufficientBalance || hasExistingOrder || !formData.url || !formData.quantity || isQuantityInvalid || Object.keys(errors).length > 0}
+          className="w-full"
+        >
+          {placing ? (
+            <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Sifariş verilir...
-            </> : `Sifariş ver - $${finalPrice.toFixed(2)}`}
+              {t('order.placing')}
+            </>
+          ) : (
+            `${t('order.placeOrder')} - $${finalPrice.toFixed(2)}`
+          )}
         </Button>
       </CardContent>
-    </Card>;
+    </Card>
+  );
 };
+
 export default OrderForm;

@@ -1,4 +1,3 @@
-
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Instagram, Youtube, Facebook, Heart, Users, Eye, Share, MessageCircle, Repeat, Star, Globe } from 'lucide-react';
@@ -7,6 +6,7 @@ import { useState } from 'react';
 import OrderForm from '@/components/order/OrderForm';
 import { useSettings } from '@/contexts/SettingsContext';
 import { calculatePrice } from '@/utils/priceCalculator';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ServiceFiltersProps {
   services: Service[];
@@ -47,6 +47,7 @@ export function ServiceFilters({
 }: ServiceFiltersProps) {
   const [selectedGroupName, setSelectedGroupName] = useState<string>('');
   const { settings } = useSettings();
+  const { t } = useLanguage();
 
   const getPlatformIcon = (platform: string) => {
     const icons: Record<string, any> = {
@@ -192,10 +193,10 @@ export function ServiceFilters({
     <div className="space-y-6">
       {/* Platform Selection */}
       <div className="space-y-3">
-        <Label className="text-base font-medium">Platform seçin *</Label>
+        <Label className="text-base font-medium">{t('order.selectPlatform')}</Label>
         <Select value={selectedPlatform} onValueChange={onPlatformChange}>
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Platform seçin..." />
+            <SelectValue placeholder={t('order.platformPlaceholder')} />
           </SelectTrigger>
           <SelectContent>
             {getUniquePlatforms().map((platform) => {
@@ -216,7 +217,7 @@ export function ServiceFilters({
       {/* Service Types */}
       {selectedPlatform && (
         <div className="space-y-4">
-          <Label className="text-base font-medium">Xidmət növünü seçin *</Label>
+          <Label className="text-base font-medium">{t('order.selectService')}</Label>
           
           <div className="space-y-3">
             {Object.entries(getServiceGroups(selectedPlatform))
@@ -243,7 +244,6 @@ export function ServiceFilters({
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm text-muted-foreground">Ən ucuz qiymət</div>
                       {(() => {
                         // Find the cheapest service in the group
                         const cheapestService = groupServices
