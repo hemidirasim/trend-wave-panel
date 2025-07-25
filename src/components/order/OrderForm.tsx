@@ -9,7 +9,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSettings } from '@/contexts/SettingsContext';
-import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
 import { Loader2, AlertTriangle } from 'lucide-react';
 import { Service } from '@/types/api';
@@ -17,7 +16,6 @@ import { apiClient } from '@/utils/apiClient';
 import { calculatePrice } from '@/utils/priceCalculator';
 import { validateUrl } from '@/utils/urlValidator';
 import { useNavigate } from 'react-router-dom';
-
 interface OrderFormProps {
   service: Service;
   formData: {
@@ -33,7 +31,6 @@ interface OrderFormProps {
   onUpdateAdditionalParam: (paramName: string, value: any) => void;
   onPlaceOrder: () => void;
 }
-
 const OrderForm = ({
   service,
   formData,
@@ -44,11 +41,13 @@ const OrderForm = ({
   onUpdateAdditionalParam,
   onPlaceOrder
 }: OrderFormProps) => {
-  const { user } = useAuth();
-  const { settings } = useSettings();
-  const { t } = useLanguage();
+  const {
+    user
+  } = useAuth();
+  const {
+    settings
+  } = useSettings();
   const navigate = useNavigate();
-  
   const [profile, setProfile] = useState<any>(null);
   const [existingOrder, setExistingOrder] = useState<any>(null);
   const [checkingExisting, setCheckingExisting] = useState(false);
@@ -90,7 +89,6 @@ const OrderForm = ({
       setExistingOrder(null);
     }
   }, [formData.url, service]);
-
   const fetchProfile = async () => {
     try {
       const {
@@ -106,7 +104,6 @@ const OrderForm = ({
       console.error('Error:', error);
     }
   };
-
   const checkExistingOrder = async () => {
     if (!formData.url || !service?.platform) return;
     setCheckingExisting(true);
@@ -132,7 +129,6 @@ const OrderForm = ({
       setCheckingExisting(false);
     }
   };
-
   const handlePlaceOrder = async () => {
     console.log('🚀 handlePlaceOrder called with final price:', finalPrice);
 
@@ -142,45 +138,34 @@ const OrderForm = ({
       // Double-check for existing orders before placing
       if (formData.url && service?.platform) {
         console.log('🔍 Checking for existing orders...');
-        const { data: existingOrders } = await supabase
-          .from('orders')
-          .select('*')
-          .eq('user_id', user?.id)
-          .eq('link', formData.url)
-          .eq('platform', service.platform)
-          .in('status', ['pending', 'processing', 'in_progress', 'active', 'running']);
-
+        const {
+          data: existingOrders
+        } = await supabase.from('orders').select('*').eq('user_id', user?.id).eq('link', formData.url).eq('platform', service.platform).in('status', ['pending', 'processing', 'in_progress', 'active', 'running']);
         if (existingOrders && existingOrders.length > 0) {
           console.log('🚫 Existing order found, aborting');
-          toast.error(t('order.existingActiveOrder'));
+          toast.error('Bu URL üçün aktiv sifariş mövcuddur');
           return;
         }
       }
-
       console.log('📤 Placing order via API...');
       console.log('📤 Service:', service.public_name);
       console.log('📤 Form data:', formData);
 
       // Place the order via API FIRST
-      const orderResponse = await apiClient.placeOrder(
-        formData.serviceId,
-        formData.url,
-        parseInt(formData.quantity),
-        formData.additionalParams
-      );
+      const orderResponse = await apiClient.placeOrder(formData.serviceId, formData.url, parseInt(formData.quantity), formData.additionalParams);
       console.log('📥 API Response received:', orderResponse);
 
       // Check if order was successful - more comprehensive checks
       if (!orderResponse) {
         console.log('❌ No API response received');
-        toast.error(t('order.apiError'));
+        toast.error('API cavab vermədi. Yenidən cəhd edin.');
         return;
       }
 
       // Check for explicit error status
       if (orderResponse.status === 'error') {
         console.log('❌ API returned error status:', orderResponse);
-        let errorMessage = t('order.orderFailed');
+        let errorMessage = 'Sifariş verilmədi. Yenidən cəhd edin.';
         if (orderResponse.messages && Array.isArray(orderResponse.messages)) {
           errorMessage = orderResponse.messages.map((msg: any) => msg.message || msg).join(', ');
         } else if (orderResponse.message) {
@@ -199,10 +184,7 @@ const OrderForm = ({
         const hasErrors = orderResponse.messages.some((msg: any) => msg.id && msg.id !== 100);
         if (hasErrors) {
           console.log('❌ API returned error messages');
-          const errorMessages = orderResponse.messages
-            .filter((msg: any) => msg.id && msg.id !== 100)
-            .map((msg: any) => msg.message || msg)
-            .join(', ');
+          const errorMessages = orderResponse.messages.filter((msg: any) => msg.id && msg.id !== 100).map((msg: any) => msg.message || msg).join(', ');
           toast.error(errorMessages);
           return;
         }
@@ -211,10 +193,9 @@ const OrderForm = ({
       // Check if we have a valid submission ID (success indicator)
       if (!orderResponse.id_service_submission) {
         console.log('❌ No submission ID received');
-        toast.error(t('order.orderFailed'));
+        toast.error('Sifariş ID alınmadı. Yenidən cəhd edin.');
         return;
       }
-
       console.log('✅ Order API call successful!');
       console.log('✅ Submission ID:', orderResponse.id_service_submission);
 
@@ -230,37 +211,34 @@ const OrderForm = ({
         service_type: service.type_name || 'engagement',
         link: formData.url,
         quantity: parseInt(formData.quantity),
-        price: finalPrice, // Use the correctly calculated price
+        price: finalPrice,
+        // Use the correctly calculated price
         status: 'pending',
         external_order_id: externalOrderId
       };
-
       console.log('💾 Saving order to database with final price:', finalPrice);
-      const { data: insertedOrder, error: insertError } = await supabase
-        .from('orders')
-        .insert(orderData)
-        .select()
-        .single();
-
+      const {
+        data: insertedOrder,
+        error: insertError
+      } = await supabase.from('orders').insert(orderData).select().single();
       if (insertError) {
         console.error('❌ Database insert error:', insertError);
-        toast.error(t('order.orderSaveError'));
+        toast.error('Sifarişi yadda saxlamaq mümkün olmadı');
         return;
       }
-
       console.log('✅ Order saved to database:', insertedOrder);
 
       // Update user balance with the correct calculated price
       if (profile) {
         const newBalance = (profile.balance || 0) - finalPrice;
-        const { error: balanceError } = await supabase
-          .from('profiles')
-          .update({ balance: newBalance })
-          .eq('id', user?.id);
-
+        const {
+          error: balanceError
+        } = await supabase.from('profiles').update({
+          balance: newBalance
+        }).eq('id', user?.id);
         if (balanceError) {
           console.error('❌ Balance update error:', balanceError);
-          toast.error(t('order.balanceUpdateError'));
+          toast.error('Balansı yeniləmək mümkün olmadı');
           return;
         } else {
           console.log('✅ Balance updated successfully. New balance:', newBalance);
@@ -269,23 +247,22 @@ const OrderForm = ({
 
       // Show success message and redirect with a small delay to ensure user sees the success message
       console.log('🎉 Order completed successfully!');
-      toast.success(t('order.orderSuccess'));
+      toast.success('Sifariş uğurla verildi!');
 
       // Small delay to ensure user sees the success message before redirect
       setTimeout(() => {
         navigate('/dashboard');
       }, 1500);
-
     } catch (error: any) {
       console.error('❌ Order placement error:', error);
 
       // Show user-friendly error message
-      let errorMessage = t('order.generalError');
+      let errorMessage = 'Sifariş verərkən xəta baş verdi';
       if (error.message) {
         if (error.message.includes('network') || error.message.includes('fetch')) {
-          errorMessage = t('order.networkError');
+          errorMessage = 'İnternet bağlantısında problem var. Yenidən cəhd edin.';
         } else if (error.message.includes('timeout')) {
-          errorMessage = t('order.timeoutError');
+          errorMessage = 'Sorğu vaxtı bitdi. Yenidən cəhd edin.';
         } else {
           errorMessage = error.message;
         }
@@ -293,7 +270,6 @@ const OrderForm = ({
       toast.error(errorMessage);
     }
   };
-
   const hasInsufficientBalance = profile && finalPrice > (profile.balance || 0);
   const hasExistingOrder = !!existingOrder;
 
@@ -302,165 +278,92 @@ const OrderForm = ({
   const minQuantity = parseInt(service?.amount_minimum) || 1;
   const maxQuantity = parseInt(service?.prices?.[0]?.maximum) || 10000;
   const isQuantityInvalid = quantity < minQuantity || quantity > maxQuantity;
-
-  return (
-    <Card>
+  return <Card>
       <CardHeader>
-        <CardTitle>{t('order.orderDetails')}</CardTitle>
+        <CardTitle>Sifariş Məlumatları</CardTitle>
         <CardDescription>
-          {t('order.orderDetailsDesc')}
+          Sifarişinizin təfərrüatlarını daxil edin
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* URL Input */}
         <div className="space-y-2">
-          <Label htmlFor="url">{t('order.url')} *</Label>
-          <Input
-            id="url"
-            value={formData.url}
-            onChange={(e) => onUpdateFormData('url', e.target.value)}
-            placeholder={service?.example || "https://example.com"}
-            className={`${errors.url ? 'border-red-500' : ''} ${hasExistingOrder ? 'border-red-500' : ''}`}
-          />
-          {errors.url && (
-            <p className="text-sm text-red-500">{errors.url}</p>
-          )}
-          {checkingExisting && (
-            <p className="text-sm text-gray-500">{t('order.checkingExistingOrders')}</p>
-          )}
-          {hasExistingOrder && (
-            <Alert className="border-red-200 bg-red-50">
+          <Label htmlFor="url">URL *</Label>
+          <Input id="url" value={formData.url} onChange={e => onUpdateFormData('url', e.target.value)} placeholder={service?.example || "https://example.com"} className={`${errors.url ? 'border-red-500' : ''} ${hasExistingOrder ? 'border-red-500' : ''}`} />
+          {errors.url && <p className="text-sm text-red-500">{errors.url}</p>}
+          {checkingExisting && <p className="text-sm text-gray-500">Mövcud sifarişlər yoxlanılır...</p>}
+          {hasExistingOrder && <Alert className="border-red-200 bg-red-50">
               <AlertTriangle className="h-4 w-4 text-red-500" />
               <AlertDescription className="text-red-700">
-                {t('order.existingOrderWarning')} ({t('order.orderStatus')}: {existingOrder.status})
+                Bu URL üçün artıq aktiv sifariş mövcuddur (Status: {existingOrder.status})
               </AlertDescription>
-            </Alert>
-          )}
+            </Alert>}
         </div>
 
         {/* Quantity Input */}
         <div className="space-y-2">
-          <Label htmlFor="quantity">{t('order.quantity')} *</Label>
-          <Input
-            id="quantity"
-            type="number"
-            value={formData.quantity}
-            onChange={(e) => onUpdateFormData('quantity', e.target.value)}
-            min={minQuantity}
-            max={maxQuantity}
-            step={parseInt(service?.amount_increment) || 1}
-            className={`${errors.quantity ? 'border-red-500' : ''} ${isQuantityInvalid ? 'border-red-500' : ''}`}
-          />
-          {errors.quantity && (
-            <p className="text-sm text-red-500">{errors.quantity}</p>
-          )}
-          {isQuantityInvalid && formData.quantity && (
-            <p className="text-sm text-red-500">
-              {t('order.quantityRange', { min: minQuantity, max: maxQuantity.toLocaleString() })}
-            </p>
-          )}
+          <Label htmlFor="quantity">Miqdar *</Label>
+          <Input id="quantity" type="number" value={formData.quantity} onChange={e => onUpdateFormData('quantity', e.target.value)} min={minQuantity} max={maxQuantity} step={parseInt(service?.amount_increment) || 1} className={`${errors.quantity ? 'border-red-500' : ''} ${isQuantityInvalid ? 'border-red-500' : ''}`} />
+          {errors.quantity && <p className="text-sm text-red-500">{errors.quantity}</p>}
+          {isQuantityInvalid && formData.quantity && <p className="text-sm text-red-500">
+              Miqdar {minQuantity} - {maxQuantity.toLocaleString()} aralığında olmalıdır
+            </p>}
           <p className="text-sm text-gray-500">
-            {t('order.minMax', { min: minQuantity.toLocaleString(), max: maxQuantity.toLocaleString() })}
+            Min: {minQuantity.toLocaleString()}, Max: {maxQuantity.toLocaleString()}
           </p>
         </div>
 
         {/* Additional Parameters */}
-        {service?.params?.map((param) => (
-          <div key={param.field_name} className="space-y-2">
+        {service?.params?.map(param => <div key={param.field_name} className="space-y-2">
             <Label htmlFor={param.field_name}>
               {param.field_label} {param.field_validators?.includes('required') && '*'}
             </Label>
             
-            {param.field_type === 'dropdown' && param.options ? (
-              <Select
-                value={formData.additionalParams[param.field_name] || ''}
-                onValueChange={(value) => onUpdateAdditionalParam(param.field_name, value)}
-              >
+            {param.field_type === 'dropdown' && param.options ? <Select value={formData.additionalParams[param.field_name] || ''} onValueChange={value => onUpdateAdditionalParam(param.field_name, value)}>
                 <SelectTrigger className={errors[param.field_name] ? 'border-red-500' : ''}>
-                  <SelectValue placeholder={param.field_placeholder || t('common.select')} />
+                  <SelectValue placeholder={param.field_placeholder || 'Seçin'} />
                 </SelectTrigger>
                 <SelectContent>
-                  {param.options.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
+                  {param.options.map(option => <SelectItem key={option.value} value={option.value}>
                       {option.name}
-                    </SelectItem>
-                  ))}
+                    </SelectItem>)}
                 </SelectContent>
-              </Select>
-            ) : param.field_type === 'textarea' ? (
-              <Textarea
-                id={param.field_name}
-                value={formData.additionalParams[param.field_name] || ''}
-                onChange={(e) => onUpdateAdditionalParam(param.field_name, e.target.value)}
-                placeholder={param.field_placeholder}
-                className={errors[param.field_name] ? 'border-red-500' : ''}
-              />
-            ) : (
-              <Input
-                id={param.field_name}
-                value={formData.additionalParams[param.field_name] || ''}
-                onChange={(e) => onUpdateAdditionalParam(param.field_name, e.target.value)}
-                placeholder={param.field_placeholder}
-                className={errors[param.field_name] ? 'border-red-500' : ''}
-              />
-            )}
+              </Select> : param.field_type === 'textarea' ? <Textarea id={param.field_name} value={formData.additionalParams[param.field_name] || ''} onChange={e => onUpdateAdditionalParam(param.field_name, e.target.value)} placeholder={param.field_placeholder} className={errors[param.field_name] ? 'border-red-500' : ''} /> : <Input id={param.field_name} value={formData.additionalParams[param.field_name] || ''} onChange={e => onUpdateAdditionalParam(param.field_name, e.target.value)} placeholder={param.field_placeholder} className={errors[param.field_name] ? 'border-red-500' : ''} />}
             
-            {param.field_descr && (
-              <p className="text-sm text-gray-500">{param.field_descr}</p>
-            )}
-            {errors[param.field_name] && (
-              <p className="text-sm text-red-500">{errors[param.field_name]}</p>
-            )}
-          </div>
-        ))}
+            {param.field_descr && <p className="text-sm text-gray-500">{param.field_descr}</p>}
+            {errors[param.field_name] && <p className="text-sm text-red-500">{errors[param.field_name]}</p>}
+          </div>)}
 
         {/* Price Display with Admin Fee Breakdown */}
         <div className="bg-gray-50 p-4 rounded-lg">
-          <h4 className="font-semibold mb-2">{t('order.priceDetails')}</h4>
+          <h4 className="font-semibold mb-2">Qiymət Təfərrüatı</h4>
           <div className="space-y-1 text-sm">
+            
+            
+            
             <div className="flex justify-between font-semibold border-t pt-1">
-              <span>{t('order.total')}:</span>
+              <span>Ümumi:</span>
               <span>${finalPrice.toFixed(2)}</span>
             </div>
           </div>
         </div>
 
         {/* Balance Check */}
-        {hasInsufficientBalance && (
-          <Alert className="border-red-200 bg-red-50">
+        {hasInsufficientBalance && <Alert className="border-red-200 bg-red-50">
             <AlertTriangle className="h-4 w-4 text-red-500" />
             <AlertDescription className="text-red-700">
-              {t('order.balanceInsufficient')}. {t('order.requiredAmount')}: ${finalPrice.toFixed(2)}, {t('order.availableAmount')}: ${(profile?.balance || 0).toFixed(2)}
+              Balansınız kifayət etmir. Lazım olan: ${finalPrice.toFixed(2)}, Mövcud: ${(profile?.balance || 0).toFixed(2)}
             </AlertDescription>
-          </Alert>
-        )}
+          </Alert>}
 
         {/* Order Button */}
-        <Button
-          onClick={handlePlaceOrder}
-          disabled={
-            placing ||
-            hasInsufficientBalance ||
-            hasExistingOrder ||
-            !formData.url ||
-            !formData.quantity ||
-            isQuantityInvalid ||
-            Object.keys(errors).length > 0
-          }
-          className="w-full"
-        >
-          {placing ? (
-            <>
+        <Button onClick={handlePlaceOrder} disabled={placing || hasInsufficientBalance || hasExistingOrder || !formData.url || !formData.quantity || isQuantityInvalid || Object.keys(errors).length > 0} className="w-full">
+          {placing ? <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {t('order.placingOrder')}
-            </>
-          ) : (
-            t('order.placeOrderAmount', { amount: finalPrice.toFixed(2) })
-          )}
+              Sifariş verilir...
+            </> : `Sifariş ver - $${finalPrice.toFixed(2)}`}
         </Button>
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };
-
 export default OrderForm;
