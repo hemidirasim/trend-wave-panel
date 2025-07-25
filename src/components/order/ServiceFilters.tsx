@@ -244,7 +244,6 @@ export function ServiceFilters({
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm text-muted-foreground">{t('order.cheapestPrice')}</div>
                       {(() => {
                         // Find the cheapest service in the group
                         const cheapestService = groupServices
