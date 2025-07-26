@@ -217,7 +217,7 @@ const Order = () => {
       newErrors.serviceId = t('order.serviceRequired');
     }
     if (!formData.url.trim()) {
-      newErrors.url = 'URL daxil etmək vacibdir';
+      newErrors.url = '{t('order.requiredUrl')}';
     } else if (!proxyApiService.validateUrl(selectedPlatform, formData.url)) {
       newErrors.url = 'Düzgün URL formatı daxil edin';
     }

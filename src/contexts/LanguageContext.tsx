@@ -81,6 +81,7 @@ const translations: Record<string, Language> = {
     'order.quantityRange': 'Miqdar {min} - {max} aralığında olmalıdır',
     'order.min': 'Min:',
     'order.max': 'Max:',
+    'order.requiredUrl':'Url daxil etmək vacibdir.',
     'dashboard.title': 'İdarə Paneli',
     'dashboard.welcome': 'Xoş gəlmisiniz',
     'dashboard.orders': 'Sifarişlər',
