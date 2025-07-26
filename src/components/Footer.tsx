@@ -28,12 +28,12 @@ export const Footer = () => {
             <ul className="space-y-3">
               <li>
                 <Link to="/terms" className="text-slate-300 hover:text-primary transition-colors duration-300">
-                  Qaydalar və Şərtlər
+                  {t('footer.rules')}
                 </Link>
               </li>
               <li>
                 <Link to="/privacy" className="text-slate-300 hover:text-primary transition-colors duration-300">
-                  Məxfilik Siyasəti
+                  {t('footer.policy')}
                 </Link>
               </li>
             </ul>

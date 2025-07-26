@@ -46,6 +46,8 @@ const translations: Record<string, Language> = {
     'guarantees.satisfactionGuarantee': 'Məmnuniyyət Zəmanəti',
     'guarantees.support247': '24/7 Müştəri Dəstəyi',
     'guarantees.moneyBack': 'Pul Geri Qaytarma',
+    'footer.policy':'Məxfilik siyasəti',
+    'footer.rules':'Qaydalar və Şərtlər',
     'footer.company': 'Şirkət',
     'footer.whyUs': 'Niyə Bizimlə?',
     'footer.secureReliable': 'Təhlükəsiz və Etibarlı',
