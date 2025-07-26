@@ -87,7 +87,7 @@ const translations: Record<string, Language> = {
     'order.trueQuantity':'Keçərli say daxil edin.',
     'order.minOrder':'Minimum miqdar.',
     'order.maxOrder':'Maksimum miqdar',
-    'order.EnoughBalance':'Kifayət qədər balansınız yoxdur.'
+    'order.EnoughBalance':'Kifayət qədər balansınız yoxdur.',
     'order.OrderingError':'Sifariş verilmədi. Yenidən cəhd edin.',
     'order.balanceIncreaseSuccess':'Balansınız uğurla artırıldı',
     'dashboard.title': 'İdarə Paneli',
@@ -376,7 +376,7 @@ const translations: Record<string, Language> = {
     'order.trueQuantity':'Geçerli say giriniz.',
     'order.minOrder':'Minimum miktar.',
     'order.maxOrder':'Maksimum miktar',
-    'order.EnoughBalance':'Sipariş için yeteri kadar bakiyeniz yok.'
+    'order.EnoughBalance':'Sipariş için yeteri kadar bakiyeniz yok.',
     'order.OrderingError':'Sipariş yapılamadı. Tekrar deneyiniz.',
     'order.balanceIncreaseSuccess':'Bakiye başarıyla yükseldi.',
     'dashboard.title': 'Kontrol Paneli',
@@ -665,7 +665,7 @@ const translations: Record<string, Language> = {
     'order.trueQuantity':'Enter correct quantity.',
      'order.minOrder':'Minimum amount.',
     'order.maxOrder':'Maksimum amount',
-    'order.EnoughBalance':'You do not have enough funds to pay for the order.'
+    'order.EnoughBalance':'You do not have enough funds to pay for the order.',
     'order.OrderingError':'The order could not be placed. Please try again.',
     'order.balanceIncreaseSuccess':'Your balance has been successfully topped up.',
     'dashboard.title': 'Dashboard',
