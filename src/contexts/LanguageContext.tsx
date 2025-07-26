@@ -171,7 +171,7 @@ const translations: Record<string, Language> = {
     'account.changePassword': 'Şifrə Dəyişdirin',
     'account.chooseStrongPassword': 'Hesabınızın təhlükəsizliyi üçün güclü şifrə seçin',
     'account.newPasswordPlaceholder': 'Yeni şifrənizi daxil edin',
-    'account.confirmPasswordPlaceholder': 'Şifrəni təkrar daxil edin',
+    'account.confirmPasswordPlaceholder': 'Şifreyi tekrar girin',
     'balance.topUp': 'Balans Artır',
     'balance.topUpDesc': 'Hesabınıza balans əlavə edin. Minimum məbləğ $1 USD-dir.',
     'balance.quickSelection': 'Sürətli seçim',
@@ -368,7 +368,7 @@ const translations: Record<string, Language> = {
     'dashboard.noOrders': 'Sipariş bulunamadı',
     'dashboard.noOrdersDesc': 'Bu kategoride sipariş yok',
     'dashboard.allOrders': 'Tüm Siparişler',
-    'dashboard.allOrdersDesc': 'Tüm siparişlerinizin listesi ve durumu (Gerçek zamanlı güncelleme aktif)',
+    'dashboard.allOrdersDesc': 'Tüm siparişlerinizin listesi ve durumu (Gerçek zamanlı güncelleme aktiv)',
     'dashboard.placeOrder': 'Sipariş Ver',
     'dashboard.pending': 'Bekliyor',
     'dashboard.processing': 'İşleniyor',
@@ -525,7 +525,7 @@ const translations: Record<string, Language> = {
     'about.whyChooseUs': 'Neden Bizi Seçmelisiniz?',
     'about.companyInfo': 'Şirket Hakkında',
     'about.companyDescription': 'HitLoyal, Midiya Agency MMC\'nin kontrolü altında faaliyet gösteren dijital pazarlama platformudur. Şirketimiz resmi olarak kayıtlıdır ve VOEN: 6402180791 numarası ile tanınmaktadır.',
-    'about.companyServices': 'Sosyal medya platformlarında organik ve ücretli reklam kampaniyaları, SEO optimizasyonu, içerik pazarlama ve branding hizmetleri sunuyoruz. Ekibimiz modern teknolojiler ve en son pazarlama trendleri ile çalışmaktadır.',
+    'about.companyServices': 'Sosyal medya platformlarında organik ve ücretli reklam kampanyaları, SEO optimizasyonu, içerik pazarlama ve branding hizmetleri sunuyoruz. Ekibimiz modern teknolojiler ve en son pazarlama trendleri ile çalışmaktadır.',
     'about.security': 'Güvenlik',
     'about.securityDesc': 'Tüm bilgileriniz ve siparişleriniz tam güvenlik altındadır.',
     'about.fastService': 'Hızlı Hizmet',
@@ -724,7 +724,7 @@ const translations: Record<string, Language> = {
 };
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<string>('az'); // Default to Azerbaijani
+  const [language, setLanguage] = useState<string>('az');
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -737,14 +737,15 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setLanguage(langFromUrl);
       localStorage.setItem('language', langFromUrl);
     } else {
-      // Use Azerbaijani as default instead of checking localStorage
-      const defaultLanguage = 'az';
-      setLanguage(defaultLanguage);
-      localStorage.setItem('language', defaultLanguage);
+      // Get saved language from localStorage or use Azerbaijani as default
+      const savedLanguage = localStorage.getItem('language') || 'az';
+      setLanguage(savedLanguage);
       
-      // Redirect to language-specific URL with Azerbaijani as default
-      const newPath = `/${defaultLanguage}${location.pathname}${location.search}`;
-      navigate(newPath, { replace: true });
+      // Only redirect if user is not already on a language-specific URL
+      if (pathParts[1] !== savedLanguage) {
+        const newPath = `/${savedLanguage}${location.pathname}${location.search}`;
+        navigate(newPath, { replace: true });
+      }
     }
   }, [location.pathname, navigate]);
 
