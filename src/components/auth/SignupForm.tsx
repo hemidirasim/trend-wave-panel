@@ -191,7 +191,7 @@ export const SignupForm = ({
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="signup-email" className="text-sm">{t('auth.email')}</Label>
+            <Label htmlFor="signup-email" className="text-sm">{t('auth.email')}ççç</Label>
             <div className="relative">
               <Input id="signup-email" type="email" placeholder={t('auth.emailPlaceholder')} value={email} onChange={e => setEmail(e.target.value)} required className="h-9 pr-10" autoComplete="email" />
               <div className="absolute inset-y-0 right-0 flex items-center pr-3">
