@@ -940,8 +940,8 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setLanguage(langFromUrl);
       localStorage.setItem('language', langFromUrl);
     } else {
-      // Get saved language from localStorage or use Azerbaijani as default
-      const savedLanguage = localStorage.getItem('language') || 'az';
+      // Get saved language from localStorage or use English as default
+      const savedLanguage = localStorage.getItem('language') || 'en';
       setLanguage(savedLanguage);
       
       // Only redirect if user is not already on a language-specific URL
