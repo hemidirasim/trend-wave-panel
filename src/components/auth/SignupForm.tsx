@@ -213,7 +213,7 @@ export const SignupForm = ({
           
           <Button type="submit" className="w-full h-9" disabled={isLoading || !formValidation.isValid}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {t('auth.signupButton')}
+            {t('login.signUp')}
           </Button>
         </form>
       </CardContent>
