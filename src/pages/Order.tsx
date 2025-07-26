@@ -262,10 +262,11 @@ const Order = () => {
       setAuthDialogOpen(true);
       return;
     }
-    if (userBalance < calculatedPrice) {
-      toast.error(t('order.EnoughBalance'));
-      return;
-    }
+ if (userBalance < calculatedPrice) {
+  toast.error(t('order.EnoughBalance'));
+  return;
+}
+
     if (!validateForm()) {
       return;
     }
