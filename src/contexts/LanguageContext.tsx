@@ -15,6 +15,9 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 const translations: Record<string, Language> = {
   az: {
+    'hero.smmTitle':'#1 SMM Xidmətləri Platforması',
+    'services.sub':'Sosial media hesablarınızı böyütmək üçün keyfiyyətli xidmətlər',
+    'smm.services':'Sosial Media Xidmətləri',
     'auth.login': 'Daxil ol',
     'auth.signup': 'Qeydiyyat',
     'auth.loginTitle': 'Daxil ol',
@@ -318,6 +321,9 @@ const translations: Record<string, Language> = {
     'contact.city': 'Bakı, Azərbaycan',
   },
   tr: {
+    'hero.smmTitle': '#1 SMM Hizmetleri Platforması',
+    'services.sub': 'Sosyal medya hesaplarınızı büyütmek için kaliteli hizmetler',
+    'smm.services': 'Sosyal Medya Hizmetleri',
     'auth.login': 'Giriş Yap',
     'auth.signup': 'Kayıt Ol',
     'auth.loginTitle': 'Giriş Yap',
@@ -621,6 +627,9 @@ const translations: Record<string, Language> = {
     'contact.city': 'Bakü, Azerbaycan',
   },
   en: {
+    'hero.smmTitle': '#1 SMM Services Platform',
+    'services.sub': 'Quality services to grow your social media accounts',
+    'smm.services': 'Social Media Services',
     'auth.login': 'Login',
     'auth.signup': 'Sign Up',
     'auth.loginTitle': 'Login',

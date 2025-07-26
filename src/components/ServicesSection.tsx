@@ -77,13 +77,13 @@ export const ServicesSection = () => {
         <div className="text-center mb-20">
           <Badge variant="secondary" className="mb-6 px-4 py-2 text-sm font-medium bg-white/80 backdrop-blur-sm border border-primary/20">
             <Target className="h-4 w-4 mr-2" />
-            Sosial Media Xidmətləri
+            {t('hero.services')}
           </Badge>
           <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary via-purple-600 to-pink-600 bg-clip-text text-transparent">
             {t('services.popular')}
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Sosial media hesablarınızı böyütmək üçün keyfiyyətli xidmətlər
+           {t('services.sub')}
           </p>
         </div>
         

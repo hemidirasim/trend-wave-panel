@@ -38,7 +38,7 @@ export const HeroSection = () => {
           <div className="animate-fade-in">
             <Badge variant="secondary" className="mb-6 px-4 py-2 text-sm font-medium bg-white/80 backdrop-blur-sm border border-primary/20">
               <Sparkles className="h-4 w-4 mr-2" />
-              #1 SMM Xidmətləri Platforması
+              {t('hero.smmTitle')}
             </Badge>
             <h1 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-primary via-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight">
               {t('hero.title')}
