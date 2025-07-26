@@ -263,7 +263,7 @@ const Order = () => {
       return;
     }
     if (userBalance < calculatedPrice) {
-      toast.error(t('order.EnoughBalanceasd'););
+      toast.error(t('order.EnoughBalance'););
       return;
     }
     if (!validateForm()) {
