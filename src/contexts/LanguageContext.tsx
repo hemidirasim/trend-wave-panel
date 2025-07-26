@@ -371,7 +371,7 @@ const translations: Record<string, Language> = {
     'order.min': 'Min:',
     'order.max': 'Max:',
     'order.requiredUrl':'Url gereklidir.',
-    'order.quantityRequired':'Mikdar giriniz.',
+    'order.quantityRequired':'Miktar giriniz.',
     'order.trueUrlFormat':'Doğru URL giriniz..',
     'order.trueQuantity':'Geçerli say giriniz.',
     'order.minOrder':'Minimum miktar.',
