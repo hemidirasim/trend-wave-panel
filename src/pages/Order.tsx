@@ -284,7 +284,7 @@ const Order = () => {
       // Check if order was successful
       if (!response || response.status === 'error' || response.error) {
         // Handle API error - don't deduct balance or redirect
-        let errorMessage = 't('order.OrderingError');';
+        let errorMessage = t('order.OrderingError');
         if (response?.message) {
           if (Array.isArray(response.message)) {
             errorMessage = response.message.map(msg => msg.message || msg).join(', ');
@@ -338,11 +338,11 @@ const Order = () => {
         }, 1500);
       } else {
         console.error('Order failed:', response);
-        toast.error('t('order.OrderingError');');
+        toast.error(t('order.OrderingError'));
       }
     } catch (error) {
       console.error('Order submission error:', error);
-      toast.error('t('order.OrderingError');');
+      toast.error(t('order.OrderingError'));
     } finally {
       setPlacing(false);
     }
