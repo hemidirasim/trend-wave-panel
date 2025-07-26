@@ -230,13 +230,12 @@ const Order = () => {
       } else if (selectedService) {
         const minAmount = parseInt(selectedService.amount_minimum);
         if (quantity < minAmount) {
-          newErrors.quantity = t('order.minOrder'); ${minAmount}`;
+        newErrors.quantity = `${t('order.minOrder')}: ${minAmount}`;
         }
         if (selectedService.prices && selectedService.prices.length > 0) {
           const maxAmount = parseInt(selectedService.prices[0].maximum);
           if (quantity > maxAmount) {
-            newErrors.quantity = t('order.maxOrder'); ${maxAmount.toLocaleString()}`;
-          }
+          newErrors.quantity = `${t('order.maxOrder')}: ${maxAmount.toLocaleString()}`;          }
         }
       }
     }
