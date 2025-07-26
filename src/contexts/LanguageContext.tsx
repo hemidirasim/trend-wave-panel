@@ -635,7 +635,7 @@ const translations: Record<string, Language> = {
     'auth.fullNamePlaceholder': 'Enter your full name',
     'auth.emailPlaceholder': 'Enter your email',
     'auth.signUpButton': 'Sign Up',
-    'login.signUpTitle':'Sign Up',
+    'login.signTitle':'Sign Up',
     'nav.home': 'Home',
     'nav.services': 'Services',
     'nav.faq': 'FAQ',
