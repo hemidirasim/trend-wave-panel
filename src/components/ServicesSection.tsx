@@ -90,7 +90,7 @@ export const ServicesSection = () => {
         {loading ? (
           <div className="text-center">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            <p className="mt-2 text-muted-foreground">Xidmətlər yüklənir...</p>
+            <p className="mt-2 text-muted-foreground">{t('services.loading')}</p>
           </div>
         ) : apiServices.length === 0 ? (
           <div className="text-center">
