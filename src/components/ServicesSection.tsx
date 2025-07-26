@@ -77,7 +77,7 @@ export const ServicesSection = () => {
         <div className="text-center mb-20">
           <Badge variant="secondary" className="mb-6 px-4 py-2 text-sm font-medium bg-white/80 backdrop-blur-sm border border-primary/20">
             <Target className="h-4 w-4 mr-2" />
-            {t('hero.services')}
+            {t('smm.services')}
           </Badge>
           <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary via-purple-600 to-pink-600 bg-clip-text text-transparent">
             {t('services.popular')}
