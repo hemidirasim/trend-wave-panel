@@ -178,7 +178,7 @@ export const SignupForm = ({
       <CardHeader className="pb-4">
         <CardTitle className="text-lg">{t('login.signTitle')}</CardTitle>
         <CardDescription className="text-sm">
-          {t('auth.signupDesc')}
+          {t('login.desc')}
         </CardDescription>
       </CardHeader>
       <CardContent>
