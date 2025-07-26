@@ -217,25 +217,25 @@ const Order = () => {
       newErrors.serviceId = t('order.serviceRequired');
     }
     if (!formData.url.trim()) {
-      newErrors.url = 'URL daxil etmək vacibdir';
+      newErrors.url = t('order.urlRequired');
     } else if (!proxyApiService.validateUrl(selectedPlatform, formData.url)) {
-      newErrors.url = 'Düzgün URL formatı daxil edin';
+      newErrors.url = t('order.validUrlRequired');
     }
     if (!formData.quantity.trim()) {
-      newErrors.quantity = 'Miqdar daxil etmək vacibdir';
+      newErrors.quantity = t('order.quantityRequired');
     } else {
       const quantity = parseInt(formData.quantity);
       if (isNaN(quantity) || quantity <= 0) {
-        newErrors.quantity = 'Düzgün miqdar daxil edin';
+        newErrors.quantity = t('order.validQuantityRequired');
       } else if (selectedService) {
         const minAmount = parseInt(selectedService.amount_minimum);
         if (quantity < minAmount) {
-          newErrors.quantity = `Minimum miqdar: ${minAmount}`;
+          newErrors.quantity = `${t('order.minimumQuantity')}: ${minAmount}`;
         }
         if (selectedService.prices && selectedService.prices.length > 0) {
           const maxAmount = parseInt(selectedService.prices[0].maximum);
           if (quantity > maxAmount) {
-            newErrors.quantity = `Maksimum miqdar: ${maxAmount.toLocaleString()}`;
+            newErrors.quantity = `${t('order.maximumQuantity')}: ${maxAmount.toLocaleString()}`;
           }
         }
       }
@@ -245,7 +245,7 @@ const Order = () => {
         if (param.field_validators.includes('required')) {
           const value = formData.additionalParams[param.field_name];
           if (!value || value.toString().trim() === '') {
-            newErrors[param.field_name] = `${param.field_label} vacibdir`;
+            newErrors[param.field_name] = `${param.field_label} ${t('order.fieldRequired')}`;
           }
         }
       });
@@ -264,7 +264,7 @@ const Order = () => {
       return;
     }
     if (userBalance < calculatedPrice) {
-      toast.error('Kifayət qədər balansınız yoxdur. Balansınızı artırın.');
+      toast.error(t('order.insufficientBalance'));
       return;
     }
     if (!validateForm()) {
@@ -284,7 +284,7 @@ const Order = () => {
       // Check if order was successful
       if (!response || response.status === 'error' || response.error) {
         // Handle API error - don't deduct balance or redirect
-        let errorMessage = 'Sifariş verilmədi. Yenidən cəhd edin.';
+        let errorMessage = t('order.orderFailed');
         if (response?.message) {
           if (Array.isArray(response.message)) {
             errorMessage = response.message.map(msg => msg.message || msg).join(', ');
@@ -331,18 +331,18 @@ const Order = () => {
         if (orderError) {
           console.error('Error saving order:', orderError);
         }
-        toast.success('Sifariş uğurla verildi!');
+        toast.success(t('order.orderPlaced'));
         // Small delay to ensure user sees the success message before redirect
         setTimeout(() => {
           navigate('/dashboard');
         }, 1500);
       } else {
         console.error('Order failed:', response);
-        toast.error('Sifariş verilmədi. Yenidən cəhd edin.');
+        toast.error(t('order.orderFailed'));
       }
     } catch (error) {
       console.error('Order submission error:', error);
-      toast.error('Sifariş verilmədi. Yenidən cəhd edin.');
+      toast.error(t('order.orderFailed'));
     } finally {
       setPlacing(false);
     }
