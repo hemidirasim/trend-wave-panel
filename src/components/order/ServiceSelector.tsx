@@ -1,10 +1,10 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowUpDown } from 'lucide-react';
 import { Service } from '@/types/api';
 import { useServiceNames } from '@/hooks/useServiceNames';
-import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ServiceSelectorProps {
   services: Service[];
@@ -32,7 +32,6 @@ export const ServiceSelector = ({
   error 
 }: ServiceSelectorProps) => {
   const { getCustomServiceName, loading: namesLoading } = useServiceNames();
-  const { t } = useLanguage();
 
   console.log('🔥 ServiceSelector: Component rendered with services count:', services.length);
 
@@ -119,7 +118,7 @@ export const ServiceSelector = ({
     
     // Instant/immediate start
     if (lowerTime.includes('instant') || lowerTime.includes('immediate') || lowerTime === '0') {
-      return t('order.instantly');
+      return 'Dərhal başlanır';
     }
     
     // Hours
@@ -127,7 +126,7 @@ export const ServiceSelector = ({
       const match = lowerTime.match(/(\d+)\s*hour/);
       if (match) {
         const hours = parseInt(match[1]);
-        return `${hours} ${t('order.withinHours')}`;
+        return `${hours} saat ərzində`;
       }
     }
     
@@ -136,7 +135,7 @@ export const ServiceSelector = ({
       const match = lowerTime.match(/(\d+)\s*day/);
       if (match) {
         const days = parseInt(match[1]);
-        return `${days} ${t('order.withinDays')}`;
+        return `${days} gün ərzində`;
       }
     }
     
@@ -145,7 +144,7 @@ export const ServiceSelector = ({
       const match = lowerTime.match(/(\d+)\s*(minute|min)/);
       if (match) {
         const minutes = parseInt(match[1]);
-        return `${minutes} ${t('order.withinMinutes')}`;
+        return `${minutes} dəqiqə ərzində`;
       }
     }
     
@@ -162,7 +161,7 @@ export const ServiceSelector = ({
       const match = lowerSpeed.match(/(\d+[,\s]*\d*)\s*(?:per\s*)?day/);
       if (match) {
         const amount = match[1].replace(/,/g, '');
-        return `${t('order.perDay')} ${parseInt(amount).toLocaleString()}`;
+        return `gündə ${parseInt(amount).toLocaleString()}`;
       }
     }
     
@@ -171,7 +170,7 @@ export const ServiceSelector = ({
       const match = lowerSpeed.match(/(\d+[,\s]*\d*)\s*(?:per\s*)?hour/);
       if (match) {
         const amount = match[1].replace(/,/g, '');
-        return `${t('order.perHour')} ${parseInt(amount).toLocaleString()}`;
+        return `saatda ${parseInt(amount).toLocaleString()}`;
       }
     }
     
@@ -181,7 +180,7 @@ export const ServiceSelector = ({
   if (!selectedPlatform) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        {t('order.platformSelect')}
+        Platform seçin
       </div>
     );
   }
@@ -189,7 +188,7 @@ export const ServiceSelector = ({
   if (!selectedServiceType) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        {t('order.serviceTypeSelect')}
+        Xidmət növünü seçin
       </div>
     );
   }
@@ -197,7 +196,7 @@ export const ServiceSelector = ({
   if (sortedServices.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        {t('order.noServicesFound')}
+        Seçilmiş kriterlərə uyğun xidmət tapılmadı
       </div>
     );
   }
@@ -215,7 +214,7 @@ export const ServiceSelector = ({
       <CardHeader className="pb-3 sm:pb-6">
         <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <span className="text-sm sm:text-lg">
-            {t('order.selectedService')}
+            Seçilmiş xidmət
           </span>
         </CardTitle>
       </CardHeader>
@@ -236,15 +235,15 @@ export const ServiceSelector = ({
                     
                     <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
                       <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded-md text-xs">
-                        {unit} {t('order.perUnit')}
+                        {unit} ədəd üçün
                       </span>
                       {service.amount_minimum && (
                         <span className="bg-green-50 text-green-700 px-2 py-1 rounded-md text-xs">
-                          {t('order.minimum')}: {parseInt(service.amount_minimum).toLocaleString()}
+                          Min: {parseInt(service.amount_minimum).toLocaleString()}
                         </span>
                       )}
                       <span className="bg-yellow-50 text-yellow-700 px-2 py-1 rounded-md text-xs">
-                        {t('order.cheapestOption')}
+                        💰 Ən ucuz
                       </span>
                     </div>
                   </div>
@@ -259,12 +258,12 @@ export const ServiceSelector = ({
                 <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
                   {service.start_time && (
                     <span className="bg-orange-50 text-orange-700 px-2 py-1 rounded-md text-xs">
-                      {t('order.startTime')} {formatStartTime(service.start_time)}
+                      🚀 {formatStartTime(service.start_time)}
                     </span>
                   )}
                   {service.speed && (
                     <span className="bg-purple-50 text-purple-700 px-2 py-1 rounded-md text-xs">
-                      {t('order.speed')} {formatSpeed(service.speed)}
+                      ⚡ {formatSpeed(service.speed)}
                     </span>
                   )}
                 </div>
