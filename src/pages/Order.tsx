@@ -222,7 +222,7 @@ const Order = () => {
       newErrors.url = 'Düzgün URL formatı daxil edin';
     }
     if (!formData.quantity.trim()) {
-      newErrors.quantity = 'Miqdar daxil etmək vacibdir';
+      newErrors.quantity = t('order.quantityRequired')
     } else {
       const quantity = parseInt(formData.quantity);
       if (isNaN(quantity) || quantity <= 0) {
