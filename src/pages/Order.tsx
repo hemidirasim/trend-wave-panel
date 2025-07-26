@@ -219,23 +219,23 @@ const Order = () => {
     if (!formData.url.trim()) {
       newErrors.url = t('order.requiredUrl');
     } else if (!proxyApiService.validateUrl(selectedPlatform, formData.url)) {
-      newErrors.url = 'Düzgün URL formatı daxil edin';
+      newErrors.url = t('order.trueUrlFormat');
     }
     if (!formData.quantity.trim()) {
       newErrors.quantity = t('order.quantityRequired');
     } else {
       const quantity = parseInt(formData.quantity);
       if (isNaN(quantity) || quantity <= 0) {
-        newErrors.quantity = 'Düzgün miqdar daxil edin';
+        newErrors.quantity = t('order.trueQuantity');
       } else if (selectedService) {
         const minAmount = parseInt(selectedService.amount_minimum);
         if (quantity < minAmount) {
-          newErrors.quantity = `Minimum miqdar: ${minAmount}`;
+          newErrors.quantity = t('order.minOrder'); ${minAmount}`;
         }
         if (selectedService.prices && selectedService.prices.length > 0) {
           const maxAmount = parseInt(selectedService.prices[0].maximum);
           if (quantity > maxAmount) {
-            newErrors.quantity = `Maksimum miqdar: ${maxAmount.toLocaleString()}`;
+            newErrors.quantity = t('order.maxOrder'); ${maxAmount.toLocaleString()}`;
           }
         }
       }
@@ -264,7 +264,7 @@ const Order = () => {
       return;
     }
     if (userBalance < calculatedPrice) {
-      toast.error('Kifayət qədər balansınız yoxdur. Balansınızı artırın.');
+      toast.error('t('order.EnoughBalance');');
       return;
     }
     if (!validateForm()) {
@@ -284,7 +284,7 @@ const Order = () => {
       // Check if order was successful
       if (!response || response.status === 'error' || response.error) {
         // Handle API error - don't deduct balance or redirect
-        let errorMessage = 'Sifariş verilmədi. Yenidən cəhd edin.';
+        let errorMessage = 't('order.OrderingError');';
         if (response?.message) {
           if (Array.isArray(response.message)) {
             errorMessage = response.message.map(msg => msg.message || msg).join(', ');
@@ -338,11 +338,11 @@ const Order = () => {
         }, 1500);
       } else {
         console.error('Order failed:', response);
-        toast.error('Sifariş verilmədi. Yenidən cəhd edin.');
+        toast.error('t('order.OrderingError');');
       }
     } catch (error) {
       console.error('Order submission error:', error);
-      toast.error('Sifariş verilmədi. Yenidən cəhd edin.');
+      toast.error('t('order.OrderingError');');
     } finally {
       setPlacing(false);
     }
@@ -422,7 +422,7 @@ const Order = () => {
   };
 
   const handleBalanceTopUpSuccess = () => {
-    toast.success('Balans uğurla artırıldı!');
+    toast.success('t('order.balanceIncreaseSuccess');');
     fetchUserBalance();
   };
 
