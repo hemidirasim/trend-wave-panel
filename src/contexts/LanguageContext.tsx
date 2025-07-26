@@ -23,7 +23,7 @@ const translations: Record<string, Language> = {
 'auth.password': 'Parol',
 'auth.forgotPassword': 'Parolu unutmusunuz ?',
 'auth.loginButton': 'Daxil ol',
-'auth.signUpTitle': 'Qeydiyyat',
+'aut.signUpTitle': 'Qeydiyyat',
 'auth.signUpDesc': 'Yeni hesab yaradın',
 'auth.fullName': 'Ad və Soyad',
 'auth.fullNamePlaceholder': 'Ad və soyadınızı daxil edin',
