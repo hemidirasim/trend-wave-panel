@@ -27,11 +27,6 @@ export const Footer = () => {
             <h3 className="text-xl font-semibold text-white">{t('footer.company')}</h3>
             <ul className="space-y-3">
               <li>
-                <Link to="/blog" className="text-slate-300 hover:text-primary transition-colors duration-300">
-                  {t('nav.blog')}
-                </Link>
-              </li>
-              <li>
                 <Link to="/terms" className="text-slate-300 hover:text-primary transition-colors duration-300">
                   Qaydalar və Şərtlər
                 </Link>
