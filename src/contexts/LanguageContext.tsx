@@ -15,6 +15,12 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 const translations: Record<string, Language> = {
   az: {
+    'auth.signUpTitle': 'Qeydiyyat',
+    'auth.signUpDesc': 'Yeni hesab yaradın',
+    'auth.fullName': 'Ad və Soyad',
+    'auth.email': 'E-poçt',
+    'auth.password': 'Parol',
+    'auth.signUpButton': 'Qeydiyyat',
     'auth.login': 'Daxil ol',
     'auth.signup': 'Qeydiyyat',
     'auth.loginTitle': 'Daxil ol',
@@ -318,6 +324,12 @@ const translations: Record<string, Language> = {
     'contact.city': 'Bakı, Azərbaycan',
   },
   tr: {
+    'auth.signUpTitle': 'Kayıt Ol',
+    'auth.signUpDesc': 'Yeni bir hesap oluşturun',
+    'auth.fullName': 'Ad Soyad',
+    'auth.email': 'E-posta',
+    'auth.password': 'Şifre',
+    'auth.signUpButton': 'Kayıt Ol',
     'auth.login': 'Giriş Yap',
     'auth.signup': 'Kayıt Ol',
     'auth.loginTitle': 'Giriş Yap',
@@ -621,6 +633,12 @@ const translations: Record<string, Language> = {
     'contact.city': 'Bakü, Azerbaycan',
   },
   en: {
+    'auth.signUpTitle': 'Sign Up',
+    'auth.signUpDesc': 'Create a new account',
+    'auth.fullName': 'Full Name',
+    'auth.email': 'Email',
+    'auth.password': 'Password',
+    'auth.signUpButton': 'Sign Up',
     'auth.login': 'Login',
     'auth.signup': 'Sign Up',
     'auth.loginTitle': 'Login',
