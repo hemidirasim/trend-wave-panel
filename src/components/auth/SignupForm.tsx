@@ -176,9 +176,9 @@ export const SignupForm = ({
   }, [email, password, fullName, signUp, onClose, addNotification, formValidation.isValid, checkEmailExists]);
   return <Card>
       <CardHeader className="pb-4">
-        <CardTitle className="text-lg">{t('auth.signupTitle')}ttt</CardTitle>
+        <CardTitle className="text-lg">{t('auth.signupTitle')}</CardTitle>
         <CardDescription className="text-sm">
-          {t('aut.signupDesc')}nnn
+          {t('auth.signupDesc')}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -191,7 +191,7 @@ export const SignupForm = ({
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="signup-email" className="text-sm">{t('auth.email')}ççç</Label>
+            <Label htmlFor="signup-email" className="text-sm">{t('auth.email')}</Label>
             <div className="relative">
               <Input id="signup-email" type="email" placeholder={t('auth.emailPlaceholder')} value={email} onChange={e => setEmail(e.target.value)} required className="h-9 pr-10" autoComplete="email" />
               <div className="absolute inset-y-0 right-0 flex items-center pr-3">
