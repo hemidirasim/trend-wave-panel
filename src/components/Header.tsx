@@ -98,7 +98,7 @@ export const Header = () => {
       <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b">
         <nav className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">
           <div className="flex lg:flex-1">
-            <Link to="/">  className="-m-1.5 p-1.5">
+            <Link to={`/${language}`} className="-m-1.5 p-1.5">
               <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 HitLoyal
               </span>
