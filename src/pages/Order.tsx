@@ -217,12 +217,12 @@ const Order = () => {
       newErrors.serviceId = t('order.serviceRequired');
     }
     if (!formData.url.trim()) {
-      newErrors.url = t('order.requiredUrl')
+      newErrors.url = t('order.requiredUrl');
     } else if (!proxyApiService.validateUrl(selectedPlatform, formData.url)) {
       newErrors.url = 'Düzgün URL formatı daxil edin';
     }
     if (!formData.quantity.trim()) {
-      newErrors.quantity = t('order.quantityRequired')
+      newErrors.quantity = t('order.quantityRequired');
     } else {
       const quantity = parseInt(formData.quantity);
       if (isNaN(quantity) || quantity <= 0) {
