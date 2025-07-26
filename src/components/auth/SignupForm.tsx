@@ -176,9 +176,9 @@ export const SignupForm = ({
   }, [email, password, fullName, signUp, onClose, addNotification, formValidation.isValid, checkEmailExists]);
   return <Card>
       <CardHeader className="pb-4">
-        <CardTitle className="text-lg">{t('aut.signupTitle')}</CardTitle>
+        <CardTitle className="text-lg">{t('auth.signupTitle')}</CardTitle>
         <CardDescription className="text-sm">
-          {t('auth.signupDesc')}
+          {t('aut.signupDesc')}
         </CardDescription>
       </CardHeader>
       <CardContent>
