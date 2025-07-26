@@ -422,7 +422,7 @@ const Order = () => {
   };
 
   const handleBalanceTopUpSuccess = () => {
-    toast.success('t('order.balanceIncreaseSuccess');');
+    toast.success(t('order.balanceIncreaseSuccess'));
     fetchUserBalance();
   };
 
