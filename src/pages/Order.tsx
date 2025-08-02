@@ -49,6 +49,7 @@ const Order = () => {
     serviceId: searchParams.get('service') || '',
     url: '',
     quantity: '',
+    email: '',
     additionalParams: {} as Record<string, any>
   });
   const [calculatedPrice, setCalculatedPrice] = useState(0);
@@ -58,7 +59,6 @@ const Order = () => {
   const [priceFilter, setPriceFilter] = useState<'low-to-high' | 'high-to-low'>('low-to-high');
   const urlPlatform = searchParams.get('platform');
 
-  // Remove allowedPlatforms restriction - now we get all platforms from API
   const [allowedPlatforms, setAllowedPlatforms] = useState<string[]>([]);
 
   // Clear any existing toasts when component mounts
@@ -211,6 +211,46 @@ const Order = () => {
     return 'Other';
   };
 
+  // Avtomatik hesab yaratma funksiyası
+  const createAccountForAnonymousUser = async (email: string) => {
+    try {
+      // Random şifrə yaratmaq
+      const password = Math.random().toString(36).slice(-12) + Math.random().toString(36).slice(-12);
+      
+      // Supabase-də hesab yaratmaq
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            full_name: email.split('@')[0]
+          }
+        }
+      });
+
+      if (signUpError) {
+        throw signUpError;
+      }
+
+      // Email göndərmə (edge function vasitəsilə)
+      if (signUpData.user) {
+        await supabase.functions.invoke('send-account-email', {
+          body: {
+            email: email,
+            password: password,
+            userId: signUpData.user.id
+          }
+        });
+      }
+
+      return signUpData.user;
+    } catch (error) {
+      console.error('Error creating anonymous account:', error);
+      throw error;
+    }
+  };
+
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     if (!formData.serviceId) {
@@ -239,6 +279,17 @@ const Order = () => {
         }
       }
     }
+    
+    // Əgər qeydiyyatlı istifadəçi deyilsə, email tələb et
+    if (!user && !formData.email.trim()) {
+      newErrors.email = 'Email ünvanı tələb olunur';
+    } else if (!user && formData.email.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        newErrors.email = 'Düzgün email ünvanı daxil edin';
+      }
+    }
+
     if (selectedService && selectedService.params) {
       selectedService.params.forEach(param => {
         if (param.field_validators.includes('required')) {
@@ -258,32 +309,32 @@ const Order = () => {
 
     // Clear any existing toasts before starting
     toast.dismiss();
-    if (!user) {
-      setAuthDialogOpen(true);
+    
+    // Qeydiyyatlı istifadəçi üçün balans yoxlaması
+    if (user && userBalance < calculatedPrice) {
+      toast.error(t('order.EnoughBalance'));
       return;
     }
- if (userBalance < calculatedPrice) {
-  toast.error(t('order.EnoughBalance'));
-  return;
-}
 
     if (!validateForm()) {
       return;
     }
+    
     try {
       setPlacing(true);
-      console.log('Placing order with data:', {
-        serviceId: formData.serviceId,
-        url: formData.url,
-        quantity: parseInt(formData.quantity),
-        additionalParams: formData.additionalParams
-      });
-      const response = await proxyApiService.placeOrder(formData.serviceId, formData.url, parseInt(formData.quantity), formData.additionalParams);
+      
+      // API-yə sifariş göndərmək
+      const response = await proxyApiService.placeOrder(
+        formData.serviceId, 
+        formData.url, 
+        parseInt(formData.quantity), 
+        formData.additionalParams
+      );
+      
       console.log('Order API response:', response);
 
       // Check if order was successful
       if (!response || response.status === 'error' || response.error) {
-        // Handle API error - don't deduct balance or redirect
         let errorMessage = t('order.OrderingError');
         if (response?.message) {
           if (Array.isArray(response.message)) {
@@ -295,29 +346,44 @@ const Order = () => {
           errorMessage = response.error;
         }
         toast.error(errorMessage);
-        return; // Don't proceed with balance deduction or database save
+        return;
       }
 
       // If we get here, the API call was successful
       if (response.status === 'success' && response.id_service_submission) {
-        // Update user balance
-        const newBalance = userBalance - calculatedPrice;
-        const {
-          error: balanceError
-        } = await supabase.from('profiles').update({
-          balance: newBalance
-        }).eq('id', user.id);
-        if (balanceError) {
-          console.error('Error updating balance:', balanceError);
-        } else {
-          setUserBalance(newBalance);
+        let orderUserId = user?.id;
+        
+        // Qeydiyyatsız istifadəçi üçün hesab yaratmaq
+        if (!user && formData.email) {
+          try {
+            const newUser = await createAccountForAnonymousUser(formData.email);
+            orderUserId = newUser?.id;
+          } catch (error) {
+            console.error('Error creating anonymous account:', error);
+            // Hətta hesab yaradılmasa da sifariş verilə bilər
+            orderUserId = null;
+          }
         }
 
-        // Save order to local database
-        const {
-          error: orderError
-        } = await supabase.from('orders').insert({
-          user_id: user.id,
+        // Qeydiyyatlı istifadəçi üçün balansı yeniləmək
+        if (user) {
+          const newBalance = userBalance - calculatedPrice;
+          const { error: balanceError } = await supabase
+            .from('profiles')
+            .update({ balance: newBalance })
+            .eq('id', user.id);
+            
+          if (balanceError) {
+            console.error('Error updating balance:', balanceError);
+          } else {
+            setUserBalance(newBalance);
+          }
+        }
+
+        // Sifarişi yerli bazada saxlamaq
+        const orderData = {
+          user_id: orderUserId,
+          email: !user ? formData.email : null, // Qeydiyyatsız istifadəçi üçün email saxlamaq
           service_id: formData.serviceId,
           service_name: selectedService?.public_name || '',
           platform: selectedService?.platform || '',
@@ -327,14 +393,28 @@ const Order = () => {
           link: formData.url,
           status: 'pending',
           external_order_id: response.id_service_submission
-        });
+        };
+        
+        const { error: orderError } = await supabase
+          .from('orders')
+          .insert(orderData);
+          
         if (orderError) {
           console.error('Error saving order:', orderError);
         }
+        
         toast.success('Sifariş uğurla verildi!');
+        
         // Small delay to ensure user sees the success message before redirect
         setTimeout(() => {
-          navigate('/dashboard');
+          if (user) {
+            navigate('/dashboard');
+          } else {
+            // Qeydiyyatsız istifadəçini məlumatlandırmaq
+            toast.success('Sifarişinizin təfərrüatları email ünvanınıza göndərildi!');
+            // Ana səhifəyə yönləndirmək
+            navigate('/');
+          }
         }, 1500);
       } else {
         console.error('Order failed:', response);
@@ -388,7 +468,6 @@ const Order = () => {
   const handleServiceTypeChange = (serviceType: string) => {
     setSelectedServiceType(serviceType);
     
-    // serviceType formatı: "platform-serviceId" olduğunda avtomatik seçim
     if (serviceType.includes('-') && serviceType.split('-').length === 2) {
       const [platform, serviceId] = serviceType.split('-');
       const service = services.find(s => s.id_service.toString() === serviceId);
@@ -482,6 +561,9 @@ const Order = () => {
                   calculatedPrice={calculatedPrice}
                   serviceFeePercentage={settings.service_fee}
                   baseFee={settings.base_fee}
+                  user={user}
+                  userBalance={userBalance}
+                  balanceLoading={balanceLoading}
                 />
                 
                 {errors.serviceId && (
