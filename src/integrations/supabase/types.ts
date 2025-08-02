@@ -221,6 +221,7 @@ export type Database = {
       orders: {
         Row: {
           created_at: string | null
+          email: string | null
           external_order_id: string | null
           id: string
           link: string
@@ -232,10 +233,11 @@ export type Database = {
           service_type: string
           status: string | null
           updated_at: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string | null
+          email?: string | null
           external_order_id?: string | null
           id?: string
           link: string
@@ -247,10 +249,11 @@ export type Database = {
           service_type: string
           status?: string | null
           updated_at?: string | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string | null
+          email?: string | null
           external_order_id?: string | null
           id?: string
           link?: string
@@ -262,7 +265,7 @@ export type Database = {
           service_type?: string
           status?: string | null
           updated_at?: string | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
