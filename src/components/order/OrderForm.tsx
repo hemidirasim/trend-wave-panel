@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
-import { Loader2, AlertTriangle, Mail, User } from 'lucide-react';
+import { Loader2, AlertTriangle } from 'lucide-react';
 import { Service } from '@/types/api';
 import { apiClient } from '@/utils/apiClient';
 import { calculatePrice } from '@/utils/priceCalculator';
@@ -25,7 +24,6 @@ interface OrderFormProps {
     serviceId: string;
     url: string;
     quantity: string;
-    email: string;
     additionalParams: Record<string, any>;
   };
   errors: Record<string, string>;
@@ -79,13 +77,11 @@ const OrderForm = ({
 
   // Use the locally calculated price instead of the prop
   const finalPrice = localCalculatedPrice || calculatedPrice;
-  
   useEffect(() => {
     if (user) {
       fetchProfile();
     }
   }, [user]);
-
   useEffect(() => {
     if (formData.url && service) {
       checkExistingOrder();
@@ -114,35 +110,16 @@ const OrderForm = ({
     if (!formData.url || !service?.platform) return;
     setCheckingExisting(true);
     try {
-      let query = supabase
-        .from('orders')
-        .select('*')
-        .eq('link', formData.url)
-        .eq('platform', service.platform)
-        .in('status', ['pending', 'processing', 'in_progress', 'active', 'running'])
-        .order('created_at', { ascending: false })
-        .limit(1);
-
-      // Qeydiyyatlı istifadəçi üçün user_id ilə yoxla
-      if (user) {
-        query = query.eq('user_id', user.id);
-      } 
-      // Qeydiyyatsız istifadəçi üçün email ilə yoxla
-      else if (formData.email) {
-        query = query.eq('email', formData.email);
-      } else {
-        // Email olmasa yoxlama etmə
-        setCheckingExisting(false);
-        return;
-      }
-
-      const { data: orders, error } = await query;
-      
+      const {
+        data: orders,
+        error
+      } = await supabase.from('orders').select('*').eq('user_id', user?.id).eq('link', formData.url).eq('platform', service.platform).in('status', ['pending', 'processing', 'in_progress', 'active', 'running']).order('created_at', {
+        ascending: false
+      }).limit(1);
       if (error) {
         console.error('Error checking existing orders:', error);
         return;
       }
-      
       if (orders && orders.length > 0) {
         setExistingOrder(orders[0]);
       } else {
@@ -155,51 +132,6 @@ const OrderForm = ({
     }
   };
 
-  // Avtomatik hesab yaratma funksiyası
-  const createAccountForAnonymousUser = async (email: string) => {
-    try {
-      // Random şifrə yaratmaq
-      const password = Math.random().toString(36).slice(-12) + Math.random().toString(36).slice(-12);
-      
-      // Supabase-də hesab yaratmaq
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email: email,
-        password: password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/`,
-          data: {
-            full_name: email.split('@')[0]
-          }
-        }
-      });
-
-      if (signUpError) {
-        throw signUpError;
-      }
-
-      // Email göndərmə (edge function vasitəsilə)
-      if (signUpData.user) {
-        try {
-          await supabase.functions.invoke('send-account-email', {
-            body: {
-              email: email,
-              password: password,
-              userId: signUpData.user.id
-            }
-          });
-        } catch (emailError) {
-          console.error('Error sending account email:', emailError);
-          // Email göndərilmədikdə də hesab yaradılsın
-        }
-      }
-
-      return signUpData.user;
-    } catch (error) {
-      console.error('Error creating anonymous account:', error);
-      throw error;
-    }
-  };
-
   const handlePlaceOrder = async () => {
     console.log('🚀 handlePlaceOrder called with final price:', finalPrice);
 
@@ -209,27 +141,15 @@ const OrderForm = ({
       // Double-check for existing orders before placing
       if (formData.url && service?.platform) {
         console.log('🔍 Checking for existing orders...');
-        let query = supabase
-          .from('orders')
-          .select('*')
-          .eq('link', formData.url)
-          .eq('platform', service.platform)
-          .in('status', ['pending', 'processing', 'in_progress', 'active', 'running']);
-
-        if (user) {
-          query = query.eq('user_id', user.id);
-        } else if (formData.email) {
-          query = query.eq('email', formData.email);
-        }
-
-        const { data: existingOrders } = await query;
+        const {
+          data: existingOrders
+        } = await supabase.from('orders').select('*').eq('user_id', user?.id).eq('link', formData.url).eq('platform', service.platform).in('status', ['pending', 'processing', 'in_progress', 'active', 'running']);
         if (existingOrders && existingOrders.length > 0) {
           console.log('🚫 Existing order found, aborting');
           toast.error('Bu URL üçün aktiv sifariş mövcuddur');
           return;
         }
       }
-
       console.log('📤 Placing order via API...');
       console.log('📤 Service:', service.public_name);
       console.log('📤 Form data:', formData);
@@ -238,13 +158,20 @@ const OrderForm = ({
       const orderResponse = await apiClient.placeOrder(formData.serviceId, formData.url, parseInt(formData.quantity), formData.additionalParams);
       console.log('📥 API Response received:', orderResponse);
 
-      // Check if order was successful
-      if (!orderResponse || orderResponse.status === 'error') {
+      // Check if order was successful - more comprehensive checks
+      if (!orderResponse) {
+        console.log('❌ No API response received');
+        toast.error('API cavab vermədi. Yenidən cəhd edin.');
+        return;
+      }
+
+      // Check for explicit error status
+      if (orderResponse.status === 'error') {
         console.log('❌ API returned error status:', orderResponse);
         let errorMessage = 'Sifariş verilmədi. Yenidən cəhd edin.';
-        if (orderResponse?.messages && Array.isArray(orderResponse.messages)) {
+        if (orderResponse.messages && Array.isArray(orderResponse.messages)) {
           errorMessage = orderResponse.messages.map((msg: any) => msg.message || msg).join(', ');
-        } else if (orderResponse?.message) {
+        } else if (orderResponse.message) {
           if (Array.isArray(orderResponse.message)) {
             errorMessage = orderResponse.message.map((msg: any) => msg.message || msg).join(', ');
           } else if (typeof orderResponse.message === 'string') {
@@ -255,7 +182,7 @@ const OrderForm = ({
         return;
       }
 
-      // Check for message array with errors
+      // Check for message array with errors (using correct property name)
       if (orderResponse.messages && Array.isArray(orderResponse.messages)) {
         const hasErrors = orderResponse.messages.some((msg: any) => msg.id && msg.id !== 100);
         if (hasErrors) {
@@ -266,35 +193,21 @@ const OrderForm = ({
         }
       }
 
-      // Check if we have a valid submission ID
+      // Check if we have a valid submission ID (success indicator)
       if (!orderResponse.id_service_submission) {
         console.log('❌ No submission ID received');
         toast.error('Sifariş ID alınmadı. Yenidən cəhd edin.');
         return;
       }
-
       console.log('✅ Order API call successful!');
       console.log('✅ Submission ID:', orderResponse.id_service_submission);
 
+      // Extract external_order_id from successful response
       const externalOrderId = orderResponse.id_service_submission;
-      let orderUserId = user?.id || null;
-      
-      // Qeydiyyatsız istifadəçi üçün hesab yaratmaq
-      if (!user && formData.email) {
-        try {
-          const newUser = await createAccountForAnonymousUser(formData.email);
-          orderUserId = newUser?.id || null;
-          console.log('✅ Anonymous user account created:', newUser?.id);
-        } catch (error) {
-          console.error('❌ Error creating anonymous account:', error);
-          // Hətta hesab yaradılmasa da sifariş verilə bilər
-        }
-      }
 
       // Save to database with the correct calculated price
       const orderData = {
-        user_id: orderUserId,
-        email: !user ? formData.email : null, // Qeydiyyatsız istifadəçi üçün email saxlamaq
+        user_id: user?.id,
         service_id: formData.serviceId,
         service_name: service.public_name,
         platform: service.platform,
@@ -302,16 +215,15 @@ const OrderForm = ({
         link: formData.url,
         quantity: parseInt(formData.quantity),
         price: finalPrice,
+        // Use the correctly calculated price
         status: 'pending',
         external_order_id: externalOrderId
       };
-      
       console.log('💾 Saving order to database with final price:', finalPrice);
       const {
         data: insertedOrder,
         error: insertError
       } = await supabase.from('orders').insert(orderData).select().single();
-      
       if (insertError) {
         console.error('❌ Database insert error:', insertError);
         toast.error('Sifarişi yadda saxlamaq mümkün olmadı');
@@ -319,8 +231,8 @@ const OrderForm = ({
       }
       console.log('✅ Order saved to database:', insertedOrder);
 
-      // Update user balance with the correct calculated price (only for registered users)
-      if (user && profile) {
+      // Update user balance with the correct calculated price
+      if (profile) {
         const newBalance = (profile.balance || 0) - finalPrice;
         const {
           error: balanceError
@@ -336,22 +248,14 @@ const OrderForm = ({
         }
       }
 
-      // Show success message
+      // Show success message and redirect with a small delay to ensure user sees the success message
       console.log('🎉 Order completed successfully!');
       toast.success('Sifariş uğurla verildi!');
-      
-      if (!user) {
-        toast.success('Hesab məlumatları email ünvanınıza göndərildi!');
-      }
 
       // Small delay to ensure user sees the success message before redirect
       setTimeout(() => {
-        if (user) {
-          navigate('/dashboard');
-        } else {
-          navigate('/');
-        }
-      }, 2000);
+        navigate('/dashboard');
+      }, 1500);
     } catch (error: any) {
       console.error('❌ Order placement error:', error);
 
@@ -370,10 +274,10 @@ const OrderForm = ({
     }
   };
 
-  const hasInsufficientBalance = user && profile && finalPrice > (profile.balance || 0);
+  const hasInsufficientBalance = profile && finalPrice > (profile.balance || 0);
   const hasExistingOrder = !!existingOrder;
 
-  // Validate quantity against service limits
+  // Validate quantity against service limits - convert to numbers for comparison
   const quantity = parseInt(formData.quantity) || 0;
   const minQuantity = parseInt(service?.amount_minimum) || 1;
   const maxQuantity = parseInt(service?.prices?.[0]?.maximum) || 10000;
@@ -382,34 +286,12 @@ const OrderForm = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center">
-          {user ? <User className="h-5 w-5 mr-2" /> : <Mail className="h-5 w-5 mr-2" />}
-          {user ? 'Sifariş Təfərrüatları' : 'Sifariş Təfərrüatları (Qeydiyyatsız)'}
-        </CardTitle>
+        <CardTitle>{t('order.orderDetails')}</CardTitle>
         <CardDescription>
-          {user ? 'Sifarişinizin təfərrüatlarını daxil edin' : 'Email ünvanınızı daxil edin və sifariş verin'}
+          {t('order.orderDetailsDesc')}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Email Input - Yalnız qeydiyyatsız istifadəçilər üçün */}
-        {!user && (
-          <div className="space-y-2">
-            <Label htmlFor="email">Email ünvanı *</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) => onUpdateFormData('email', e.target.value)}
-              placeholder="example@email.com"
-              className={errors.email ? 'border-red-500' : ''}
-            />
-            {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
-            <p className="text-xs text-muted-foreground">
-              Sifarişinizə dair məlumatlar və avtomatik yaradılacaq hesabın şifrəsi bu emailə göndəriləcək
-            </p>
-          </div>
-        )}
-
         {/* URL Input */}
         <div className="space-y-2">
           <Label htmlFor="url">{t('order.url')}</Label>
@@ -428,7 +310,7 @@ const OrderForm = ({
             <Alert className="border-red-200 bg-red-50">
               <AlertTriangle className="h-4 w-4 text-red-500" />
               <AlertDescription className="text-red-700">
-                Bu URL üçün aktiv sifariş mövcuddur (Status: {existingOrder.status})
+                {t('order.existingOrder')} (Status: {existingOrder.status})
               </AlertDescription>
             </Alert>
           )}
@@ -450,11 +332,11 @@ const OrderForm = ({
           {errors.quantity && <p className="text-sm text-red-500">{errors.quantity}</p>}
           {isQuantityInvalid && formData.quantity && (
             <p className="text-sm text-red-500">
-              Miqdar {minQuantity} - {maxQuantity.toLocaleString()} aralığında olmalıdır
+              {t('order.quantityRange').replace('{min}', minQuantity.toString()).replace('{max}', maxQuantity.toLocaleString())}
             </p>
           )}
           <p className="text-sm text-gray-500">
-            Min: {minQuantity.toLocaleString()}, Max: {maxQuantity.toLocaleString()}
+            {t('order.min')} {minQuantity.toLocaleString()}, {t('order.max')} {maxQuantity.toLocaleString()}
           </p>
         </div>
 
@@ -508,23 +390,23 @@ const OrderForm = ({
           </div>
         ))}
 
-        {/* Price Display */}
+        {/* Price Display with Admin Fee Breakdown */}
         <div className="bg-gray-50 p-4 rounded-lg">
-          <h4 className="font-semibold mb-2">Qiymət Təfərrüatları</h4>
+          <h4 className="font-semibold mb-2">{t('order.priceDetails')}</h4>
           <div className="space-y-1 text-sm">
             <div className="flex justify-between font-semibold border-t pt-1">
-              <span>Cəmi</span>
+              <span>{t('order.total')}</span>
               <span>${finalPrice.toFixed(2)}</span>
             </div>
           </div>
         </div>
 
-        {/* Balance Check - Yalnız qeydiyyatlı istifadəçilər üçün */}
-        {user && hasInsufficientBalance && (
+        {/* Balance Check */}
+        {hasInsufficientBalance && (
           <Alert className="border-red-200 bg-red-50">
             <AlertTriangle className="h-4 w-4 text-red-500" />
             <AlertDescription className="text-red-700">
-              Kifayət qədər balans yoxdur. Lazım olan: ${finalPrice.toFixed(2)}, Mövcud: ${(profile?.balance || 0).toFixed(2)}
+              {t('order.insufficientBalance')}. Lazım olan: ${finalPrice.toFixed(2)}, Mövcud: ${(profile?.balance || 0).toFixed(2)}
             </AlertDescription>
           </Alert>
         )}
@@ -532,33 +414,18 @@ const OrderForm = ({
         {/* Order Button */}
         <Button
           onClick={handlePlaceOrder}
-          disabled={
-            placing || 
-            (user && hasInsufficientBalance) || 
-            (!user && !formData.email) ||
-            hasExistingOrder || 
-            !formData.url || 
-            !formData.quantity || 
-            isQuantityInvalid || 
-            Object.keys(errors).length > 0
-          }
+          disabled={placing || hasInsufficientBalance || hasExistingOrder || !formData.url || !formData.quantity || isQuantityInvalid || Object.keys(errors).length > 0}
           className="w-full"
         >
           {placing ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Sifariş verilir...
+              {t('order.placing')}
             </>
           ) : (
-            `Sifariş ver - $${finalPrice.toFixed(2)}`
+            `${t('order.placeOrder')} - $${finalPrice.toFixed(2)}`
           )}
         </Button>
-
-        {!user && (
-          <p className="text-xs text-center text-muted-foreground mt-2">
-            Sifariş verdikdən sonra sizin üçün avtomatik hesab yaradılacaq və məlumatlar emailə göndəriləcək
-          </p>
-        )}
       </CardContent>
     </Card>
   );
