@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -243,9 +244,9 @@ const OrderForm = ({
         
         const password = generateRandomPassword();
         
-        // Check if user already exists
-        const { data: existingUser } = await supabase.auth.admin.listUsers();
-        const userExists = existingUser.users.some(u => u.email === guestEmail);
+        // Check if user already exists by querying auth.users
+        const { data: existingUsersData } = await supabase.auth.admin.listUsers();
+        const userExists = existingUsersData.users.some((u: any) => u.email === guestEmail);
         
         let userId;
         
@@ -269,7 +270,7 @@ const OrderForm = ({
           console.log('✅ New account created:', userId);
         } else {
           // Get existing user ID
-          const existingUserData = existingUser.users.find(u => u.email === guestEmail);
+          const existingUserData = existingUsersData.users.find((u: any) => u.email === guestEmail);
           userId = existingUserData?.id;
           console.log('✅ Using existing user:', userId);
         }
