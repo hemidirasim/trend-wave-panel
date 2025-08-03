@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -226,28 +227,40 @@ const OrderForm = ({
       
       console.log('📥 API Response received:', orderResponse);
 
-      // Check if order was successful
+      // Check if order was successful - CRITICAL ERROR HANDLING
       if (!orderResponse) {
         console.log('❌ No API response received');
         toast.error('API cavab vermədi. Yenidən cəhd edin.');
         return;
       }
 
-      // Check for explicit error status
+      // Check for explicit error status - FIXED: Now properly handles API errors
       if (orderResponse.status === 'error') {
         console.log('❌ API returned error status:', orderResponse);
         let errorMessage = 'Sifariş verilmədi. Yenidən cəhd edin.';
+        
         if (orderResponse.messages && Array.isArray(orderResponse.messages)) {
-          errorMessage = orderResponse.messages.map((msg: any) => msg.message || msg).join(', ');
+          errorMessage = orderResponse.messages.map((msg: any) => {
+            if (typeof msg === 'object' && msg.message) {
+              return msg.message;
+            }
+            return msg.toString();
+          }).join(', ');
         } else if (orderResponse.message) {
           if (Array.isArray(orderResponse.message)) {
-            errorMessage = orderResponse.message.map((msg: any) => msg.message || msg).join(', ');
+            errorMessage = orderResponse.message.map((msg: any) => {
+              if (typeof msg === 'object' && msg.message) {
+                return msg.message;
+              }
+              return msg.toString();
+            }).join(', ');
           } else if (typeof orderResponse.message === 'string') {
             errorMessage = orderResponse.message;
           }
         }
+        
         toast.error(errorMessage);
-        return;
+        return; // CRITICAL: Stop processing here if API returned error
       }
 
       // Check for valid submission ID
@@ -440,7 +453,7 @@ const OrderForm = ({
 
         console.log('✅ Order saved to database:', insertedOrder);
 
-        // Update user balance
+        // Update user balance - CRITICAL: Only update balance if user is registered
         if (profile) {
           const newBalance = (profile.balance || 0) - finalPrice;
           const { error: balanceError } = await supabase
@@ -492,18 +505,18 @@ const OrderForm = ({
   const maxQuantity = parseInt(service?.prices?.[0]?.maximum) || 10000;
   const isQuantityInvalid = quantity < minQuantity || quantity > maxQuantity;
 
-  // Sadə validation yoxlaması - yalnız əsas sahələri yoxlayır
+  // Form validation function
   const isFormValid = () => {
-    // Qeydiyyatlı istifadəçilər üçün email tələb olunmur
+    // For guest users, email is required
     if (!user && !guestEmail) return false;
     
-    // URL yoxlama
+    // URL is required
     if (!formData.url) return false;
     
-    // Miqdar yoxlama
+    // Quantity is required and must be valid
     if (!formData.quantity || parseInt(formData.quantity) <= 0) return false;
     
-    // Xidmət seçimi yoxlama
+    // Service must be selected
     if (!formData.serviceId) return false;
     
     return true;
@@ -658,7 +671,7 @@ const OrderForm = ({
           </Alert>
         )}
 
-        {/* Order Button - sadələşdirilmiş şərtlər */}
+        {/* Order Button */}
         <Button
           onClick={handlePlaceOrder}
           disabled={placing || !isFormValid() || hasInsufficientBalance || hasExistingOrder}
@@ -674,7 +687,7 @@ const OrderForm = ({
           )}
         </Button>
 
-        {/* Debug məlumatı - inkişaf mərhələsində köməklik üçün */}
+        {/* Debug information */}
         {process.env.NODE_ENV === 'development' && (
           <div className="text-xs text-gray-400 p-2 bg-gray-50 rounded">
             Debug: Form valid: {isFormValid() ? 'Bəli' : 'Xeyr'} | 
