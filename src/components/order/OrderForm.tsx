@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -169,6 +168,18 @@ const OrderForm = ({
       // Check email format
       if (!user && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail)) {
         toast.error('Düzgün email ünvanı daxil edin');
+        return;
+      }
+
+      // Validate URL
+      if (!formData.url) {
+        toast.error('URL daxil edin');
+        return;
+      }
+
+      // Validate quantity
+      if (!formData.quantity || parseInt(formData.quantity) <= 0) {
+        toast.error('Miqdar daxil edin');
         return;
       }
 
@@ -410,6 +421,23 @@ const OrderForm = ({
   const maxQuantity = parseInt(service?.prices?.[0]?.maximum) || 10000;
   const isQuantityInvalid = quantity < minQuantity || quantity > maxQuantity;
 
+  // Sadə validation yoxlaması - yalnız əsas sahələri yoxlayır
+  const isFormValid = () => {
+    // Qeydiyyatsız istifadəçilər üçün email yoxlama
+    if (!user && !guestEmail) return false;
+    
+    // URL yoxlama
+    if (!formData.url) return false;
+    
+    // Miqdar yoxlama
+    if (!formData.quantity || parseInt(formData.quantity) <= 0) return false;
+    
+    // Xidmət seçimi yoxlama
+    if (!formData.serviceId) return false;
+    
+    return true;
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -559,19 +587,10 @@ const OrderForm = ({
           </Alert>
         )}
 
-        {/* Order Button */}
+        {/* Order Button - sadələşdirilmiş şərtlər */}
         <Button
           onClick={handlePlaceOrder}
-          disabled={
-            placing || 
-            hasInsufficientBalance || 
-            hasExistingOrder || 
-            !formData.url || 
-            !formData.quantity || 
-            isQuantityInvalid || 
-            (!user && !guestEmail) ||
-            Object.keys(errors).length > 0
-          }
+          disabled={placing || !isFormValid() || hasInsufficientBalance || hasExistingOrder}
           className="w-full"
         >
           {placing ? (
@@ -583,6 +602,17 @@ const OrderForm = ({
             `${t('order.placeOrder')} - $${finalPrice.toFixed(2)}`
           )}
         </Button>
+
+        {/* Debug məlumatı - inkişaf mərhələsində köməklik üçün */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="text-xs text-gray-400 p-2 bg-gray-50 rounded">
+            Debug: Form valid: {isFormValid() ? 'Bəli' : 'Xeyr'} | 
+            Email: {user ? 'Qeydiyyatlı' : (guestEmail ? 'Var' : 'Yox')} | 
+            URL: {formData.url ? 'Var' : 'Yox'} | 
+            Quantity: {formData.quantity || 'Yox'} | 
+            Service: {formData.serviceId ? 'Seçilib' : 'Seçilməyib'}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
