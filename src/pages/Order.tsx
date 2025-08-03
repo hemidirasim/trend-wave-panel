@@ -14,9 +14,9 @@ import { useSettings } from '@/contexts/SettingsContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
+import AuthDialog from '@/components/auth/AuthDialog';
 import { BalanceTopUpDialog } from '@/components/payment/BalanceTopUpDialog';
 import { supabase } from '@/integrations/supabase/client';
-import { validateUrl } from '@/utils/urlValidator';
 
 const Order = () => {
   const [searchParams] = useSearchParams();
@@ -31,7 +31,8 @@ const Order = () => {
     loading: authLoading
   } = useAuth();
 
-  // Balance states
+  // Auth and balance states
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [userBalance, setUserBalance] = useState<number>(0);
   const [balanceLoading, setBalanceLoading] = useState(false);
 
@@ -217,7 +218,7 @@ const Order = () => {
     }
     if (!formData.url.trim()) {
       newErrors.url = t('order.requiredUrl');
-    } else if (!validateUrl(selectedPlatform, formData.url)) {
+    } else if (!proxyApiService.validateUrl(selectedPlatform, formData.url)) {
       newErrors.url = t('order.trueUrlFormat');
     }
     if (!formData.quantity.trim()) {
@@ -229,13 +230,12 @@ const Order = () => {
       } else if (selectedService) {
         const minAmount = parseInt(selectedService.amount_minimum);
         if (quantity < minAmount) {
-          newErrors.quantity = `${t('order.minOrder')}: ${minAmount}`;
+        newErrors.quantity = `${t('order.minOrder')}: ${minAmount}`;
         }
         if (selectedService.prices && selectedService.prices.length > 0) {
           const maxAmount = parseInt(selectedService.prices[0].maximum);
           if (quantity > maxAmount) {
-            newErrors.quantity = `${t('order.maxOrder')}: ${maxAmount.toLocaleString()}`;
-          }
+          newErrors.quantity = `${t('order.maxOrder')}: ${maxAmount.toLocaleString()}`;          }
         }
       }
     }
@@ -255,14 +255,97 @@ const Order = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Clear any existing toasts before starting
     toast.dismiss();
+    if (!user) {
+      setAuthDialogOpen(true);
+      return;
+    }
+ if (userBalance < calculatedPrice) {
+  toast.error(t('order.EnoughBalance'));
+  return;
+}
 
     if (!validateForm()) {
       return;
     }
+    try {
+      setPlacing(true);
+      console.log('Placing order with data:', {
+        serviceId: formData.serviceId,
+        url: formData.url,
+        quantity: parseInt(formData.quantity),
+        additionalParams: formData.additionalParams
+      });
+      const response = await proxyApiService.placeOrder(formData.serviceId, formData.url, parseInt(formData.quantity), formData.additionalParams);
+      console.log('Order API response:', response);
 
-    // Handle order placement through OrderForm component
-    // The OrderForm handles both guest and registered user flows
+      // Check if order was successful
+      if (!response || response.status === 'error' || response.error) {
+        // Handle API error - don't deduct balance or redirect
+        let errorMessage = t('order.OrderingError');
+        if (response?.message) {
+          if (Array.isArray(response.message)) {
+            errorMessage = response.message.map(msg => msg.message || msg).join(', ');
+          } else if (typeof response.message === 'string') {
+            errorMessage = response.message;
+          }
+        } else if (response?.error) {
+          errorMessage = response.error;
+        }
+        toast.error(errorMessage);
+        return; // Don't proceed with balance deduction or database save
+      }
+
+      // If we get here, the API call was successful
+      if (response.status === 'success' && response.id_service_submission) {
+        // Update user balance
+        const newBalance = userBalance - calculatedPrice;
+        const {
+          error: balanceError
+        } = await supabase.from('profiles').update({
+          balance: newBalance
+        }).eq('id', user.id);
+        if (balanceError) {
+          console.error('Error updating balance:', balanceError);
+        } else {
+          setUserBalance(newBalance);
+        }
+
+        // Save order to local database
+        const {
+          error: orderError
+        } = await supabase.from('orders').insert({
+          user_id: user.id,
+          service_id: formData.serviceId,
+          service_name: selectedService?.public_name || '',
+          platform: selectedService?.platform || '',
+          service_type: selectedServiceType,
+          quantity: parseInt(formData.quantity),
+          price: calculatedPrice,
+          link: formData.url,
+          status: 'pending',
+          external_order_id: response.id_service_submission
+        });
+        if (orderError) {
+          console.error('Error saving order:', orderError);
+        }
+        toast.success('Sifariş uğurla verildi!');
+        // Small delay to ensure user sees the success message before redirect
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 1500);
+      } else {
+        console.error('Order failed:', response);
+        toast.error(t('order.OrderingError'));
+      }
+    } catch (error) {
+      console.error('Order submission error:', error);
+      toast.error(t('order.OrderingError'));
+    } finally {
+      setPlacing(false);
+    }
   };
 
   const updateFormData = (field: string, value: any) => {
@@ -409,22 +492,10 @@ const Order = () => {
                 )}
 
                 {selectedService && (
-                  <>
-                    <ServiceInfo 
-                      serviceDescription={getServiceDescription()} 
-                      loading={loadingServiceDetails} 
-                    />
-                    <OrderForm
-                      service={selectedService}
-                      formData={formData}
-                      errors={errors}
-                      calculatedPrice={calculatedPrice}
-                      placing={placing}
-                      onUpdateFormData={updateFormData}
-                      onUpdateAdditionalParam={updateAdditionalParam}
-                      onPlaceOrder={() => {}}
-                    />
-                  </>
+                  <ServiceInfo 
+                    serviceDescription={getServiceDescription()} 
+                    loading={loadingServiceDetails} 
+                  />
                 )}
               </form>
             </CardContent>
@@ -439,6 +510,8 @@ const Order = () => {
         onOpenChange={() => {}}
         onPaymentSuccess={handleBalanceTopUpSuccess}
       />
+
+      <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} />
     </div>
   );
 };
