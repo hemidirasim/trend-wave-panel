@@ -1,4 +1,5 @@
 
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 
@@ -11,13 +12,14 @@ const corsHeaders = {
 
 interface AccountEmailRequest {
   email: string;
-  password: string;
+  password?: string | null;
   orderDetails: {
     serviceName: string;
     quantity: number;
     price: number;
     link: string;
   };
+  isExistingUser?: boolean;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -26,13 +28,41 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { email, password, orderDetails }: AccountEmailRequest = await req.json();
+    const { email, password, orderDetails, isExistingUser = false }: AccountEmailRequest = await req.json();
 
-    const emailResponse = await resend.emails.send({
-      from: "SMM Panel <noreply@example.com>",
-      to: [email],
-      subject: "Sifarişiniz təsdiqləndi - Hesab məlumatları",
-      html: `
+    let emailHtml;
+    let subject;
+
+    if (isExistingUser) {
+      // Email for existing users - only order information
+      subject = "Sifarişiniz təsdiqləndi";
+      emailHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #333;">Sifarişiniz uğurla tamamlandı!</h2>
+          
+          <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #495057; margin-top: 0;">Sifariş məlumatları:</h3>
+            <ul style="list-style: none; padding: 0;">
+              <li><strong>Xidmət:</strong> ${orderDetails.serviceName}</li>
+              <li><strong>Miqdar:</strong> ${orderDetails.quantity}</li>
+              <li><strong>Qiymət:</strong> $${orderDetails.price.toFixed(2)}</li>
+              <li><strong>Link:</strong> ${orderDetails.link}</li>
+            </ul>
+          </div>
+
+          <p style="color: #666;">
+            Sifarişinizin statusunu izləmək üçün hesabınıza daxil olaraq dashboard bölməsinə baxa bilərsiniz.
+          </p>
+
+          <p style="color: #666; font-size: 14px; margin-top: 30px;">
+            Təşəkkür edirik ki, bizə etibar etdiniz!
+          </p>
+        </div>
+      `;
+    } else {
+      // Email for new users - order information + account credentials
+      subject = "Sifarişiniz təsdiqləndi - Hesab məlumatları";
+      emailHtml = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #333;">Sifarişiniz uğurla tamamlandı!</h2>
           
@@ -66,7 +96,14 @@ const handler = async (req: Request): Promise<Response> => {
             Təşəkkür edirik ki, bizə etibar etdiniz!
           </p>
         </div>
-      `,
+      `;
+    }
+
+    const emailResponse = await resend.emails.send({
+      from: "SMM Panel <noreply@example.com>",
+      to: [email],
+      subject: subject,
+      html: emailHtml,
     });
 
     console.log("Account email sent successfully:", emailResponse);
@@ -91,3 +128,4 @@ const handler = async (req: Request): Promise<Response> => {
 };
 
 serve(handler);
+

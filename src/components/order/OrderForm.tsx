@@ -152,6 +152,13 @@ const OrderForm = ({
     return password;
   };
 
+  const generateRandomName = () => {
+    const names = ['Müştəri', 'İstifadəçi', 'Alıcı', 'Ziyarətçi'];
+    const randomName = names[Math.floor(Math.random() * names.length)];
+    const randomNumber = Math.floor(Math.random() * 9999) + 1;
+    return `${randomName}${randomNumber}`;
+  };
+
   const handlePlaceOrder = async () => {
     console.log('🚀 handlePlaceOrder called with final price:', finalPrice);
 
@@ -174,6 +181,12 @@ const OrderForm = ({
       // Validate URL
       if (!formData.url) {
         toast.error('URL daxil edin');
+        return;
+      }
+
+      // Validate URL format for the platform
+      if (!validateUrl(service.platform, formData.url)) {
+        toast.error('URL formatı düzgün deyil. Düzgün URL daxil edin.');
         return;
       }
 
@@ -251,23 +264,86 @@ const OrderForm = ({
 
       // For guest users, create account and save order
       if (!user) {
-        console.log('👤 Creating account for guest user:', guestEmail);
+        console.log('👤 Processing guest order for email:', guestEmail);
         
-        const password = generateRandomPassword();
-        
-        // Check if user already exists by querying auth.users
-        const { data: existingUsersData } = await supabase.auth.admin.listUsers();
-        const userExists = existingUsersData.users.some((u: any) => u.email === guestEmail);
+        // Check if user already exists
+        const { data: existingUser } = await supabase
+          .from('profiles')
+          .select('id, email')
+          .eq('email', guestEmail)
+          .single();
         
         let userId;
+        let isNewUser = !existingUser;
         
-        if (!userExists) {
+        if (existingUser) {
+          // User exists, just use their ID
+          userId = existingUser.id;
+          console.log('✅ Using existing user:', userId);
+          
+          // Save order to database for existing user
+          const orderData = {
+            user_id: userId,
+            email: guestEmail,
+            service_id: formData.serviceId,
+            service_name: service.public_name,
+            platform: service.platform,
+            service_type: service.type_name || 'engagement',
+            link: formData.url,
+            quantity: parseInt(formData.quantity),
+            price: finalPrice,
+            status: 'pending',
+            external_order_id: externalOrderId
+          };
+
+          console.log('💾 Saving order for existing user to database with final price:', finalPrice);
+          
+          const { data: insertedOrder, error: insertError } = await supabase
+            .from('orders')
+            .insert(orderData)
+            .select()
+            .single();
+
+          if (insertError) {
+            console.error('❌ Database insert error:', insertError);
+            toast.error('Sifarişi yadda saxlamaq mümkün olmadı');
+            return;
+          }
+
+          console.log('✅ Order saved for existing user:', insertedOrder);
+
+          // Send order info email to existing user
+          try {
+            await supabase.functions.invoke('send-account-email', {
+              body: {
+                email: guestEmail,
+                password: null, // No password for existing users
+                orderDetails: {
+                  serviceName: service.public_name,
+                  quantity: parseInt(formData.quantity),
+                  price: finalPrice,
+                  link: formData.url
+                },
+                isExistingUser: true
+              }
+            });
+            
+            console.log('✅ Order notification email sent to existing user');
+          } catch (emailError) {
+            console.error('❌ Error sending email:', emailError);
+          }
+          
+        } else {
           // Create new user account
+          const password = generateRandomPassword();
+          const fullName = generateRandomName();
+          
           const { data: newUser, error: signUpError } = await supabase.auth.signUp({
             email: guestEmail,
             password: password,
             options: {
-              emailRedirectTo: `${window.location.origin}/`
+              emailRedirectTo: `${window.location.origin}/`,
+              data: { full_name: fullName }
             }
           });
           
@@ -279,63 +355,58 @@ const OrderForm = ({
           
           userId = newUser.user?.id;
           console.log('✅ New account created:', userId);
-        } else {
-          // Get existing user ID
-          const existingUserData = existingUsersData.users.find((u: any) => u.email === guestEmail);
-          userId = existingUserData?.id;
-          console.log('✅ Using existing user:', userId);
-        }
 
-        // Save order to database
-        const orderData = {
-          user_id: userId,
-          email: guestEmail,
-          service_id: formData.serviceId,
-          service_name: service.public_name,
-          platform: service.platform,
-          service_type: service.type_name || 'engagement',
-          link: formData.url,
-          quantity: parseInt(formData.quantity),
-          price: finalPrice,
-          status: 'pending',
-          external_order_id: externalOrderId
-        };
+          // Save order to database for new user
+          const orderData = {
+            user_id: userId,
+            email: guestEmail,
+            service_id: formData.serviceId,
+            service_name: service.public_name,
+            platform: service.platform,
+            service_type: service.type_name || 'engagement',
+            link: formData.url,
+            quantity: parseInt(formData.quantity),
+            price: finalPrice,
+            status: 'pending',
+            external_order_id: externalOrderId
+          };
 
-        console.log('💾 Saving guest order to database with final price:', finalPrice);
-        
-        const { data: insertedOrder, error: insertError } = await supabase
-          .from('orders')
-          .insert(orderData)
-          .select()
-          .single();
-
-        if (insertError) {
-          console.error('❌ Database insert error:', insertError);
-          toast.error('Sifarişi yadda saxlamaq mümkün olmadı');
-          return;
-        }
-
-        console.log('✅ Guest order saved to database:', insertedOrder);
-
-        // Send account credentials via email
-        try {
-          await supabase.functions.invoke('send-account-email', {
-            body: {
-              email: guestEmail,
-              password: password,
-              orderDetails: {
-                serviceName: service.public_name,
-                quantity: parseInt(formData.quantity),
-                price: finalPrice,
-                link: formData.url
-              }
-            }
-          });
+          console.log('💾 Saving new user order to database with final price:', finalPrice);
           
-          console.log('✅ Account credentials email sent');
-        } catch (emailError) {
-          console.error('❌ Error sending email:', emailError);
-          // Don't fail the order if email sending fails
+          const { data: insertedOrder, error: insertError } = await supabase
+            .from('orders')
+            .insert(orderData)
+            .select()
+            .single();
+
+          if (insertError) {
+            console.error('❌ Database insert error:', insertError);
+            toast.error('Sifarişi yadda saxlamaq mümkün olmadı');
+            return;
+          }
+
+          console.log('✅ New user order saved to database:', insertedOrder);
+
+          // Send account credentials via email for new user
+          try {
+            await supabase.functions.invoke('send-account-email', {
+              body: {
+                email: guestEmail,
+                password: password,
+                orderDetails: {
+                  serviceName: service.public_name,
+                  quantity: parseInt(formData.quantity),
+                  price: finalPrice,
+                  link: formData.url
+                },
+                isExistingUser: false
+              }
+            });
+            
+            console.log('✅ Account credentials email sent to new user');
+          } catch (emailError) {
+            console.error('❌ Error sending email:', emailError);
+          }
         }
 
       } else {
@@ -423,7 +494,7 @@ const OrderForm = ({
 
   // Sadə validation yoxlaması - yalnız əsas sahələri yoxlayır
   const isFormValid = () => {
-    // Qeydiyyatsız istifadəçilər üçün email yoxlama
+    // Qeydiyyatlı istifadəçilər üçün email tələb olunmur
     if (!user && !guestEmail) return false;
     
     // URL yoxlama
@@ -447,7 +518,7 @@ const OrderForm = ({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Guest Email Input */}
+        {/* Guest Email Input - only for non-logged users */}
         {!user && (
           <div className="space-y-2">
             <Label htmlFor="guestEmail">Email ünvanı *</Label>
@@ -463,7 +534,7 @@ const OrderForm = ({
               <p className="text-sm text-red-500">Email ünvanı vacibdir</p>
             )}
             <p className="text-sm text-gray-500">
-              Sizin üçün avtomatik hesab yaradılacaq və giriş məlumatları emailə göndəriləcək
+              Əgər bu email ilə hesabınız varsa, sifarişlə bağlı məlumat göndəriləcək. Yoxdursa, avtomatik hesab yaradılacaq.
             </p>
           </div>
         )}
