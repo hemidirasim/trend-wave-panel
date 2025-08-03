@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -305,8 +306,8 @@ const OrderForm = ({
     try {
       console.log('📤 Placing guest order via API...');
       
-      // Validate URL format
-      if (!validateUrl(formData.url)) {
+      // Validate URL format - fix the function call by providing both parameters
+      if (!validateUrl(formData.url, service?.platform || '')) {
         toast.error('URL formatı düzgün deyil');
         return;
       }
