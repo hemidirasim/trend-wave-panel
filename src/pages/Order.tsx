@@ -42,6 +42,17 @@ const Order = () => {
 
   const [allowedPlatforms, setAllowedPlatforms] = useState<string[]>([]);
 
+  // Define getServiceTypeFromName function before using it
+  const getServiceTypeFromName = (serviceName: string): string => {
+    const name = serviceName.toLowerCase();
+    if (name.includes('like') || name.includes('bəyən')) return 'Likes';
+    if (name.includes('follow') || name.includes('izləyici')) return 'Followers';
+    if (name.includes('view') || name.includes('baxış')) return 'Views';
+    if (name.includes('share') || name.includes('paylaş')) return 'Shares';
+    if (name.includes('comment') || name.includes('şərh')) return 'Comments';
+    return 'Other';
+  };
+
   // Clear any existing toasts when component mounts
   useEffect(() => {
     toast.dismiss();
@@ -141,16 +152,6 @@ const Order = () => {
       return priceB - priceA;
     }
   });
-
-  const getServiceTypeFromName = (serviceName: string): string => {
-    const name = serviceName.toLowerCase();
-    if (name.includes('like') || name.includes('bəyən')) return 'Likes';
-    if (name.includes('follow') || name.includes('izləyici')) return 'Followers';
-    if (name.includes('view') || name.includes('baxış')) return 'Views';
-    if (name.includes('share') || name.includes('paylaş')) return 'Shares';
-    if (name.includes('comment') || name.includes('şərh')) return 'Comments';
-    return 'Other';
-  };
 
   if (loading || settingsLoading || authLoading) {
     return <div className="min-h-screen bg-background">
