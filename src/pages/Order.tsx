@@ -1,27 +1,24 @@
+
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { AlertCircle, Loader2, ShoppingCart } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ServiceFilters } from '@/components/order/ServiceFilters';
-import { ServiceSelector } from '@/components/order/ServiceSelector';
 import { ServiceInfo } from '@/components/order/ServiceInfo';
-import OrderForm from '@/components/order/OrderForm';
-import { OrderSummary } from '@/components/order/OrderSummary';
 import { proxyApiService, Service } from '@/components/ProxyApiService';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
 import AuthDialog from '@/components/auth/AuthDialog';
-import { BalanceTopUpDialog } from '@/components/payment/BalanceTopUpDialog';
-import { supabase } from '@/integrations/supabase/client';
 
 const Order = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const {
     settings,
     loading: settingsLoading
@@ -31,10 +28,8 @@ const Order = () => {
     loading: authLoading
   } = useAuth();
 
-  // Auth and balance states
+  // Auth states
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
-  const [userBalance, setUserBalance] = useState<number>(0);
-  const [balanceLoading, setBalanceLoading] = useState(false);
 
   // State management
   const [services, setServices] = useState<Service[]>([]);
@@ -42,7 +37,6 @@ const Order = () => {
   const [serviceDetails, setServiceDetails] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingServiceDetails, setLoadingServiceDetails] = useState(false);
-  const [placing, setPlacing] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -58,7 +52,6 @@ const Order = () => {
   const [priceFilter, setPriceFilter] = useState<'low-to-high' | 'high-to-low'>('low-to-high');
   const urlPlatform = searchParams.get('platform');
 
-  // Remove allowedPlatforms restriction - now we get all platforms from API
   const [allowedPlatforms, setAllowedPlatforms] = useState<string[]>([]);
 
   // Clear any existing toasts when component mounts
@@ -74,51 +67,12 @@ const Order = () => {
     });
   }, []);
 
-  // Also scroll to top when loading state changes
-  useEffect(() => {
-    if (loading) {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
-    }
-  }, [loading]);
-
   // Initialize platform from URL
   useEffect(() => {
     if (urlPlatform) {
       setSelectedPlatform(urlPlatform.toLowerCase());
     }
   }, [urlPlatform]);
-
-  // Fetch user balance when user is available
-  useEffect(() => {
-    if (user && !authLoading) {
-      fetchUserBalance();
-    }
-  }, [user, authLoading]);
-
-  const fetchUserBalance = async () => {
-    if (!user) return;
-    try {
-      setBalanceLoading(true);
-      const {
-        data,
-        error
-      } = await supabase.from('profiles').select('balance').eq('id', user.id).single();
-      if (error) {
-        console.error('Error fetching balance:', error);
-        setUserBalance(0);
-      } else {
-        setUserBalance(data?.balance || 0);
-      }
-    } catch (error) {
-      console.error('Error fetching balance:', error);
-      setUserBalance(0);
-    } finally {
-      setBalanceLoading(false);
-    }
-  };
 
   // Fetch services when settings are loaded
   useEffect(() => {
@@ -142,12 +96,6 @@ const Order = () => {
     if (selectedService && formData.quantity && !settingsLoading) {
       const quantity = parseInt(formData.quantity);
       if (!isNaN(quantity) && quantity > 0) {
-        console.log('🔥 Order: Calculating price with settings:', {
-          serviceFee: settings.service_fee,
-          baseFee: settings.base_fee,
-          quantity,
-          serviceName: selectedService.public_name
-        });
         const price = proxyApiService.calculatePrice(selectedService, quantity, settings.service_fee, settings.base_fee);
         setCalculatedPrice(price);
       } else {
@@ -156,18 +104,26 @@ const Order = () => {
     }
   }, [selectedService, formData.quantity, settings.service_fee, settings.base_fee, settingsLoading]);
 
+  const getServiceTypeFromName = (serviceName: string): string => {
+    const name = serviceName.toLowerCase();
+    if (name.includes('like') || name.includes('bəyən')) return 'Likes';
+    if (name.includes('follow') || name.includes('izləyici')) return 'Followers';
+    if (name.includes('view') || name.includes('baxış')) return 'Views';
+    if (name.includes('share') || name.includes('paylaş')) return 'Shares';
+    if (name.includes('comment') || name.includes('şərh')) return 'Comments';
+    return 'Other';
+  };
+
   const fetchServices = async () => {
     try {
       setLoading(true);
       const data = await proxyApiService.getServices();
-      // Get all unique platforms from API (no filtering)
       const uniquePlatforms = [...new Set(data
         .filter(service => service && service.platform && service.id_service)
         .map(service => service.platform.toLowerCase())
       )];
       setAllowedPlatforms(uniquePlatforms);
       
-      // Filter services to only include those with valid platform and id_service
       const filteredData = data.filter(service => {
         return service && service.platform && service.id_service;
       });
@@ -199,156 +155,6 @@ const Order = () => {
     const serviceType = service.type_name && service.type_name.trim() !== '' ? service.type_name : getServiceTypeFromName(service.public_name);
     setSelectedServiceType(serviceType);
     fetchServiceDetails(service.id_service.toString());
-  };
-
-  const getServiceTypeFromName = (serviceName: string): string => {
-    const name = serviceName.toLowerCase();
-    if (name.includes('like') || name.includes('bəyən')) return 'Likes';
-    if (name.includes('follow') || name.includes('izləyici')) return 'Followers';
-    if (name.includes('view') || name.includes('baxış')) return 'Views';
-    if (name.includes('share') || name.includes('paylaş')) return 'Shares';
-    if (name.includes('comment') || name.includes('şərh')) return 'Comments';
-    return 'Other';
-  };
-
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-    if (!formData.serviceId) {
-      newErrors.serviceId = t('order.serviceRequired');
-    }
-    if (!formData.url.trim()) {
-      newErrors.url = t('order.requiredUrl');
-    } else if (!proxyApiService.validateUrl(selectedPlatform, formData.url)) {
-      newErrors.url = t('order.trueUrlFormat');
-    }
-    if (!formData.quantity.trim()) {
-      newErrors.quantity = t('order.quantityRequired');
-    } else {
-      const quantity = parseInt(formData.quantity);
-      if (isNaN(quantity) || quantity <= 0) {
-        newErrors.quantity = t('order.trueQuantity');
-      } else if (selectedService) {
-        const minAmount = parseInt(selectedService.amount_minimum);
-        if (quantity < minAmount) {
-        newErrors.quantity = `${t('order.minOrder')}: ${minAmount}`;
-        }
-        if (selectedService.prices && selectedService.prices.length > 0) {
-          const maxAmount = parseInt(selectedService.prices[0].maximum);
-          if (quantity > maxAmount) {
-          newErrors.quantity = `${t('order.maxOrder')}: ${maxAmount.toLocaleString()}`;          }
-        }
-      }
-    }
-    if (selectedService && selectedService.params) {
-      selectedService.params.forEach(param => {
-        if (param.field_validators.includes('required')) {
-          const value = formData.additionalParams[param.field_name];
-          if (!value || value.toString().trim() === '') {
-            newErrors[param.field_name] = `${param.field_label} vacibdir`;
-          }
-        }
-      });
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Clear any existing toasts before starting
-    toast.dismiss();
-    
-    // Only show auth dialog when actually submitting the form, not when selecting services
-    if (!user) {
-      setAuthDialogOpen(true);
-      return;
-    }
- 
-    if (userBalance < calculatedPrice) {
-      toast.error(t('order.EnoughBalance'));
-      return;
-    }
-
-    if (!validateForm()) {
-      return;
-    }
-    try {
-      setPlacing(true);
-      console.log('Placing order with data:', {
-        serviceId: formData.serviceId,
-        url: formData.url,
-        quantity: parseInt(formData.quantity),
-        additionalParams: formData.additionalParams
-      });
-      const response = await proxyApiService.placeOrder(formData.serviceId, formData.url, parseInt(formData.quantity), formData.additionalParams);
-      console.log('Order API response:', response);
-
-      // Check if order was successful
-      if (!response || response.status === 'error' || response.error) {
-        // Handle API error - don't deduct balance or redirect
-        let errorMessage = t('order.OrderingError');
-        if (response?.message) {
-          if (Array.isArray(response.message)) {
-            errorMessage = response.message.map(msg => msg.message || msg).join(', ');
-          } else if (typeof response.message === 'string') {
-            errorMessage = response.message;
-          }
-        } else if (response?.error) {
-          errorMessage = response.error;
-        }
-        toast.error(errorMessage);
-        return; // Don't proceed with balance deduction or database save
-      }
-
-      // If we get here, the API call was successful
-      if (response.status === 'success' && response.id_service_submission) {
-        // Update user balance
-        const newBalance = userBalance - calculatedPrice;
-        const {
-          error: balanceError
-        } = await supabase.from('profiles').update({
-          balance: newBalance
-        }).eq('id', user.id);
-        if (balanceError) {
-          console.error('Error updating balance:', balanceError);
-        } else {
-          setUserBalance(newBalance);
-        }
-
-        // Save order to local database
-        const {
-          error: orderError
-        } = await supabase.from('orders').insert({
-          user_id: user.id,
-          service_id: formData.serviceId,
-          service_name: selectedService?.public_name || '',
-          platform: selectedService?.platform || '',
-          service_type: selectedServiceType,
-          quantity: parseInt(formData.quantity),
-          price: calculatedPrice,
-          link: formData.url,
-          status: 'pending',
-          external_order_id: response.id_service_submission
-        });
-        if (orderError) {
-          console.error('Error saving order:', orderError);
-        }
-        toast.success('Sifariş uğurla verildi!');
-        // Small delay to ensure user sees the success message before redirect
-        setTimeout(() => {
-          navigate('/dashboard');
-        }, 1500);
-      } else {
-        console.error('Order failed:', response);
-        toast.error(t('order.OrderingError'));
-      }
-    } catch (error) {
-      console.error('Order submission error:', error);
-      toast.error(t('order.OrderingError'));
-    } finally {
-      setPlacing(false);
-    }
   };
 
   const updateFormData = (field: string, value: any) => {
@@ -391,7 +197,6 @@ const Order = () => {
   const handleServiceTypeChange = (serviceType: string) => {
     setSelectedServiceType(serviceType);
     
-    // serviceType formatı: "platform-serviceId" olduğunda avtomatik seçim
     if (serviceType.includes('-') && serviceType.split('-').length === 2) {
       const [platform, serviceId] = serviceType.split('-');
       const service = services.find(s => s.id_service.toString() === serviceId);
@@ -424,9 +229,27 @@ const Order = () => {
     return null;
   };
 
-  const handleBalanceTopUpSuccess = () => {
-    toast.success(t('order.balanceIncreaseSuccess'));
-    fetchUserBalance();
+  const handleBuyClick = () => {
+    if (!user) {
+      setAuthDialogOpen(true);
+      return;
+    }
+
+    // Redirect to dashboard with selected service
+    const params = new URLSearchParams({
+      service: formData.serviceId,
+      platform: selectedPlatform,
+      url: formData.url,
+      quantity: formData.quantity
+    });
+    
+    Object.entries(formData.additionalParams).forEach(([key, value]) => {
+      if (value) {
+        params.append(key, value.toString());
+      }
+    });
+
+    navigate(`/${language}/dashboard?${params.toString()}#orders`);
   };
 
   if (loading || settingsLoading || authLoading) {
@@ -467,7 +290,7 @@ const Order = () => {
               <CardDescription>{t('order.detailsDesc')}</CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-6">
                 <ServiceFilters 
                   services={services} 
                   selectedPlatform={selectedPlatform} 
@@ -480,8 +303,8 @@ const Order = () => {
                   errors={errors}
                   onUpdateFormData={updateFormData}
                   onUpdateAdditionalParam={updateAdditionalParam}
-                  onPlaceOrder={handleSubmit}
-                  placing={placing}
+                  onPlaceOrder={() => {}} // Dummy function since we don't use it
+                  placing={false}
                   calculatedPrice={calculatedPrice}
                   serviceFeePercentage={settings.service_fee}
                   baseFee={settings.base_fee}
@@ -494,25 +317,41 @@ const Order = () => {
                   </p>
                 )}
 
+                {selectedService && calculatedPrice > 0 && (
+                  <div className="flex items-center justify-between p-4 bg-primary/5 rounded-lg border border-primary/20">
+                    <div className="flex items-center space-x-4">
+                      <Button 
+                        onClick={handleBuyClick}
+                        className="bg-primary hover:bg-primary/90"
+                        size="lg"
+                      >
+                        Buy Now
+                      </Button>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-primary">
+                          ${calculatedPrice.toFixed(2)}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {formData.quantity} ədəd üçün
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {selectedService && (
                   <ServiceInfo 
                     serviceDescription={getServiceDescription()} 
                     loading={loadingServiceDetails} 
                   />
                 )}
-              </form>
+              </div>
             </CardContent>
           </Card>
         </div>
       </section>
 
       <Footer />
-
-      <BalanceTopUpDialog
-        open={false}
-        onOpenChange={() => {}}
-        onPaymentSuccess={handleBalanceTopUpSuccess}
-      />
 
       <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} />
     </div>

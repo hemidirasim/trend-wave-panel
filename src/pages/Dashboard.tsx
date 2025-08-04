@@ -16,6 +16,7 @@ import AccountSettings from '@/components/AccountSettings';
 import { BalanceTopUpDialog } from '@/components/payment/BalanceTopUpDialog';
 import { PaymentHistory } from '@/components/payment/PaymentHistory';
 import OrdersTable from '@/components/dashboard/OrdersTable';
+import { DashboardOrderForm } from '@/components/dashboard/DashboardOrderForm';
 
 interface Order {
   id: string;
@@ -50,6 +51,14 @@ const Dashboard = () => {
   const hasShownLoginNotification = useRef(false);
   const [balanceTopUpOpen, setBalanceTopUpOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
+
+  // Get initial tab from hash or default to 'orders'
+  const getInitialTab = () => {
+    const hash = window.location.hash.slice(1); // Remove #
+    return hash || 'orders';
+  };
+
+  const [activeTab, setActiveTab] = useState(getInitialTab());
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -327,15 +336,15 @@ const Dashboard = () => {
         </div>
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue="orders" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-5 mb-8">
             <TabsTrigger value="orders" className="flex items-center gap-2">
+              <ShoppingCart className="h-4 w-4" />
+              Yeni Sifariş
+            </TabsTrigger>
+            <TabsTrigger value="history" className="flex items-center gap-2">
               <Package className="h-4 w-4" />
               {t('dashboard.allOrders')}
-            </TabsTrigger>
-            <TabsTrigger value="completed" className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4" />
-              {t('dashboard.completed')}
             </TabsTrigger>
             <TabsTrigger value="payments" className="flex items-center gap-2">
               <Wallet className="h-4 w-4" />
@@ -354,38 +363,33 @@ const Dashboard = () => {
           <TabsContent value="orders">
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>{t('dashboard.allOrders')}</CardTitle>
-                    <CardDescription>
-                      {t('dashboard.allOrdersDesc')}
-                    </CardDescription>
-                  </div>
-                  <Button 
-                    onClick={() => navigate(`/${language}/order`)} 
-                    className="bg-primary hover:bg-primary/90"
-                  >
-                    <ShoppingCart className="h-4 w-4 mr-2" />
-                    {t('dashboard.placeOrder')}
-                  </Button>
-                </div>
+                <CardTitle className="flex items-center">
+                  <ShoppingCart className="h-5 w-5 mr-2" />
+                  Yeni Sifariş
+                </CardTitle>
+                <CardDescription>
+                  Xidmət seçin və sifarişinizi verin
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <OrdersTable orders={orders} onOrdersUpdate={fetchUserData} />
+                <DashboardOrderForm 
+                  userBalance={profile?.balance || 0} 
+                  onOrderSuccess={fetchUserData}
+                />
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="completed">
+          <TabsContent value="history">
             <Card>
               <CardHeader>
-                <CardTitle>{t('dashboard.completedOrders')}</CardTitle>
+                <CardTitle>{t('dashboard.allOrders')}</CardTitle>
                 <CardDescription>
-                  {t('dashboard.completedDesc')}
+                  {t('dashboard.allOrdersDesc')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <OrdersTable orders={completedOrders} onOrdersUpdate={fetchUserData} />
+                <OrdersTable orders={orders} onOrdersUpdate={fetchUserData} />
               </CardContent>
             </Card>
           </TabsContent>
