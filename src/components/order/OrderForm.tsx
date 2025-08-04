@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -53,7 +52,6 @@ const OrderForm = ({
   const [existingOrder, setExistingOrder] = useState<any>(null);
   const [checkingExisting, setCheckingExisting] = useState(false);
   const [localCalculatedPrice, setLocalCalculatedPrice] = useState(0);
-  const [guestEmail, setGuestEmail] = useState('');
 
   // Calculate price locally using the proper calculator
   useEffect(() => {
@@ -79,13 +77,11 @@ const OrderForm = ({
 
   // Use the locally calculated price instead of the prop
   const finalPrice = localCalculatedPrice || calculatedPrice;
-  
   useEffect(() => {
     if (user) {
       fetchProfile();
     }
   }, [user]);
-  
   useEffect(() => {
     if (formData.url && service) {
       checkExistingOrder();
@@ -141,25 +137,6 @@ const OrderForm = ({
 
     // Clear any existing toasts before starting
     toast.dismiss();
-    
-    // If user is not logged in, handle guest order
-    if (!user) {
-      if (!guestEmail.trim()) {
-        toast.error('Email ünvanı daxil edin');
-        return;
-      }
-      
-      // Validate email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(guestEmail)) {
-        toast.error('Düzgün email ünvanı daxil edin');
-        return;
-      }
-      
-      await handleGuestOrder();
-      return;
-    }
-    
     try {
       // Double-check for existing orders before placing
       if (formData.url && service?.platform) {
@@ -173,7 +150,6 @@ const OrderForm = ({
           return;
         }
       }
-      
       console.log('📤 Placing order via API...');
       console.log('📤 Service:', service.public_name);
       console.log('📤 Form data:', formData);
@@ -223,7 +199,6 @@ const OrderForm = ({
         toast.error('Sifariş ID alınmadı. Yenidən cəhd edin.');
         return;
       }
-      
       console.log('✅ Order API call successful!');
       console.log('✅ Submission ID:', orderResponse.id_service_submission);
 
@@ -240,22 +215,20 @@ const OrderForm = ({
         link: formData.url,
         quantity: parseInt(formData.quantity),
         price: finalPrice,
+        // Use the correctly calculated price
         status: 'pending',
         external_order_id: externalOrderId
       };
-      
       console.log('💾 Saving order to database with final price:', finalPrice);
       const {
         data: insertedOrder,
         error: insertError
       } = await supabase.from('orders').insert(orderData).select().single();
-      
       if (insertError) {
         console.error('❌ Database insert error:', insertError);
         toast.error('Sifarişi yadda saxlamaq mümkün olmadı');
         return;
       }
-      
       console.log('✅ Order saved to database:', insertedOrder);
 
       // Update user balance with the correct calculated price
@@ -266,7 +239,6 @@ const OrderForm = ({
         } = await supabase.from('profiles').update({
           balance: newBalance
         }).eq('id', user?.id);
-        
         if (balanceError) {
           console.error('❌ Balance update error:', balanceError);
           toast.error('Balansı yeniləmək mümkün olmadı');
@@ -302,87 +274,7 @@ const OrderForm = ({
     }
   };
 
-  const handleGuestOrder = async () => {
-    try {
-      console.log('📤 Placing guest order via API...');
-      
-      // Validate URL format - fix the function call by providing both parameters
-      if (!validateUrl(formData.url, service?.platform || '')) {
-        toast.error('URL formatı düzgün deyil');
-        return;
-      }
-
-      // Place the order via API FIRST
-      const orderResponse = await apiClient.placeOrder(formData.serviceId, formData.url, parseInt(formData.quantity), formData.additionalParams);
-      console.log('📥 Guest API Response received:', orderResponse);
-
-      // Check if order was successful
-      if (!orderResponse || orderResponse.status === 'error' || !orderResponse.id_service_submission) {
-        console.log('❌ Guest API call failed');
-        let errorMessage = 'Sifariş verilmədi. Yenidən cəhd edin.';
-        if (orderResponse?.message) {
-          errorMessage = Array.isArray(orderResponse.message) 
-            ? orderResponse.message.join(', ') 
-            : orderResponse.message;
-        }
-        toast.error(errorMessage);
-        return;
-      }
-
-      console.log('✅ Guest order API call successful!');
-      
-      // Check if user already exists
-      const { data: existingUser } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('email', guestEmail)
-        .single();
-
-      if (existingUser) {
-        // User exists, just send order info
-        console.log('📧 Sending order info to existing user');
-        toast.success('Sifariş uğurla verildi! Email ünvanınıza məlumat göndərildi.');
-      } else {
-        // Create new user account
-        console.log('👤 Creating new user account');
-        
-        // Generate random password and username
-        const randomPassword = Math.random().toString(36).slice(-8);
-        const randomUsername = `user_${Math.random().toString(36).slice(-6)}`;
-
-        // Create auth user
-        const { data: authUser, error: authError } = await supabase.auth.signUp({
-          email: guestEmail,
-          password: randomPassword,
-          options: {
-            data: {
-              full_name: randomUsername
-            }
-          }
-        });
-
-        if (authError) {
-          console.error('❌ Auth creation error:', authError);
-          toast.error('Hesab yaradılmadı. Yenidən cəhd edin.');
-          return;
-        }
-
-        console.log('✅ New user created successfully');
-        toast.success('Sifariş uğurla verildi! Hesab məlumatları email ünvanınıza göndərildi.');
-      }
-
-      // Small delay before redirect
-      setTimeout(() => {
-        navigate('/');
-      }, 2000);
-
-    } catch (error: any) {
-      console.error('❌ Guest order error:', error);
-      toast.error('Sifariş verərkən xəta baş verdi');
-    }
-  };
-
-  const hasInsufficientBalance = user && profile && finalPrice > (profile.balance || 0);
+  const hasInsufficientBalance = profile && finalPrice > (profile.balance || 0);
   const hasExistingOrder = !!existingOrder;
 
   // Validate quantity against service limits - convert to numbers for comparison
@@ -390,17 +282,6 @@ const OrderForm = ({
   const minQuantity = parseInt(service?.amount_minimum) || 1;
   const maxQuantity = parseInt(service?.prices?.[0]?.maximum) || 10000;
   const isQuantityInvalid = quantity < minQuantity || quantity > maxQuantity;
-
-  // Form validation for both logged in and guest users
-  const isFormValid = () => {
-    if (!user && !guestEmail.trim()) return false;
-    if (!formData.url.trim()) return false;
-    if (!formData.quantity.trim()) return false;
-    if (!formData.serviceId) return false;
-    if (isQuantityInvalid) return false;
-    if (Object.keys(errors).length > 0) return false;
-    return true;
-  };
 
   return (
     <Card>
@@ -411,27 +292,6 @@ const OrderForm = ({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Email Input for Guest Users */}
-        {!user && (
-          <div className="space-y-2">
-            <Label htmlFor="guestEmail">Email ünvanı *</Label>
-            <Input
-              id="guestEmail"
-              type="email"
-              value={guestEmail}
-              onChange={(e) => setGuestEmail(e.target.value)}
-              placeholder="example@email.com"
-              className={!guestEmail.trim() ? 'border-red-500' : ''}
-            />
-            {!guestEmail.trim() && (
-              <p className="text-sm text-red-500">Email ünvanı vacibdir</p>
-            )}
-            <p className="text-xs text-gray-500">
-              Hesabınız yoxdursa avtomatik yaradılacaq və giriş məlumatları göndəriləcək
-            </p>
-          </div>
-        )}
-
         {/* URL Input */}
         <div className="space-y-2">
           <Label htmlFor="url">{t('order.url')}</Label>
@@ -541,7 +401,7 @@ const OrderForm = ({
           </div>
         </div>
 
-        {/* Balance Check for Logged Users */}
+        {/* Balance Check */}
         {hasInsufficientBalance && (
           <Alert className="border-red-200 bg-red-50">
             <AlertTriangle className="h-4 w-4 text-red-500" />
@@ -554,18 +414,16 @@ const OrderForm = ({
         {/* Order Button */}
         <Button
           onClick={handlePlaceOrder}
-          disabled={placing || hasInsufficientBalance || hasExistingOrder || !isFormValid()}
+          disabled={placing || hasInsufficientBalance || hasExistingOrder || !formData.url || !formData.quantity || isQuantityInvalid || Object.keys(errors).length > 0}
           className="w-full"
         >
           {placing ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {user ? t('order.placing') : 'Qeydiyyat və sifariş...'}
+              {t('order.placing')}
             </>
-          ) : user ? (
-            `${t('order.placeOrder')} - $${finalPrice.toFixed(2)}`
           ) : (
-            `Qeydiyyat üçün sifariş ver - $${finalPrice.toFixed(2)}`
+            `${t('order.placeOrder')} - $${finalPrice.toFixed(2)}`
           )}
         </Button>
       </CardContent>
