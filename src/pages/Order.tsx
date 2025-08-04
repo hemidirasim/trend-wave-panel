@@ -258,14 +258,17 @@ const Order = () => {
 
     // Clear any existing toasts before starting
     toast.dismiss();
+    
+    // Only show auth dialog when actually submitting the form, not when selecting services
     if (!user) {
       setAuthDialogOpen(true);
       return;
     }
- if (userBalance < calculatedPrice) {
-  toast.error(t('order.EnoughBalance'));
-  return;
-}
+ 
+    if (userBalance < calculatedPrice) {
+      toast.error(t('order.EnoughBalance'));
+      return;
+    }
 
     if (!validateForm()) {
       return;
