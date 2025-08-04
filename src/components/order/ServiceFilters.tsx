@@ -1,3 +1,4 @@
+
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Instagram, Youtube, Facebook, Heart, Users, Eye, Share, MessageCircle, Repeat, Star, Globe } from 'lucide-react';
@@ -178,6 +179,7 @@ export function ServiceFilters({
     }
   };
 
+  // Modified handleOrderSubmit to NOT trigger auth dialog here
   const handleOrderSubmit = () => {
     if (onPlaceOrder) {
       // Create a mock event for the parent handler
@@ -230,7 +232,12 @@ export function ServiceFilters({
               return (
                 <div key={groupName} className="space-y-3">
                   <button
-                    onClick={() => handleServiceGroupSelect(groupName, selectedPlatform, groupServices)}
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleServiceGroupSelect(groupName, selectedPlatform, groupServices);
+                    }}
                     className={`w-full flex items-center justify-between p-4 bg-muted/50 hover:bg-muted/70 rounded-lg transition-colors border-2 ${
                       isSelected 
                         ? 'border-primary bg-primary/5' 
