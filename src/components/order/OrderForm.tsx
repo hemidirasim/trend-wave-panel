@@ -133,25 +133,10 @@ const OrderForm = ({
   };
 
   const handlePlaceOrder = async () => {
-    console.log('🚀 handlePlaceOrder called');
+    console.log('🚀 handlePlaceOrder called with final price:', finalPrice);
 
     // Clear any existing toasts before starting
     toast.dismiss();
-
-    // FIRST: Check if user is authenticated - if not, don't proceed with any validation
-    if (!user) {
-      console.log('❌ User not authenticated, stopping execution');
-      return; // Let the parent component handle showing auth dialog
-    }
-
-    // SECOND: Check balance before any other validation
-    if (profile && localCalculatedPrice > (profile.balance || 0)) {
-      console.log('❌ Insufficient balance');
-      toast.error(`${t('order.insufficientBalance')}. Lazım olan: $${localCalculatedPrice.toFixed(2)}, Mövcud: $${(profile?.balance || 0).toFixed(2)}`);
-      return;
-    }
-
-    // THIRD: Now proceed with validation and API calls
     try {
       // Double-check for existing orders before placing
       if (formData.url && service?.platform) {
@@ -165,7 +150,6 @@ const OrderForm = ({
           return;
         }
       }
-
       console.log('📤 Placing order via API...');
       console.log('📤 Service:', service.public_name);
       console.log('📤 Form data:', formData);

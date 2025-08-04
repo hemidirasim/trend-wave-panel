@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -15,7 +16,6 @@ import AccountSettings from '@/components/AccountSettings';
 import { BalanceTopUpDialog } from '@/components/payment/BalanceTopUpDialog';
 import { PaymentHistory } from '@/components/payment/PaymentHistory';
 import OrdersTable from '@/components/dashboard/OrdersTable';
-import DashboardOrderForm from '@/components/dashboard/DashboardOrderForm';
 
 interface Order {
   id: string;
@@ -51,28 +51,11 @@ const Dashboard = () => {
   const [balanceTopUpOpen, setBalanceTopUpOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
 
-  // New state for order form
-  const [showOrderForm, setShowOrderForm] = useState(false);
-  const [preSelectedService, setPreSelectedService] = useState<string | null>(null);
-  const [preSelectedPlatform, setPreSelectedPlatform] = useState<string | null>(null);
-
   useEffect(() => {
     if (!authLoading && !user) {
       navigate('/');
     }
   }, [user, authLoading, navigate]);
-
-  // Check for pre-selected service from URL params
-  useEffect(() => {
-    const serviceParam = searchParams.get('service');
-    const platformParam = searchParams.get('platform');
-    
-    if (serviceParam && platformParam && user) {
-      setPreSelectedService(serviceParam);
-      setPreSelectedPlatform(platformParam);
-      setShowOrderForm(true);
-    }
-  }, [searchParams, user]);
 
   const fetchUserData = useCallback(async () => {
     if (!user?.id) return;
@@ -227,23 +210,6 @@ const Dashboard = () => {
     }
   };
 
-  const handleCloseOrderForm = () => {
-    setShowOrderForm(false);
-    setPreSelectedService(null);
-    setPreSelectedPlatform(null);
-    // Clear URL params
-    navigate('/dashboard', { replace: true });
-  };
-
-  const handleOrderSuccess = () => {
-    setShowOrderForm(false);
-    setPreSelectedService(null);
-    setPreSelectedPlatform(null);
-    // Clear URL params and refresh data
-    navigate('/dashboard', { replace: true });
-    fetchUserData();
-  };
-
   // Filter orders by status
   const completedOrders = orders.filter(order => order.status === 'completed');
   const activeOrders = orders.filter(order => 
@@ -360,30 +326,6 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        {/* Show Order Form if triggered */}
-        {showOrderForm && (
-          <Card className="mb-8 border-primary">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Place New Order</CardTitle>
-                <Button variant="outline" onClick={handleCloseOrderForm}>
-                  Cancel
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <DashboardOrderForm
-                preSelectedService={preSelectedService}
-                preSelectedPlatform={preSelectedPlatform}
-                onOrderSuccess={handleOrderSuccess}
-                onCancel={handleCloseOrderForm}
-                userBalance={profile?.balance || 0}
-                onBalanceUpdate={fetchUserData}
-              />
-            </CardContent>
-          </Card>
-        )}
-
         {/* Main Content Tabs */}
         <Tabs defaultValue="orders" className="w-full">
           <TabsList className="grid w-full grid-cols-5 mb-8">
@@ -424,7 +366,7 @@ const Dashboard = () => {
                     className="bg-primary hover:bg-primary/90"
                   >
                     <ShoppingCart className="h-4 w-4 mr-2" />
-                    Browse Services
+                    {t('dashboard.placeOrder')}
                   </Button>
                 </div>
               </CardHeader>
