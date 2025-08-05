@@ -38,18 +38,9 @@ const Order = () => {
   const [loading, setLoading] = useState(true);
   const [loadingServiceDetails, setLoadingServiceDetails] = useState(false);
 
-  // Form state
-  const [formData, setFormData] = useState({
-    serviceId: searchParams.get('service') || '',
-    url: '',
-    quantity: '',
-    additionalParams: {} as Record<string, any>
-  });
-  const [calculatedPrice, setCalculatedPrice] = useState(0);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  // Form state - simplified for display only
   const [selectedPlatform, setSelectedPlatform] = useState<string>('');
   const [selectedServiceType, setSelectedServiceType] = useState<string>('');
-  const [priceFilter, setPriceFilter] = useState<'low-to-high' | 'high-to-low'>('low-to-high');
   const urlPlatform = searchParams.get('platform');
 
   const [allowedPlatforms, setAllowedPlatforms] = useState<string[]>([]);
@@ -80,29 +71,6 @@ const Order = () => {
       fetchServices();
     }
   }, [settingsLoading]);
-
-  // Handle service selection from URL
-  useEffect(() => {
-    if (services.length > 0 && formData.serviceId) {
-      const service = services.find(s => s.id_service.toString() === formData.serviceId);
-      if (service) {
-        handleServiceSelection(service);
-      }
-    }
-  }, [services, formData.serviceId]);
-
-  // Calculate price when quantity changes
-  useEffect(() => {
-    if (selectedService && formData.quantity && !settingsLoading) {
-      const quantity = parseInt(formData.quantity);
-      if (!isNaN(quantity) && quantity > 0) {
-        const price = proxyApiService.calculatePrice(selectedService, quantity, settings.service_fee, settings.base_fee);
-        setCalculatedPrice(price);
-      } else {
-        setCalculatedPrice(0);
-      }
-    }
-  }, [selectedService, formData.quantity, settings.service_fee, settings.base_fee, settingsLoading]);
 
   const getServiceTypeFromName = (serviceName: string): string => {
     const name = serviceName.toLowerCase();
@@ -157,41 +125,11 @@ const Order = () => {
     fetchServiceDetails(service.id_service.toString());
   };
 
-  const updateFormData = (field: string, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-    if (errors[field]) {
-      setErrors(prev => ({
-        ...prev,
-        [field]: ''
-      }));
-    }
-  };
-
-  const updateAdditionalParam = (paramName: string, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      additionalParams: {
-        ...prev.additionalParams,
-        [paramName]: value
-      }
-    }));
-    if (errors[paramName]) {
-      setErrors(prev => ({
-        ...prev,
-        [paramName]: ''
-      }));
-    }
-  };
-
   const handlePlatformChange = (platform: string) => {
     setSelectedPlatform(platform);
     setSelectedServiceType('');
     setSelectedService(null);
     setServiceDetails(null);
-    updateFormData('serviceId', '');
   };
 
   const handleServiceTypeChange = (serviceType: string) => {
@@ -201,22 +139,27 @@ const Order = () => {
       const [platform, serviceId] = serviceType.split('-');
       const service = services.find(s => s.id_service.toString() === serviceId);
       if (service) {
-        updateFormData('serviceId', serviceId);
         handleServiceSelection(service);
       }
     } else {
       setSelectedService(null);
       setServiceDetails(null);
-      updateFormData('serviceId', '');
     }
   };
 
-  const handleServiceSelect = (serviceId: string) => {
-    updateFormData('serviceId', serviceId);
-    const service = services.find(s => s.id_service.toString() === serviceId);
-    if (service) {
-      handleServiceSelection(service);
+  const handleBuyClick = (service: Service) => {
+    if (!user) {
+      setAuthDialogOpen(true);
+      return;
     }
+
+    // Redirect to dashboard with selected service
+    const params = new URLSearchParams({
+      service: service.id_service.toString(),
+      platform: service.platform.toLowerCase()
+    });
+
+    navigate(`/${language}/dashboard?${params.toString()}#new-order`);
   };
 
   const getServiceDescription = () => {
@@ -227,29 +170,6 @@ const Order = () => {
       return selectedService.description;
     }
     return null;
-  };
-
-  const handleBuyClick = () => {
-    if (!user) {
-      setAuthDialogOpen(true);
-      return;
-    }
-
-    // Redirect to dashboard with selected service
-    const params = new URLSearchParams({
-      service: formData.serviceId,
-      platform: selectedPlatform,
-      url: formData.url,
-      quantity: formData.quantity
-    });
-    
-    Object.entries(formData.additionalParams).forEach(([key, value]) => {
-      if (value) {
-        params.append(key, value.toString());
-      }
-    });
-
-    navigate(`/${language}/dashboard?${params.toString()}#orders`);
   };
 
   if (loading || settingsLoading || authLoading) {
@@ -298,46 +218,9 @@ const Order = () => {
                   onPlatformChange={handlePlatformChange} 
                   onServiceTypeChange={handleServiceTypeChange} 
                   allowedPlatforms={allowedPlatforms}
-                  selectedService={selectedService}
-                  formData={formData}
-                  errors={errors}
-                  onUpdateFormData={updateFormData}
-                  onUpdateAdditionalParam={updateAdditionalParam}
-                  onPlaceOrder={() => {}} // Dummy function since we don't use it
-                  placing={false}
-                  calculatedPrice={calculatedPrice}
-                  serviceFeePercentage={settings.service_fee}
-                  baseFee={settings.base_fee}
+                  onBuyClick={handleBuyClick}
+                  showOnlyFilters={true}
                 />
-                
-                {errors.serviceId && (
-                  <p className="text-sm text-red-500 flex items-center">
-                    <AlertCircle className="h-4 w-4 mr-1" />
-                    {errors.serviceId}
-                  </p>
-                )}
-
-                {selectedService && calculatedPrice > 0 && (
-                  <div className="flex items-center justify-between p-4 bg-primary/5 rounded-lg border border-primary/20">
-                    <div className="flex items-center space-x-4">
-                      <Button 
-                        onClick={handleBuyClick}
-                        className="bg-primary hover:bg-primary/90"
-                        size="lg"
-                      >
-                        Buy Now
-                      </Button>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-primary">
-                          ${calculatedPrice.toFixed(2)}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          {formData.quantity} ədəd üçün
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
 
                 {selectedService && (
                   <ServiceInfo 

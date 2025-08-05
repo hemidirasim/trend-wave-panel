@@ -1,6 +1,6 @@
-
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 import { Instagram, Youtube, Facebook, Heart, Users, Eye, Share, MessageCircle, Repeat, Star, Globe } from 'lucide-react';
 import { Service } from '@/types/api';
 import { useState } from 'react';
@@ -26,6 +26,8 @@ interface ServiceFiltersProps {
   calculatedPrice?: number;
   serviceFeePercentage?: number;
   baseFee?: number;
+  onBuyClick?: (service: Service) => void;
+  showOnlyFilters?: boolean;
 }
 
 export function ServiceFilters({
@@ -44,7 +46,9 @@ export function ServiceFilters({
   placing,
   calculatedPrice,
   serviceFeePercentage,
-  baseFee
+  baseFee,
+  onBuyClick,
+  showOnlyFilters = false
 }: ServiceFiltersProps) {
   const [selectedGroupName, setSelectedGroupName] = useState<string>('');
   const { settings } = useSettings();
@@ -153,7 +157,29 @@ export function ServiceFilters({
     
     const groupKey = `${platform}-${groupName}`;
     
-    // Toggle functionality - if already selected, close it
+    // For showOnlyFilters mode, don't toggle - just set selection
+    if (showOnlyFilters) {
+      setSelectedGroupName(groupKey);
+      
+      // Sort by price and get the cheapest one
+      const sortedServices = [...groupServices].sort((a, b) => {
+        if (!a.prices || !b.prices || a.prices.length === 0 || b.prices.length === 0) {
+          return 0;
+        }
+        const priceA = parseFloat(a.prices[0].price);
+        const priceB = parseFloat(b.prices[0].price);
+        return priceA - priceB;
+      });
+      
+      if (sortedServices.length > 0) {
+        const cheapestService = sortedServices[0];
+        console.log('Cheapest service selected:', cheapestService.public_name);
+        onServiceTypeChange(`${cheapestService.platform}-${cheapestService.id_service}`);
+      }
+      return;
+    }
+
+    // Toggle functionality for full mode - if already selected, close it
     if (selectedGroupName === groupKey) {
       setSelectedGroupName('');
       return;
@@ -250,7 +276,7 @@ export function ServiceFilters({
                         <span className="font-medium text-base">{groupName}</span>
                       </div>
                     </div>
-                    <div className="text-right">
+                    <div className="flex items-center gap-3">
                       {(() => {
                         // Find the cheapest service in the group
                         const cheapestService = groupServices
@@ -270,9 +296,26 @@ export function ServiceFilters({
                           const unit = isComment ? '10' : '1000';
                           
                           return (
-                            <div className="font-bold text-primary">
-                              ${finalPrice.toFixed(2)}/{unit}
-                            </div>
+                            <>
+                              <div className="text-right mr-3">
+                                <div className="font-bold text-primary">
+                                  ${finalPrice.toFixed(2)}/{unit}
+                                </div>
+                              </div>
+                              {showOnlyFilters && onBuyClick && (
+                                <Button
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    onBuyClick(cheapestService);
+                                  }}
+                                  className="bg-primary hover:bg-primary/90"
+                                  size="sm"
+                                >
+                                  Buy Now
+                                </Button>
+                              )}
+                            </>
                           );
                         }
                         
@@ -285,8 +328,8 @@ export function ServiceFilters({
                     </div>
                   </button>
                   
-                  {/* OrderForm seçilən xidmətin düz altında göstər */}
-                  {isSelected && selectedService && formData && onUpdateFormData && onUpdateAdditionalParam && (
+                  {/* OrderForm - only show in full mode, not in showOnlyFilters mode */}
+                  {!showOnlyFilters && isSelected && selectedService && formData && onUpdateFormData && onUpdateAdditionalParam && (
                     <div className="ml-4 p-4 bg-background rounded-lg border-l-4 border-primary">
                       <OrderForm
                         service={selectedService}
