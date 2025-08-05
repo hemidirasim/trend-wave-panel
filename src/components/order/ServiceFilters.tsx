@@ -1,6 +1,12 @@
-import React from 'react';
+
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Instagram, Youtube, Facebook, Heart, Users, Eye, Share, MessageCircle, Repeat, Star, Globe } from 'lucide-react';
 import { Service } from '@/types/api';
+import { useState } from 'react';
+import OrderForm from '@/components/order/OrderForm';
+import { useSettings } from '@/contexts/SettingsContext';
+import { calculatePrice } from '@/utils/priceCalculator';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ServiceFiltersProps {
@@ -10,25 +16,24 @@ interface ServiceFiltersProps {
   onPlatformChange: (platform: string) => void;
   onServiceTypeChange: (serviceType: string) => void;
   allowedPlatforms: string[];
-  selectedService: Service | null;
-  formData: any;
-  errors: any;
-  onUpdateFormData: (field: string, value: any) => void;
-  onUpdateAdditionalParam: (paramName: string, value: any) => void;
-  onPlaceOrder: () => void;
-  placing: boolean;
-  calculatedPrice: number;
-  serviceFeePercentage: number;
-  baseFee: number;
-  showOnlyFilters?: boolean;
+  selectedService?: Service | null;
+  formData?: any;
+  errors?: Record<string, string>;
+  onUpdateFormData?: (field: string, value: any) => void;
+  onUpdateAdditionalParam?: (paramName: string, value: any) => void;
+  onPlaceOrder?: (e: React.FormEvent) => void;
+  placing?: boolean;
+  calculatedPrice?: number;
+  serviceFeePercentage?: number;
+  baseFee?: number;
 }
 
-export const ServiceFilters = ({ 
-  services, 
-  selectedPlatform, 
+export function ServiceFilters({
+  services,
+  selectedPlatform,
   selectedServiceType,
-  onPlatformChange, 
-  onServiceTypeChange, 
+  onPlatformChange,
+  onServiceTypeChange,
   allowedPlatforms,
   selectedService,
   formData,
@@ -39,169 +44,268 @@ export const ServiceFilters = ({
   placing,
   calculatedPrice,
   serviceFeePercentage,
-  baseFee,
-  showOnlyFilters = false
-}: ServiceFiltersProps) => {
+  baseFee
+}: ServiceFiltersProps) {
+  const [selectedGroupName, setSelectedGroupName] = useState<string>('');
+  const { settings } = useSettings();
   const { t } = useLanguage();
+
+  const getPlatformIcon = (platform: string) => {
+    const icons: Record<string, any> = {
+      instagram: Instagram,
+      youtube: Youtube,
+      facebook: Facebook,
+      tiktok: () => <div className="w-4 h-4 bg-current rounded-sm" />,
+    };
+    return icons[platform.toLowerCase()] || Globe;
+  };
+
+  const getServiceTypeIcon = (type: string) => {
+    const icons: Record<string, any> = {
+      'Like': Heart,
+      'Likes': Heart,
+      'Follow': Users,
+      'Followers': Users,
+      'View': Eye,
+      'Views': Eye,
+      'Share': Share,
+      'Shares': Share,
+      'Comment': MessageCircle,
+      'Comments': MessageCircle,
+      'Repost': Repeat,
+      'Reposts': Repeat,
+      'Other': Star,
+    };
+    return icons[type] || Star;
+  };
 
   const getServiceTypeFromName = (serviceName: string): string => {
     const name = serviceName.toLowerCase();
     if (name.includes('like') || name.includes('bəyən')) return 'Likes';
-    if (name.includes('follow') || name.includes('izləyici')) return 'Followers';
+    if (name.includes('follow') || name.includes('izləyici') || name.includes('subscriber')) return 'Followers';
     if (name.includes('view') || name.includes('baxış')) return 'Views';
     if (name.includes('share') || name.includes('paylaş')) return 'Shares';
     if (name.includes('comment') || name.includes('şərh')) return 'Comments';
+    if (name.includes('repost') || name.includes('retweet')) return 'Reposts';
     return 'Other';
   };
 
-  const getServiceTypes = () => {
-    if (!selectedPlatform) return [];
-    
-    const platformServices = services.filter(service => 
-      service.platform.toLowerCase() === selectedPlatform.toLowerCase()
-    );
-    
-    const types = [...new Set(platformServices.map(service => {
-      return service.type_name && service.type_name.trim() !== '' 
-        ? service.type_name 
-        : getServiceTypeFromName(service.public_name);
-    }))];
-    
-    return types.filter(type => type);
+  const getUniquePlatforms = () => {
+    const platforms = services
+      .map(service => service.platform.toLowerCase())
+      .filter(platform => allowedPlatforms.includes(platform));
+    return [...new Set(platforms)];
   };
 
-  if (showOnlyFilters) {
-    return (
-      <>
-        {/* Platform Selection */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Platform</label>
-          <Select value={selectedPlatform} onValueChange={onPlatformChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Platform seçin" />
-            </SelectTrigger>
-            <SelectContent>
-              {allowedPlatforms.map((platform) => (
-                <SelectItem key={platform} value={platform}>
-                  {platform.charAt(0).toUpperCase() + platform.slice(1)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+  // Extract service base name (before first dash) for grouping
+  const getServiceBaseName = (serviceName: string): string => {
+    const dashIndex = serviceName.indexOf(' - ');
+    if (dashIndex !== -1) {
+      return serviceName.substring(0, dashIndex).trim();
+    }
+    return serviceName;
+  };
 
-        {/* Service Type Selection */}
-        {selectedPlatform && (
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Xidmət Növü</label>
-            <Select value={selectedServiceType} onValueChange={onServiceTypeChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Xidmət növünü seçin" />
-              </SelectTrigger>
-              <SelectContent>
-                {getServiceTypes().map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-      </>
+  // Group services by their base names
+  const getServiceGroups = (platform: string) => {
+    const platformServices = services.filter(service => 
+      service.platform.toLowerCase() === platform.toLowerCase()
     );
-  }
+    
+    const groups: Record<string, Service[]> = {};
+    
+    platformServices.forEach(service => {
+      const baseName = getServiceBaseName(service.public_name);
+      
+      if (!groups[baseName]) {
+        groups[baseName] = [];
+      }
+      groups[baseName].push(service);
+    });
+    
+    return groups;
+  };
+
+  // Helper function to determine if a service is a comment service
+  const isCommentService = (serviceName: string): boolean => {
+    const name = serviceName.toLowerCase();
+    return name.includes('comment') || name.includes('şərh');
+  };
+
+  // Calculate price with admin fees included - use appropriate default quantity
+  const calculatePriceWithFees = (service: Service): number => {
+    // Use service-specific default quantity
+    let defaultQuantity = 1000;
+    
+    // For comment services, use a smaller default quantity that fits their range
+    if (isCommentService(service.public_name) && service.prices && service.prices.length > 0) {
+      const minAmount = parseInt(service.prices[0].minimum);
+      const maxAmount = parseInt(service.prices[0].maximum);
+      // Use a quantity that's within the service's range
+      defaultQuantity = Math.min(Math.max(minAmount, 10), maxAmount);
+    }
+    
+    return calculatePrice(service, defaultQuantity, settings.service_fee, settings.base_fee);
+  };
+
+  const handleServiceGroupSelect = (groupName: string, platform: string, groupServices: Service[]) => {
+    console.log('Service group selected:', groupName, 'Platform:', platform);
+    
+    const groupKey = `${platform}-${groupName}`;
+    
+    // Toggle functionality - if already selected, close it
+    if (selectedGroupName === groupKey) {
+      setSelectedGroupName('');
+      return;
+    }
+    
+    // Set selected group name for showing the form
+    setSelectedGroupName(groupKey);
+    
+    // Sort by price and get the cheapest one
+    const sortedServices = [...groupServices].sort((a, b) => {
+      if (!a.prices || !b.prices || a.prices.length === 0 || b.prices.length === 0) {
+        return 0;
+      }
+      const priceA = parseFloat(a.prices[0].price);
+      const priceB = parseFloat(b.prices[0].price);
+      return priceA - priceB;
+    });
+    
+    if (sortedServices.length > 0) {
+      const cheapestService = sortedServices[0];
+      console.log('Cheapest service selected:', cheapestService.public_name);
+      onServiceTypeChange(`${cheapestService.platform}-${cheapestService.id_service}`);
+    }
+  };
+
+  // Modified handleOrderSubmit to NOT trigger auth dialog here
+  const handleOrderSubmit = () => {
+    if (onPlaceOrder) {
+      // Create a mock event for the parent handler
+      const mockEvent = {
+        preventDefault: () => {},
+        stopPropagation: () => {},
+      } as React.FormEvent;
+      onPlaceOrder(mockEvent);
+    }
+  };
 
   return (
     <div className="space-y-6">
       {/* Platform Selection */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium">{t('order.platform')}</label>
+      <div className="space-y-3">
+        <Label className="text-base font-medium">{t('order.selectPlatform')}</Label>
         <Select value={selectedPlatform} onValueChange={onPlatformChange}>
-          <SelectTrigger>
-            <SelectValue placeholder={t('order.selectPlatform')} />
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder={t('order.platformPlaceholder')} />
           </SelectTrigger>
           <SelectContent>
-            {allowedPlatforms.map((platform) => (
-              <SelectItem key={platform} value={platform}>
-                {platform.charAt(0).toUpperCase() + platform.slice(1)}
-              </SelectItem>
-            ))}
+            {getUniquePlatforms().map((platform) => {
+              const IconComponent = getPlatformIcon(platform);
+              return (
+                <SelectItem key={platform} value={platform} className="flex items-center gap-2">
+                  <div className="flex items-center gap-2">
+                    <IconComponent className="w-4 h-4" />
+                    <span className="capitalize">{platform}</span>
+                  </div>
+                </SelectItem>
+              );
+            })}
           </SelectContent>
         </Select>
       </div>
 
-      {/* Service Type Selection */}
+      {/* Service Types */}
       {selectedPlatform && (
-        <div className="space-y-2">
-          <label className="text-sm font-medium">{t('order.serviceType')}</label>
-          <Select value={selectedServiceType} onValueChange={onServiceTypeChange}>
-            <SelectTrigger>
-              <SelectValue placeholder={t('order.selectServiceType')} />
-            </SelectTrigger>
-            <SelectContent>
-              {getServiceTypes().map((type) => (
-                <SelectItem key={type} value={type}>
-                  {type}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
-
-      {/* URL Input */}
-      {selectedService && (
-        <div className="space-y-2">
-          <label className="text-sm font-medium" htmlFor="url">{t('order.url')}</label>
-          <input
-            type="url"
-            id="url"
-            className="w-full px-3 py-2 border rounded-md focus:ring focus:ring-primary/30"
-            placeholder={t('order.urlPlaceholder')}
-            value={formData.url}
-            onChange={(e) => onUpdateFormData('url', e.target.value)}
-          />
-          {errors.url && <p className="text-sm text-red-500">{errors.url}</p>}
-        </div>
-      )}
-
-      {/* Quantity Input */}
-      {selectedService && (
-        <div className="space-y-2">
-          <label className="text-sm font-medium" htmlFor="quantity">{t('order.quantity')}</label>
-          <input
-            type="number"
-            id="quantity"
-            className="w-full px-3 py-2 border rounded-md focus:ring focus:ring-primary/30"
-            placeholder={t('order.quantityPlaceholder')}
-            value={formData.quantity}
-            onChange={(e) => onUpdateFormData('quantity', e.target.value)}
-          />
-          {errors.quantity && <p className="text-sm text-red-500">{errors.quantity}</p>}
-        </div>
-      )}
-
-      {/* Additional Parameters */}
-      {selectedService && selectedService.params && selectedService.params.length > 0 && (
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">{t('order.additionalParams')}</h3>
-          {selectedService.params.map((param) => (
-            <div key={param.name} className="space-y-2">
-              <label className="text-sm font-medium" htmlFor={param.name}>{param.name}</label>
-              <input
-                type="text"
-                id={param.name}
-                className="w-full px-3 py-2 border rounded-md focus:ring focus:ring-primary/30"
-                placeholder={param.placeholder || param.name}
-                value={formData.additionalParams[param.name] || ''}
-                onChange={(e) => onUpdateAdditionalParam(param.name, e.target.value)}
-              />
-              {errors[param.name] && <p className="text-sm text-red-500">{errors[param.name]}</p>}
-            </div>
-          ))}
+          <Label className="text-base font-medium">{t('order.selectService')}</Label>
+          
+          <div className="space-y-3">
+            {Object.entries(getServiceGroups(selectedPlatform))
+              .sort(([, a], [, b]) => b.length - a.length)
+              .map(([groupName, groupServices]) => {
+              const IconComponent = getServiceTypeIcon(groupName);
+              const groupKey = `${selectedPlatform}-${groupName}`;
+              const isSelected = selectedGroupName === groupKey;
+              
+              return (
+                <div key={groupName} className="space-y-3">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleServiceGroupSelect(groupName, selectedPlatform, groupServices);
+                    }}
+                    className={`w-full flex items-center justify-between p-4 bg-muted/50 hover:bg-muted/70 rounded-lg transition-colors border-2 ${
+                      isSelected 
+                        ? 'border-primary bg-primary/5' 
+                        : 'border-transparent'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <IconComponent className="w-5 h-5" />
+                      <div className="text-left">
+                        <span className="font-medium text-base">{groupName}</span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      {(() => {
+                        // Find the cheapest service in the group
+                        const cheapestService = groupServices
+                          .filter(s => s.prices && s.prices.length > 0)
+                          .sort((a, b) => {
+                            const priceA = parseFloat(a.prices[0].price);
+                            const priceB = parseFloat(b.prices[0].price);
+                            return priceA - priceB;
+                          })[0];
+                        
+                        if (cheapestService) {
+                          // Calculate price with admin fees included
+                          const finalPrice = calculatePriceWithFees(cheapestService);
+                          
+                          // Show appropriate unit based on service type
+                          const isComment = isCommentService(cheapestService.public_name);
+                          const unit = isComment ? '10' : '1000';
+                          
+                          return (
+                            <div className="font-bold text-primary">
+                              ${finalPrice.toFixed(2)}/{unit}
+                            </div>
+                          );
+                        }
+                        
+                        return (
+                          <div className="font-bold text-primary">
+                            N/A
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  </button>
+                  
+                  {/* OrderForm seçilən xidmətin düz altında göstər */}
+                  {isSelected && selectedService && formData && onUpdateFormData && onUpdateAdditionalParam && (
+                    <div className="ml-4 p-4 bg-background rounded-lg border-l-4 border-primary">
+                      <OrderForm
+                        service={selectedService}
+                        formData={formData}
+                        errors={errors || {}}
+                        onUpdateFormData={onUpdateFormData}
+                        onUpdateAdditionalParam={onUpdateAdditionalParam}
+                        onPlaceOrder={handleOrderSubmit}
+                        placing={placing || false}
+                        calculatedPrice={calculatedPrice || 0}
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>
   );
-};
+}
