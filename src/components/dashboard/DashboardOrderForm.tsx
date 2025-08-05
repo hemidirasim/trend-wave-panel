@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -45,6 +44,7 @@ export const DashboardOrderForm = ({ userBalance, onOrderSuccess }: DashboardOrd
   const [selectedPlatform, setSelectedPlatform] = useState<string>(searchParams.get('platform') || '');
   const [selectedServiceType, setSelectedServiceType] = useState<string>('');
   const [allowedPlatforms, setAllowedPlatforms] = useState<string[]>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Initialize additional params from URL
   useEffect(() => {
@@ -67,15 +67,20 @@ export const DashboardOrderForm = ({ userBalance, onOrderSuccess }: DashboardOrd
     }
   }, [settingsLoading]);
 
-  // Handle service selection from URL
+  // Handle service selection from URL - improved logic
   useEffect(() => {
-    if (services.length > 0 && formData.serviceId) {
+    if (services.length > 0 && formData.serviceId && !isInitialized) {
+      console.log('🔥 Auto-selecting service from URL:', formData.serviceId);
       const service = services.find(s => s.id_service.toString() === formData.serviceId);
       if (service) {
+        console.log('🔥 Found service:', service.public_name);
         handleServiceSelection(service);
+        setIsInitialized(true);
+      } else {
+        console.log('🔥 Service not found in services list:', formData.serviceId);
       }
     }
-  }, [services, formData.serviceId]);
+  }, [services, formData.serviceId, isInitialized]);
 
   // Calculate price when quantity changes
   useEffect(() => {
@@ -103,6 +108,7 @@ export const DashboardOrderForm = ({ userBalance, onOrderSuccess }: DashboardOrd
   const fetchServices = async () => {
     try {
       setLoading(true);
+      console.log('🔥 Fetching services...');
       const data = await proxyApiService.getServices();
       const uniquePlatforms = [...new Set(data
         .filter(service => service && service.platform && service.id_service)
@@ -114,6 +120,7 @@ export const DashboardOrderForm = ({ userBalance, onOrderSuccess }: DashboardOrd
         return service && service.platform && service.id_service;
       });
       setServices(filteredData);
+      console.log('🔥 Services loaded:', filteredData.length);
     } catch (error) {
       console.error('Error fetching services:', error);
       toast.error('Xidmətlər yüklənmədi');
@@ -136,11 +143,18 @@ export const DashboardOrderForm = ({ userBalance, onOrderSuccess }: DashboardOrd
   };
 
   const handleServiceSelection = (service: Service) => {
+    console.log('🔥 Selecting service:', service.public_name, service.id_service);
     setSelectedService(service);
     setSelectedPlatform(service.platform.toLowerCase());
     const serviceType = service.type_name && service.type_name.trim() !== '' ? service.type_name : getServiceTypeFromName(service.public_name);
     setSelectedServiceType(serviceType);
     fetchServiceDetails(service.id_service.toString());
+    
+    // Update form data
+    setFormData(prev => ({
+      ...prev,
+      serviceId: service.id_service.toString()
+    }));
   };
 
   const validateForm = () => {
@@ -272,6 +286,7 @@ export const DashboardOrderForm = ({ userBalance, onOrderSuccess }: DashboardOrd
         setSelectedPlatform('');
         setSelectedServiceType('');
         setCalculatedPrice(0);
+        setIsInitialized(false);
         
         // Call success callback to refresh data
         onOrderSuccess();
@@ -328,6 +343,7 @@ export const DashboardOrderForm = ({ userBalance, onOrderSuccess }: DashboardOrd
     setSelectedService(null);
     setServiceDetails(null);
     updateFormData('serviceId', '');
+    setIsInitialized(false);
   };
 
   const handleServiceTypeChange = (serviceType: string) => {
