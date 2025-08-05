@@ -153,13 +153,14 @@ const Order = () => {
       return;
     }
 
-    // Redirect to dashboard with selected service
-    const params = new URLSearchParams({
-      service: service.id_service.toString(),
-      platform: service.platform.toLowerCase()
+    // Navigate to dashboard with service data in state
+    navigate(`/${language}/dashboard`, {
+      state: {
+        selectedService: service,
+        platform: service.platform.toLowerCase(),
+        activeTab: 'orders'
+      }
     });
-
-    navigate(`/${language}/dashboard?${params.toString()}#new-order`);
   };
 
   const getServiceDescription = () => {

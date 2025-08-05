@@ -15,9 +15,10 @@ import { supabase } from '@/integrations/supabase/client';
 interface DashboardOrderFormProps {
   userBalance: number;
   onOrderSuccess: () => void;
+  preSelectedService?: Service | null;
 }
 
-export const DashboardOrderForm = ({ userBalance, onOrderSuccess }: DashboardOrderFormProps) => {
+export const DashboardOrderForm = ({ userBalance, onOrderSuccess, preSelectedService }: DashboardOrderFormProps) => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { t } = useLanguage();
@@ -26,7 +27,7 @@ export const DashboardOrderForm = ({ userBalance, onOrderSuccess }: DashboardOrd
 
   // State management
   const [services, setServices] = useState<Service[]>([]);
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [selectedService, setSelectedService] = useState<Service | null>(preSelectedService || null);
   const [serviceDetails, setServiceDetails] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingServiceDetails, setLoadingServiceDetails] = useState(false);
@@ -34,17 +35,28 @@ export const DashboardOrderForm = ({ userBalance, onOrderSuccess }: DashboardOrd
 
   // Form state
   const [formData, setFormData] = useState({
-    serviceId: searchParams.get('service') || '',
+    serviceId: preSelectedService?.id_service.toString() || searchParams.get('service') || '',
     url: searchParams.get('url') || '',
     quantity: searchParams.get('quantity') || '',
     additionalParams: {} as Record<string, any>
   });
   const [calculatedPrice, setCalculatedPrice] = useState(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [selectedPlatform, setSelectedPlatform] = useState<string>(searchParams.get('platform') || '');
+  const [selectedPlatform, setSelectedPlatform] = useState<string>(
+    preSelectedService?.platform.toLowerCase() || searchParams.get('platform') || ''
+  );
   const [selectedServiceType, setSelectedServiceType] = useState<string>('');
   const [allowedPlatforms, setAllowedPlatforms] = useState<string[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
+
+  // Handle pre-selected service
+  useEffect(() => {
+    if (preSelectedService && !isInitialized) {
+      console.log('🔥 Pre-selected service received:', preSelectedService.public_name);
+      handleServiceSelection(preSelectedService);
+      setIsInitialized(true);
+    }
+  }, [preSelectedService, isInitialized]);
 
   // Initialize additional params from URL
   useEffect(() => {

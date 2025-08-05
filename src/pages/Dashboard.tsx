@@ -1,6 +1,5 @@
-
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -47,13 +46,18 @@ const Dashboard = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const navigate = useNavigate();
   const hasShownLoginNotification = useRef(false);
   const [balanceTopUpOpen, setBalanceTopUpOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
 
-  // Get initial tab from hash or default to 'orders'
+  // Get initial tab from hash, location state, or default to 'orders'
   const getInitialTab = () => {
+    // Check location state first
+    if (location.state?.activeTab) {
+      return location.state.activeTab;
+    }
     const hash = window.location.hash.slice(1); // Remove #
     return hash || 'orders';
   };
@@ -375,6 +379,7 @@ const Dashboard = () => {
                 <DashboardOrderForm 
                   userBalance={profile?.balance || 0} 
                   onOrderSuccess={fetchUserData}
+                  preSelectedService={location.state?.selectedService || null}
                 />
               </CardContent>
             </Card>
