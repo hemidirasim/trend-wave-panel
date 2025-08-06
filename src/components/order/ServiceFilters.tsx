@@ -3,7 +3,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Instagram, Youtube, Facebook, Heart, Users, Eye, Share, MessageCircle, Repeat, Star, Globe } from 'lucide-react';
 import { Service } from '@/types/api';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import OrderForm from '@/components/order/OrderForm';
 import { useSettings } from '@/contexts/SettingsContext';
 import { calculatePrice } from '@/utils/priceCalculator';
@@ -54,6 +54,25 @@ export function ServiceFilters({
   const { settings } = useSettings();
   const { t } = useLanguage();
 
+  // Extract service base name (before first dash) for grouping
+  const getServiceBaseName = (serviceName: string): string => {
+    const dashIndex = serviceName.indexOf(' - ');
+    if (dashIndex !== -1) {
+      return serviceName.substring(0, dashIndex).trim();
+    }
+    return serviceName;
+  };
+
+  // Set selectedGroupName when selectedService changes (for pre-selected services)
+  useEffect(() => {
+    if (selectedService && selectedPlatform) {
+      const serviceBaseName = getServiceBaseName(selectedService.public_name);
+      const groupKey = `${selectedPlatform}-${serviceBaseName}`;
+      console.log('🔥 ServiceFilters: Auto-setting selectedGroupName:', groupKey);
+      setSelectedGroupName(groupKey);
+    }
+  }, [selectedService, selectedPlatform]);
+
   const getPlatformIcon = (platform: string) => {
     const icons: Record<string, any> = {
       instagram: Instagram,
@@ -99,15 +118,6 @@ export function ServiceFilters({
       .map(service => service.platform.toLowerCase())
       .filter(platform => allowedPlatforms.includes(platform));
     return [...new Set(platforms)];
-  };
-
-  // Extract service base name (before first dash) for grouping
-  const getServiceBaseName = (serviceName: string): string => {
-    const dashIndex = serviceName.indexOf(' - ');
-    if (dashIndex !== -1) {
-      return serviceName.substring(0, dashIndex).trim();
-    }
-    return serviceName;
   };
 
   // Group services by their base names
