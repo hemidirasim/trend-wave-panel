@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { validatePasswordStrength, getPasswordStrengthColor } from '@/utils/passwordValidation';
 import { Check, X } from 'lucide-react';
@@ -19,10 +18,10 @@ const PasswordStrengthIndicator: React.FC<PasswordStrengthIndicatorProps> = ({
 
   return (
     <div className="space-y-2">
-      {/* Güc göstəricisi */}
+      {/* Strength indicator */}
       <div className="space-y-1">
         <div className="flex justify-between text-sm">
-          <span>Şifrə gücü:</span>
+          <span>Password strength:</span>
           <span className={strength.color}>{strength.message}</span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
@@ -33,30 +32,30 @@ const PasswordStrengthIndicator: React.FC<PasswordStrengthIndicatorProps> = ({
         </div>
       </div>
 
-      {/* Tələblər */}
+      {/* Requirements */}
       {showRequirements && (
         <div className="space-y-1">
-          <div className="text-sm font-medium text-gray-700">Şifrə tələbləri:</div>
+          <div className="text-sm font-medium text-gray-700">Password requirements:</div>
           <div className="space-y-1">
             <RequirementItem
               met={strength.requirements.length}
-              text="Ən azı 8 simvol"
+              text="At least 8 characters"
             />
             <RequirementItem
               met={strength.requirements.uppercase}
-              text="Böyük hərf (A-Z)"
+              text="Uppercase letter (A-Z)"
             />
             <RequirementItem
               met={strength.requirements.lowercase}
-              text="Kiçik hərf (a-z)"
+              text="Lowercase letter (a-z)"
             />
             <RequirementItem
               met={strength.requirements.number}
-              text="Rəqəm (0-9)"
+              text="Number (0-9)"
             />
             <RequirementItem
               met={strength.requirements.special}
-              text="Xüsusi simvol (!@#$%^&*)"
+              text="Special character (!@#$%^&*)"
             />
           </div>
         </div>
