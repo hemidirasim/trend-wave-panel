@@ -344,7 +344,7 @@ const Dashboard = () => {
           <TabsList className="grid w-full grid-cols-5 mb-8">
             <TabsTrigger value="orders" className="flex items-center gap-2">
               <ShoppingCart className="h-4 w-4" />
-              Yeni Sifariş
+             {t('dashboard.newOrder')}
             </TabsTrigger>
             <TabsTrigger value="history" className="flex items-center gap-2">
               <Package className="h-4 w-4" />
@@ -369,10 +369,10 @@ const Dashboard = () => {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <ShoppingCart className="h-5 w-5 mr-2" />
-                  Yeni Sifariş
+                  {t('dashboard.newOrder')}
                 </CardTitle>
                 <CardDescription>
-                  Xidmət seçin və sifarişinizi verin
+                   {t('dashboard.selectServiceAndPlace')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
