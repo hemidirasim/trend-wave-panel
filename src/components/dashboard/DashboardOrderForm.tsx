@@ -27,7 +27,7 @@ export const DashboardOrderForm = ({ userBalance, onOrderSuccess, preSelectedSer
 
   // State management
   const [services, setServices] = useState<Service[]>([]);
-  const [selectedService, setSelectedService] = useState<Service | null>(preSelectedService || null);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [serviceDetails, setServiceDetails] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingServiceDetails, setLoadingServiceDetails] = useState(false);
@@ -48,15 +48,6 @@ export const DashboardOrderForm = ({ userBalance, onOrderSuccess, preSelectedSer
   const [selectedServiceType, setSelectedServiceType] = useState<string>('');
   const [allowedPlatforms, setAllowedPlatforms] = useState<string[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
-
-  // Handle pre-selected service
-  useEffect(() => {
-    if (preSelectedService && !isInitialized) {
-      console.log('🔥 Pre-selected service received:', preSelectedService.public_name);
-      handleServiceSelection(preSelectedService);
-      setIsInitialized(true);
-    }
-  }, [preSelectedService, isInitialized]);
 
   // Initialize additional params from URL
   useEffect(() => {
@@ -79,20 +70,27 @@ export const DashboardOrderForm = ({ userBalance, onOrderSuccess, preSelectedSer
     }
   }, [settingsLoading]);
 
-  // Handle service selection from URL - improved logic
+  // Handle pre-selected service and URL parameters AFTER services are loaded
   useEffect(() => {
-    if (services.length > 0 && formData.serviceId && !isInitialized) {
-      console.log('🔥 Auto-selecting service from URL:', formData.serviceId);
-      const service = services.find(s => s.id_service.toString() === formData.serviceId);
-      if (service) {
-        console.log('🔥 Found service:', service.public_name);
-        handleServiceSelection(service);
+    if (services.length > 0 && !isInitialized) {
+      // Priority: preSelectedService > URL parameters
+      if (preSelectedService) {
+        console.log('🔥 Pre-selected service received:', preSelectedService.public_name);
+        handleServiceSelection(preSelectedService);
         setIsInitialized(true);
-      } else {
-        console.log('🔥 Service not found in services list:', formData.serviceId);
+      } else if (formData.serviceId) {
+        console.log('🔥 Auto-selecting service from URL:', formData.serviceId);
+        const service = services.find(s => s.id_service.toString() === formData.serviceId);
+        if (service) {
+          console.log('🔥 Found service:', service.public_name);
+          handleServiceSelection(service);
+          setIsInitialized(true);
+        } else {
+          console.log('🔥 Service not found in services list:', formData.serviceId);
+        }
       }
     }
-  }, [services, formData.serviceId, isInitialized]);
+  }, [services, preSelectedService, formData.serviceId, isInitialized]);
 
   // Calculate price when quantity changes
   useEffect(() => {
