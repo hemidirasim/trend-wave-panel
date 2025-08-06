@@ -108,7 +108,7 @@ const translations: Record<string, Language> = {
     'order.EnoughBalance':'Kifayət qədər balansınız yoxdur.',
     'order.OrderingError':'Sifariş verilmədi. Yenidən cəhd edin.',
     'order.balanceIncreaseSuccess':'Balansınız uğurla artırıldı',
-    'order.servicePlace': 'Xidmət seçin və sifarişinizi verin',
+    'order.selectServiceAndPlace': 'Xidmət seçin və sifarişinizi verin',
     'dashboard.title': 'İdarə Paneli',
     'dashboard.welcome': 'Xoş gəlmisiniz',
     'dashboard.orders': 'Sifarişlər',
