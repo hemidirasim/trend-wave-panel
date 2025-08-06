@@ -77,6 +77,9 @@ export const DashboardOrderForm = ({ userBalance, onOrderSuccess, preSelectedSer
       if (preSelectedService) {
         console.log('🔥 Pre-selected service received:', preSelectedService.public_name);
         handleServiceSelection(preSelectedService);
+        // Automatically trigger service type selection to open the service details
+        const serviceTypeKey = `${preSelectedService.platform}-${preSelectedService.id_service}`;
+        setSelectedServiceType(serviceTypeKey);
         setIsInitialized(true);
       } else if (formData.serviceId) {
         console.log('🔥 Auto-selecting service from URL:', formData.serviceId);
@@ -84,6 +87,9 @@ export const DashboardOrderForm = ({ userBalance, onOrderSuccess, preSelectedSer
         if (service) {
           console.log('🔥 Found service:', service.public_name);
           handleServiceSelection(service);
+          // Automatically trigger service type selection to open the service details
+          const serviceTypeKey = `${service.platform}-${service.id_service}`;
+          setSelectedServiceType(serviceTypeKey);
           setIsInitialized(true);
         } else {
           console.log('🔥 Service not found in services list:', formData.serviceId);
@@ -170,7 +176,6 @@ export const DashboardOrderForm = ({ userBalance, onOrderSuccess, preSelectedSer
     const serviceType = service.type_name && service.type_name.trim() !== '' ? service.type_name : serviceBaseName;
     
     console.log('🔥 Setting service type:', serviceType);
-    setSelectedServiceType(`${service.platform}-${service.id_service}`);
     
     fetchServiceDetails(service.id_service.toString());
     
