@@ -372,7 +372,7 @@ const Dashboard = () => {
                   {t('dashboard.newOrder')}
                 </CardTitle>
                 <CardDescription>
-                   {t('dashboard.selectServiceAndPlace')}mç
+                   {t('dashboard.servicePlace')}mç
                 </CardDescription>
               </CardHeader>
               <CardContent>
