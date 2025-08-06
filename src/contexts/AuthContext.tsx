@@ -142,7 +142,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error };
       }
 
-      if (data.user) {
+      if (data.user && !data.user.email_confirmed_at) {
+        // Show confirmation email notification
+        addNotification({
+          type: 'info',
+          title: 'Registration Successful',
+          message: 'Please check your email and click the confirmation link to complete your registration.',
+          duration: 8000, // Show for 8 seconds
+        });
+      } else if (data.user) {
         addNotification({
           type: 'success',
           title: 'Qeydiyyat uğurludur',
