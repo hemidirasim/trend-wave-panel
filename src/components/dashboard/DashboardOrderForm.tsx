@@ -156,8 +156,22 @@ export const DashboardOrderForm = ({ userBalance, onOrderSuccess, preSelectedSer
     console.log('🔥 Selecting service:', service.public_name, service.id_service);
     setSelectedService(service);
     setSelectedPlatform(service.platform.toLowerCase());
-    const serviceType = service.type_name && service.type_name.trim() !== '' ? service.type_name : getServiceTypeFromName(service.public_name);
-    setSelectedServiceType(serviceType);
+    
+    // Get service base name (before first dash) for service type
+    const getServiceBaseName = (serviceName: string): string => {
+      const dashIndex = serviceName.indexOf(' - ');
+      if (dashIndex !== -1) {
+        return serviceName.substring(0, dashIndex).trim();
+      }
+      return serviceName;
+    };
+    
+    const serviceBaseName = getServiceBaseName(service.public_name);
+    const serviceType = service.type_name && service.type_name.trim() !== '' ? service.type_name : serviceBaseName;
+    
+    console.log('🔥 Setting service type:', serviceType);
+    setSelectedServiceType(`${service.platform}-${service.id_service}`);
+    
     fetchServiceDetails(service.id_service.toString());
     
     // Update form data
