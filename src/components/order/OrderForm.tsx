@@ -406,7 +406,7 @@ const OrderForm = ({
           <Alert className="border-red-200 bg-red-50">
             <AlertTriangle className="h-4 w-4 text-red-500" />
             <AlertDescription className="text-red-700">
-              {t('order.insufficientBalance')}. Lazım olan: ${finalPrice.toFixed(2)}, Mövcud: ${(profile?.balance || 0).toFixed(2)}
+              {t('order.insufficientBalance')}.{t('order.required')}: ${finalPrice.toFixed(2)}, {t('order.available')}: ${(profile?.balance || 0).toFixed(2)}
             </AlertDescription>
           </Alert>
         )}
