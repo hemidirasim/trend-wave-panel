@@ -21,9 +21,9 @@ function App() {
     <QueryClientProvider client={new QueryClient()}>
       <NotificationProvider>
         <AuthProvider>
-          <LanguageProvider>
-            <SettingsProvider>
-              <BrowserRouter>
+          <BrowserRouter>
+            <LanguageProvider>
+              <SettingsProvider>
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/:lang" element={<Index />} />
@@ -38,9 +38,9 @@ function App() {
                   <Route path="/en/guest-payment" element={<GuestPayment />} />
                   <Route path="/az/guest-payment" element={<GuestPayment />} />
                 </Routes>
-              </BrowserRouter>
-            </SettingsProvider>
-          </LanguageProvider>
+              </SettingsProvider>
+            </LanguageProvider>
+          </BrowserRouter>
         </AuthProvider>
       </NotificationProvider>
     </QueryClientProvider>
