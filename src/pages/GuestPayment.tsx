@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -35,7 +35,6 @@ const GuestPayment = () => {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!serviceData) {
@@ -66,6 +65,27 @@ const GuestPayment = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
+  // Use useMemo to compute form validity without triggering re-renders
+  const isFormValid = useMemo(() => {
+    if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      return false;
+    }
+
+    if (!formData.serviceUrl || !isValidUrl(formData.serviceUrl)) {
+      return false;
+    }
+
+    if (!formData.quantity || formData.quantity < (serviceData?.min_amount || 1)) {
+      return false;
+    }
+
+    if (serviceData?.max_amount && formData.quantity > serviceData.max_amount) {
+      return false;
+    }
+
+    return true;
+  }, [formData, serviceData]);
 
   const isValidUrl = (url: string) => {
     try {
@@ -269,7 +289,7 @@ const GuestPayment = () => {
                   </ul>
                 </div>
 
-                {validateForm() ? (
+                {isFormValid ? (
                   <PaymentButton
                     amount={parseFloat(calculateTotal())}
                     orderId={`guest-${Date.now()}-${serviceData.id_service}`}
