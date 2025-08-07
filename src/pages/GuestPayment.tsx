@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -91,7 +92,7 @@ const GuestPayment = () => {
   };
 
   const calculateTotal = () => {
-    if (!serviceData) return 0;
+    if (!serviceData) return '0.00';
     return (formData.quantity * (serviceData.price || 0.01)).toFixed(2);
   };
 

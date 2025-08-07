@@ -1,18 +1,19 @@
-import { QueryClient } from 'react-query';
-import { QueryClientProvider } from 'react-query';
+
+import { QueryClient } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { SettingsProvider } from '@/contexts/SettingsContext';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { NotificationProvider } from '@/components/NotificationProvider';
-import Home from './pages/Home';
+import Index from './pages/Index';
 import Order from './pages/Order';
 import Dashboard from './pages/Dashboard';
 import Auth from './pages/Auth';
 import PaymentSuccess from './pages/PaymentSuccess';
 import PaymentError from './pages/PaymentError';
 import ResetPassword from './pages/ResetPassword';
-import UpdatePassword from './pages/UpdatePassword';
+import PasswordRecovery from './pages/PasswordRecovery';
 import GuestPayment from './pages/GuestPayment';
 
 function App() {
@@ -24,8 +25,8 @@ function App() {
             <SettingsProvider>
               <BrowserRouter>
                 <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/:lang" element={<Home />} />
+                  <Route path="/" element={<Index />} />
+                  <Route path="/:lang" element={<Index />} />
                   <Route path="/:lang/order" element={<Order />} />
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/:lang/dashboard" element={<Dashboard />} />
@@ -33,7 +34,7 @@ function App() {
                   <Route path="/payment-success" element={<PaymentSuccess />} />
                   <Route path="/payment-error" element={<PaymentError />} />
                   <Route path="/reset-password" element={<ResetPassword />} />
-                  <Route path="/update-password" element={<UpdatePassword />} />
+                  <Route path="/update-password" element={<PasswordRecovery />} />
                   <Route path="/en/guest-payment" element={<GuestPayment />} />
                   <Route path="/az/guest-payment" element={<GuestPayment />} />
                 </Routes>
