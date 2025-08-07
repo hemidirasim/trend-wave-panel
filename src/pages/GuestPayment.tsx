@@ -6,32 +6,38 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertCircle, CreditCard, ShoppingCart } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { PaymentButton } from '@/components/payment/PaymentButton';
 import { toast } from 'sonner';
+import { Service } from '@/types/api';
+import { proxyApiService } from '@/components/ProxyApiService';
+import { useSettings } from '@/contexts/SettingsContext';
+import { calculatePrice } from '@/utils/priceCalculator';
 
 interface ServiceData {
   id_service: string;
   public_name: string;
   platform: string;
-  price: number;
-  min_amount: number;
-  max_amount: number;
-  currency: string;
 }
 
 const GuestPayment = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const serviceData = location.state?.selectedService as ServiceData;
+  const { settings } = useSettings();
 
+  const [service, setService] = useState<Service | null>(null);
+  const [loading, setLoading] = useState(true);
+  
   const [formData, setFormData] = useState({
     email: '',
     serviceUrl: '',
-    quantity: serviceData?.min_amount || 100,
-    notes: ''
+    quantity: 100,
+    notes: '',
+    additionalParams: {} as Record<string, any>
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -40,26 +46,79 @@ const GuestPayment = () => {
     if (!serviceData) {
       toast.error('Service information not found. Redirecting to services page.');
       navigate('/en/order');
+      return;
     }
+    fetchServiceDetails();
   }, [serviceData, navigate]);
+
+  const fetchServiceDetails = async () => {
+    try {
+      setLoading(true);
+      console.log('🔍 Fetching service details for:', serviceData.id_service);
+      
+      const services = await proxyApiService.getServices();
+      const foundService = services.find(s => s.id_service === serviceData.id_service);
+      
+      if (!foundService) {
+        toast.error('Service details not found');
+        navigate('/en/order');
+        return;
+      }
+
+      console.log('✅ Service details loaded:', foundService);
+      setService(foundService);
+      
+      // Set initial quantity based on service minimum
+      const minQuantity = parseInt(foundService.amount_minimum) || 100;
+      setFormData(prev => ({
+        ...prev,
+        quantity: minQuantity
+      }));
+      
+    } catch (error) {
+      console.error('❌ Error fetching service details:', error);
+      toast.error('Failed to load service details');
+      navigate('/en/order');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
+    // Email validation
     if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
     }
 
+    // URL validation
     if (!formData.serviceUrl || !isValidUrl(formData.serviceUrl)) {
       newErrors.serviceUrl = 'Please enter a valid URL';
     }
 
-    if (!formData.quantity || formData.quantity < (serviceData?.min_amount || 1)) {
-      newErrors.quantity = `Minimum quantity is ${serviceData?.min_amount || 1}`;
+    // Quantity validation
+    const minQuantity = parseInt(service?.amount_minimum || '1');
+    const maxQuantity = service?.prices?.[0]?.maximum ? parseInt(service.prices[0].maximum) : 10000;
+    
+    if (!formData.quantity || formData.quantity < minQuantity) {
+      newErrors.quantity = `Minimum quantity is ${minQuantity}`;
     }
 
-    if (serviceData?.max_amount && formData.quantity > serviceData.max_amount) {
-      newErrors.quantity = `Maximum quantity is ${serviceData.max_amount}`;
+    if (formData.quantity > maxQuantity) {
+      newErrors.quantity = `Maximum quantity is ${maxQuantity}`;
+    }
+
+    // Additional parameters validation
+    if (service?.params) {
+      service.params.forEach(param => {
+        const value = formData.additionalParams[param.field_name];
+        const isRequired = param.field_validators?.includes('required');
+        
+        if (isRequired && (!value || value.toString().trim() === '')) {
+          newErrors[param.field_name] = `${param.field_label} is required`;
+        }
+      });
     }
 
     setErrors(newErrors);
@@ -68,6 +127,8 @@ const GuestPayment = () => {
 
   // Use useMemo to compute form validity without triggering re-renders
   const isFormValid = useMemo(() => {
+    if (!service) return false;
+    
     if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       return false;
     }
@@ -76,16 +137,27 @@ const GuestPayment = () => {
       return false;
     }
 
-    if (!formData.quantity || formData.quantity < (serviceData?.min_amount || 1)) {
+    const minQuantity = parseInt(service.amount_minimum || '1');
+    const maxQuantity = service.prices?.[0]?.maximum ? parseInt(service.prices[0].maximum) : 10000;
+    
+    if (!formData.quantity || formData.quantity < minQuantity || formData.quantity > maxQuantity) {
       return false;
     }
 
-    if (serviceData?.max_amount && formData.quantity > serviceData.max_amount) {
-      return false;
+    // Check required additional parameters
+    if (service.params) {
+      for (const param of service.params) {
+        const isRequired = param.field_validators?.includes('required');
+        const value = formData.additionalParams[param.field_name];
+        
+        if (isRequired && (!value || value.toString().trim() === '')) {
+          return false;
+        }
+      }
     }
 
     return true;
-  }, [formData, serviceData]);
+  }, [formData, service]);
 
   const isValidUrl = (url: string) => {
     try {
@@ -111,9 +183,36 @@ const GuestPayment = () => {
     }
   };
 
+  const handleAdditionalParamChange = (paramName: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      additionalParams: {
+        ...prev.additionalParams,
+        [paramName]: value
+      }
+    }));
+
+    // Clear error when user starts typing
+    if (errors[paramName]) {
+      setErrors(prev => ({
+        ...prev,
+        [paramName]: ''
+      }));
+    }
+  };
+
   const calculateTotal = () => {
-    if (!serviceData) return '0.00';
-    return (formData.quantity * (serviceData.price || 0.01)).toFixed(2);
+    if (!service) return '0.00';
+    
+    console.log('🔥 GuestPayment: Calculating price with settings:', {
+      serviceFee: settings.service_fee,
+      baseFee: settings.base_fee,
+      quantity: formData.quantity,
+      serviceName: service.public_name
+    });
+    
+    const price = calculatePrice(service, formData.quantity, settings.service_fee, settings.base_fee);
+    return price.toFixed(2);
   };
 
   const handlePaymentSuccess = (transactionId: string) => {
@@ -122,7 +221,7 @@ const GuestPayment = () => {
       state: {
         transactionId,
         orderDetails: {
-          service: serviceData?.public_name,
+          service: service?.public_name,
           quantity: formData.quantity,
           email: formData.email,
           total: calculateTotal()
@@ -135,7 +234,21 @@ const GuestPayment = () => {
     toast.error(`Payment failed: ${error}`);
   };
 
-  if (!serviceData) {
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-20">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <p className="mt-2 text-muted-foreground">Loading service details...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!service) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -181,6 +294,7 @@ const GuestPayment = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                {/* Email Input */}
                 <div className="space-y-2">
                   <Label htmlFor="email">Email Address *</Label>
                   <Input
@@ -197,6 +311,7 @@ const GuestPayment = () => {
                   </p>
                 </div>
 
+                {/* Service URL Input */}
                 <div className="space-y-2">
                   <Label htmlFor="serviceUrl">Service URL *</Label>
                   <Input
@@ -204,7 +319,7 @@ const GuestPayment = () => {
                     type="url"
                     value={formData.serviceUrl}
                     onChange={(e) => handleInputChange('serviceUrl', e.target.value)}
-                    placeholder={`Enter your ${serviceData.platform} URL`}
+                    placeholder={service.example || `Enter your ${service.platform} URL`}
                     className={errors.serviceUrl ? 'border-red-500' : ''}
                   />
                   {errors.serviceUrl && <p className="text-red-500 text-sm">{errors.serviceUrl}</p>}
@@ -213,6 +328,7 @@ const GuestPayment = () => {
                   </p>
                 </div>
 
+                {/* Quantity Input */}
                 <div className="space-y-2">
                   <Label htmlFor="quantity">Quantity *</Label>
                   <Input
@@ -220,16 +336,70 @@ const GuestPayment = () => {
                     type="number"
                     value={formData.quantity}
                     onChange={(e) => handleInputChange('quantity', parseInt(e.target.value) || 0)}
-                    min={serviceData.min_amount}
-                    max={serviceData.max_amount}
+                    min={parseInt(service.amount_minimum) || 1}
+                    max={service.prices?.[0]?.maximum ? parseInt(service.prices[0].maximum) : undefined}
+                    step={parseInt(service.amount_increment) || 1}
                     className={errors.quantity ? 'border-red-500' : ''}
                   />
                   {errors.quantity && <p className="text-red-500 text-sm">{errors.quantity}</p>}
                   <p className="text-xs text-muted-foreground">
-                    Min: {serviceData.min_amount} - Max: {serviceData.max_amount || 'No limit'}
+                    Min: {parseInt(service.amount_minimum) || 1} - Max: {service.prices?.[0]?.maximum ? parseInt(service.prices[0].maximum).toLocaleString() : 'No limit'}
                   </p>
                 </div>
 
+                {/* Additional Parameters from API */}
+                {service.params?.map((param) => (
+                  <div key={param.field_name} className="space-y-2">
+                    <Label htmlFor={param.field_name}>
+                      {param.field_label} {param.field_validators?.includes('required') && '*'}
+                    </Label>
+                    
+                    {param.field_type === 'dropdown' && param.options ? (
+                      <Select
+                        value={formData.additionalParams[param.field_name] || ''}
+                        onValueChange={(value) => handleAdditionalParamChange(param.field_name, value)}
+                      >
+                        <SelectTrigger className={errors[param.field_name] ? 'border-red-500' : ''}>
+                          <SelectValue placeholder={param.field_placeholder || 'Select option'} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {param.options.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : param.field_type === 'textarea' ? (
+                      <Textarea
+                        id={param.field_name}
+                        value={formData.additionalParams[param.field_name] || ''}
+                        onChange={(e) => handleAdditionalParamChange(param.field_name, e.target.value)}
+                        placeholder={param.field_placeholder}
+                        className={errors[param.field_name] ? 'border-red-500' : ''}
+                        rows={3}
+                      />
+                    ) : (
+                      <Input
+                        id={param.field_name}
+                        type={param.field_type === 'number' ? 'number' : 'text'}
+                        value={formData.additionalParams[param.field_name] || ''}
+                        onChange={(e) => handleAdditionalParamChange(param.field_name, e.target.value)}
+                        placeholder={param.field_placeholder}
+                        className={errors[param.field_name] ? 'border-red-500' : ''}
+                      />
+                    )}
+                    
+                    {param.field_descr && (
+                      <p className="text-xs text-muted-foreground">{param.field_descr}</p>
+                    )}
+                    {errors[param.field_name] && (
+                      <p className="text-red-500 text-sm">{errors[param.field_name]}</p>
+                    )}
+                  </div>
+                ))}
+
+                {/* General Notes */}
                 <div className="space-y-2">
                   <Label htmlFor="notes">Additional Notes (Optional)</Label>
                   <Textarea
@@ -258,20 +428,22 @@ const GuestPayment = () => {
                 <div className="bg-muted p-4 rounded-lg space-y-3">
                   <div className="flex justify-between">
                     <span className="font-medium">Service:</span>
-                    <span className="text-right">{serviceData.public_name}</span>
+                    <span className="text-right">{service.public_name}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="font-medium">Platform:</span>
-                    <span className="capitalize">{serviceData.platform}</span>
+                    <span className="capitalize">{service.platform}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="font-medium">Quantity:</span>
                     <span>{formData.quantity.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Price per unit:</span>
-                    <span>${(serviceData.price || 0.01).toFixed(4)} USD</span>
-                  </div>
+                  {service.prices && service.prices.length > 0 && (
+                    <div className="flex justify-between">
+                      <span className="font-medium">Base price per {service.prices[0].pricing_per}:</span>
+                      <span>${parseFloat(service.prices[0].price).toFixed(4)} USD</span>
+                    </div>
+                  )}
                   <hr className="border-muted-foreground/20" />
                   <div className="flex justify-between text-lg font-bold">
                     <span>Total:</span>
@@ -292,18 +464,19 @@ const GuestPayment = () => {
                 {isFormValid ? (
                   <PaymentButton
                     amount={parseFloat(calculateTotal())}
-                    orderId={`guest-${Date.now()}-${serviceData.id_service}`}
-                    description={`${serviceData.public_name} - ${formData.quantity} units`}
+                    orderId={`guest-${Date.now()}-${service.id_service}`}
+                    description={`${service.public_name} - ${formData.quantity} units`}
                     customerEmail={formData.email}
                     customerName="Guest User"
                     onSuccess={handlePaymentSuccess}
                     onError={handlePaymentError}
                     className="w-full"
-                    serviceData={serviceData}
+                    serviceData={service}
                     orderDetails={{
                       serviceUrl: formData.serviceUrl,
                       quantity: formData.quantity,
                       notes: formData.notes,
+                      additionalParams: formData.additionalParams,
                       total: calculateTotal()
                     }}
                     isGuestOrder={true}
