@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 import { Service } from '@/types/api';
 import { proxyApiService } from '@/components/ProxyApiService';
 import { useSettings } from '@/contexts/SettingsContext';
-import { calculatePrice } from '@/utils/priceCalculator';
+import { Helmet } from 'react-helmet-async';
 
 interface ServiceData {
   id_service: string;
@@ -27,7 +27,7 @@ const GuestPayment = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const serviceData = location.state?.selectedService as ServiceData;
-  const { settings } = useSettings();
+  const { settings, applyServiceFee, loading: settingsLoading } = useSettings();
 
   const [service, setService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
@@ -82,47 +82,6 @@ const GuestPayment = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    // Email validation
-    if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
-    }
-
-    // URL validation
-    if (!formData.serviceUrl || !isValidUrl(formData.serviceUrl)) {
-      newErrors.serviceUrl = 'Please enter a valid URL';
-    }
-
-    // Quantity validation
-    const minQuantity = parseInt(service?.amount_minimum || '1');
-    const maxQuantity = service?.prices?.[0]?.maximum ? parseInt(service.prices[0].maximum) : 10000;
-    
-    if (!formData.quantity || formData.quantity < minQuantity) {
-      newErrors.quantity = `Minimum quantity is ${minQuantity}`;
-    }
-
-    if (formData.quantity > maxQuantity) {
-      newErrors.quantity = `Maximum quantity is ${maxQuantity}`;
-    }
-
-    // Additional parameters validation
-    if (service?.params) {
-      service.params.forEach(param => {
-        const value = formData.additionalParams[param.field_name];
-        const isRequired = param.field_validators?.includes('required');
-        
-        if (isRequired && (!value || value.toString().trim() === '')) {
-          newErrors[param.field_name] = `${param.field_label} is required`;
-        }
-      });
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   // Use useMemo to compute form validity without triggering re-renders
@@ -202,7 +161,7 @@ const GuestPayment = () => {
   };
 
   const calculateTotal = () => {
-    if (!service) return '0.00';
+    if (!service || settingsLoading) return '0.00';
     
     console.log('🔥 GuestPayment: Calculating price with settings:', {
       serviceFee: settings.service_fee,
@@ -211,8 +170,35 @@ const GuestPayment = () => {
       serviceName: service.public_name
     });
     
-    const price = calculatePrice(service, formData.quantity, settings.service_fee, settings.base_fee);
-    return price.toFixed(2);
+    // Calculate base price first
+    if (!service.prices || service.prices.length === 0) {
+      return '0.00';
+    }
+
+    const priceRange = service.prices.find(
+      (price) =>
+        formData.quantity >= parseInt(price.minimum) && formData.quantity <= parseInt(price.maximum)
+    );
+
+    if (!priceRange) {
+      return '0.00';
+    }
+
+    const pricingPer = parseFloat(priceRange.pricing_per);
+    const priceForPricingPer = parseFloat(priceRange.price);
+    
+    if (isNaN(pricingPer) || pricingPer <= 0 || isNaN(priceForPricingPer) || priceForPricingPer < 0) {
+      return '0.00';
+    }
+
+    // Calculate the base cost for the requested quantity
+    const costPerUnit = priceForPricingPer / pricingPer;
+    const baseCost = costPerUnit * formData.quantity;
+    
+    // Apply service fee and base fee using settings context
+    const finalPrice = applyServiceFee(baseCost);
+    
+    return finalPrice.toFixed(2);
   };
 
   const handlePaymentSuccess = (transactionId: string) => {
@@ -234,7 +220,7 @@ const GuestPayment = () => {
     toast.error(`Payment failed: ${error}`);
   };
 
-  if (loading) {
+  if (loading || settingsLoading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -270,6 +256,11 @@ const GuestPayment = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>Complete Your Order - Social Media Services</title>
+        <meta name="description" content="Complete your social media service order with secure payment" />
+      </Helmet>
+      
       <Header />
       
       <section className="py-12">
@@ -347,7 +338,7 @@ const GuestPayment = () => {
                   </p>
                 </div>
 
-                {/* Additional Parameters from API */}
+                {/* Dynamic Additional Parameters from API */}
                 {service.params?.map((param) => (
                   <div key={param.field_name} className="space-y-2">
                     <Label htmlFor={param.field_name}>
@@ -444,6 +435,18 @@ const GuestPayment = () => {
                       <span>${parseFloat(service.prices[0].price).toFixed(4)} USD</span>
                     </div>
                   )}
+                  {settings.service_fee > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span>Service fee ({settings.service_fee}%):</span>
+                      <span>Applied</span>
+                    </div>
+                  )}
+                  {settings.base_fee > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span>Base fee:</span>
+                      <span>${settings.base_fee.toFixed(2)} USD</span>
+                    </div>
+                  )}
                   <hr className="border-muted-foreground/20" />
                   <div className="flex justify-between text-lg font-bold">
                     <span>Total:</span>
@@ -485,7 +488,17 @@ const GuestPayment = () => {
                   </PaymentButton>
                 ) : (
                   <Button 
-                    onClick={validateForm} 
+                    onClick={() => {
+                      // Simple validation trigger without causing re-renders
+                      const newErrors: Record<string, string> = {};
+                      if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+                        newErrors.email = 'Please enter a valid email address';
+                      }
+                      if (!formData.serviceUrl || !isValidUrl(formData.serviceUrl)) {
+                        newErrors.serviceUrl = 'Please enter a valid URL';
+                      }
+                      setErrors(newErrors);
+                    }} 
                     className="w-full" 
                     variant="outline"
                   >
