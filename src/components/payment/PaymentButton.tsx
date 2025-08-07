@@ -4,6 +4,8 @@ import { CreditCard } from 'lucide-react';
 import { PaymentDialog } from './PaymentDialog';
 import { usePayment } from '@/hooks/usePayment';
 import { PaymentRequest } from '@/types/payment';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface PaymentButtonProps {
   amount: number;
@@ -17,6 +19,10 @@ interface PaymentButtonProps {
   disabled?: boolean;
   className?: string;
   children?: React.ReactNode;
+  // New props for guest orders
+  serviceData?: any;
+  orderDetails?: any;
+  isGuestOrder?: boolean;
 }
 
 export function PaymentButton({
@@ -30,16 +36,20 @@ export function PaymentButton({
   onError,
   disabled,
   className,
-  children
+  children,
+  serviceData,
+  orderDetails,
+  isGuestOrder = false
 }: PaymentButtonProps) {
+  const { user } = useAuth();
   const { paymentDialogOpen, setPaymentDialogOpen, currentPaymentRequest, initiatePayment } = usePayment();
 
   const handlePaymentClick = () => {
-    console.log('Payment button clicked with USD amount:', amount); // Debug log
+    console.log('Payment button clicked with USD amount:', amount);
     
     const paymentRequest: PaymentRequest = {
       amount,
-      currency: 'USD', // Always USD as the base currency
+      currency: 'USD',
       orderId,
       description,
       customerEmail,
@@ -49,11 +59,41 @@ export function PaymentButton({
       errorUrl: `${window.location.origin}/payment-error?order=${orderId}`
     };
 
-    console.log('Initiating payment with USD request:', paymentRequest); // Debug log
+    console.log('Initiating payment with USD request:', paymentRequest);
     initiatePayment(paymentRequest);
   };
 
-  console.log('PaymentButton rendered - dialogOpen:', paymentDialogOpen, 'currentRequest:', !!currentPaymentRequest); // Debug log
+  const handlePaymentSuccess = async (transactionId: string) => {
+    // Handle guest orders
+    if (isGuestOrder && customerEmail && serviceData && orderDetails) {
+      try {
+        const { data, error } = await supabase.functions.invoke('guest-order', {
+          body: {
+            email: customerEmail,
+            serviceData: serviceData,
+            orderDetails: orderDetails,
+            transactionId: transactionId
+          }
+        });
+
+        if (error) {
+          console.error('Guest order creation failed:', error);
+          onError?.('Failed to create order record');
+          return;
+        }
+
+        console.log('Guest order created:', data);
+      } catch (error) {
+        console.error('Error creating guest order:', error);
+        onError?.('Failed to process order');
+        return;
+      }
+    }
+
+    onSuccess?.(transactionId);
+  };
+
+  console.log('PaymentButton rendered - dialogOpen:', paymentDialogOpen, 'currentRequest:', !!currentPaymentRequest);
 
   return (
     <>
@@ -70,7 +110,7 @@ export function PaymentButton({
         open={paymentDialogOpen}
         onOpenChange={setPaymentDialogOpen}
         paymentRequest={currentPaymentRequest}
-        onSuccess={onSuccess}
+        onSuccess={handlePaymentSuccess}
         onError={onError}
       />
     </>

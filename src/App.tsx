@@ -1,156 +1,47 @@
-
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { NotificationProvider } from "@/components/NotificationProvider";
-import { SettingsProvider } from "@/contexts/SettingsContext";
-import { HelmetProvider } from "react-helmet-async";
-import Index from "./pages/Index";
-import About from "./pages/About";
-import Services from "./pages/Services";
-import ServiceDetail from "./pages/ServiceDetail";
-import Contact from "./pages/Contact";
-import Order from "./pages/Order";
-import Dashboard from "./pages/Dashboard";
-import Auth from "./pages/Auth";
-import NotFound from "./pages/NotFound";
-import Track from "./pages/Track";
-import Terms from "./pages/Terms";
-import Privacy from "./pages/Privacy";
-import PasswordRecovery from "./pages/PasswordRecovery";
-import ResetPassword from "./pages/ResetPassword";
-import PaymentSuccess from "./pages/PaymentSuccess";
-import PaymentError from "./pages/PaymentError";
-import Admin from "./pages/Admin";
-import AdminUsers from "./pages/AdminUsers";
-import AdminServices from "./pages/AdminServices";
-import AdminServiceNames from "./pages/AdminServiceNames";
-import AdminContactMessages from "./pages/AdminContactMessages";
-import AdminSettings from "./pages/AdminSettings";
-import ProtectedRoute from "./components/ProtectedRoute";
-import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
-import { RobotsRoute } from "./components/RobotsRoute";
-import { SitemapRoute } from "./components/SitemapRoute";
-import { LanguageProvider } from "@/contexts/LanguageContext";
-
-const queryClient = new QueryClient();
+import { QueryClient } from 'react-query';
+import { QueryClientProvider } from 'react-query';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { LanguageProvider } from '@/contexts/LanguageContext';
+import { SettingsProvider } from '@/contexts/SettingsContext';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { NotificationProvider } from '@/components/NotificationProvider';
+import Home from './pages/Home';
+import Order from './pages/Order';
+import Dashboard from './pages/Dashboard';
+import Auth from './pages/Auth';
+import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentError from './pages/PaymentError';
+import ResetPassword from './pages/ResetPassword';
+import UpdatePassword from './pages/UpdatePassword';
+import GuestPayment from './pages/GuestPayment';
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <HelmetProvider>
-        <TooltipProvider>
-          <NotificationProvider>
-            <AuthProvider>
-              <SettingsProvider>
-                <Toaster />
-                <Sonner />
-                <BrowserRouter>
-                  <LanguageProvider>
-                    <Routes>
-                      {/* Public routes */}
-                      <Route path="/" element={<Index />} />
-                      <Route path="/auth" element={<Auth />} />
-                      <Route path="/password-recovery" element={<PasswordRecovery />} />
-                      <Route path="/reset-password" element={<ResetPassword />} />
-                      <Route path="/payment-success" element={<PaymentSuccess />} />
-                      <Route path="/payment-error" element={<PaymentError />} />
-                      <Route path="/robots.txt" element={<RobotsRoute />} />
-                      <Route path="/sitemap.xml" element={<SitemapRoute />} />
-                      <Route path="/terms" element={<Terms />} />
-                      <Route path="/privacy" element={<Privacy />} />
-                      <Route path="/track" element={<Track />} />
-                      
-                      {/* Language-specific routes */}
-                      <Route path="/:lang" element={<Index />} />
-                      <Route path="/:lang/about" element={<About />} />
-                      <Route path="/:lang/services" element={<Services />} />
-                      <Route path="/:lang/services/:platform" element={<ServiceDetail />} />
-                      <Route path="/:lang/contact" element={<Contact />} />
-                      <Route path="/:lang/order" element={<Order />} />
-                      <Route path="/:lang/dashboard" element={
-                        <ProtectedRoute>
-                          <Dashboard />
-                        </ProtectedRoute>
-                      } />
-                      
-                      {/* Language-specific admin routes */}
-                      <Route path="/:lang/admin" element={
-                        <ProtectedAdminRoute>
-                          <Admin />
-                        </ProtectedAdminRoute>
-                      } />
-                      <Route path="/:lang/admin/users" element={
-                        <ProtectedAdminRoute>
-                          <AdminUsers />
-                        </ProtectedAdminRoute>
-                      } />
-                      <Route path="/:lang/admin/services" element={
-                        <ProtectedAdminRoute>
-                          <AdminServices />
-                        </ProtectedAdminRoute>
-                      } />
-                      <Route path="/:lang/admin/service-names" element={
-                        <ProtectedAdminRoute>
-                          <AdminServiceNames />
-                        </ProtectedAdminRoute>
-                      } />
-                      <Route path="/:lang/admin/contact-messages" element={
-                        <ProtectedAdminRoute>
-                          <AdminContactMessages />
-                        </ProtectedAdminRoute>
-                      } />
-                      <Route path="/:lang/admin/settings" element={
-                        <ProtectedAdminRoute>
-                          <AdminSettings />
-                        </ProtectedAdminRoute>
-                      } />
-                      
-                      {/* Admin routes */}
-                      <Route path="/admin" element={
-                        <ProtectedAdminRoute>
-                          <Admin />
-                        </ProtectedAdminRoute>
-                      } />
-                      <Route path="/admin/users" element={
-                        <ProtectedAdminRoute>
-                          <AdminUsers />
-                        </ProtectedAdminRoute>
-                      } />
-                      <Route path="/admin/services" element={
-                        <ProtectedAdminRoute>
-                          <AdminServices />
-                        </ProtectedAdminRoute>
-                      } />
-                      <Route path="/admin/service-names" element={
-                        <ProtectedAdminRoute>
-                          <AdminServiceNames />
-                        </ProtectedAdminRoute>
-                      } />
-                      <Route path="/admin/contact-messages" element={
-                        <ProtectedAdminRoute>
-                          <AdminContactMessages />
-                        </ProtectedAdminRoute>
-                      } />
-                      <Route path="/admin/settings" element={
-                        <ProtectedAdminRoute>
-                          <AdminSettings />
-                        </ProtectedAdminRoute>
-                      } />
-                      
-                      {/* 404 route */}
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </LanguageProvider>
-                </BrowserRouter>
-              </SettingsProvider>
-            </AuthProvider>
-          </NotificationProvider>
-        </TooltipProvider>
-      </HelmetProvider>
+    <QueryClientProvider client={new QueryClient()}>
+      <NotificationProvider>
+        <AuthProvider>
+          <LanguageProvider>
+            <SettingsProvider>
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/:lang" element={<Home />} />
+                  <Route path="/:lang/order" element={<Order />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/:lang/dashboard" element={<Dashboard />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/payment-success" element={<PaymentSuccess />} />
+                  <Route path="/payment-error" element={<PaymentError />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
+                  <Route path="/update-password" element={<UpdatePassword />} />
+                  <Route path="/en/guest-payment" element={<GuestPayment />} />
+                  <Route path="/az/guest-payment" element={<GuestPayment />} />
+                </Routes>
+              </BrowserRouter>
+            </SettingsProvider>
+          </LanguageProvider>
+        </AuthProvider>
+      </NotificationProvider>
     </QueryClientProvider>
   );
 }

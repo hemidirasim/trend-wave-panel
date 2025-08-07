@@ -149,11 +149,16 @@ const Order = () => {
 
   const handleBuyClick = (service: Service) => {
     if (!user) {
-      setAuthDialogOpen(true);
+      // Redirect guest users to payment page instead of showing auth dialog
+      navigate('/en/guest-payment', {
+        state: {
+          selectedService: service
+        }
+      });
       return;
     }
 
-    // Navigate to dashboard with service data in state
+    // Navigate to dashboard for authenticated users
     navigate(`/${language}/dashboard`, {
       state: {
         selectedService: service,
