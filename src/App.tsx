@@ -5,7 +5,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { LanguageProvider } from '@/contexts/LanguageContext';
-import { SettingsProvider } from '@/contexts/SettingsProvider';
+import { SettingsProvider } from '@/contexts/SettingsContext';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { NotificationProvider } from '@/components/NotificationProvider';
 import Index from '@/pages/Index';
