@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { Service } from '@/types/api';
 import { proxyApiService } from '@/components/ProxyApiService';
 import { useSettings } from '@/contexts/SettingsContext';
+import { calculatePrice } from '@/utils/priceCalculator';
 import { Helmet } from 'react-helmet-async';
 
 interface ServiceData {
@@ -27,7 +28,7 @@ const GuestPayment = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const serviceData = location.state?.selectedService as ServiceData;
-  const { settings, applyServiceFee, loading: settingsLoading } = useSettings();
+  const { settings, loading: settingsLoading } = useSettings();
 
   const [service, setService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
@@ -160,43 +161,24 @@ const GuestPayment = () => {
     }
   };
 
+  // Use the same price calculation logic as order page
   const calculateTotal = () => {
     if (!service || settingsLoading) return '0.00';
     
-    console.log('🔥 GuestPayment: Calculating price with settings:', {
+    console.log('🔥 GuestPayment: Calculating price using centralized calculator with settings:', {
       serviceFee: settings.service_fee,
       baseFee: settings.base_fee,
       quantity: formData.quantity,
       serviceName: service.public_name
     });
     
-    // Calculate base price first
-    if (!service.prices || service.prices.length === 0) {
-      return '0.00';
-    }
-
-    const priceRange = service.prices.find(
-      (price) =>
-        formData.quantity >= parseInt(price.minimum) && formData.quantity <= parseInt(price.maximum)
+    // Use the same calculatePrice function as order page
+    const finalPrice = calculatePrice(
+      service,
+      formData.quantity,
+      settings.service_fee,
+      settings.base_fee
     );
-
-    if (!priceRange) {
-      return '0.00';
-    }
-
-    const pricingPer = parseFloat(priceRange.pricing_per);
-    const priceForPricingPer = parseFloat(priceRange.price);
-    
-    if (isNaN(pricingPer) || pricingPer <= 0 || isNaN(priceForPricingPer) || priceForPricingPer < 0) {
-      return '0.00';
-    }
-
-    // Calculate the base cost for the requested quantity
-    const costPerUnit = priceForPricingPer / pricingPer;
-    const baseCost = costPerUnit * formData.quantity;
-    
-    // Apply service fee and base fee using settings context
-    const finalPrice = applyServiceFee(baseCost);
     
     return finalPrice.toFixed(2);
   };

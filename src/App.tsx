@@ -19,6 +19,7 @@ import PasswordRecovery from '@/pages/PasswordRecovery';
 import GuestPayment from '@/pages/GuestPayment';
 import Admin from '@/pages/Admin';
 import AdminSettings from '@/pages/AdminSettings';
+import AdminServiceNames from '@/pages/AdminServiceNames';
 import ProtectedAdminRoute from '@/components/ProtectedAdminRoute';
 
 const queryClient = new QueryClient();
@@ -29,13 +30,14 @@ function App() {
       <HelmetProvider>
         <NotificationProvider>
           <AuthProvider>
-            <BrowserRouter>
-              <LanguageProvider>
-                <SettingsProvider>
+            <SettingsProvider>
+              <BrowserRouter>
+                <LanguageProvider>
                   <Routes>
                     <Route path="/" element={<Index />} />
                     <Route path="/:lang" element={<Index />} />
                     <Route path="/:lang/order" element={<Order />} />
+                    <Route path="/order" element={<Order />} />
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/:lang/dashboard" element={<Dashboard />} />
                     <Route path="/auth" element={<Auth />} />
@@ -61,10 +63,18 @@ function App() {
                         </ProtectedAdminRoute>
                       } 
                     />
+                    <Route 
+                      path="/admin/service-names" 
+                      element={
+                        <ProtectedAdminRoute>
+                          <AdminServiceNames />
+                        </ProtectedAdminRoute>
+                      } 
+                    />
                   </Routes>
-                </SettingsProvider>
-              </LanguageProvider>
-            </BrowserRouter>
+                </LanguageProvider>
+              </BrowserRouter>
+            </SettingsProvider>
           </AuthProvider>
         </NotificationProvider>
       </HelmetProvider>
