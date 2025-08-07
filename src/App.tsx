@@ -2,6 +2,7 @@
 import { QueryClient } from '@tanstack/react-query';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { SettingsProvider } from '@/contexts/SettingsContext';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -19,30 +20,32 @@ import GuestPayment from './pages/GuestPayment';
 function App() {
   return (
     <QueryClientProvider client={new QueryClient()}>
-      <NotificationProvider>
-        <AuthProvider>
-          <BrowserRouter>
-            <LanguageProvider>
-              <SettingsProvider>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/:lang" element={<Index />} />
-                  <Route path="/:lang/order" element={<Order />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/:lang/dashboard" element={<Dashboard />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/payment-success" element={<PaymentSuccess />} />
-                  <Route path="/payment-error" element={<PaymentError />} />
-                  <Route path="/reset-password" element={<ResetPassword />} />
-                  <Route path="/update-password" element={<PasswordRecovery />} />
-                  <Route path="/en/guest-payment" element={<GuestPayment />} />
-                  <Route path="/az/guest-payment" element={<GuestPayment />} />
-                </Routes>
-              </SettingsProvider>
-            </LanguageProvider>
-          </BrowserRouter>
-        </AuthProvider>
-      </NotificationProvider>
+      <HelmetProvider>
+        <NotificationProvider>
+          <AuthProvider>
+            <BrowserRouter>
+              <LanguageProvider>
+                <SettingsProvider>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/:lang" element={<Index />} />
+                    <Route path="/:lang/order" element={<Order />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/:lang/dashboard" element={<Dashboard />} />
+                    <Route path="/auth" element={<Auth />} />
+                    <Route path="/payment-success" element={<PaymentSuccess />} />
+                    <Route path="/payment-error" element={<PaymentError />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
+                    <Route path="/update-password" element={<PasswordRecovery />} />
+                    <Route path="/en/guest-payment" element={<GuestPayment />} />
+                    <Route path="/az/guest-payment" element={<GuestPayment />} />
+                  </Routes>
+                </SettingsProvider>
+              </LanguageProvider>
+            </BrowserRouter>
+          </AuthProvider>
+        </NotificationProvider>
+      </HelmetProvider>
     </QueryClientProvider>
   );
 }
